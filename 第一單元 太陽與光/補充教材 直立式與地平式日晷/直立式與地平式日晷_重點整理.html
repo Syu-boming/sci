@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>直立式與地平式日晷　重點整理</title>
+  <link rel="icon" href="../../image/icon.svg">
+  <style>
+    :root{--c-ink:#2c2f31;--c-soft:#55606a;--c-bg:#fff9f0;--c-brand:#f5a623;--c-brandS:#e8890b;--c-brandSoft:#fff2d9;--c-no:#e5484d;--c-noSoft:#fdeaea;--radius:16px;
+      --font:"Noto Sans TC","PingFang TC","Microsoft JhengHei","微軟正黑體",system-ui,-apple-system,sans-serif;}
+    *{box-sizing:border-box;}
+    body{margin:0;font-family:var(--font);color:var(--c-ink);background:var(--c-bg);line-height:1.75;font-size:18px;}
+    .wrap{width:min(880px,92vw);margin:0 auto;}
+    .site-header{background:linear-gradient(135deg,var(--c-brand),var(--c-brandS));color:#fff;padding:24px 0;}
+    .site-header .wrap{display:flex;align-items:center;gap:14px;}
+    .site-header img{width:50px;height:50px;}
+    .site-header h1{margin:0;font-size:1.5rem;}
+    .site-header p{margin:2px 0 0;opacity:.92;font-size:.95rem;}
+    .breadcrumb{padding:14px 0;font-size:.95rem;}
+    .breadcrumb a{color:var(--c-brandS);text-decoration:none;margin-right:14px;}
+    .breadcrumb a:hover{text-decoration:underline;}
+    .keypoint{background:#fff;border:1px solid #ece3d6;border-left:5px solid var(--c-brand);border-radius:12px;
+      padding:14px 16px;margin:12px 0;box-shadow:0 6px 20px rgba(90,70,30,.08);}
+    .keypoint.danger{border-left-color:var(--c-no);background:var(--c-noSoft);}
+    .keypoint b{color:var(--c-brandS);}
+    .keypoint.danger b{color:var(--c-no);}
+    .keytab{width:100%;border-collapse:collapse;margin:14px 0;background:#fff;border-radius:12px;overflow:hidden;
+      box-shadow:0 6px 20px rgba(90,70,30,.08);}
+    .keytab th,.keytab td{border:1px solid #ece3d6;padding:10px 12px;text-align:center;}
+    .keytab th{background:var(--c-brandSoft);color:var(--c-brandS);}
+    h2{font-size:1.3rem;}
+    .toolbar{margin:18px 0;}
+    .btn{cursor:pointer;border:none;border-radius:999px;padding:10px 20px;font-family:inherit;font-size:1rem;font-weight:700;background:var(--c-brand);color:#fff;}
+    .btn:hover{background:var(--c-brandS);}
+    .site-footer{margin:40px 0 26px;text-align:center;color:var(--c-soft);font-size:.9rem;}
+    .site-footer a{color:var(--c-brandS);}
+    @media print{
+      @page{size:A4;margin:14mm;}
+      body{background:#fff;color:#000;font-size:12pt;}
+      .site-header,.breadcrumb,.toolbar,.site-footer{display:none!important;}
+      .keypoint,.keytab{box-shadow:none;break-inside:avoid;}
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap">
+      <img src="../../image/icon.svg" alt="站標">
+      <div>
+        <h1>直立式與地平式日晷</h1>
+        <p>單元重點整理 · 第一單元 太陽與光</p>
+      </div>
+    </div>
+  </header>
+
+  <nav class="breadcrumb wrap">
+    <a href="../../index.html">← 回首頁</a><a href="直立式與地平式日晷_互動教材.html">← 回互動教材</a><a href="直立式與地平式日晷_學習單.html">📝 學習單</a>
+  </nav>
+
+  <main class="wrap">
+    <div class="toolbar"><button class="btn" onclick="window.print()">🖨️ 列印重點</button></div>
+  <h2>🕐 日晷重點卡</h2>
+  <div class="keypoint"><b>日晷構造：</b>日晷 = 晷面 + 晷針。晷面上有時刻線，晷針的影子落在哪條線，就能讀時間。</div>
+  <div class="keypoint"><b>影子報時原理：</b>地球自轉，讓太陽看起來東升西落；在台灣，正午太陽在南方，影子指北，所以影子方向會從西、北到東規律轉動。</div>
+  <div class="keypoint"><b>晷針的祕密：</b>晷針要斜指北方天空，也就是北極星方向，並且平行地球自轉軸。它和地面的夾角等於當地緯度；台南安平約 23 度。</div>
+  <div class="keypoint"><b>四季都準：</b>晷針平行地軸時，同一時刻的影子方向一年四季都落在同一條時刻線上，改變的是影子長短。單純直立的竿子做不到。</div>
+  <table class="keytab">
+    <tr><th>比較</th><th>地平式日晷</th><th>直立式日晷</th></tr>
+    <tr><td>晷面方向</td><td>水平放在地上</td><td>垂直掛在牆上</td></tr>
+    <tr><td>擺放地點</td><td>開闊、可照到陽光的地面</td><td>北半球通常掛朝南的牆</td></tr>
+    <tr><td>影子轉向</td><td>俯視時順時針</td><td>面對牆看逆時針</td></tr>
+    <tr><td>時刻線</td><td>從晷針基部呈扇形，不平均</td><td>從上方基部向下輻射，不平均</td></tr>
+  </table>
+  <div class="keypoint"><b>時鐘順時針的由來：</b>北半球常見地平式日晷的影子，俯視時從上午到下午順時針轉，後來機械鐘的指針方向就沿用了這個習慣。</div>
+  <div class="keypoint"><b>限制：</b>晚上沒有太陽，陰雨天沒有清楚影子，日晷就不能用。</div>
+  
+  </main>
+
+  <footer class="site-footer"><div class="wrap"><a href="../../index.html">← 回首頁</a> · 豬豬的自然探索</div></footer>
+</body>
+</html>

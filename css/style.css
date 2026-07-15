@@ -1,0 +1,234 @@
+/* =====================================================================
+   自然教學網站 — 共用設計系統
+   純靜態，無建置流程。首頁 hub、單元頁、學習單共用同一份樣式。
+   單元配色用 body[data-theme] 切換（sun=暖橘黃、plant=綠）。
+   ===================================================================== */
+
+:root {
+  /* 品牌基礎色 */
+  --c-ink: #2c2f31;
+  --c-ink-soft: #55606a;
+  --c-bg: #fff9f0;
+  --c-card: #ffffff;
+  --c-line: #ece3d6;
+
+  /* 主題色（預設：太陽暖色） */
+  --c-brand: #f5a623;
+  --c-brand-strong: #e8890b;
+  --c-brand-soft: #fff2d9;
+
+  /* 狀態色 */
+  --c-ok: #2fa36b;
+  --c-ok-soft: #e4f6ec;
+  --c-no: #e5484d;
+  --c-no-soft: #fdeaea;
+
+  --radius: 16px;
+  --radius-sm: 10px;
+  --shadow: 0 6px 20px rgba(90, 70, 30, .10);
+  --font: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", "微軟正黑體",
+          system-ui, -apple-system, sans-serif;
+}
+
+/* 單元主題 */
+body[data-theme="sun"]   { --c-brand:#f5a623; --c-brand-strong:#e8890b; --c-brand-soft:#fff2d9; --c-bg:#fff9f0; }
+body[data-theme="plant"] { --c-brand:#3fae5a; --c-brand-strong:#2f8f47; --c-brand-soft:#e6f6e9; --c-bg:#f4fbf3; }
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: var(--font);
+  color: var(--c-ink);
+  background: var(--c-bg);
+  line-height: 1.7;
+  font-size: 18px;               /* 大字，國小友善 */
+  -webkit-text-size-adjust: 100%;
+}
+
+a { color: var(--c-brand-strong); }
+
+.wrap { width: min(960px, 92vw); margin: 0 auto; }
+
+/* ---------- 頁首 ---------- */
+.site-header {
+  background: linear-gradient(135deg, var(--c-brand), var(--c-brand-strong));
+  color: #fff;
+  padding: 28px 0;
+}
+.site-header .wrap { display: flex; align-items: center; gap: 16px; }
+.site-header img { width: 56px; height: 56px; }
+.site-header h1 { margin: 0; font-size: 1.7rem; }
+.site-header p  { margin: 2px 0 0; opacity: .92; font-size: 1rem; }
+
+/* 麵包屑 / 返回 */
+.breadcrumb { padding: 14px 0; font-size: .95rem; }
+.breadcrumb a { text-decoration: none; }
+.breadcrumb a:hover { text-decoration: underline; }
+
+/* ---------- 區塊標題 ---------- */
+.section-title {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 1.35rem; margin: 34px 0 14px;
+  padding-bottom: 8px; border-bottom: 3px solid var(--c-brand-soft);
+}
+.section-title .badge {
+  background: var(--c-brand); color:#fff; font-size: .8rem;
+  padding: 2px 10px; border-radius: 999px;
+}
+
+/* ---------- 資源卡片格 ---------- */
+.card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 18px; }
+.card {
+  display: block; background: var(--c-card); border: 1px solid var(--c-line);
+  border-radius: var(--radius); padding: 20px; text-decoration: none; color: inherit;
+  box-shadow: var(--shadow); transition: transform .12s ease, box-shadow .12s ease;
+}
+.card:hover { transform: translateY(-4px); box-shadow: 0 12px 26px rgba(90,70,30,.16); }
+.card .emoji { font-size: 2rem; }
+.card h3 { margin: 8px 0 4px; font-size: 1.15rem; }
+.card p  { margin: 0; color: var(--c-ink-soft); font-size: .95rem; }
+.card .tag {
+  display: inline-block; margin-top: 10px; font-size: .8rem;
+  background: var(--c-brand-soft); color: var(--c-brand-strong);
+  padding: 2px 10px; border-radius: 999px;
+}
+.card.disabled { opacity: .55; pointer-events: none; }
+
+/* ---------- 資源分區（依類型：教材 / 重點 / 學習單） ---------- */
+.zone {
+  background: var(--c-card); border: 1px solid var(--c-line);
+  border-top: 6px solid var(--c-brand); border-radius: var(--radius);
+  padding: 20px 22px 26px; margin: 22px 0; box-shadow: var(--shadow);
+}
+.zone-head { display: flex; align-items: center; gap: 12px; margin: 0 0 4px; }
+.zone-head .zone-emoji { font-size: 1.8rem; }
+.zone-head h2 { margin: 0; font-size: 1.3rem; }
+.zone-desc { margin: 0 0 16px; color: var(--c-ink-soft); font-size: .95rem; }
+.zone--materials  { border-top-color: #7b61ff; }
+.zone--summaries  { border-top-color: #f5a623; }
+.zone--worksheets { border-top-color: #3fae5a; }
+/* 卡片上的單元標籤（分區內用來標明屬於哪個單元） */
+.tag.unit { background: #eef0f4; color: var(--c-ink-soft); }
+/* 分區內的單元/群組小標題 */
+.unit-sub { margin: 18px 0 10px; font-size: 1.05rem; color: var(--c-ink-soft); }
+.unit-sub:first-child { margin-top: 4px; }
+
+/* ---------- 按鈕 ---------- */
+.btn {
+  display: inline-flex; align-items: center; gap: 6px; cursor: pointer;
+  border: none; border-radius: 999px; padding: 10px 20px;
+  font-family: inherit; font-size: 1rem; font-weight: 700;
+  background: var(--c-brand); color: #fff; text-decoration: none;
+}
+.btn:hover { background: var(--c-brand-strong); }
+.btn.ghost { background: #fff; color: var(--c-brand-strong); border: 2px solid var(--c-brand); }
+.btn.ghost:hover { background: var(--c-brand-soft); }
+
+.toolbar { display: flex; flex-wrap: wrap; gap: 10px; margin: 18px 0; }
+
+/* =====================================================================
+   學習單題目
+   ===================================================================== */
+.ws-intro {
+  background: var(--c-brand-soft); border-radius: var(--radius);
+  padding: 16px 20px; margin: 18px 0;
+}
+.ws-meta { color: var(--c-ink-soft); font-size: .9rem; }
+
+.q {
+  background: var(--c-card); border: 1px solid var(--c-line);
+  border-radius: var(--radius); padding: 18px 20px; margin: 16px 0;
+  box-shadow: var(--shadow);
+}
+.q .q-num {
+  display: inline-block; min-width: 30px; height: 30px; line-height: 30px;
+  text-align: center; background: var(--c-brand); color:#fff;
+  border-radius: 50%; font-weight: 700; margin-right: 8px;
+}
+.q .q-text { font-weight: 600; }
+.q .q-figure { margin: 10px 0; }
+.q .q-figure img { max-width: 100%; border-radius: var(--radius-sm); }
+
+/* 選項 */
+.opts { display: grid; gap: 10px; margin-top: 12px; }
+.opt {
+  display: flex; align-items: flex-start; gap: 10px; width: 100%;
+  text-align: left; cursor: pointer; font-family: inherit; font-size: 1rem;
+  background: #fff; border: 2px solid var(--c-line); border-radius: var(--radius-sm);
+  padding: 12px 14px; color: inherit; transition: border-color .1s, background .1s;
+}
+.opt:hover { border-color: var(--c-brand); }
+.opt .opt-key {
+  flex: 0 0 auto; width: 26px; height: 26px; line-height: 24px; text-align: center;
+  border: 2px solid var(--c-line); border-radius: 50%; font-weight: 700; color: var(--c-ink-soft);
+}
+.opt.correct   { border-color: var(--c-ok); background: var(--c-ok-soft); }
+.opt.correct   .opt-key { border-color: var(--c-ok); background: var(--c-ok); color:#fff; }
+.opt.incorrect { border-color: var(--c-no); background: var(--c-no-soft); }
+.opt.incorrect .opt-key { border-color: var(--c-no); background: var(--c-no); color:#fff; }
+
+/* 填空 */
+.fill { display: inline-flex; align-items: center; gap: 8px; margin-top: 10px; }
+.fill input {
+  font-family: inherit; font-size: 1rem; padding: 8px 12px;
+  border: 2px solid var(--c-line); border-radius: var(--radius-sm); min-width: 160px;
+}
+.fill input.correct   { border-color: var(--c-ok); background: var(--c-ok-soft); }
+.fill input.incorrect { border-color: var(--c-no); background: var(--c-no-soft); }
+
+/* 解說（作答後或解答卷顯示） */
+.explain {
+  display: none; margin-top: 12px; padding: 12px 14px;
+  background: var(--c-brand-soft); border-left: 4px solid var(--c-brand);
+  border-radius: var(--radius-sm); font-size: .95rem;
+}
+.q.answered .explain { display: block; }
+
+/* 分數橫幅 */
+.scorebar {
+  position: sticky; bottom: 0; margin-top: 24px;
+  background: var(--c-ink); color:#fff; border-radius: var(--radius);
+  padding: 16px 20px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  box-shadow: 0 -6px 20px rgba(0,0,0,.12);
+}
+.scorebar .score { font-size: 1.4rem; font-weight: 800; }
+.scorebar .cheer { opacity: .9; }
+
+/* 頁尾 */
+.site-footer { margin: 50px 0 30px; text-align: center; color: var(--c-ink-soft); font-size: .9rem; }
+
+@media (max-width: 480px) {
+  body { font-size: 17px; }
+  .site-header h1 { font-size: 1.4rem; }
+}
+
+/* =====================================================================
+   列印樣式：兩種模式
+   - body.print-blank  → 學生空白卷（隱藏答案與解說，保留作答欄）
+   - body.print-answer → 教師解答卷（顯示標準答案與解說）
+   ===================================================================== */
+@media print {
+  @page { size: A4; margin: 14mm; }
+  body { background: #fff; color: #000; font-size: 12pt; line-height: 1.5; }
+  .no-print, .site-header, .breadcrumb, .toolbar, .scorebar, .site-footer { display: none !important; }
+  .wrap { width: 100%; }
+  .q { box-shadow: none; border: 1px solid #bbb; break-inside: avoid; page-break-inside: avoid; }
+  .opt { border: 1px solid #999; }
+  .card { box-shadow: none; }
+  .print-title { display: block !important; }
+
+  /* 空白卷：清掉批改著色與解說 */
+  body.print-blank .opt.correct, body.print-blank .opt.incorrect { border-color:#999; background:#fff; }
+  body.print-blank .opt.correct .opt-key, body.print-blank .opt.incorrect .opt-key { background:#fff; color:#000; border-color:#999; }
+  body.print-blank .explain { display: none !important; }
+  body.print-blank input.correct, body.print-blank input.incorrect { border-color:#999; background:#fff; }
+
+  /* 解答卷：一律顯示解說，標出正解 */
+  body.print-answer .explain { display: block !important; background:#f3f3f3; border-left:4px solid #000; }
+  body.print-answer .opt.is-answer { border:2px solid #000; }
+  body.print-answer .opt.is-answer .opt-key { background:#000; color:#fff; }
+}
+
+/* 螢幕上隱藏列印專用標題 */
+.print-title { display: none; }

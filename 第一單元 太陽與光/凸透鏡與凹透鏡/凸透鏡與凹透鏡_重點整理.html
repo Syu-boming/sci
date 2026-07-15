@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>凸透鏡與凹透鏡　重點整理</title>
+  <link rel="icon" href="../../image/icon.svg">
+  <style>
+    :root{--c-ink:#2c2f31;--c-soft:#55606a;--c-bg:#fff9f0;--c-brand:#f5a623;--c-brandS:#e8890b;--c-brandSoft:#fff2d9;--c-no:#e5484d;--c-noSoft:#fdeaea;--radius:16px;
+      --font:"Noto Sans TC","PingFang TC","Microsoft JhengHei","微軟正黑體",system-ui,-apple-system,sans-serif;}
+    *{box-sizing:border-box;}
+    body{margin:0;font-family:var(--font);color:var(--c-ink);background:var(--c-bg);line-height:1.75;font-size:18px;}
+    .wrap{width:min(880px,92vw);margin:0 auto;}
+    .site-header{background:linear-gradient(135deg,var(--c-brand),var(--c-brandS));color:#fff;padding:24px 0;}
+    .site-header .wrap{display:flex;align-items:center;gap:14px;}
+    .site-header img{width:50px;height:50px;}
+    .site-header h1{margin:0;font-size:1.5rem;}
+    .site-header p{margin:2px 0 0;opacity:.92;font-size:.95rem;}
+    .breadcrumb{padding:14px 0;font-size:.95rem;}
+    .breadcrumb a{color:var(--c-brandS);text-decoration:none;margin-right:14px;}
+    .breadcrumb a:hover{text-decoration:underline;}
+    .keypoint{background:#fff;border:1px solid #ece3d6;border-left:5px solid var(--c-brand);border-radius:12px;
+      padding:14px 16px;margin:12px 0;box-shadow:0 6px 20px rgba(90,70,30,.08);}
+    .keypoint.danger{border-left-color:var(--c-no);background:var(--c-noSoft);}
+    .keypoint b{color:var(--c-brandS);}
+    .keypoint.danger b{color:var(--c-no);}
+    .keytab{width:100%;border-collapse:collapse;margin:14px 0;background:#fff;border-radius:12px;overflow:hidden;
+      box-shadow:0 6px 20px rgba(90,70,30,.08);}
+    .keytab th,.keytab td{border:1px solid #ece3d6;padding:10px 12px;text-align:center;}
+    .keytab th{background:var(--c-brandSoft);color:var(--c-brandS);}
+    h2{font-size:1.3rem;}
+    .toolbar{margin:18px 0;}
+    .btn{cursor:pointer;border:none;border-radius:999px;padding:10px 20px;font-family:inherit;font-size:1rem;font-weight:700;background:var(--c-brand);color:#fff;}
+    .btn:hover{background:var(--c-brandS);}
+    .site-footer{margin:40px 0 26px;text-align:center;color:var(--c-soft);font-size:.9rem;}
+    .site-footer a{color:var(--c-brandS);}
+    @media print{
+      @page{size:A4;margin:14mm;}
+      body{background:#fff;color:#000;font-size:12pt;}
+      .site-header,.breadcrumb,.toolbar,.site-footer{display:none!important;}
+      .keypoint,.keytab{box-shadow:none;break-inside:avoid;}
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap">
+      <img src="../../image/icon.svg" alt="站標">
+      <div>
+        <h1>凸透鏡與凹透鏡</h1>
+        <p>單元重點整理 · 第一單元 太陽與光</p>
+      </div>
+    </div>
+  </header>
+
+  <nav class="breadcrumb wrap">
+    <a href="../../index.html">← 回首頁</a><a href="凸透鏡與凹透鏡_互動教材.html">← 回互動教材</a><a href="凸透鏡與凹透鏡_學習單.html">📝 學習單</a>
+  </nav>
+
+  <main class="wrap">
+    <div class="toolbar"><button class="btn" onclick="window.print()">🖨️ 列印重點</button></div>
+  <h2>📌 今日重點：凸 vs 凹對照表</h2>
+  <table class="keytab">
+    <tr><th>比較</th><th>凸透鏡</th><th>凹透鏡</th></tr>
+    <tr><td>外形</td><td>中間厚、邊緣薄</td><td>中間薄、邊緣厚</td></tr>
+    <tr><td>對光的作用</td><td>讓平行光會聚到焦點</td><td>讓平行光發散</td></tr>
+    <tr><td>看到的影像</td><td>焦點內正立放大；超過焦點倒立</td><td>無論遠近都正立縮小</td></tr>
+  </table>
+  <div class="keypoint">🔍 <b>焦點內正立放大、超過焦點翻轉倒立</b>：凸透鏡當放大鏡用時，物體要在焦點內（見「凸透鏡放大物體」站：眼睛和物體分別在透鏡的兩側）；物體超過焦點就會變倒立（見「蠟燭倒立成像」站）。</div>
+  <div class="keypoint">🕯️ <b>光線交叉所以倒立</b>：蠟燭上方的光通過凸透鏡後跑到下方，紙屏上就會接到上下顛倒、左右也相反的影像。</div>
+  <div class="keypoint">📏 <b>為什麼剛超過焦點時影像會先變超大？</b>物體越靠近焦點，折射後的光線越接近平行，要走到很遠的地方才會交會，所以影像會先變得又大又遠、模糊不清；蠟燭繼續往後移，光線交會點才慢慢靠近透鏡，影像才會縮小、變清楚。</div>
+  <div class="keypoint">🚩 <b>破解迷思：不只是上下顛倒，左右也相反！</b>看蠟燭上的小旗子：原本插在左邊，成像後卻跑到右邊。因為「倒立」其實是整個影像旋轉了180度，同時上下顛倒＋左右相反，不是只有上下鏡射喔！</div>
+  <div class="keypoint">🔻 <b>凹透鏡：不管距離都正立縮小</b>：物體越遠，凹透鏡看到的虛像會越小、也越靠近透鏡，但一定是正立的（見「凹透鏡縮小物體」站）。</div>
+  <div class="keypoint">🔦 <b>透鏡 = 折射的應用</b>：透鏡利用光在透明材料中轉彎，凸透鏡會聚光、凹透鏡發散光。</div>
+  <div class="keypoint">👓 <b>近視戴凹透鏡、遠視（老花）戴凸透鏡</b>：近視眼睛把光聚得太快，影像落在視網膜前方；凹透鏡先讓光發散，把焦點往後移回視網膜上。遠視或老花眼睛聚光太慢，影像本來會落在視網膜後方；凸透鏡先幫忙多聚一點，把焦點往前拉回視網膜（到「近視與遠視」站按「戴上眼鏡」親眼看看）。</div>
+  <div class="keypoint">☀️ <b>不可用放大鏡看太陽</b>：凸透鏡會聚陽光很燙，可能傷眼或引燃物品。</div>
+  
+  </main>
+
+  <footer class="site-footer"><div class="wrap"><a href="../../index.html">← 回首頁</a> · 豬豬的自然探索</div></footer>
+</body>
+</html>

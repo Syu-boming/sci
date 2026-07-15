@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>光的折射與彩虹｜互動教材</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body { width:100%; height:100%; overflow:hidden;
+    font-family:"PingFang TC","Microsoft JhengHei","Heiti TC",sans-serif;
+    background:#0d1b2a; touch-action:none; user-select:none; -webkit-user-select:none; }
+  canvas { display:block; position:absolute; inset:0; }
+
+  .topbar { position:absolute; top:0; left:0; right:0; z-index:10;
+    display:flex; align-items:center; gap:9px; padding:10px 16px;
+    background:linear-gradient(180deg,rgba(6,14,26,.85),rgba(6,14,26,0)); pointer-events:none; }
+  .topbar > * { pointer-events:auto; }
+  .title { color:#fff; font-size:23px; font-weight:800; letter-spacing:1px;
+    text-shadow:0 2px 6px rgba(0,0,0,.6); margin-right:auto; }
+  .title small { font-size:13px; font-weight:600; color:#9fc3e8; margin-left:8px; }
+
+  .btn { border:none; cursor:pointer; border-radius:14px; font-family:inherit;
+    font-size:21px; font-weight:700; padding:12px 20px; color:#e8f1fb;
+    background:rgba(255,255,255,.14); backdrop-filter:blur(6px);
+    border:2px solid rgba(255,255,255,.18); transition:transform .08s, background .15s; }
+  .btn:active { transform:scale(.94); }
+  .btn.on { background:#ffb703; border-color:#ffd166; color:#3a2a00; }
+  .btn.primary { background:#ffb703; border-color:#ffd166; color:#3a2a00; }
+  .btn.ghost { background:rgba(255,255,255,.08); }
+  .btn.small { font-size:17px; padding:9px 13px; border-radius:11px; }
+  .btn:disabled { opacity:.4; pointer-events:none; }
+
+  .info { position:absolute; top:66px; right:14px; z-index:9; width:265px;
+    background:rgba(8,20,36,.84); backdrop-filter:blur(8px);
+    border:2px solid rgba(140,190,255,.25); border-radius:18px; padding:12px 16px; color:#fff; }
+  .info h3 { font-size:15px; color:#8ecae6; font-weight:800; letter-spacing:2px; margin-bottom:6px; }
+  .row { display:flex; justify-content:space-between; align-items:baseline; padding:6px 0;
+    border-bottom:1px dashed rgba(255,255,255,.14); }
+  .row .k { font-size:16px; color:#cfe4f7; }
+  .row .v { font-size:21px; font-weight:800; color:#ffd166; }
+  .row .v.g { color:#90e0a0; }
+  .row .v.b { color:#9ad1ff; }
+  .infonote { font-size:15px; line-height:1.55; color:#cfe4f7; padding-top:8px; }
+  .infonote b { color:#ffd166; }
+
+  .bottombar { position:absolute; left:0; right:0; bottom:0; z-index:10;
+    padding:10px 16px 14px; display:flex; flex-direction:column; gap:10px;
+    background:linear-gradient(0deg,rgba(6,14,26,.88),rgba(6,14,26,0)); }
+  .bar { display:none; flex-wrap:wrap; gap:9px; align-items:center; }
+  .bar.show { display:flex; }
+  .sliderwrap { flex:1; display:flex; align-items:center; gap:12px; min-width:260px; }
+  .clock { min-width:96px; text-align:center; font-size:26px; font-weight:900; color:#ffd166;
+    background:rgba(0,0,0,.35); border-radius:14px; padding:4px 10px;
+    border:2px solid rgba(255,209,102,.4); font-variant-numeric:tabular-nums; }
+  input[type=range] { flex:1; height:46px; -webkit-appearance:none; background:transparent; }
+  input[type=range]::-webkit-slider-runnable-track { height:16px; border-radius:8px;
+    background:linear-gradient(90deg,#ffd166 0%,#ffe680 50%,#ffd166 100%); }
+  input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:46px; height:46px;
+    margin-top:-15px; border-radius:50%; background:radial-gradient(circle at 35% 30%,#fff8d6,#ffb703 65%,#e08800);
+    border:3px solid #fff; box-shadow:0 3px 10px rgba(0,0,0,.5); cursor:grab; }
+  .grow { flex:1; }
+  .hintchip { font-size:19px; font-weight:800; color:#9ad1ff; background:rgba(0,0,0,.35);
+    padding:9px 16px; border-radius:14px; border:2px solid rgba(154,209,255,.35); }
+
+  .card { position:absolute; z-index:20; background:rgba(10,24,44,.94);
+    border:2px solid rgba(140,190,255,.35); border-radius:22px; padding:22px 26px;
+    color:#fff; box-shadow:0 10px 40px rgba(0,0,0,.5); display:none; }
+  .card.show { display:block; }
+  #keyCard { top:50%; left:50%; transform:translate(-50%,-50%); width:min(720px,92vw);
+    max-height:88vh; overflow:auto; }
+  #keyCard h2 { color:#ffd166; font-size:25px; margin-bottom:12px; }
+  .keypoint { font-size:20px; line-height:1.6; padding:10px 14px; margin-bottom:10px;
+    background:rgba(255,255,255,.07); border-left:6px solid #ffb703; border-radius:10px; }
+  .keypoint b { color:#ffd166; }
+  table.keytab { width:100%; border-collapse:collapse; font-size:18px; margin:4px 0 12px; }
+  table.keytab th, table.keytab td { border:1px solid rgba(255,255,255,.25); padding:7px 5px; text-align:center; }
+  table.keytab th { background:rgba(255,183,3,.18); color:#ffd166; }
+
+  #quizCard { left:16px; top:76px; width:min(450px,94vw); max-height:calc(100% - 180px); overflow:auto; }
+  #quizCard .qnum { color:#8ecae6; font-size:16px; font-weight:800; letter-spacing:2px; }
+  #quizCard .qtext { font-size:22px; font-weight:800; line-height:1.5; margin:8px 0 14px; }
+  .opts { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .opts.one { grid-template-columns:1fr; }
+  .opt { font-size:19px; font-weight:800; padding:13px 10px; border-radius:14px; cursor:pointer;
+    background:rgba(255,255,255,.10); border:2px solid rgba(255,255,255,.22); color:#fff;
+    font-family:inherit; line-height:1.4; transition:transform .08s; }
+  .opt:active { transform:scale(.96); }
+  .opt.right { background:#2e7d32; border-color:#7ee787; }
+  .opt.wrong { background:#b3261e; border-color:#ff8a80; }
+  .fb { display:none; margin-top:12px; font-size:19px; line-height:1.55; padding:12px;
+    border-radius:12px; background:rgba(255,255,255,.08); }
+  .fb.show { display:block; }
+  .fb.ok { border-left:6px solid #7ee787; }
+  .fb.no { border-left:6px solid #ff8a80; }
+  .qbtns { margin-top:12px; display:flex; gap:10px; }
+  .score { color:#ffd166; font-size:18px; font-weight:800; margin-left:auto; align-self:center; }
+
+  .toast { position:absolute; z-index:30; top:80px; left:50%; transform:translateX(-50%);
+    background:rgba(0,0,0,.78); color:#ffd166; font-size:21px; font-weight:800;
+    padding:12px 26px; border-radius:30px; opacity:0; transition:opacity .3s; pointer-events:none;
+    max-width:88vw; text-align:center; }
+  .toast.show { opacity:1; }
+</style>
+<link rel="icon" href="../../image/icon.svg">
+</head>
+<body>
+<canvas id="cv"></canvas>
+
+<div class="topbar">
+  <div class="title">光的折射與彩虹 <small>五年級自然｜第一單元 太陽與光</small></div>
+  <button class="btn small stbtn on" data-st="1">🥤 水裡的魔術</button>
+  <button class="btn small stbtn" data-st="2">🔦 光的折射實驗</button>
+  <button class="btn small stbtn" data-st="3">🌈 彩虹的秘密</button>
+</div>
+
+<div class="info" id="infoPanel"></div>
+
+<div class="bottombar">
+  <!-- 站1：折射現象 -->
+  <div class="bar show" id="bar1">
+    <button class="btn small d1btn on" data-d="straw">🥢 水中的筷子</button>
+    <button class="btn small d1btn" data-d="coin">🪙 碗底的硬幣</button>
+    <div class="sliderwrap">
+      <div class="clock" id="wlClock">💧 70%</div>
+      <input type="range" id="wlSlider" min="0" max="100" step="1" value="70">
+    </div>
+    <button class="btn small" id="btnReal">👀 顯示實際位置</button>
+  </div>
+  <!-- 站2：折射光路 -->
+  <div class="bar" id="bar2">
+    <button class="btn small dirbtn on" data-dir="aw">☁️→💧 空氣進入水</button>
+    <button class="btn small dirbtn" data-dir="wa">💧→☁️ 水進入空氣</button>
+    <div class="sliderwrap">
+      <div class="clock" id="angClock">60°</div>
+      <input type="range" id="angSlider" min="0" max="70" step="1" value="60">
+    </div>
+    <button class="btn small" id="btnZero">⬇️ 垂直照射</button>
+  </div>
+  <!-- 站3：彩虹 -->
+  <div class="bar" id="bar3">
+    <button class="btn small d3btn on" data-d="compare">🔬 紅光vs紫光</button>
+    <button class="btn small d3btn" data-d="prism">🔺 三稜鏡</button>
+    <button class="btn small d3btn" data-d="drop">💧 光進入小水滴</button>
+    <button class="btn small d3btn" data-d="see">🧍 怎麼看到彩虹</button>
+    <div class="sliderwrap" id="cmpWrap">
+      <div class="clock" id="cmpClock">50°</div>
+      <input type="range" id="cmpSlider" min="10" max="70" step="1" value="50">
+    </div>
+    <span class="grow"></span>
+    <button class="btn small seebtn primary" id="btnTurn" style="display:none">🔄 轉身</button>
+    <button class="btn small seebtn" id="btnSun" style="display:none">☀️ 太陽換邊</button>
+  </div>
+</div>
+
+
+
+
+<div class="toast" id="toast"></div>
+
+<script>
+'use strict';
+const cv = document.getElementById('cv');
+const ctx = cv.getContext('2d');
+let W = 0, H = 0, DPR = 1;
+
+function resize(){
+  DPR = Math.min(window.devicePixelRatio || 1, 2);
+  W = window.innerWidth; H = window.innerHeight;
+  cv.width = W * DPR; cv.height = H * DPR;
+  cv.style.width = W + 'px'; cv.style.height = H + 'px';
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+}
+window.addEventListener('resize', resize);
+resize();
+
+const S = {
+  st: 1,            // 目前站別
+  t: 0,             // 動畫時間
+  d1: 'straw',      // 站1：straw | coin
+  wl: 0.70,         // 水位 0~1
+  showReal: false,  // 顯示實際位置
+  dir: 'aw',        // 站2：aw 空氣→水 | wa 水→空氣
+  ang: 60,          // 入射角（與法線的夾角）
+  d3: 'compare',    // 站3：compare | prism | drop | see
+  cmpAng: 50,       // 站3-compare：入射角
+  sunLeft: true,    // 站3-see：太陽在左邊
+  faceRight: false, // 站3-see：小朋友面向右邊
+};
+
+const RAINBOW = ['#e53935','#fb8c00','#fdd835','#43a047','#1e88e5','#3949ab','#8e24aa'];
+const RAINBOW_NAME = ['紅','橙','黃','綠','藍','靛','紫'];
+
+/* ---------- 小工具 ---------- */
+function toast(msg, ms){
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('show');
+  clearTimeout(toast._t);
+  toast._t = setTimeout(()=>el.classList.remove('show'), ms || 2600);
+}
+function lerp(a,b,u){ return a + (b-a)*u; }
+function rad(d){ return d*Math.PI/180; }
+
+function arrow(x1,y1,x2,y2,color,w,dash){
+  ctx.save();
+  ctx.strokeStyle = color; ctx.fillStyle = color; ctx.lineWidth = w||3;
+  if(dash) ctx.setLineDash(dash);
+  ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+  ctx.setLineDash([]);
+  const a = Math.atan2(y2-y1, x2-x1), s = (w||3)*3.2;
+  ctx.beginPath();
+  ctx.moveTo(x2,y2);
+  ctx.lineTo(x2 - s*Math.cos(a - .42), y2 - s*Math.sin(a - .42));
+  ctx.lineTo(x2 - s*Math.cos(a + .42), y2 - s*Math.sin(a + .42));
+  ctx.closePath(); ctx.fill();
+  ctx.restore();
+}
+function label(txt, x, y, size, color, bg){
+  ctx.save();
+  ctx.font = '800 ' + size + 'px "PingFang TC","Microsoft JhengHei",sans-serif';
+  const w = ctx.measureText(txt).width;
+  if(bg !== false){
+    ctx.fillStyle = 'rgba(0,0,0,.55)';
+    roundRect(x - w/2 - 9, y - size/2 - 7, w + 18, size + 14, 9); ctx.fill();
+  }
+  ctx.fillStyle = color || '#fff';
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText(txt, x, y);
+  ctx.restore();
+}
+function roundRect(x,y,w,h,r){
+  ctx.beginPath();
+  ctx.moveTo(x+r,y);
+  ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r);
+  ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r);
+  ctx.closePath();
+}
+function sunIcon(x,y,r){
+  ctx.save();
+  const g = ctx.createRadialGradient(x,y,r*.2,x,y,r*2.2);
+  g.addColorStop(0,'rgba(255,240,150,.65)'); g.addColorStop(1,'rgba(255,240,150,0)');
+  ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x,y,r*2.2,0,7); ctx.fill();
+  ctx.fillStyle = '#ffd54f'; ctx.strokeStyle = '#f9a825'; ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.arc(x,y,r,0,7); ctx.fill(); ctx.stroke();
+  ctx.strokeStyle = '#ffd54f'; ctx.lineWidth = 4;
+  for(let i=0;i<8;i++){
+    const a = i*Math.PI/4 + S.t*.3;
+    ctx.beginPath();
+    ctx.moveTo(x + Math.cos(a)*(r+7), y + Math.sin(a)*(r+7));
+    ctx.lineTo(x + Math.cos(a)*(r+16), y + Math.sin(a)*(r+16));
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+/* 沿折線移動的光點 */
+function photons(pts, color, speed, n){
+  let total = 0; const segs = [];
+  for(let i=0;i<pts.length-1;i++){
+    const d = Math.hypot(pts[i+1][0]-pts[i][0], pts[i+1][1]-pts[i][1]);
+    segs.push(d); total += d;
+  }
+  ctx.save(); ctx.fillStyle = color;
+  for(let k=0;k<n;k++){
+    let dist = ((S.t*speed) + k*total/n) % total;
+    for(let i=0;i<segs.length;i++){
+      if(dist <= segs[i]){
+        const u = dist/segs[i];
+        const x = lerp(pts[i][0], pts[i+1][0], u);
+        const y = lerp(pts[i][1], pts[i+1][1], u);
+        ctx.beginPath(); ctx.arc(x, y, 5, 0, 7); ctx.fill();
+        break;
+      }
+      dist -= segs[i];
+    }
+  }
+  ctx.restore();
+}
+
+/* ---------- 觀測面板 ---------- */
+function updateInfo(){
+  const p = document.getElementById('infoPanel');
+  let h = '<h3>觀測紀錄</h3>';
+  if(S.st === 1){
+    const pct = Math.round(S.wl*100);
+    if(S.d1 === 'straw'){
+      h += row('🥢 實驗', '水中的筷子');
+      h += row('💧 水位', pct + '%');
+      h += row('👀 看起來', pct>5 ? '彎折了！' : '直直的', pct>5?'':'g');
+      h += '<div class="infonote">筷子其實<b>沒有彎</b>！是光從水裡出來時<b>折射</b>了，我們的眼睛被騙了。</div>';
+    }else{
+      const see = S.wl > 0.5;
+      h += row('🪙 實驗', '碗底的硬幣');
+      h += row('💧 水位', pct + '%');
+      h += row('👀 硬幣', see ? '看到了！' : '被碗擋住', see?'g':'');
+      h += '<div class="infonote">加水後，硬幣反射的光在水面<b>折射</b>轉了彎，跑進眼睛裡，硬幣好像<b>浮起來</b>了。</div>';
+    }
+  }else if(S.st === 2){
+    const r = refractAngle();
+    h += row('➡️ 方向', S.dir==='aw' ? '空氣 → 水' : '水 → 空氣');
+    h += row('📐 入射角', S.ang + '°');
+    h += row('📐 折射角', Math.round(r) + '°', 'g');
+    if(S.ang === 0){
+      h += '<div class="infonote"><b>垂直照射</b>：光直直穿過去，<b>不轉彎</b>！</div>';
+    }else if(S.dir === 'aw'){
+      h += '<div class="infonote">光進入水中<b>變慢</b>，轉彎後折射角<b>比較小</b>（靠近法線）。</div>';
+    }else{
+      h += '<div class="infonote">光離開水<b>變快</b>，轉彎後折射角<b>比較大</b>（遠離法線）。所以泳池看起來比較<b>淺</b>！</div>';
+    }
+  }else if(S.st === 3){
+    if(S.d3 === 'compare'){
+      const nRed = 1.45, nViolet = 1.60;
+      const rr = colorRefractAngle(nRed, S.cmpAng);
+      const rv = colorRefractAngle(nViolet, S.cmpAng);
+      h += row('📐 入射角（一樣）', S.cmpAng + '°');
+      h += row('🔴 紅光的折射角', Math.round(rr) + '°');
+      h += row('🟣 紫光的折射角', Math.round(rv) + '°', 'g');
+      h += row('↔️ 差了多少', Math.round(rv-rr) + '°', 'g');
+      h += '<div class="infonote">還記得<b>站2</b>嗎？光斜斜射入水或玻璃時會<b>轉彎（折射）</b>，而且速度會<b>變慢</b>。這裡的秘密是：<b>不同顏色的光，慢下來的程度不太一樣</b>——紫光慢得多一點、偏折就多一點；紅光慢得少一點、偏折就少一點。這就是<b>折射率不同</b>，也是彩虹會分成七色的原因！</div>';
+    }else if(S.d3 === 'prism'){
+      h += row('🔺 器材', '三稜鏡');
+      h += row('☀️ 進去的光', '白色陽光');
+      h += row('🌈 出來的光', '七色光！', 'g');
+      h += '<div class="infonote">陽光是<b>很多種色光</b>混合成的，就像剛剛「🔬紅光vs紫光」看到的一樣：各色光偏折的程度不一樣（<b>紫光偏折最多、紅光偏折最少</b>），所以被<b>分開</b>了。</div>';
+    }else if(S.d3 === 'drop'){
+      h += row('💧 器材', '空中的小水滴');
+      h += row('① 進入水滴', '折射');
+      h += row('② 水滴後面', '反射', 'b');
+      h += row('③ 離開水滴', '折射＋分散', 'g');
+      h += '<div class="infonote">每顆小水滴都像一個<b>迷你三稜鏡</b>，跟「🔬紅光vs紫光」的道理一樣：<b>紫光偏折最多、紅光偏折最少</b>，把陽光分散成七色光。</div>';
+    }else{
+      const ok = (S.sunLeft && S.faceRight) || (!S.sunLeft && !S.faceRight);
+      h += row('☀️ 太陽在', S.sunLeft ? '左邊' : '右邊');
+      h += row('🧍 小朋友面向', S.faceRight ? '右邊' : '左邊');
+      h += row('🌈 彩虹', ok ? '看到了！' : '看不到', ok?'g':'');
+      h += '<div class="infonote">彩虹出現在太陽的<b>相反方向</b>，所以要<b>背對太陽</b>才看得到。</div>';
+    }
+  }else{
+    h += '<div class="infonote">💪 答對越多題，得分越高！<br>忘記了可以按上面的 <b>📌 重點</b> 複習。</div>';
+  }
+  p.innerHTML = h;
+  function row(k,v,cls){ return '<div class="row"><span class="k">'+k+'</span><span class="v '+(cls||'')+'">'+v+'</span></div>'; }
+}
+
+function refractAngle(){
+  const n = 1.33, i = rad(S.ang);
+  if(S.dir === 'aw') return Math.asin(Math.sin(i)/n)/Math.PI*180;
+  return Math.asin(Math.min(1, Math.sin(i)*n))/Math.PI*180;
+}
+function colorRefractAngle(n, angDeg){
+  const i = rad(angDeg);
+  return Math.asin(Math.min(1, Math.sin(i)/n))/Math.PI*180;
+}
+
+/* ---------- 站1：水裡的魔術 ---------- */
+function drawSt1(){
+  // 室內背景
+  const bg = ctx.createLinearGradient(0,0,0,H);
+  bg.addColorStop(0,'#16283c'); bg.addColorStop(1,'#0d1b2a');
+  ctx.fillStyle = bg; ctx.fillRect(0,0,W,H);
+  const tableY = H*0.80;
+  ctx.fillStyle = '#5d4037'; ctx.fillRect(0, tableY, W, H-tableY);
+  ctx.fillStyle = '#4e342e'; ctx.fillRect(0, tableY, W, 10);
+
+  if(S.d1 === 'straw') drawStraw(tableY);
+  else drawCoin(tableY);
+}
+
+function drawStraw(tableY){
+  const gw = Math.min(W*0.26, 300), gh = Math.min(H*0.46, 360);
+  const gx = W*0.40 - gw/2, gy = tableY - gh;
+  const ys = gy + gh - Math.max(0.02, S.wl)*(gh - 26) - 12;  // 水面高度
+
+  // 水
+  if(S.wl > 0.02){
+    const wg = ctx.createLinearGradient(0,ys,0,gy+gh);
+    wg.addColorStop(0,'rgba(100,181,246,.50)'); wg.addColorStop(1,'rgba(30,100,180,.55)');
+    ctx.fillStyle = wg;
+    ctx.fillRect(gx+6, ys, gw-12, gy+gh-ys-8);
+    // 水面
+    ctx.strokeStyle = 'rgba(200,235,255,.9)'; ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.moveTo(gx+6, ys); ctx.lineTo(gx+gw-6, ys); ctx.stroke();
+  }
+
+  // 筷子：T 頂端 → B 底端（實際為直線）
+  const T = [gx + gw*0.86, gy - 90];
+  const B = [gx + gw*0.18, gy + gh - 16];
+  const dirV = [B[0]-T[0], B[1]-T[1]];
+  // 與水面交點 Sx
+  let Su = (ys - T[1]) / dirV[1];
+  Su = Math.max(0, Math.min(1, Su));
+  const Sp = [T[0] + dirV[0]*Su, T[1] + dirV[1]*Su];
+  const inWater = S.wl > 0.02 && Su < 1;
+
+  ctx.lineCap = 'round';
+  if(inWater){
+    // 水面上：實際筷子
+    ctx.strokeStyle = '#ffab40'; ctx.lineWidth = 14;
+    ctx.beginPath(); ctx.moveTo(T[0],T[1]); ctx.lineTo(Sp[0],Sp[1]); ctx.stroke();
+    // 水面下「看起來」的筷子：往水面方向折（旋轉 +20°，並畫粗一點=放大）
+    const restLen = Math.hypot(B[0]-Sp[0], B[1]-Sp[1]);
+    const a0 = Math.atan2(B[1]-Sp[1], B[0]-Sp[0]);
+    const a1 = a0 - rad(20) * (a0 > Math.PI/2 ? -1 : 1); // 往較平的方向折
+    const Bp = [Sp[0] + Math.cos(a1)*restLen*0.92, Sp[1] + Math.sin(a1)*restLen*0.92];
+    // 不要畫出玻璃杯外
+    Bp[0] = Math.max(gx+18, Math.min(gx+gw-18, Bp[0]));
+    Bp[1] = Math.min(gy+gh-14, Bp[1]);
+    ctx.strokeStyle = '#ffc776'; ctx.lineWidth = 18;
+    ctx.beginPath(); ctx.moveTo(Sp[0],Sp[1]); ctx.lineTo(Bp[0],Bp[1]); ctx.stroke();
+    label('看起來的位置', Bp[0], Bp[1]+30, 16, '#ffd166');
+    // 實際位置（虛線）
+    if(S.showReal){
+      ctx.strokeStyle = 'rgba(255,255,255,.75)'; ctx.lineWidth = 5; ctx.setLineDash([10,8]);
+      ctx.beginPath(); ctx.moveTo(Sp[0],Sp[1]); ctx.lineTo(B[0],B[1]); ctx.stroke();
+      ctx.setLineDash([]);
+      label('實際位置（沒有彎！）', B[0]+10, B[1]-26, 16, '#e8f1fb');
+    }
+    label('筷子在水面好像「折斷」了！', gx+gw/2, gy-130, 20, '#ffd166');
+  }else{
+    ctx.strokeStyle = '#ffab40'; ctx.lineWidth = 14;
+    ctx.beginPath(); ctx.moveTo(T[0],T[1]); ctx.lineTo(B[0],B[1]); ctx.stroke();
+    label('還沒加水：筷子直直的', gx+gw/2, gy-130, 20, '#9ad1ff');
+  }
+
+  // 玻璃杯（畫在水與筷子上面，半透明）
+  ctx.strokeStyle = 'rgba(200,230,255,.85)'; ctx.lineWidth = 6;
+  ctx.beginPath();
+  ctx.moveTo(gx, gy); ctx.lineTo(gx, gy+gh-14);
+  ctx.quadraticCurveTo(gx, gy+gh, gx+16, gy+gh);
+  ctx.lineTo(gx+gw-16, gy+gh);
+  ctx.quadraticCurveTo(gx+gw, gy+gh, gx+gw, gy+gh-14);
+  ctx.lineTo(gx+gw, gy); ctx.stroke();
+  // 杯身反光
+  ctx.strokeStyle = 'rgba(255,255,255,.30)'; ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.moveTo(gx+14, gy+18); ctx.lineTo(gx+14, gy+gh-24); ctx.stroke();
+
+  // 眼睛
+  drawEye(gx + gw + Math.min(W*0.16, 170), gy + gh*0.28);
+}
+
+function drawCoin(tableY){
+  const bw = Math.min(W*0.34, 420), bh = Math.min(H*0.30, 240);
+  const bx = W*0.46 - bw/2, byTop = tableY - bh;
+  const see = S.wl > 0.5;
+  const ys = byTop + bh - Math.max(0, S.wl)*(bh - 30) - 10;
+
+  // 碗（梯形剖面，不透明）
+  ctx.fillStyle = '#8d6e63';
+  ctx.beginPath();
+  ctx.moveTo(bx, byTop);
+  ctx.lineTo(bx + bw*0.14, tableY);
+  ctx.lineTo(bx + bw*0.86, tableY);
+  ctx.lineTo(bx + bw, byTop);
+  ctx.lineTo(bx + bw - 16, byTop);
+  ctx.lineTo(bx + bw*0.84 - 12, tableY - 12);
+  ctx.lineTo(bx + bw*0.16 + 12, tableY - 12);
+  ctx.lineTo(bx + 16, byTop);
+  ctx.closePath(); ctx.fill();
+
+  // 碗內的水
+  if(S.wl > 0.02){
+    const wg = ctx.createLinearGradient(0,ys,0,tableY);
+    wg.addColorStop(0,'rgba(100,181,246,.45)'); wg.addColorStop(1,'rgba(30,100,180,.5)');
+    ctx.fillStyle = wg;
+    ctx.beginPath();
+    const u0 = (ys - byTop)/(tableY - byTop);
+    ctx.moveTo(lerp(bx+16, bx+bw*0.16+12, u0), ys);
+    ctx.lineTo(lerp(bx+bw-16, bx+bw*0.84-12, u0), ys);
+    ctx.lineTo(bx + bw*0.84 - 12, tableY - 12);
+    ctx.lineTo(bx + bw*0.16 + 12, tableY - 12);
+    ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = 'rgba(200,235,255,.9)'; ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(lerp(bx+16, bx+bw*0.16+12, u0), ys);
+    ctx.lineTo(lerp(bx+bw-16, bx+bw*0.84-12, u0), ys);
+    ctx.stroke();
+  }
+
+  // 硬幣（碗底右側）
+  const coin = [bx + bw*0.62, tableY - 22];
+  ctx.save();
+  ctx.globalAlpha = see ? 1 : 0.85;
+  ctx.fillStyle = '#fdd835'; ctx.strokeStyle = '#f9a825'; ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.ellipse(coin[0], coin[1], 24, 9, 0, 0, 7); ctx.fill(); ctx.stroke();
+  ctx.restore();
+
+  // 眼睛（左上）
+  const eye = [bx - Math.min(W*0.17, 200), byTop - Math.min(H*0.18, 150)];
+  drawEye(eye[0], eye[1]);
+
+  // 視線
+  const rimL = [bx + 8, byTop];  // 左碗緣
+  if(see){
+    // 折射視線：眼→水面上的點→硬幣
+    const hit = [lerp(bx+bw*0.30, bx+bw*0.44, S.wl), ys];
+    ctx.strokeStyle = '#ffd166'; ctx.lineWidth = 4;
+    ctx.beginPath(); ctx.moveTo(coin[0], coin[1]); ctx.lineTo(hit[0], hit[1]); ctx.stroke();
+    arrow(hit[0], hit[1], eye[0]+26, eye[1]+20, '#ffd166', 4);
+    photons([[coin[0],coin[1]],[hit[0],hit[1]],[eye[0]+26,eye[1]+20]], '#fff59d', 130, 4);
+    // 大腦以為光走直線 → 幻影硬幣
+    const back = [coin[0] - (hit[0]-eye[0]-26)*0.55, coin[1] - 60];
+    ctx.setLineDash([9,8]); ctx.strokeStyle = 'rgba(255,255,255,.5)'; ctx.lineWidth = 2.5;
+    ctx.beginPath(); ctx.moveTo(eye[0]+26, eye[1]+20); ctx.lineTo(back[0]+ (hit[0]-back[0])*1.9, back[1] + (hit[1]-back[1])*1.9); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.globalAlpha = .55;
+    ctx.fillStyle = '#fff9c4';
+    ctx.beginPath(); ctx.ellipse(coin[0]-14, coin[1]-52, 24, 9, 0, 0, 7); ctx.fill();
+    ctx.globalAlpha = 1;
+    label('好像浮起來了！', coin[0]-14, coin[1]-84, 17, '#fff9c4');
+    label('光在水面轉彎（折射），跑進眼睛 → 看到硬幣了！', W*0.46, byTop - Math.min(H*0.26, 220) - 40, 20, '#ffd166');
+  }else{
+    // 直線視線被碗緣擋住
+    ctx.setLineDash([10,8]); ctx.strokeStyle = 'rgba(255,255,255,.55)'; ctx.lineWidth = 3.5;
+    ctx.beginPath(); ctx.moveTo(eye[0]+26, eye[1]+20); ctx.lineTo(rimL[0], rimL[1]); ctx.stroke();
+    ctx.setLineDash([]);
+    label('✖ 視線被碗擋住了', rimL[0]-20, rimL[1]-30, 18, '#ff8a80');
+    label('沒有水：看不到碗底的硬幣（光走直線）', W*0.46, byTop - Math.min(H*0.26, 220) - 40, 20, '#9ad1ff');
+  }
+  if(S.showReal && see){
+    label('實際位置在這裡', coin[0]+70, coin[1]+26, 16, '#e8f1fb');
+  }
+}
+
+function drawEye(x, y){
+  ctx.save();
+  ctx.font = '46px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillText('👁️', x, y);
+  ctx.restore();
+}
+
+/* ---------- 站2：折射光路 ---------- */
+function drawSt2(){
+  const bg = ctx.createLinearGradient(0,0,0,H);
+  bg.addColorStop(0,'#101f31'); bg.addColorStop(1,'#0d1b2a');
+  ctx.fillStyle = bg; ctx.fillRect(0,0,W,H);
+
+  const P = [W*0.46, H*0.52];      // 光線與水面的交點
+  const L = Math.min(W,H)*0.34;    // 光線長度
+
+  // 水（下半部）
+  const wg = ctx.createLinearGradient(0,P[1],0,H);
+  wg.addColorStop(0,'rgba(60,140,220,.34)'); wg.addColorStop(1,'rgba(20,80,160,.42)');
+  ctx.fillStyle = wg; ctx.fillRect(0,P[1],W,H-P[1]);
+  ctx.strokeStyle = 'rgba(200,235,255,.9)'; ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.moveTo(0,P[1]); ctx.lineTo(W,P[1]); ctx.stroke();
+  label('空氣', W*0.10, P[1]-34, 22, '#cfe4f7');
+  label('水',   W*0.10, P[1]+38, 22, '#9ad1ff');
+
+  // 法線（虛線）
+  ctx.strokeStyle = 'rgba(255,255,255,.45)'; ctx.lineWidth = 2.5; ctx.setLineDash([10,9]);
+  ctx.beginPath(); ctx.moveTo(P[0], P[1]-L*1.05); ctx.lineTo(P[0], P[1]+L*1.05); ctx.stroke();
+  ctx.setLineDash([]);
+  label('法線', P[0], P[1]-L*1.05-22, 16, 'rgba(255,255,255,.75)');
+
+  const i = rad(S.ang), r = rad(refractAngle());
+  let A, Bp;   // A=入射光起點, Bp=折射光終點
+  if(S.dir === 'aw'){
+    A  = [P[0]-Math.sin(i)*L, P[1]-Math.cos(i)*L];
+    Bp = [P[0]+Math.sin(r)*L, P[1]+Math.cos(r)*L];
+    sunIcon(A[0]-40, A[1]-40, 26);
+  }else{
+    A  = [P[0]-Math.sin(i)*L, P[1]+Math.cos(i)*L];
+    Bp = [P[0]+Math.sin(r)*L, P[1]-Math.cos(r)*L];
+    // 水底的手電筒光源
+    ctx.font='40px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText('🔦', A[0]-26, A[1]+26);
+  }
+  // 入射光
+  arrow(A[0],A[1],P[0],P[1],'#fff176',6);
+  // 折射光
+  arrow(P[0],P[1],Bp[0],Bp[1],'#ffb703',6);
+  photons([A,P,Bp], '#fffde7', 170, 5);
+
+  // 沒轉彎的話（原方向延伸，虛線灰）
+  if(S.ang > 0){
+    const ext = [P[0]+(P[0]-A[0])*0.85, P[1]+(P[1]-A[1])*0.85];
+    ctx.setLineDash([9,9]); ctx.strokeStyle='rgba(255,255,255,.30)'; ctx.lineWidth=2.5;
+    ctx.beginPath(); ctx.moveTo(P[0],P[1]); ctx.lineTo(ext[0],ext[1]); ctx.stroke();
+    ctx.setLineDash([]);
+    label('沒折射的話會走這裡', ext[0], ext[1]+24, 14, 'rgba(255,255,255,.6)');
+  }
+
+  // 角度弧線
+  if(S.ang > 2){
+    drawAngleArc(P, A, 62, '#fff176', '入射角 ' + S.ang + '°');
+    drawAngleArc(P, Bp, 88, '#ffb703', '折射角 ' + Math.round(refractAngle()) + '°');
+  }
+
+  label('入射光', lerp(A[0],P[0],.4)-56, lerp(A[1],P[1],.4), 18, '#fff176');
+  label('折射光', lerp(P[0],Bp[0],.6)+60, lerp(P[1],Bp[1],.6), 18, '#ffb703');
+
+  const msg = S.ang===0 ? '⬇️ 垂直照射：光直直走，不轉彎！'
+    : (S.dir==='aw' ? '光斜斜進入水中 → 轉彎了！（折射角變小）'
+                    : '光斜斜離開水面 → 轉彎了！（折射角變大）');
+  label(msg, W*0.46, H*0.14, 22, '#ffd166');
+  label('悄悄告訴你：不同顏色的光，轉彎的量還有一點點不同——去站3「🔬紅光vs紫光」比比看！', W*0.50, H*0.91, 17, '#cfe4f7');
+}
+
+function drawAngleArc(P, Q, rr, color, txt){
+  const a = Math.atan2(Q[1]-P[1], Q[0]-P[0]);
+  const normalA = (Q[1] < P[1]) ? -Math.PI/2 : Math.PI/2; // 靠 Q 那一側的法線方向
+  ctx.save();
+  ctx.strokeStyle = color; ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.arc(P[0], P[1], rr, Math.min(a,normalA), Math.max(a,normalA));
+  ctx.stroke();
+  const mid = (a+normalA)/2;
+  label(txt, P[0]+Math.cos(mid)*(rr+34), P[1]+Math.sin(mid)*(rr+34), 16, color);
+  ctx.restore();
+}
+
+/* ---------- 站3：彩虹的秘密 ---------- */
+function drawSt3(){
+  if(S.d3==='compare') drawCompare();
+  else if(S.d3==='prism') drawPrism();
+  else if(S.d3==='drop') drawDrop();
+  else drawSee();
+}
+
+function drawCompare(){
+  const bg = ctx.createLinearGradient(0,0,0,H);
+  bg.addColorStop(0,'#101f31'); bg.addColorStop(1,'#0d1b2a');
+  ctx.fillStyle = bg; ctx.fillRect(0,0,W,H);
+
+  const P = [W*0.46, H*0.52];
+  const L = Math.min(W,H)*0.32;
+  const nRed = 1.45, nViolet = 1.60;
+
+  // 介質分界（玻璃／水滴的表面）
+  const wg = ctx.createLinearGradient(0,P[1],0,H);
+  wg.addColorStop(0,'rgba(200,220,255,.18)'); wg.addColorStop(1,'rgba(160,200,255,.26)');
+  ctx.fillStyle = wg; ctx.fillRect(0,P[1],W,H-P[1]);
+  ctx.strokeStyle = 'rgba(200,235,255,.9)'; ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.moveTo(0,P[1]); ctx.lineTo(W,P[1]); ctx.stroke();
+  label('空氣', W*0.10, P[1]-34, 22, '#cfe4f7');
+  label('玻璃／水滴', W*0.13, P[1]+38, 20, '#9ad1ff');
+
+  // 法線
+  ctx.strokeStyle = 'rgba(255,255,255,.45)'; ctx.lineWidth = 2.5; ctx.setLineDash([10,9]);
+  ctx.beginPath(); ctx.moveTo(P[0], P[1]-L*1.05); ctx.lineTo(P[0], P[1]+L*1.05); ctx.stroke();
+  ctx.setLineDash([]);
+  label('法線', P[0], P[1]-L*1.05-22, 16, 'rgba(255,255,255,.75)');
+
+  const i = rad(S.cmpAng);
+  const A = [P[0]-Math.sin(i)*L, P[1]-Math.cos(i)*L];
+  const rr = colorRefractAngle(nRed, S.cmpAng);
+  const rv = colorRefractAngle(nViolet, S.cmpAng);
+  const BR = [P[0]+Math.sin(rad(rr))*L, P[1]+Math.cos(rad(rr))*L];
+  const BV = [P[0]+Math.sin(rad(rv))*L, P[1]+Math.cos(rad(rv))*L];
+
+  sunIcon(A[0]-40, A[1]-40, 24);
+  // 入射白光（同一道光、同一個角度）
+  ctx.save(); ctx.shadowColor='#fff'; ctx.shadowBlur=10;
+  arrow(A[0],A[1],P[0],P[1],'#ffffff',6);
+  ctx.restore();
+  // 紅光、紫光折射路徑
+  arrow(P[0],P[1],BR[0],BR[1], RAINBOW[0], 6);
+  arrow(P[0],P[1],BV[0],BV[1], RAINBOW[6], 6);
+  photons([A,P,BR], '#ffcdd2', 150, 3);
+  photons([A,P,BV], '#e1bee7', 150, 3);
+
+  if(S.cmpAng > 2){
+    drawAngleArc(P, A, 56, '#fff176', '入射角 ' + S.cmpAng + '°');
+    drawAngleArc(P, BR, 82, RAINBOW[0], '紅光 ' + Math.round(rr) + '°');
+    drawAngleArc(P, BV, 108, RAINBOW[6], '紫光 ' + Math.round(rv) + '°');
+  }
+  label('紅光', lerp(P[0],BR[0],.55)-38, lerp(P[1],BR[1],.55)+18, 18, RAINBOW[0]);
+  label('紫光', lerp(P[0],BV[0],.65)+40, lerp(P[1],BV[1],.65), 18, RAINBOW[6]);
+
+  label('同一個角度射入，紅光和紫光「轉彎」的量不一樣！', W*0.5, H*0.13, 22, '#ffd166');
+  label('因為兩種顏色的光進入玻璃／水後，變慢的程度不同（折射率不同）', W*0.5, H*0.19, 17, '#cfe4f7');
+  label('（為了看得清楚，這裡把顏色間的差異畫得比實際大一點）', W*0.5, H*0.90, 15, 'rgba(255,255,255,.55)');
+}
+
+function drawPrism(){
+  const bg = ctx.createLinearGradient(0,0,0,H);
+  bg.addColorStop(0,'#101f31'); bg.addColorStop(1,'#0d1b2a');
+  ctx.fillStyle = bg; ctx.fillRect(0,0,W,H);
+
+  const c = [W*0.47, H*0.52], s = Math.min(W,H)*0.20;
+  const top = [c[0], c[1]-s], bl = [c[0]-s*0.9, c[1]+s*0.7], br = [c[0]+s*0.9, c[1]+s*0.7];
+
+  // 入射白光
+  const inA = [Math.max(60, c[0]-W*0.34), c[1]-s*0.10];
+  const hitP = [c[0]-s*0.42, c[1]-s*0.02];
+  sunIcon(inA[0]-42, inA[1]-42, 26);
+  ctx.save();
+  ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 9; ctx.lineCap='round';
+  ctx.shadowColor='#fff'; ctx.shadowBlur=12;
+  ctx.beginPath(); ctx.moveTo(inA[0],inA[1]); ctx.lineTo(hitP[0],hitP[1]); ctx.stroke();
+  ctx.restore();
+  label('白色陽光', lerp(inA[0],hitP[0],.42), inA[1]-30, 19, '#fff');
+
+  // 稜鏡內：第一次折射就開始分色，紅光在上、紫光在下
+  const outP = [c[0]+s*0.40, c[1]+s*0.14];
+  const innerEnds = [];
+  for(let k=0;k<7;k++){
+    const eIn = [outP[0], outP[1] + (k-3)*s*0.032];
+    innerEnds[k] = eIn;
+    ctx.save();
+    ctx.strokeStyle = RAINBOW[k]; ctx.lineWidth = 4.5; ctx.lineCap='round';
+    ctx.shadowColor = RAINBOW[k]; ctx.shadowBlur = 8;
+    ctx.beginPath(); ctx.moveTo(hitP[0],hitP[1]); ctx.lineTo(eIn[0],eIn[1]); ctx.stroke();
+    ctx.restore();
+  }
+
+  // 出射：七色扇形
+  const fanLen = Math.min(W,H)*0.42;
+  const baseA = rad(18);  // 中心往下角度
+  const fanEnds = [];
+  for(let k=0;k<7;k++){
+    const a = baseA + rad((k-3)*4.6);
+    const sP = innerEnds[k];
+    const e = [sP[0]+Math.cos(a)*fanLen, sP[1]+Math.sin(a)*fanLen];
+    fanEnds[k] = e;
+    ctx.save();
+    ctx.strokeStyle = RAINBOW[k]; ctx.lineWidth = 8; ctx.lineCap='round';
+    ctx.shadowColor = RAINBOW[k]; ctx.shadowBlur = 10;
+    ctx.beginPath(); ctx.moveTo(sP[0],sP[1]); ctx.lineTo(e[0],e[1]); ctx.stroke();
+    ctx.restore();
+    label(RAINBOW_NAME[k], e[0]+26, e[1], 19, RAINBOW[k]);
+  }
+
+  // 三稜鏡（半透明玻璃）
+  ctx.save();
+  const pg = ctx.createLinearGradient(bl[0],bl[1],br[0],top[1]);
+  pg.addColorStop(0,'rgba(180,220,255,.16)'); pg.addColorStop(1,'rgba(220,240,255,.34)');
+  ctx.fillStyle = pg; ctx.strokeStyle = 'rgba(210,235,255,.9)'; ctx.lineWidth = 4;
+  ctx.beginPath(); ctx.moveTo(top[0],top[1]); ctx.lineTo(br[0],br[1]); ctx.lineTo(bl[0],bl[1]);
+  ctx.closePath(); ctx.fill(); ctx.stroke();
+  ctx.restore();
+  label('三稜鏡', c[0], bl[1]+34, 20, '#cfe4f7');
+  label('紅光：轉彎最少', Math.min(W-120, fanEnds[0][0]+96), Math.max(50, fanEnds[0][1]-30), 17, RAINBOW[0]);
+  label('紫光：轉彎最多', Math.min(W-120, fanEnds[6][0]+96), Math.min(H-62, fanEnds[6][1]+30), 17, RAINBOW[6]);
+
+  label('白光通過三稜鏡 → 分散成紅、橙、黃、綠、藍、靛、紫！', W*0.47, H*0.13, 22, '#ffd166');
+}
+
+function drawDrop(){
+  const bg = ctx.createLinearGradient(0,0,0,H);
+  bg.addColorStop(0,'#101f31'); bg.addColorStop(1,'#0d1b2a');
+  ctx.fillStyle = bg; ctx.fillRect(0,0,W,H);
+
+  const C = [W*0.55, H*0.50], R = Math.min(W,H)*0.24;
+
+  // 水滴
+  ctx.save();
+  const dg = ctx.createRadialGradient(C[0]-R*.3, C[1]-R*.3, R*.2, C[0], C[1], R);
+  dg.addColorStop(0,'rgba(160,215,255,.30)'); dg.addColorStop(1,'rgba(60,140,220,.35)');
+  ctx.fillStyle = dg; ctx.strokeStyle = 'rgba(180,225,255,.85)'; ctx.lineWidth = 4;
+  ctx.beginPath(); ctx.arc(C[0],C[1],R,0,7); ctx.fill(); ctx.stroke();
+  ctx.restore();
+  label('放大的小水滴', C[0], C[1]-R-30, 19, '#9ad1ff');
+
+  // 光路：入 A（左上緣）→ 折射到 B（右緣）→ 反射到 Cx（下緣）→ 出去（左下扇形）
+  const A  = [C[0]+Math.cos(rad(215))*R, C[1]+Math.sin(rad(215))*R];
+  const B  = [C[0]+Math.cos(rad(345))*R, C[1]+Math.sin(rad(345))*R];
+  const Cx = [C[0]+Math.cos(rad(105))*R, C[1]+Math.sin(rad(105))*R];
+  const inS = [A[0]-W*0.22, A[1]-H*0.16];
+  sunIcon(inS[0]-36, inS[1]-36, 24);
+
+  ctx.lineCap='round';
+  // 入射白光
+  ctx.save(); ctx.shadowColor='#fff'; ctx.shadowBlur=10;
+  ctx.strokeStyle='#ffffff'; ctx.lineWidth=8;
+  ctx.beginPath(); ctx.moveTo(inS[0],inS[1]); ctx.lineTo(A[0],A[1]); ctx.stroke();
+  ctx.restore();
+  // 水滴內：第一次折射後就開始分色，反射後持續分開
+  const sep = R*0.030;
+  const abLen = Math.hypot(B[0]-A[0], B[1]-A[1]);
+  const abN = [-(B[1]-A[1])/abLen, (B[0]-A[0])/abLen];
+  const bcLen = Math.hypot(Cx[0]-B[0], Cx[1]-B[1]);
+  const bcN = [-(Cx[1]-B[1])/bcLen, (Cx[0]-B[0])/bcLen];
+  const cStarts = [];
+  for(let k=0;k<7;k++){
+    const off = (k-3)*sep;
+    const bK = [B[0]+abN[0]*off, B[1]+abN[1]*off];
+    const cK = [Cx[0]+bcN[0]*off, Cx[1]+bcN[1]*off];
+    cStarts[k] = cK;
+    ctx.save();
+    ctx.strokeStyle=RAINBOW[k]; ctx.lineWidth=4.2; ctx.lineCap='round';
+    ctx.shadowColor=RAINBOW[k]; ctx.shadowBlur=7;
+    ctx.beginPath(); ctx.moveTo(A[0],A[1]); ctx.lineTo(bK[0],bK[1]); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(bK[0],bK[1]); ctx.lineTo(cK[0],cK[1]); ctx.stroke();
+    ctx.restore();
+  }
+  // 出射七色扇形（往左下）
+  const outBase = Math.atan2(Cx[1]-B[1], Cx[0]-B[0]);
+  const fan = Math.min(W,H)*0.34;
+  for(let k=0;k<7;k++){
+    const a = outBase + rad((k-3)*4.2 + 14);
+    const sP = cStarts[k];
+    const e = [sP[0]+Math.cos(a)*fan, sP[1]+Math.sin(a)*fan];
+    ctx.save();
+    ctx.strokeStyle=RAINBOW[k]; ctx.lineWidth=7; ctx.shadowColor=RAINBOW[k]; ctx.shadowBlur=8;
+    ctx.beginPath(); ctx.moveTo(sP[0],sP[1]); ctx.lineTo(e[0],e[1]); ctx.stroke();
+    ctx.restore();
+  }
+  photons([inS,A,B,Cx], '#ffffff', 150, 5);
+
+  // 步驟標示
+  label('① 折射（進入水滴）', A[0]-30, A[1]-44, 17, '#fff');
+  label('② 反射（水滴內面）', B[0]+30, B[1]-40, 17, '#ffe082');
+  label('③ 折射＋分散成七色', Cx[0]-40, Cx[1]+48, 17, '#ffd166');
+
+  // 眼睛在左下
+  drawEye(Cx[0]-fan*0.82, Cx[1]+fan*0.42);
+  label('紅光彎最少、紫光彎最多', C[0]+R*0.12, C[1]+R*0.68, 17, '#fff');
+  label('所以彩虹最外圈是紅色、最內圈是紫色', W*0.5, H*0.90, 19, '#ffd166');
+  label('小水滴就像迷你三稜鏡，把陽光變成七色光！', W*0.5, H*0.12, 22, '#ffd166');
+}
+
+function drawSee(){
+  // 白天場景
+  const sky = ctx.createLinearGradient(0,0,0,H*0.8);
+  sky.addColorStop(0,'#4f97d0'); sky.addColorStop(1,'#bfe3f7');
+  ctx.fillStyle = sky; ctx.fillRect(0,0,W,H);
+  const gy = H*0.80;
+  const gg = ctx.createLinearGradient(0,gy,0,H);
+  gg.addColorStop(0,'#7cb342'); gg.addColorStop(1,'#558b2f');
+  ctx.fillStyle = gg; ctx.fillRect(0,gy,W,H-gy);
+
+  const sunX = S.sunLeft ? W*0.13 : W*0.87;
+  const mistX = S.sunLeft ? W*0.78 : W*0.22;   // 水霧在太陽對面
+  sunIcon(sunX, H*0.20, 34);
+
+  // 雨後水霧區
+  ctx.save();
+  for(let k=0;k<26;k++){
+    const rx = mistX + Math.sin(k*3.7)*W*0.13;
+    const ry = H*0.28 + ((k*53)%100)/100*H*0.44;
+    ctx.globalAlpha = 0.25 + 0.15*Math.sin(S.t*2+k);
+    ctx.fillStyle = '#e3f2fd';
+    ctx.beginPath(); ctx.arc(rx, ry, 5+((k*29)%3)*2, 0, 7); ctx.fill();
+  }
+  ctx.restore();
+  label('空氣中有許多小水滴（雨後或水霧）', mistX, H*0.26, 17, '#1a4a6e');
+
+  const ok = (S.sunLeft && S.faceRight) || (!S.sunLeft && !S.faceRight);
+
+  // 彩虹（在水霧區，背對太陽才看得到）
+  if(ok){
+    const rcx = mistX, rcy = gy + H*0.14, r0 = Math.min(W,H)*0.30;
+    ctx.save();
+    ctx.lineWidth = 11; ctx.globalAlpha = .9;
+    for(let k=0;k<7;k++){
+      ctx.strokeStyle = RAINBOW[k];
+      ctx.beginPath();
+      ctx.arc(rcx, rcy, r0 - k*11, Math.PI, 2*Math.PI);
+      ctx.stroke();
+    }
+    ctx.restore();
+    label('🌈 看到彩虹了！（在太陽的相反方向）', rcx, rcy - r0 - 34, 21, '#7b1fa2');
+  }
+
+  // 小朋友
+  const px = W*0.48, py = gy;
+  ctx.save();
+  ctx.translate(px, py);
+  if(S.faceRight){ ctx.scale(-1,1); }  // 🚶 emoji 原本面向左，面向右時要左右翻轉
+  ctx.font = '84px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='bottom';
+  ctx.fillText('🚶', 0, 0);
+  ctx.restore();
+  // 面向箭頭
+  arrow(px + (S.faceRight? 46:-46), py-56, px + (S.faceRight? 120:-120), py-56, '#37474f', 5);
+  label('面向這邊', px + (S.faceRight? 150:-150), py-56, 16, '#37474f');
+
+  // 陽光往水霧照
+  ctx.save(); ctx.globalAlpha=.5;
+  for(let k=0;k<3;k++){
+    const y0 = H*0.20 + k*26 - 26;
+    arrow(sunX + (S.sunLeft? 60:-60), y0, mistX + (S.sunLeft? -W*0.10: W*0.10), H*0.40 + k*40, '#ffd54f', 4);
+  }
+  ctx.restore();
+
+  if(!ok){
+    label('❌ 面對太陽，看不到彩虹。按「🔄 轉身」試試！', W*0.5, H*0.12, 22, '#b3261e');
+  }else{
+    label('✅ 背對太陽 → 彩虹出現在前方！', W*0.5, H*0.12, 22, '#1b5e20');
+  }
+}
+
+/* ---------- 站別切換 ---------- */
+const HINTS = {
+  1:'🥤 拉動水位，看看筷子和硬幣發生什麼事！',
+  2:'🔦 拉動滑桿改變入射角，觀察光怎麼轉彎！',
+  3:'🌈 先比一比紅光和紫光，再看彩虹是怎麼來的！',
+};
+function setStation(n){
+  S.st = n;
+  document.querySelectorAll('.stbtn').forEach(b=>b.classList.toggle('on', +b.dataset.st === n));
+  for(let k=1;k<=3;k++) document.getElementById('bar'+k).classList.toggle('show', k===n);
+  toast(HINTS[n]);
+  updateInfo();
+}
+document.querySelectorAll('.stbtn').forEach(b=>{
+  b.onclick = ()=>setStation(+b.dataset.st);
+});
+
+/* ---------- 控制項 ---------- */
+document.querySelectorAll('.d1btn').forEach(b=>{
+  b.onclick = ()=>{
+    S.d1 = b.dataset.d;
+    document.querySelectorAll('.d1btn').forEach(x=>x.classList.toggle('on', x===b));
+    toast(S.d1==='straw' ? '🥢 慢慢加水，筷子看起來會怎樣？' : '🪙 加水超過一半，就看得到硬幣囉！');
+    updateInfo();
+  };
+});
+const wlSlider = document.getElementById('wlSlider');
+wlSlider.oninput = ()=>{
+  S.wl = wlSlider.value/100;
+  document.getElementById('wlClock').textContent = '💧 ' + wlSlider.value + '%';
+  updateInfo();
+};
+document.getElementById('btnReal').onclick = function(){
+  S.showReal = !S.showReal;
+  this.classList.toggle('on', S.showReal);
+};
+
+document.querySelectorAll('.dirbtn').forEach(b=>{
+  b.onclick = ()=>{
+    S.dir = b.dataset.dir;
+    document.querySelectorAll('.dirbtn').forEach(x=>x.classList.toggle('on', x===b));
+    const sl = document.getElementById('angSlider');
+    if(S.dir === 'wa'){ sl.max = 45; if(S.ang > 45){ S.ang = 45; sl.value = 45; } }
+    else sl.max = 70;
+    document.getElementById('angClock').textContent = S.ang + '°';
+    toast(S.dir==='aw' ? '☁️→💧 光進入水裡，轉彎「靠近」法線' : '💧→☁️ 光離開水面，轉彎「遠離」法線');
+    updateInfo();
+  };
+});
+const angSlider = document.getElementById('angSlider');
+angSlider.oninput = ()=>{
+  S.ang = +angSlider.value;
+  document.getElementById('angClock').textContent = S.ang + '°';
+  updateInfo();
+};
+document.getElementById('btnZero').onclick = ()=>{
+  S.ang = 0; angSlider.value = 0;
+  document.getElementById('angClock').textContent = '0°';
+  toast('⬇️ 垂直照射：光不轉彎，直直穿過去！');
+  updateInfo();
+};
+
+document.querySelectorAll('.d3btn').forEach(b=>{
+  b.onclick = ()=>{
+    S.d3 = b.dataset.d;
+    document.querySelectorAll('.d3btn').forEach(x=>x.classList.toggle('on', x===b));
+    const isSee = S.d3 === 'see';
+    document.querySelectorAll('.seebtn').forEach(x=>x.style.display = isSee ? '' : 'none');
+    document.getElementById('cmpWrap').style.display = S.d3 === 'compare' ? '' : 'none';
+    const m = { compare:'🔬 拉滑桿改變角度，比比看紅光和紫光轉彎有什麼不同！',
+                prism:'🔺 白光通過三稜鏡，變成七色光！',
+                drop:'💧 看看陽光在小水滴裡的旅行！',
+                see:'🧍 按「🔄 轉身」，找找彩虹在哪邊！' };
+    toast(m[S.d3]);
+    updateInfo();
+  };
+});
+const cmpSlider = document.getElementById('cmpSlider');
+cmpSlider.oninput = ()=>{
+  S.cmpAng = +cmpSlider.value;
+  document.getElementById('cmpClock').textContent = S.cmpAng + '°';
+  updateInfo();
+};
+document.getElementById('btnTurn').onclick = ()=>{
+  S.faceRight = !S.faceRight;
+  const ok = (S.sunLeft && S.faceRight) || (!S.sunLeft && !S.faceRight);
+  toast(ok ? '🌈 背對太陽 → 看到彩虹了！' : '❌ 面對太陽 → 看不到彩虹');
+  updateInfo();
+};
+document.getElementById('btnSun').onclick = ()=>{
+  S.sunLeft = !S.sunLeft;
+  toast('☀️ 太陽換邊了！彩虹永遠在太陽的相反方向。');
+  updateInfo();
+};
+
+
+/* ---------- 主迴圈 ---------- */
+let last = performance.now();
+function loop(now){
+  S.t += (now - last)/1000; last = now;
+  ctx.clearRect(0,0,W,H);
+  if(S.st===1) drawSt1();
+  else if(S.st===2) drawSt2();
+  else if(S.st===3) drawSt3();
+  requestAnimationFrame(loop);
+}
+updateInfo();
+toast('🥤 拉動水位，看看筷子和硬幣發生什麼事！', 3200);
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>

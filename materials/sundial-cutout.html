@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>水平式日晷　剪貼工作</title>
+  <link rel="icon" href="../image/icon.svg">
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    .craft { background:#fff; border:1px solid var(--c-line); border-radius:var(--radius);
+      box-shadow:var(--shadow); padding:16px; margin:14px 0; }
+    .craft svg { width:100%; height:auto; display:block; }
+    /* 線條樣式 */
+    .cut  { fill:none; stroke:#111; stroke-width:2.4; }          /* 實線＝剪下 */
+    .fold { fill:none; stroke:#111; stroke-width:2; stroke-dasharray:8 6; } /* 虛線＝折 */
+    .hour { stroke:#888; stroke-width:1.2; }
+    .noon { stroke:#e8890b; stroke-width:2.4; }
+    .glue { fill:#fff2d9; stroke:#111; stroke-width:1.6; }
+    .num  { font:700 22px/1 "Noto Sans TC",sans-serif; fill:#111;
+      text-anchor:middle; dominant-baseline:middle; }
+    .lab  { font:600 15px "Noto Sans TC",sans-serif; fill:#333; }
+    .labo { font:700 16px "Noto Sans TC",sans-serif; fill:#e8890b; text-anchor:middle; }
+    .legend { display:flex; gap:18px; flex-wrap:wrap; font-size:.95rem; color:var(--c-ink-soft); margin:4px 0 2px; }
+    .legend span b { color:#111; }
+    ol.steps { line-height:1.9; }
+    @media print {
+      @page { size:A4; margin:12mm; }
+      body { background:#fff; }
+      .site-header, .breadcrumb, .toolbar, .site-footer, .no-print { display:none !important; }
+      .craft { box-shadow:none; border:none; padding:0; break-inside:avoid; }
+      .print-note { display:block !important; }
+    }
+    .print-note { display:none; }
+  </style>
+</head>
+<body data-theme="sun">
+
+  <header class="site-header">
+    <div class="wrap">
+      <img src="../image/icon.svg" alt="站標">
+      <div>
+        <h1>水平式日晷　剪貼工作</h1>
+        <p>數位教材 · 單元一 太陽與光（延伸工具）</p>
+      </div>
+    </div>
+  </header>
+
+  <nav class="breadcrumb wrap"><a href="../index.html">← 回首頁</a></nav>
+
+  <main class="wrap">
+
+    <div class="ws-intro no-print">
+      <strong>怎麼做：</strong>把這一頁印出來，沿<b>實線</b>把圓盤和晷針剪下來，晷針沿<b>虛線</b>折出舌片、
+      塗膠黏在圓盤的<b>橘色 12 線</b>上——讓<b>尖尖的角對準圓心</b>、底邊沿 12 線朝北、<b>斜邊朝上</b>。
+      完成後把日晷放平、讓 <b>12</b> 對準<b>正北方</b>，看晷針的影子落在哪個數字，就是現在幾點！
+    </div>
+
+    <div class="toolbar no-print">
+      <button class="btn" onclick="window.print()">🖨️ 列印剪圖</button>
+    </div>
+
+    <div class="legend no-print">
+      <span>—— <b>實線</b>：沿線剪下</span>
+      <span>- - - <b>虛線</b>：沿線折</span>
+      <span style="color:#e8890b">—— <b>橘色線</b>：晷針黏貼位置（12＝正北）</span>
+    </div>
+
+    <p class="print-note" style="margin:0 0 8px"><strong>水平式日晷剪貼</strong>（台南安平適用・緯度約 23°）——實線剪下、虛線折、把晷針黏在橘色 12 線上，尖端朝正北。</p>
+
+    <div class="craft">
+      <svg viewBox="0 0 660 600" role="img" aria-label="水平式日晷剪圖">
+        <!-- 圓盤外框（剪下） -->
+        <path d="M 30 380 A 300 300 0 0 1 630 380 Z" class="cut"/>
+        <!-- 時刻線 -->
+    <line x1="330.0" y1="380.0" x2="30.0" y2="380.0" class="hour"/>
+    <line x1="330.0" y1="380.0" x2="82.6" y2="210.3" class="hour"/>
+    <line x1="330.0" y1="380.0" x2="161.9" y2="131.5" class="hour"/>
+    <line x1="330.0" y1="380.0" x2="220.8" y2="100.6" class="hour"/>
+    <line x1="330.0" y1="380.0" x2="264.0" y2="87.4" class="hour"/>
+    <line x1="330.0" y1="380.0" x2="298.8" y2="81.6" class="hour"/>
+    <line x1="330.0" y1="380.0" x2="330.0" y2="80.0" class="noon"/>
+    <line x1="330.0" y1="380.0" x2="361.2" y2="81.6" class="hour"/>
+    <line x1="330.0" y1="380.0" x2="396.0" y2="87.4" class="hour"/>
+    <line x1="330.0" y1="380.0" x2="439.2" y2="100.6" class="hour"/>
+    <line x1="330.0" y1="380.0" x2="498.1" y2="131.5" class="hour"/>
+    <line x1="330.0" y1="380.0" x2="577.4" y2="210.3" class="hour"/>
+    <line x1="330.0" y1="380.0" x2="630.0" y2="380.0" class="hour"/>
+        <!-- 圓心（晷針腳） -->
+        <circle cx="330" cy="380" r="4" fill="#111"/>
+        <!-- 數字 -->
+    <text x="4.0" y="380.0" class="num">6</text>
+    <text x="61.1" y="195.6" class="num">7</text>
+    <text x="147.3" y="110.0" class="num">8</text>
+    <text x="211.4" y="76.4" class="num">9</text>
+    <text x="258.3" y="62.0" class="num">10</text>
+    <text x="296.1" y="55.8" class="num">11</text>
+    <text x="330.0" y="54.0" class="num">12</text>
+    <text x="363.9" y="55.8" class="num">1</text>
+    <text x="401.7" y="62.0" class="num">2</text>
+    <text x="448.6" y="76.4" class="num">3</text>
+    <text x="512.7" y="110.0" class="num">4</text>
+    <text x="598.9" y="195.6" class="num">5</text>
+    <text x="656.0" y="380.0" class="num">6</text>
+        <!-- 正北標示 -->
+        <text x="330" y="34" class="labo">↑ 正北 N（12）</text>
+        <text x="60" y="404" class="lab">西</text>
+        <text x="600" y="404" class="lab">東</text>
+
+        <!-- ===== 晷針（另外剪下） ===== -->
+        <text x="30" y="446" class="lab">✂ 晷針（另外剪下、沿虛線折舌片；黏貼方式見下方步驟）</text>
+        <!-- 三角形（剪下） -->
+        <path d="M 210 566 L 430.0 472.6 L 430 566 Z" class="cut"/>
+        <!-- 舌片（折 + 塗膠） -->
+        <path d="M 210 566 L 430 566 L 430 592 L 210 592 Z" class="glue"/>
+        <line x1="210" y1="566" x2="430" y2="566" class="fold"/>
+        <text x="320.0" y="585" class="lab" text-anchor="middle">塗膠處（折）</text>
+        <text x="274" y="555" class="lab">≈23°</text>
+      </svg>
+    </div>
+
+    <h2 class="section-title no-print">🛠️ 組裝步驟</h2>
+    <div class="q no-print">
+      <ol class="steps">
+        <li>沿圓盤的<b>實線</b>把半圓剪下來。</li>
+        <li>沿晷針三角形的<b>實線</b>剪下，再沿底邊<b>虛線</b>把「塗膠處」折成 90°。</li>
+        <li>在舌片塗膠，把晷針黏在圓盤的<b>橘色 12 線</b>上：<b>尖角對準圓心</b>、底邊沿 12 線朝北、<b>斜邊朝上</b>。</li>
+        <li>把日晷放在太陽照得到的水平桌面，轉動它讓 <b>12 對準正北方</b>。</li>
+        <li>看晷針的<b>影子</b>落在哪個數字，就是現在的時間！想一想：影子為什麼會隨太陽移動？</li>
+      </ol>
+      <p class="ws-meta">※ 時刻線與晷針角度是依台南安平緯度（約 23°）計算，所以在台南最準。</p>
+    </div>
+
+  </main>
+
+  <footer class="site-footer no-print"><div class="wrap"><a href="../index.html">← 回首頁</a> · 豬豬的自然探索</div></footer>
+</body>
+</html>

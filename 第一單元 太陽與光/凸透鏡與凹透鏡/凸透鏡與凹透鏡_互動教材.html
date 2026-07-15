@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>凸透鏡與凹透鏡｜互動教材</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body { width:100%; height:100%; overflow:hidden;
+    font-family:"PingFang TC","Microsoft JhengHei","Heiti TC",sans-serif;
+    background:#0d1b2a; touch-action:none; user-select:none; -webkit-user-select:none; }
+  canvas { display:block; position:absolute; inset:0; }
+
+  .topbar { position:absolute; top:0; left:0; right:0; z-index:10;
+    display:flex; align-items:center; gap:9px; padding:10px 16px;
+    background:linear-gradient(180deg,rgba(6,14,26,.85),rgba(6,14,26,0)); pointer-events:none; }
+  .topbar > * { pointer-events:auto; }
+  .title { color:#fff; font-size:23px; font-weight:800; letter-spacing:1px;
+    text-shadow:0 2px 6px rgba(0,0,0,.6); margin-right:auto; }
+  .title small { font-size:13px; font-weight:600; color:#9fc3e8; margin-left:8px; }
+
+  .btn { border:none; cursor:pointer; border-radius:14px; font-family:inherit;
+    font-size:21px; font-weight:700; padding:12px 20px; color:#e8f1fb;
+    background:rgba(255,255,255,.14); backdrop-filter:blur(6px);
+    border:2px solid rgba(255,255,255,.18); transition:transform .08s, background .15s; }
+  .btn:active { transform:scale(.94); }
+  .btn.on { background:#ffb703; border-color:#ffd166; color:#3a2a00; }
+  .btn.primary { background:#ffb703; border-color:#ffd166; color:#3a2a00; }
+  .btn.ghost { background:rgba(255,255,255,.08); }
+  .btn.small { font-size:17px; padding:9px 13px; border-radius:11px; }
+  .btn:disabled { opacity:.4; pointer-events:none; }
+
+  .info { position:absolute; top:66px; right:14px; z-index:9; width:265px;
+    background:rgba(8,20,36,.84); backdrop-filter:blur(8px);
+    border:2px solid rgba(140,190,255,.25); border-radius:18px; padding:12px 16px; color:#fff; }
+  .info h3 { font-size:15px; color:#8ecae6; font-weight:800; letter-spacing:2px; margin-bottom:6px; }
+  .row { display:flex; justify-content:space-between; align-items:baseline; padding:6px 0;
+    border-bottom:1px dashed rgba(255,255,255,.14); }
+  .row .k { font-size:16px; color:#cfe4f7; }
+  .row .v { font-size:21px; font-weight:800; color:#ffd166; }
+  .row .v.g { color:#90e0a0; }
+  .row .v.b { color:#9ad1ff; }
+  .infonote { font-size:15px; line-height:1.55; color:#cfe4f7; padding-top:8px; }
+  .infonote b { color:#ffd166; }
+
+  .bottombar { position:absolute; left:0; right:0; bottom:0; z-index:10;
+    padding:10px 16px 14px; display:flex; flex-direction:column; gap:10px;
+    background:linear-gradient(0deg,rgba(6,14,26,.88),rgba(6,14,26,0)); }
+  .bar { display:none; flex-wrap:wrap; gap:9px; align-items:center; }
+  .bar.show { display:flex; }
+  .sliderwrap { flex:1; display:flex; align-items:center; gap:12px; min-width:260px; }
+  .clock { min-width:112px; text-align:center; font-size:24px; font-weight:900; color:#ffd166;
+    background:rgba(0,0,0,.35); border-radius:14px; padding:4px 10px;
+    border:2px solid rgba(255,209,102,.4); font-variant-numeric:tabular-nums; }
+  input[type=range] { flex:1; height:46px; -webkit-appearance:none; background:transparent; }
+  input[type=range]::-webkit-slider-runnable-track { height:16px; border-radius:8px;
+    background:linear-gradient(90deg,#ffd166 0%,#ffe680 50%,#ffd166 100%); }
+  input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:46px; height:46px;
+    margin-top:-15px; border-radius:50%; background:radial-gradient(circle at 35% 30%,#fff8d6,#ffb703 65%,#e08800);
+    border:3px solid #fff; box-shadow:0 3px 10px rgba(0,0,0,.5); cursor:grab; }
+  .grow { flex:1; }
+  .hintchip { font-size:19px; font-weight:800; color:#9ad1ff; background:rgba(0,0,0,.35);
+    padding:9px 16px; border-radius:14px; border:2px solid rgba(154,209,255,.35); }
+
+  .card { position:absolute; z-index:20; background:rgba(10,24,44,.94);
+    border:2px solid rgba(140,190,255,.35); border-radius:22px; padding:22px 26px;
+    color:#fff; box-shadow:0 10px 40px rgba(0,0,0,.5); display:none; }
+  .card.show { display:block; }
+  #keyCard { top:50%; left:50%; transform:translate(-50%,-50%); width:min(720px,92vw);
+    max-height:88vh; overflow:auto; }
+  #keyCard h2 { color:#ffd166; font-size:25px; margin-bottom:12px; }
+  .keypoint { font-size:20px; line-height:1.6; padding:10px 14px; margin-bottom:10px;
+    background:rgba(255,255,255,.07); border-left:6px solid #ffb703; border-radius:10px; }
+  .keypoint b { color:#ffd166; }
+  table.keytab { width:100%; border-collapse:collapse; font-size:18px; margin:4px 0 12px; }
+  table.keytab th, table.keytab td { border:1px solid rgba(255,255,255,.25); padding:7px 5px; text-align:center; }
+  table.keytab th { background:rgba(255,183,3,.18); color:#ffd166; }
+
+  #quizCard { left:16px; top:76px; width:min(520px,94vw); max-height:calc(100% - 180px); overflow:auto; }
+  #quizCard .qnum { color:#8ecae6; font-size:16px; font-weight:800; letter-spacing:2px; }
+  #quizCard .qtext { font-size:22px; font-weight:800; line-height:1.5; margin:8px 0 14px; }
+  .opts { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .opts.one { grid-template-columns:1fr; }
+  .opt { font-size:19px; font-weight:800; padding:13px 10px; border-radius:14px; cursor:pointer;
+    background:rgba(255,255,255,.10); border:2px solid rgba(255,255,255,.22); color:#fff;
+    font-family:inherit; line-height:1.4; transition:transform .08s; }
+  .opt svg { width:90px; height:90px; display:block; margin:0 auto; }
+  .opt.imgopt { padding:8px 6px; min-height:112px; }
+  .opt:active { transform:scale(.96); }
+  .opt.right { background:#2e7d32; border-color:#7ee787; }
+  .opt.wrong { background:#b3261e; border-color:#ff8a80; }
+  .fb { display:none; margin-top:12px; font-size:19px; line-height:1.55; padding:12px;
+    border-radius:12px; background:rgba(255,255,255,.08); }
+  .fb.show { display:block; }
+  .fb.ok { border-left:6px solid #7ee787; }
+  .fb.no { border-left:6px solid #ff8a80; }
+  .qbtns { margin-top:12px; display:flex; gap:10px; }
+  .score { color:#ffd166; font-size:18px; font-weight:800; margin-left:auto; align-self:center; }
+
+  .toast { position:absolute; z-index:30; top:80px; left:50%; transform:translateX(-50%);
+    background:rgba(0,0,0,.78); color:#ffd166; font-size:21px; font-weight:800;
+    padding:12px 26px; border-radius:30px; opacity:0; transition:opacity .3s; pointer-events:none;
+    max-width:88vw; text-align:center; }
+  .toast.show { opacity:1; }
+</style>
+<link rel="icon" href="../../image/icon.svg">
+</head>
+<body>
+<canvas id="cv"></canvas>
+
+<div class="topbar">
+  <div class="title">凸透鏡與凹透鏡 <small>五年級自然｜第一單元 太陽與光</small></div>
+  <button class="btn small stbtn on" data-st="1">🔦 光線怎麼走</button>
+  <button class="btn small stbtn" data-st="2">🔍 凸透鏡放大</button>
+  <button class="btn small stbtn" data-st="3">🕯️ 蠟燭倒立成像</button>
+  <button class="btn small stbtn" data-st="4">🔻 凹透鏡縮小</button>
+  <button class="btn small stbtn" data-st="5">👓 近視與遠視</button>
+</div>
+
+<div class="info" id="infoPanel"></div>
+
+<div class="bottombar">
+  <div class="bar show" id="bar1">
+    <button class="btn small lensbtn on" data-lens="convex">凸透鏡</button>
+    <button class="btn small lensbtn" data-lens="concave">凹透鏡</button>
+    <span class="grow"></span>
+    <div class="hintchip">透鏡讓光轉彎，是「折射」的應用</div>
+  </div>
+  <div class="bar" id="bar2">
+    <div class="sliderwrap">
+      <div class="clock" id="magClock">物距 60</div>
+      <input type="range" id="magSlider" min="40" max="70" step="1" value="60">
+    </div>
+    <div class="hintchip">焦距 = 100，物體要在焦點內才會放大</div>
+  </div>
+  <div class="bar" id="bar3">
+    <div class="sliderwrap">
+      <div class="clock" id="candClock">物距 180</div>
+      <input type="range" id="candSlider" min="105" max="260" step="1" value="180">
+    </div>
+    <div class="hintchip">焦距 = 100，觀察紙屏上的影像</div>
+  </div>
+  <div class="bar" id="bar4">
+    <div class="sliderwrap">
+      <div class="clock" id="shrinkClock">物距 140</div>
+      <input type="range" id="shrinkSlider" min="40" max="280" step="1" value="140">
+    </div>
+    <div class="hintchip">凹透鏡：不管距離多遠都正立縮小</div>
+  </div>
+  <div class="bar" id="bar5">
+    <button class="btn small eyebtn" data-eye="normal">正常眼</button>
+    <button class="btn small eyebtn on" data-eye="myopia">近視眼</button>
+    <button class="btn small eyebtn" data-eye="hyper">遠視（老花）眼</button>
+    <button class="btn small" id="btnGlasses">👓 戴上眼鏡</button>
+    <span class="grow"></span>
+    <div class="hintchip">先看焦點在哪裡，再戴上眼鏡比較</div>
+  </div>
+  
+</div>
+
+
+
+
+
+<div class="toast" id="toast"></div>
+
+<script>
+'use strict';
+const cv = document.getElementById('cv');
+const ctx = cv.getContext('2d');
+let W = 0, H = 0, DPR = 1;
+
+function resize(){
+  DPR = Math.min(window.devicePixelRatio || 1, 2);
+  W = window.innerWidth; H = window.innerHeight;
+  cv.width = W * DPR; cv.height = H * DPR;
+  cv.style.width = W + 'px'; cv.style.height = H + 'px';
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+}
+window.addEventListener('resize', resize);
+resize();
+
+const F = 100;
+const S = {
+  st: 1,
+  t: 0,
+  lens: 'convex',
+  magDist: 60,
+  candDist: 180,
+  shrinkDist: 140,
+  eye: 'myopia',      // normal | myopia | hyper
+  glasses: false,
+};
+
+/* ---------- 小工具 ---------- */
+function toast(msg, ms){
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('show');
+  clearTimeout(toast._t);
+  toast._t = setTimeout(()=>el.classList.remove('show'), ms || 2600);
+}
+function lerp(a,b,u){ return a + (b-a)*u; }
+function clamp(v,a,b){ return Math.max(a, Math.min(b, v)); }
+function roundRect(x,y,w,h,r){
+  ctx.beginPath();
+  ctx.moveTo(x+r,y);
+  ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r);
+  ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r);
+  ctx.closePath();
+}
+function label(txt, x, y, size, color, bg){
+  ctx.save();
+  ctx.font = '800 ' + size + 'px "PingFang TC","Microsoft JhengHei",sans-serif';
+  const w = ctx.measureText(txt).width;
+  if(bg !== false){
+    ctx.fillStyle = 'rgba(0,0,0,.55)';
+    roundRect(x - w/2 - 9, y - size/2 - 7, w + 18, size + 14, 9); ctx.fill();
+  }
+  ctx.fillStyle = color || '#fff';
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText(txt, x, y);
+  ctx.restore();
+}
+function arrow(x1,y1,x2,y2,color,w,dash){
+  ctx.save();
+  ctx.strokeStyle = color; ctx.fillStyle = color; ctx.lineWidth = w||3;
+  ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  if(dash) ctx.setLineDash(dash);
+  ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+  ctx.setLineDash([]);
+  const a = Math.atan2(y2-y1, x2-x1), s = (w||3)*3.2;
+  ctx.beginPath();
+  ctx.moveTo(x2,y2);
+  ctx.lineTo(x2 - s*Math.cos(a - .42), y2 - s*Math.sin(a - .42));
+  ctx.lineTo(x2 - s*Math.cos(a + .42), y2 - s*Math.sin(a + .42));
+  ctx.closePath(); ctx.fill();
+  ctx.restore();
+}
+function photons(pts, color, speed, n){
+  let total = 0; const segs = [];
+  for(let i=0;i<pts.length-1;i++){
+    const d = Math.hypot(pts[i+1][0]-pts[i][0], pts[i+1][1]-pts[i][1]);
+    segs.push(d); total += d;
+  }
+  if(total <= 0) return;
+  ctx.save(); ctx.fillStyle = color;
+  for(let k=0;k<n;k++){
+    let dist = ((S.t*speed) + k*total/n) % total;
+    for(let i=0;i<segs.length;i++){
+      if(dist <= segs[i]){
+        const u = dist/segs[i];
+        const x = lerp(pts[i][0], pts[i+1][0], u);
+        const y = lerp(pts[i][1], pts[i+1][1], u);
+        ctx.beginPath(); ctx.arc(x, y, 5, 0, Math.PI*2); ctx.fill();
+        break;
+      }
+      dist -= segs[i];
+    }
+  }
+  ctx.restore();
+}
+function rayEnd(x0,y0,x1,y1,minY,maxY,maxX){
+  // 從 (x0,y0) 沿通過 (x1,y1) 的方向往右延伸，止於畫面邊界（y=minY / y=maxY / x=maxX 先到者）
+  const dx = x1-x0, dy = y1-y0;
+  let t = (maxX - x0)/dx;
+  if(dy < 0) t = Math.min(t, (minY - y0)/dy);
+  if(dy > 0) t = Math.min(t, (maxY - y0)/dy);
+  return [x0 + dx*t, y0 + dy*t];
+}
+
+/* ---------- 觀測面板 ---------- */
+function magState(d){                    // 凸透鏡放大：物體恆在焦點內（滑桿已限制 d<F）
+  const mag = F / (F - d);
+  return { mag, note: '物體在焦點內，折射後的光線散開、不會交會，所以紙屏接不到影像；眼睛從另一側順著光線看回去（虛線反向延伸），就看到正立放大的「虛像」——它和物體在同一側、離透鏡更遠。越靠近焦點，放大越多。' };
+}
+function shrinkState(d){                 // 凹透鏡縮小：任何距離都成立
+  const mag = F / (F + d);
+  return { mag, note: '凹透鏡讓光線向外散開，散開的光線好像從左邊的虛焦點射出來；眼睛從另一側看回去，看到正立縮小的「虛像」，位置在物體和透鏡之間。物體越遠，虛像越小。' };
+}
+function candleState(d){                 // 蠟燭倒立成像：滑桿已限制 d>F，恆為實像
+  const v = F*d/(d-F), m = v/d;
+  if(m > 2.0){
+    return { state:'倒立，又大又遠', note:'剛超過焦點：折射後的光線幾乎平行，要走很遠才會交會，所以倒立的影像會先變得非常大、跑得非常遠，紙屏暫時接不到清楚的影像。把蠟燭再往後移，交會點才會靠近，影像就會縮小、變清楚！' };
+  }
+  if(Math.abs(d - 2*F) <= 6) return { state:'倒立，差不多等大', note:'物體在 2 倍焦距附近，紙屏上的倒立影像差不多等大。' };
+  if(d < 2*F) return { state:'倒立放大', note:'物體在焦距到 2 倍焦距之間，紙屏上接到倒立放大的影像。' };
+  return { state:'倒立縮小', note:'物體超過 2 倍焦距，紙屏上接到倒立縮小的影像。' };
+}
+function updateInfo(){
+  const p = document.getElementById('infoPanel');
+  let h = '<h3>觀測紀錄</h3>';
+  if(S.st === 1){
+    if(S.lens === 'convex'){
+      h += row('透鏡', '凸透鏡');
+      h += row('外形', '中間厚');
+      h += row('光線', '會聚到焦點', 'g');
+      h += '<div class="infonote">凸透鏡利用<b>折射</b>讓平行光會聚。聚光點很燙，絕對不可以用放大鏡看太陽。</div>';
+    }else{
+      h += row('透鏡', '凹透鏡');
+      h += row('外形', '中間薄');
+      h += row('光線', '發散', 'b');
+      h += '<div class="infonote">凹透鏡也利用<b>折射</b>，但會讓光往外張開；用凹透鏡看東西永遠正立縮小。</div>';
+    }
+  }else if(S.st === 2){
+    const st = magState(S.magDist);
+    h += row('物距', S.magDist);
+    h += row('焦距', F);
+    h += row('放大倍率', st.mag.toFixed(1) + ' 倍', 'g');
+    h += '<div class="infonote">' + st.note + '</div>';
+  }else if(S.st === 3){
+    const st = candleState(S.candDist);
+    h += row('物距', S.candDist);
+    h += row('焦距', F);
+    h += row('紙屏影像', st.state, 'g');
+    h += '<div class="infonote">' + st.note + '<br>相機和我們的眼睛也是這樣成像；視網膜上是倒立的，大腦幫我們轉正。<br>💡 注意小旗子：倒立不只是上下顛倒，左右也相反了！</div>';
+  }else if(S.st === 4){
+    const st = shrinkState(S.shrinkDist);
+    h += row('物距', S.shrinkDist);
+    h += row('焦距', F);
+    h += row('縮小倍率', st.mag.toFixed(2) + ' 倍', 'b');
+    h += '<div class="infonote">' + st.note + '</div>';
+  }else if(S.st === 5){
+    const worn = S.glasses && S.eye !== 'normal';
+    h += row('眼睛', S.eye==='normal' ? '正常眼' : S.eye==='myopia' ? '近視眼' : '遠視（老花）眼');
+    if(S.eye === 'normal'){
+      h += row('焦點位置', '視網膜上', 'g');
+      h += row('需要眼鏡', '不需要', 'g');
+      h += '<div class="infonote">正常的眼睛把遠方來的光剛好聚在<b>視網膜</b>上，所以看得清楚。</div>';
+    }else if(S.eye === 'myopia'){
+      h += row('焦點位置', worn ? '視網膜上' : '視網膜前面', worn ? 'g' : '');
+      h += row('眼鏡', worn ? '凹透鏡 👓' : '還沒戴');
+      h += '<div class="infonote">近視的眼睛把光聚得<b>太快</b>，焦點落在視網膜前面，看遠的東西模糊。' +
+        (worn ? '戴上<b>凹透鏡</b>讓光先發散一點，焦點往後退，剛好落在視網膜上！' : '按下面的「👓 戴上眼鏡」試試看！') + '</div>';
+    }else{
+      h += row('焦點位置', worn ? '視網膜上' : '視網膜後面', worn ? 'g' : '');
+      h += row('眼鏡', worn ? '凸透鏡 👓' : '還沒戴');
+      h += '<div class="infonote">遠視（老花）的眼睛聚光<b>太慢</b>，光還沒聚好就撞到視網膜，焦點想落在視網膜後面。' +
+        (worn ? '戴上<b>凸透鏡</b>先幫忙多聚一點光，焦點往前移，剛好落在視網膜上！' : '按下面的「👓 戴上眼鏡」試試看！') + '</div>';
+    }
+  }else{
+    h += '<div class="infonote">💪 答對越多題，得分越高！<br>忘記了可以按上面的 <b>📌 重點</b> 複習。</div>';
+  }
+  p.innerHTML = h;
+  function row(k,v,cls){ return '<div class="row"><span class="k">'+k+'</span><span class="v '+(cls||'')+'">'+v+'</span></div>'; }
+}
+
+/* ---------- 共用繪圖 ---------- */
+function darkRoom(){
+  const bg = ctx.createLinearGradient(0,0,0,H);
+  bg.addColorStop(0,'#14263c'); bg.addColorStop(1,'#0d1b2a');
+  ctx.fillStyle = bg; ctx.fillRect(0,0,W,H);
+}
+function drawBench(y){
+  ctx.fillStyle = '#5d4037'; ctx.fillRect(0, y, W, H-y);
+  ctx.fillStyle = '#4e342e'; ctx.fillRect(0, y, W, 10);
+}
+function drawLensBody(x,y,h,w,type){
+  ctx.save();
+  const g = ctx.createLinearGradient(x-w,y,x+w,y);
+  g.addColorStop(0,'rgba(170,225,255,.18)');
+  g.addColorStop(.5,'rgba(215,245,255,.48)');
+  g.addColorStop(1,'rgba(170,225,255,.18)');
+  ctx.fillStyle = g;
+  ctx.strokeStyle = 'rgba(210,240,255,.95)';
+  ctx.lineWidth = 4;
+  ctx.beginPath();
+  if(type === 'convex'){
+    ctx.moveTo(x,y-h/2);
+    ctx.bezierCurveTo(x+w,y-h*.38,x+w,y+h*.38,x,y+h/2);
+    ctx.bezierCurveTo(x-w,y+h*.38,x-w,y-h*.38,x,y-h/2);
+  }else{
+    ctx.moveTo(x-w,y-h/2);
+    ctx.bezierCurveTo(x-w*.20,y-h*.25,x-w*.20,y+h*.25,x-w,y+h/2);
+    ctx.lineTo(x+w,y+h/2);
+    ctx.bezierCurveTo(x+w*.20,y+h*.25,x+w*.20,y-h*.25,x+w,y-h/2);
+  }
+  ctx.closePath(); ctx.fill(); ctx.stroke();
+  ctx.strokeStyle = 'rgba(255,255,255,.45)';
+  ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(x,y-h/2+8); ctx.lineTo(x,y+h/2-8); ctx.stroke();
+  ctx.restore();
+}
+function drawCandle(x,y,s,invert,alpha){
+  ctx.save();
+  ctx.globalAlpha = alpha == null ? 1 : alpha;
+  ctx.translate(x,y);
+  if(invert) ctx.rotate(Math.PI);
+  ctx.scale(s,s);
+  ctx.fillStyle = '#f7f1d0';
+  ctx.strokeStyle = '#8d6e63'; ctx.lineWidth = 2;
+  roundRect(-12,-18,24,62,5); ctx.fill(); ctx.stroke();
+  ctx.fillStyle = '#4fc3f7'; roundRect(4,-8,5,40,2); ctx.fill();
+  ctx.fillStyle = '#7a4a24'; ctx.fillRect(-2,-24,4,8);
+  ctx.fillStyle = '#ff9800';
+  ctx.beginPath(); ctx.moveTo(0,-55); ctx.bezierCurveTo(-18,-32,-8,-20,0,-22); ctx.bezierCurveTo(12,-20,18,-34,0,-55); ctx.fill();
+  ctx.fillStyle = '#ffe082';
+  ctx.beginPath(); ctx.moveTo(0,-43); ctx.bezierCurveTo(-7,-32,-3,-27,0,-27); ctx.bezierCurveTo(5,-27,8,-33,0,-43); ctx.fill();
+  ctx.fillStyle = '#5d4037'; roundRect(-22,43,44,10,5); ctx.fill();
+  // 左右不對稱的小旗子：幫助看出「倒立」其實左右也相反，不只是上下顛倒
+  ctx.fillStyle = '#26c6da'; ctx.strokeStyle = '#0288a3'; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(-12,4); ctx.lineTo(-30,13); ctx.lineTo(-12,22); ctx.closePath();
+  ctx.fill(); ctx.stroke();
+  ctx.restore();
+}
+function drawEye(x,y){
+  label('👁️', x, y, 44, '#fff', false);
+}
+
+/* ---------- 站1：光線怎麼走 ---------- */
+function drawSt1(){
+  darkRoom();
+  const cx = W*0.48, cy = H*0.50;
+  const h = Math.min(H*0.44, 360);
+  const w = 48;
+  const xL = Math.max(46, W*0.08);
+  const xR = W - 70;
+  const focus = cx + Math.min(230, W*0.22);
+  const ys = [-96,-48,0,48,96].map(v=>cy + v);
+
+  drawLensBody(cx, cy, h, w, S.lens);
+  label(S.lens === 'convex' ? '凸透鏡：中間厚 → 會聚' : '凹透鏡：中間薄 → 發散', cx, cy-h/2-30, 20, '#9ad1ff');
+  label('透鏡讓光轉彎，是利用光的「折射」（連結上一課）', W*0.50, H*0.13, 21, '#ffd166');
+
+  ctx.save();
+  ctx.strokeStyle = 'rgba(255,255,255,.25)';
+  ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(cx, cy-h/2-18); ctx.lineTo(cx, cy+h/2+18); ctx.stroke();
+  ctx.restore();
+
+  if(S.lens === 'convex'){
+    ys.forEach((y,i)=>{
+      const col = i === 2 ? '#fffde7' : '#fff176';
+      // 折射後的光沿直線通過焦點，穿過焦點後繼續直線前進（不再轉彎）
+      const t = (xR - cx) / (focus - cx);
+      const yEnd = lerp(y, cy, t);
+      arrow(xL, y, cx-5, y, col, 4);
+      arrow(cx+5, y, focus, cy, '#ffb703', 4);
+      arrow(focus, cy, xR, yEnd, 'rgba(255,183,3,.82)', 3);
+      photons([[xL,y],[cx,y],[xR,yEnd]], '#fffde7', 180, 3);
+    });
+    ctx.save();
+    const glow = ctx.createRadialGradient(focus,cy,2,focus,cy,42);
+    glow.addColorStop(0,'rgba(255,255,180,1)');
+    glow.addColorStop(1,'rgba(255,120,0,0)');
+    ctx.fillStyle = glow; ctx.beginPath(); ctx.arc(focus,cy,42,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#ffd54f'; ctx.beginPath(); ctx.arc(focus,cy,8,0,Math.PI*2); ctx.fill();
+    ctx.restore();
+    label('焦點', focus, cy+34, 18, '#ffd166');
+    label('聚光點很燙！絕對不可以用放大鏡看太陽', focus+22, cy-52, 18, '#ff8a80');
+  }else{
+    // 折射後的光線方向＝「虛焦點 → 透鏡上該點」的延長線，反向延伸（虛線）才會真的交會在虛焦點
+    const vFocus = cx - Math.min(340, W*0.30);
+    ys.forEach((y,i)=>{
+      const end = rayEnd(vFocus, cy, cx, y, 60, H-120, xR);
+      arrow(xL, y, cx-5, y, '#fff176', 4);
+      arrow(cx+5, y, end[0], end[1], '#9ad1ff', 4);
+      ctx.save();
+      ctx.setLineDash([7,7]);
+      ctx.strokeStyle = 'rgba(154,209,255,.35)';
+      ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(cx, y); ctx.lineTo(vFocus, cy); ctx.stroke();
+      ctx.restore();
+      photons([[xL,y],[cx,y],end], '#d7f2ff', 170, 3);
+      if(i === 0) label('發散張開', lerp(cx,end[0],.55), lerp(y,end[1],.55)-24, 17, '#9ad1ff');
+    });
+    ctx.save();
+    ctx.fillStyle = '#9ad1ff';
+    ctx.beginPath(); ctx.arc(vFocus, cy, 7, 0, Math.PI*2); ctx.fill();
+    ctx.restore();
+    label('虛焦點', vFocus, cy-30, 17, '#9ad1ff');
+    label('凹透鏡讓平行光發散，看起來像從左邊的虛焦點散開', vFocus+60, cy+44, 17, '#9ad1ff');
+  }
+}
+
+/* ---------- 站2：凸透鏡放大物體 ---------- */
+/* 眼睛和物體分別在透鏡兩側，物體在焦點內（滑桿限制 40≤d≤70 < F=100，下限避免蠟燭圖疊到透鏡）。
+   兩條真實光線照薄透鏡規則畫：①平行主軸→折射後通過右焦點、繼續直線 ②通過鏡心直線不轉彎。
+   折射後兩條光線彼此散開、永遠不會交會（所以紙屏接不到影像）；把它們反向延伸（虛線）
+   會交會在物體同一側、比物體離透鏡更遠處，就是正立放大的虛像：v=Fd/(F−d)、m=F/(F−d)。
+   滑桿上限 70 讓 m≤3.33，虛像大小、位置完全按公式畫，不需要 clamp 造假。 */
+function drawSt2(){
+  darkRoom();
+  const benchY = H*0.82;
+  drawBench(benchY);
+  const lensX = W*0.42, axisY = H*0.46;
+  const px = clamp((lensX - 140) / 260, .42, 1.35);
+  const d = S.magDist;
+  const objX = lensX - d * px;
+  const focusPx = F * px;
+  const leftF = lensX - focusPx, rightF = lensX + focusPx;
+  const CS = 0.55;                       // 這一站蠟燭畫小一點，放大3倍多的虛像才放得下
+  const hTop = 111 * CS;
+  const P = [objX, axisY - hTop];
+
+  ctx.save();
+  ctx.strokeStyle = 'rgba(255,255,255,.25)';
+  ctx.lineWidth = 3; ctx.setLineDash([2,6]);
+  ctx.beginPath(); ctx.moveTo(40, axisY); ctx.lineTo(W-40, axisY); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.restore();
+
+  function stand(x, topY){
+    ctx.save();
+    ctx.fillStyle = 'rgba(110,80,55,.95)';
+    ctx.fillRect(x-4, topY, 8, benchY - topY);
+    roundRect(x-20, benchY-8, 40, 10, 4); ctx.fill();
+    ctx.restore();
+  }
+  stand(objX, axisY + 53*CS);
+  stand(lensX, axisY + Math.min(H*.40, 320)/2 - 6);
+
+  drawLensBody(lensX, axisY, Math.min(H*.40, 320), 40, 'convex');
+  label('凸透鏡', lensX, axisY + Math.min(H*.40, 320)/2 + 26, 17, '#d7f2ff');
+  [leftF, rightF].forEach((x,i)=>{
+    ctx.save();
+    ctx.strokeStyle = '#ffd166'; ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.moveTo(x, axisY-16); ctx.lineTo(x, axisY+16); ctx.stroke();
+    ctx.restore();
+    label(i===0 ? '左焦點' : '右焦點', x, axisY+36, 15, '#ffd166');
+  });
+
+  drawCandle(objX, axisY - 53*CS, CS, false);
+  label('蠟燭（物體，在焦點內）', objX, benchY+28, 16, '#cfe4f7');
+  arrow(objX+10, benchY-24, lensX-10, benchY-24, 'rgba(255,209,102,.85)', 3);
+  label('物距 ' + d, (objX+lensX)/2, benchY-52, 16, '#ffd166');
+
+  // 薄透鏡公式：虛像在物體同一側、離透鏡更遠
+  const m = F/(F-d);
+  const Qv = [lensX - m*d*px, axisY - hTop*m];
+
+  // ① 平行主軸 → 折射後通過右焦點，之後繼續直線前進（不再轉彎）
+  const e1 = rayEnd(lensX, P[1], rightF, axisY, 120, benchY-14, W-70);
+  arrow(P[0], P[1], lensX, P[1], '#fff176', 3);
+  arrow(lensX, P[1], e1[0], e1[1], '#ffb703', 3);
+  // ② 通過鏡心：直線不轉彎
+  const e2 = rayEnd(P[0], P[1], lensX, axisY, 120, benchY-14, W-70);
+  arrow(P[0], P[1], e2[0], e2[1], '#f48fb1', 3);
+  photons([P,[lensX,P[1]],e1], '#fffde7', 150, 3);
+  photons([P,e2], '#ffd1dc', 130, 3);
+  label('折射後的光線散開，不會交會', rightF + 70, axisY - 40, 16, '#9ad1ff');
+
+  // 反向延伸（虛線，顏色對應各自的光線）：兩條光線好像都從虛像頂端射出來
+  ctx.save();
+  ctx.setLineDash([6,6]); ctx.lineWidth = 2;
+  ctx.strokeStyle = 'rgba(255,183,3,.55)';
+  ctx.beginPath(); ctx.moveTo(lensX, P[1]); ctx.lineTo(Qv[0], Qv[1]); ctx.stroke();
+  ctx.strokeStyle = 'rgba(244,143,177,.55)';
+  ctx.beginPath(); ctx.moveTo(P[0], P[1]); ctx.lineTo(Qv[0], Qv[1]); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.restore();
+  drawCandle(Qv[0], axisY - 53*CS*m, CS*m, false, .55);
+  label('虛像：正立放大（眼睛看到的樣子，紙屏接不到）', Qv[0], Qv[1] - 30, 15, '#90e0a0');
+
+  // 眼睛：貼近透鏡另一側看（真實用放大鏡的姿勢），順著散開的光線看回去
+  const eyeX = lensX + Math.min(260, W*0.20);
+  drawEye(eyeX, axisY);
+  label('眼睛在這一側看', eyeX, axisY + 56, 15, '#9ad1ff');
+
+  label('光線反向延伸（虛線）交會的地方，就是眼睛看到的放大虛像', W*0.54, H*0.10, 19, '#ffd166');
+}
+
+/* ---------- 站3：蠟燭倒立成像 ---------- */
+/* 蠟燭底部放在光軸上，影像位置與大小用薄透鏡公式計算，
+   三條代表光線（平行→過焦點、過鏡心直線、過左焦點→平行）幾何才會自洽。
+   蠟燭上加了一支左右不對稱的小旗子，讓「倒立」不只是上下顛倒、左右也相反這件事可以被看見。
+   滑桿限制 d>F，這一站只示範超過焦點的倒立實像；焦點內的正立放大虛像在「凸透鏡放大物體」站。 */
+function drawSt3(){
+  darkRoom();
+  const benchY = H*0.82;
+  drawBench(benchY);
+  const lensX = W*0.44, axisY = H*0.46;
+  const px = clamp((lensX - 120) / 260, .42, 1.35);
+  const d = S.candDist;
+  const objX = lensX - d * px;
+  const focusPx = F * px;
+  const leftF = lensX - focusPx, rightF = lensX + focusPx;
+  const CS = 0.72;                       // 蠟燭縮放
+  const hTop = 111 * CS;                 // 燭焰頂離光軸的高度
+  const P = [objX, axisY - hTop];        // 物點（燭焰頂）
+
+  // 光軸
+  ctx.save();
+  ctx.strokeStyle = 'rgba(255,255,255,.25)';
+  ctx.lineWidth = 3; ctx.setLineDash([2,6]);
+  ctx.beginPath(); ctx.moveTo(40, axisY); ctx.lineTo(W-40, axisY); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.restore();
+
+  // 光具座支柱
+  function stand(x, topY){
+    ctx.save();
+    ctx.fillStyle = 'rgba(110,80,55,.95)';
+    ctx.fillRect(x-4, topY, 8, benchY - topY);
+    roundRect(x-20, benchY-8, 40, 10, 4); ctx.fill();
+    ctx.restore();
+  }
+  stand(objX, axisY + 53*CS);
+  stand(lensX, axisY + Math.min(H*.40, 320)/2 - 6);
+
+  drawLensBody(lensX, axisY, Math.min(H*.40, 320), 40, 'convex');
+  label('凸透鏡', lensX, axisY + Math.min(H*.40, 320)/2 + 26, 17, '#d7f2ff');
+  [leftF,rightF].forEach((x,i)=>{
+    ctx.save();
+    ctx.strokeStyle = '#ffd166'; ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.moveTo(x, axisY-16); ctx.lineTo(x, axisY+16); ctx.stroke();
+    ctx.restore();
+    label(i===0 ? '左焦點' : '右焦點', x, axisY+36, 15, '#ffd166');
+  });
+
+  // 蠟燭（物）：底部貼光軸
+  drawCandle(objX, axisY - 53*CS, CS, false);
+  label('蠟燭（可移動）', objX, benchY+28, 16, '#cfe4f7');
+  label('🚩 小旗子在左邊', objX - 34, axisY - 53*CS + 30, 13, '#26c6da');
+  arrow(objX+10, benchY-24, lensX-10, benchY-24, 'rgba(255,209,102,.85)', 3);
+  label('物距 ' + d, (objX+lensX)/2, benchY-52, 16, '#ffd166');
+
+  const st = candleState(d);
+  const scrH = Math.min(H*.46, 360);
+  const v = F*d/(d-F), m = v/d;
+  const Q = [lensX + v*px, axisY + hTop*m];   // 像點（倒立燭焰頂）
+  if(m > 2.0){
+    // 影像太大太遠：紙屏接不到清楚影像（光線仍按正確方向延伸出畫面）
+    const scrX = W - 96;
+    drawScreen(scrX, axisY, scrH);
+    ctx.save();
+    ctx.globalAlpha = .40; ctx.filter = 'blur(9px)';
+    ctx.fillStyle = 'rgba(255,220,150,.8)';
+    ctx.beginPath(); ctx.ellipse(scrX, axisY, 30, scrH*.36, 0, 0, Math.PI*2); ctx.fill();
+    ctx.restore();
+    const cut = (x0,y0,x1,y1)=>{           // 沿 (x0,y0)→(x1,y1) 方向延伸到紙屏
+      const t = (scrX - x0)/(x1 - x0);
+      return [scrX, lerp(y0,y1,t)];
+    };
+    const e1 = cut(lensX, P[1], Q[0], Q[1]);
+    const e2 = cut(P[0], P[1], Q[0], Q[1]);
+    arrow(P[0], P[1], lensX, P[1], '#fff176', 3);
+    arrow(lensX, P[1], e1[0], e1[1], '#ffb703', 3);
+    arrow(P[0], P[1], e2[0], e2[1], '#f48fb1', 3);
+    photons([P,[lensX,P[1]],e1], '#fffde7', 135, 3);
+    label('倒立的影像又大又遠，紙屏接不到清楚的影像', W*0.55, axisY - scrH/2 - 26, 17, '#ff8a80');
+    label('原因：光線幾乎平行，要走很遠才會交會，所以影像先變超大超遠', W*0.55, axisY - scrH/2 - 4, 15, '#ffab91');
+    label('把蠟燭往後移，影像就會清楚出現在紙屏上！', W*0.5, H*0.15, 20, '#ffd166');
+  }else{
+    drawScreen(Q[0], axisY, scrH);
+    stand(Q[0], axisY + scrH/2 - 4);
+    drawCandle(Q[0], axisY + 53*CS*m, CS*m, true);   // 倒立：底在光軸、火焰朝下
+    // ① 平行主軸 → 折射後通過右焦點
+    arrow(P[0], P[1], lensX, P[1], '#fff176', 3);
+    arrow(lensX, P[1], Q[0], Q[1], '#ffb703', 3);
+    // ② 通過鏡心：直線不轉彎
+    arrow(P[0], P[1], Q[0], Q[1], '#f48fb1', 3);
+    // ③ 通過左焦點 → 折射後平行主軸
+    const y3 = P[1] + (axisY - P[1]) * (lensX - P[0]) / (leftF - P[0]);
+    arrow(P[0], P[1], lensX, y3, '#90e0a0', 3);
+    arrow(lensX, y3, Q[0], Q[1], '#90e0a0', 3);
+    photons([P,[lensX,P[1]],Q], '#fffde7', 135, 3);
+    photons([P,Q], '#ffd1dc', 120, 3);
+    label('光線交叉：上面的光跑到下面，所以影像倒立', (lensX+Q[0])/2, axisY - scrH/2 - 40, 18, '#ffd166');
+    label(st.state, Q[0], axisY + scrH/2 + 30, 18, '#ffd166');
+    label('🚩 小旗子跑到右邊了！左右也相反', Q[0], axisY + scrH/2 + 54, 15, '#26c6da');
+  }
+  label('相機和我們的眼睛也是這樣成像：視網膜上是倒立的，大腦幫我們轉正。', W*0.50, H*0.93, 17, '#cfe4f7');
+}
+
+/* ---------- 站4：凹透鏡縮小物體 ---------- */
+/* 眼睛和物體分別在透鏡兩側。兩條真實光線照薄透鏡規則畫：
+   ①平行主軸→折射後向外發散，延長線通過左邊的虛焦點（連結「光線怎麼走」站）
+   ②通過鏡心直線不轉彎。
+   ①的反向延伸（虛線）和②本身交會在物體和透鏡之間，就是正立縮小的虛像：
+   v=Fd/(F+d)、m=F/(F+d) 永遠小於1，所以凹透鏡不管距離多遠都是縮小、正立。 */
+function drawSt4(){
+  darkRoom();
+  const benchY = H*0.82;
+  drawBench(benchY);
+  const lensX = W*0.42, axisY = H*0.46;
+  const px = clamp((lensX - 140) / 260, .42, 1.35);
+  const d = S.shrinkDist;
+  const objX = lensX - d * px;
+  const focusPx = F * px;
+  const vfX = lensX - focusPx;       // 左側虛焦點
+  const CS = 0.72;
+  const hTop = 111 * CS;
+  const P = [objX, axisY - hTop];
+
+  ctx.save();
+  ctx.strokeStyle = 'rgba(255,255,255,.25)';
+  ctx.lineWidth = 3; ctx.setLineDash([2,6]);
+  ctx.beginPath(); ctx.moveTo(40, axisY); ctx.lineTo(W-40, axisY); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.restore();
+
+  function stand(x, topY){
+    ctx.save();
+    ctx.fillStyle = 'rgba(110,80,55,.95)';
+    ctx.fillRect(x-4, topY, 8, benchY - topY);
+    roundRect(x-20, benchY-8, 40, 10, 4); ctx.fill();
+    ctx.restore();
+  }
+  stand(objX, axisY + 53*CS);
+  stand(lensX, axisY + Math.min(H*.40, 320)/2 - 6);
+
+  drawLensBody(lensX, axisY, Math.min(H*.40, 320), 40, 'concave');
+  label('凹透鏡', lensX, axisY + Math.min(H*.40, 320)/2 + 26, 17, '#d7f2ff');
+  ctx.save();
+  ctx.strokeStyle = '#9ad1ff'; ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.moveTo(vfX, axisY-16); ctx.lineTo(vfX, axisY+16); ctx.stroke();
+  ctx.restore();
+  label('虛焦點', vfX, axisY+36, 15, '#9ad1ff');
+
+  drawCandle(objX, axisY - 53*CS, CS, false);
+  label('蠟燭（物體）', objX, benchY+28, 16, '#cfe4f7');
+  arrow(objX+10, benchY-24, lensX-10, benchY-24, 'rgba(255,209,102,.85)', 3);
+  label('物距 ' + d, (objX+lensX)/2, benchY-52, 16, '#ffd166');
+
+  // 薄透鏡公式：虛像在物體和透鏡之間，永遠正立縮小
+  const m = F / (F + d);
+  const Qv = [lensX - m*d*px, axisY - hTop*m];
+
+  // ① 平行主軸 → 折射後向外發散，延長線通過左邊的虛焦點
+  const e1 = rayEnd(vfX, axisY, lensX, P[1], 110, benchY-14, W-70);
+  arrow(P[0], P[1], lensX, P[1], '#fff176', 3);
+  arrow(lensX, P[1], e1[0], e1[1], '#9ad1ff', 3);
+  // ② 通過鏡心：直線不轉彎（這條線正好通過虛像頂端）
+  const e2 = rayEnd(P[0], P[1], lensX, axisY, 110, benchY-14, W-70);
+  arrow(P[0], P[1], e2[0], e2[1], '#f48fb1', 3);
+  photons([P,[lensX,P[1]],e1], '#d7f2ff', 150, 3);
+  photons([P,e2], '#ffd1dc', 130, 3);
+  label('光線向外散開', lensX + 130, axisY - hTop - 46, 16, '#9ad1ff');
+
+  // ①的反向延伸（虛線）：通過虛像頂端、直到虛焦點
+  ctx.save();
+  ctx.setLineDash([6,6]); ctx.lineWidth = 2;
+  ctx.strokeStyle = 'rgba(154,209,255,.55)';
+  ctx.beginPath(); ctx.moveTo(lensX, P[1]); ctx.lineTo(vfX, axisY); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.restore();
+  drawCandle(Qv[0], axisY - 53*CS*m, CS*m, false, .55);
+  label('虛像：正立縮小（眼睛看到的樣子，紙屏接不到）', Qv[0], axisY + 70, 15, '#90e0a0');
+
+  const eyeX = lensX + Math.min(260, W*0.20);
+  drawEye(eyeX, axisY);
+  label('眼睛在這一側看', eyeX, axisY + 56, 15, '#9ad1ff');
+
+  label('凹透鏡把光線向外散開，反向延伸交會出縮小的虛像，不管距離多遠都正立', W*0.52, H*0.10, 19, '#ffd166');
+}
+function drawScreen(x,y,h){
+  ctx.save();
+  ctx.fillStyle = '#f7f7f7';
+  ctx.strokeStyle = '#d0d0d0';
+  ctx.lineWidth = 4;
+  roundRect(x-10, y-h/2, 20, h, 5); ctx.fill(); ctx.stroke();
+  ctx.fillStyle = 'rgba(255,255,255,.10)';
+  roundRect(x-35, y-h/2-8, 70, h+16, 9); ctx.fill();
+  ctx.restore();
+  label('白色紙屏', x, y-h/2-26, 16, '#fff');
+}
+
+/* ---------- 站5：近視與遠視眼鏡 ---------- */
+/* 眼球側面剖面：遠方來的平行光經水晶體（眼睛裡的凸透鏡）會聚。
+   正常眼＝焦點剛好在視網膜上；近視＝聚太快、焦點在視網膜前面（光過焦點後交叉，視網膜接到一片模糊）；
+   遠視（老花）＝聚太慢、光還沒聚好就撞到視網膜（虛線延伸顯示焦點想落在眼睛後面）。
+   戴上眼鏡＝光先經過凹透鏡（發散、焦點後退）或凸透鏡（先多聚一點、焦點前移），回到視網膜上。 */
+function drawSt5(){
+  darkRoom();
+  const axisY = H*0.52;
+  const eyeR = Math.min(H*0.26, 210);
+  const eyeCX = W*0.60;
+  const ex = eyeCX - eyeR + 26;          // 水晶體位置（眼睛前端）
+  const retinaX = eyeCX + eyeR*0.92;     // 視網膜（眼球內側後壁）
+  const gx = ex - 136;                   // 眼鏡位置
+  const xL = Math.max(50, W*0.06);
+  const mode = S.eye;
+  const worn = S.glasses && mode !== 'normal';
+  let focusX;
+  if(mode === 'normal') focusX = retinaX;
+  else if(mode === 'myopia') focusX = worn ? retinaX : eyeCX + eyeR*0.28;
+  else focusX = worn ? retinaX : eyeCX + eyeR*1.55;
+
+  // 光軸
+  ctx.save();
+  ctx.strokeStyle = 'rgba(255,255,255,.18)';
+  ctx.lineWidth = 2; ctx.setLineDash([2,6]);
+  ctx.beginPath(); ctx.moveTo(40, axisY); ctx.lineTo(W-40, axisY); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.restore();
+
+  // 眼球
+  ctx.save();
+  const g = ctx.createRadialGradient(eyeCX-eyeR*.3, axisY-eyeR*.3, eyeR*.2, eyeCX, axisY, eyeR);
+  g.addColorStop(0,'rgba(255,255,255,.16)');
+  g.addColorStop(1,'rgba(160,200,240,.10)');
+  ctx.fillStyle = g;
+  ctx.strokeStyle = 'rgba(220,240,255,.85)'; ctx.lineWidth = 4;
+  ctx.beginPath(); ctx.arc(eyeCX, axisY, eyeR, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+  ctx.strokeStyle = '#ff8a65'; ctx.lineWidth = 9;   // 視網膜＝後壁厚弧
+  ctx.beginPath(); ctx.arc(eyeCX, axisY, eyeR-7, -Math.PI*0.38, Math.PI*0.38); ctx.stroke();
+  ctx.restore();
+  drawLensBody(ex, axisY, eyeR*0.9, 16, 'convex');
+  label('水晶體（眼睛裡的凸透鏡）', ex, axisY + eyeR*0.9/2 + 26, 14, '#d7f2ff');
+  label('視網膜', eyeCX + eyeR*0.62, axisY - eyeR*0.92, 15, '#ffab91');
+  label('眼球（從側面看）', eyeCX, axisY + eyeR + 30, 16, '#cfe4f7');
+
+  // 眼鏡
+  if(worn){
+    drawLensBody(gx, axisY, eyeR*1.1, 26, mode==='myopia' ? 'concave' : 'convex');
+    label(mode==='myopia' ? '近視眼鏡（凹透鏡）' : '遠視眼鏡（凸透鏡）', gx, axisY + eyeR*0.55 + 34, 15, '#9ad1ff');
+  }
+
+  // 三條平行光
+  const bend = worn ? (mode==='myopia' ? 1.22 : 0.78) : 1;   // 凹透鏡先發散、凸透鏡先會聚
+  const hs = [-eyeR*0.42, 0, eyeR*0.42];
+  hs.forEach(h=>{
+    const y0 = axisY + h;
+    const y1 = axisY + h*bend;
+    const pts = [[xL, y0]];
+    if(worn){
+      arrow(xL, y0, gx-4, y0, '#fff176', 3.5);
+      arrow(gx+4, y0, ex, y1, '#ffe082', 3.5);
+      pts.push([gx, y0], [ex, y1]);
+    }else{
+      arrow(xL, y0, ex, y0, '#fff176', 3.5);
+      pts.push([ex, y0]);
+    }
+    const yc = worn ? y1 : y0;
+    if(mode === 'hyper' && !worn){
+      // 聚太慢：還沒聚好就先撞到視網膜
+      const t = (retinaX - ex)/(focusX - ex);
+      const yr = lerp(yc, axisY, t);
+      arrow(ex, yc, retinaX, yr, '#ffb703', 3.5);
+      pts.push([retinaX, yr]);
+      ctx.save();
+      ctx.setLineDash([6,6]); ctx.strokeStyle = 'rgba(255,183,3,.5)'; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(retinaX, yr); ctx.lineTo(focusX, axisY); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.restore();
+    }else if(mode === 'myopia' && !worn){
+      // 聚太快：焦點在視網膜前面，光交叉後散開才撞到視網膜
+      const s = (retinaX - ex)/(focusX - ex);
+      const yr = yc + (axisY - yc)*s;
+      arrow(ex, yc, focusX, axisY, '#ffb703', 3.5);
+      arrow(focusX, axisY, retinaX, yr, 'rgba(255,183,3,.85)', 3);
+      pts.push([focusX, axisY], [retinaX, yr]);
+    }else{
+      // 正常眼或戴了眼鏡：剛好聚在視網膜上
+      arrow(ex, yc, retinaX, axisY, '#ffb703', 3.5);
+      pts.push([retinaX, axisY]);
+    }
+    photons(pts, '#fffde7', 170, 3);
+  });
+  label('從遠方來的光（平行）', xL + 130, axisY - eyeR*0.42 - 28, 16, '#fff176');
+
+  // 焦點與清楚／模糊
+  if(mode === 'normal' || worn){
+    ctx.save();
+    const glow = ctx.createRadialGradient(retinaX, axisY, 2, retinaX, axisY, 30);
+    glow.addColorStop(0,'rgba(255,255,190,1)');
+    glow.addColorStop(1,'rgba(255,140,0,0)');
+    ctx.fillStyle = glow; ctx.beginPath(); ctx.arc(retinaX, axisY, 30, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#ffd54f'; ctx.beginPath(); ctx.arc(retinaX, axisY, 6, 0, Math.PI*2); ctx.fill();
+    ctx.restore();
+    label('剛好聚在視網膜上：清楚！', retinaX - 30, axisY + 46, 17, '#90e0a0');
+  }else{
+    ctx.save();
+    ctx.globalAlpha = .5; ctx.filter = 'blur(6px)';
+    ctx.fillStyle = 'rgba(255,210,140,.9)';
+    ctx.beginPath(); ctx.ellipse(retinaX, axisY, 14, eyeR*0.30, 0, 0, Math.PI*2); ctx.fill();
+    ctx.restore();
+    if(mode === 'myopia'){
+      ctx.save();
+      ctx.fillStyle = '#ffd54f'; ctx.beginPath(); ctx.arc(focusX, axisY, 6, 0, Math.PI*2); ctx.fill();
+      ctx.restore();
+      label('焦點在視網膜前面', focusX, axisY - 34, 16, '#ff8a80');
+      label('視網膜接到一片模糊', retinaX + 10, axisY + 46, 16, '#ff8a80');
+    }else{
+      ctx.save();
+      ctx.globalAlpha = .6;
+      ctx.fillStyle = '#ffd54f'; ctx.beginPath(); ctx.arc(focusX, axisY, 6, 0, Math.PI*2); ctx.fill();
+      ctx.restore();
+      label('焦點想落在視網膜後面', focusX, axisY - 34, 16, '#ff8a80');
+      label('視網膜接到一片模糊', retinaX - 40, axisY + 46, 16, '#ff8a80');
+    }
+  }
+
+  // 標題說明
+  const HEAD = {
+    normal: '正常的眼睛：水晶體把光剛好聚在視網膜上 → 看得清楚',
+    myopia: worn ? '凹透鏡先把光發散一點，焦點往後退，剛好落在視網膜上 → 清楚！'
+                 : '近視：眼睛聚光太快，焦點落在視網膜前面 → 模糊。該戴哪種眼鏡呢？',
+    hyper:  worn ? '凸透鏡先幫忙多聚一點光，焦點往前移，剛好落在視網膜上 → 清楚！'
+                 : '遠視（老花）：聚光太慢，焦點想落在視網膜後面 → 模糊。該戴哪種眼鏡呢？',
+  };
+  label(HEAD[mode], W*0.50, H*0.10, 20, '#ffd166');
+}
+
+/* ---------- 站別切換 ---------- */
+const HINTS = {
+  1:'🔦 切換凸透鏡與凹透鏡，看看平行光怎麼走！',
+  2:'🔍 眼睛在透鏡另一側看，物體在焦點內：凸透鏡把它放大！',
+  3:'🕯️ 移動蠟燭，觀察紙屏上的倒立影像！',
+  4:'🔻 眼睛在透鏡另一側看：凹透鏡不管距離都把物體縮小！',
+  5:'👓 先看光聚在哪裡，再按「戴上眼鏡」比較看看！',
+};
+function setStation(n){
+  S.st = n;
+  document.querySelectorAll('.stbtn').forEach(b=>b.classList.toggle('on', +b.dataset.st === n));
+  for(let k=1;k<=5;k++) document.getElementById('bar'+k).classList.toggle('show', k===n);
+  toast(HINTS[n]);
+  updateInfo();
+}
+document.querySelectorAll('.stbtn').forEach(b=>{
+  b.onclick = ()=>setStation(+b.dataset.st);
+});
+
+/* ---------- 控制項 ---------- */
+document.querySelectorAll('.lensbtn').forEach(b=>{
+  b.onclick = ()=>{
+    S.lens = b.dataset.lens;
+    document.querySelectorAll('.lensbtn').forEach(x=>x.classList.toggle('on', x===b));
+    toast(S.lens === 'convex' ? '凸透鏡：平行光會聚到焦點。' : '凹透鏡：平行光向外發散。');
+    updateInfo();
+  };
+});
+const magSlider = document.getElementById('magSlider');
+magSlider.oninput = ()=>{
+  S.magDist = +magSlider.value;
+  document.getElementById('magClock').textContent = '物距 ' + S.magDist;
+  updateInfo();
+};
+const candSlider = document.getElementById('candSlider');
+candSlider.oninput = ()=>{
+  S.candDist = +candSlider.value;
+  document.getElementById('candClock').textContent = '物距 ' + S.candDist;
+  updateInfo();
+};
+const shrinkSlider = document.getElementById('shrinkSlider');
+shrinkSlider.oninput = ()=>{
+  S.shrinkDist = +shrinkSlider.value;
+  document.getElementById('shrinkClock').textContent = '物距 ' + S.shrinkDist;
+  updateInfo();
+};
+const btnGlasses = document.getElementById('btnGlasses');
+function syncGlassesBtn(){
+  btnGlasses.textContent = S.glasses ? '👓 拿掉眼鏡' : '👓 戴上眼鏡';
+  btnGlasses.classList.toggle('on', S.glasses);
+  btnGlasses.disabled = S.eye === 'normal';
+}
+document.querySelectorAll('.eyebtn').forEach(b=>{
+  b.onclick = ()=>{
+    S.eye = b.dataset.eye;
+    document.querySelectorAll('.eyebtn').forEach(x=>x.classList.toggle('on', x===b));
+    if(S.eye === 'normal'){
+      S.glasses = false;
+      toast('正常的眼睛不需要眼鏡：光剛好聚在視網膜上。');
+    }else{
+      toast(S.eye === 'myopia' ? '近視：光聚在視網膜前面，看不清楚。該戴哪種眼鏡？'
+                               : '遠視（老花）：光想聚在視網膜後面，看不清楚。該戴哪種眼鏡？');
+    }
+    syncGlassesBtn();
+    updateInfo();
+  };
+});
+btnGlasses.onclick = ()=>{
+  S.glasses = !S.glasses;
+  syncGlassesBtn();
+  toast(S.glasses
+    ? (S.eye === 'myopia' ? '戴上凹透鏡：光先發散一點，焦點退回視網膜上！' : '戴上凸透鏡：光先多聚一點，焦點移到視網膜上！')
+    : '拿掉眼鏡，再觀察一次焦點的位置。');
+  updateInfo();
+};
+syncGlassesBtn();
+
+/* ---------- 主迴圈 ---------- */
+let last = performance.now();
+function loop(now){
+  S.t += (now - last)/1000; last = now;
+  ctx.clearRect(0,0,W,H);
+  if(S.st===1) drawSt1();
+  else if(S.st===2) drawSt2();
+  else if(S.st===3) drawSt3();
+  else if(S.st===4) drawSt4();
+  else if(S.st===5) drawSt5();
+  requestAnimationFrame(loop);
+}
+updateInfo();
+toast(HINTS[1], 3200);
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>

@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<title>凸透鏡與凹透鏡 學習單</title>
+<style>
+  @page { size: A4 portrait; margin: 9mm 11mm; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:"PingFang TC","Microsoft JhengHei","Heiti TC",sans-serif;
+         font-size:11.2pt; line-height:1.38; color:#111; background:#f0f0f0; }
+  .sheet { width:190mm; min-height:275mm; margin:8px auto; background:#fff;
+           padding:5.5mm 7mm; box-shadow:0 2px 12px rgba(0,0,0,.25); }
+  @media print {
+    body { background:#fff; }
+    .sheet { margin:0; box-shadow:none; width:auto; min-height:auto; padding:0; }
+    .no-print { display:none !important; }
+  }
+  .head { display:flex; align-items:flex-end; gap:10px; border-bottom:2.5px solid #111;
+          padding-bottom:4px; margin-bottom:5px; }
+  .head h1 { font-size:15pt; letter-spacing:0.5px; white-space:nowrap; }
+  .head .sub { font-size:9.5pt; color:#444; }
+  .head .blanks { margin-left:auto; font-size:11pt; white-space:nowrap; }
+  .blank { display:inline-block; border-bottom:1px solid #111; min-width:16mm; text-align:center; }
+  h2 { font-size:12.2pt; background:#e8e8e8; border-left:5px solid #555;
+       padding:2px 8px; margin:5px 0 3px; }
+  ol.qs { padding-left:1.6em; }
+  ol.qs li { margin-bottom:2px; }
+  .circle-opt { border:1.2px solid #333; border-radius:12px; padding:0 7px; margin:0 2px;
+                display:inline-block; }
+  .panels { display:flex; gap:5mm; justify-content:space-between; margin:1px 0; }
+  .panel { flex:1; text-align:center; }
+  .panel .cap { font-size:10.5pt; font-weight:700; margin-bottom:1px; }
+  svg { display:block; margin:0 auto; }
+  table.tab { width:100%; border-collapse:collapse; text-align:center; font-size:10.8pt; }
+  table.tab th, table.tab td { border:1.2px solid #333; padding:3px 4px; }
+  table.tab th { background:#eee; }
+  .tab td.fill { min-width:14mm; height:8mm; }
+  .thinkbox { border:1.2px solid #333; border-radius:6px; padding:5px 8px; }
+  .wline { border-bottom:1px solid #999; min-height:8mm; }
+  .ans { display:none; color:#d00; font-weight:700; }
+  body.show-ans .ans { display:inline; }
+  .toolbar { text-align:center; padding:8px; }
+  .toolbar button { font-size:14px; padding:8px 18px; border-radius:8px; border:1px solid #888;
+                    background:#fff; cursor:pointer; font-family:inherit; }
+  .foot { margin-top:3px; font-size:9pt; color:#666; text-align:right; }
+  .choicegrid { display:grid; grid-template-columns:repeat(4,1fr); gap:3mm; align-items:start; }
+  .choice { text-align:center; font-size:10pt; }
+  .choice .circle-opt { margin-top:1px; }
+</style>
+<link rel="icon" href="../../image/icon.svg">
+</head>
+<body>
+<div class="toolbar no-print">
+  <button onclick="document.body.classList.toggle('show-ans')">👨‍🏫 顯示 / 隱藏答案（教師版）</button>
+  <button onclick="window.print()">🖨️ 列印</button>
+</div>
+
+<div class="sheet">
+  <div class="head">
+    <h1>🔍 凸透鏡與凹透鏡</h1>
+    <div class="sub">五年級自然．第一單元 太陽．第五課 學習單</div>
+    <div class="blanks">班級<span class="blank"></span> 座號<span class="blank" style="min-width:10mm"></span> 姓名<span class="blank" style="min-width:22mm"></span></div>
+  </div>
+
+  <h2>一、圈圈看</h2>
+  <ol class="qs">
+    <li>凸透鏡中間 <span class="circle-opt">厚</span><span class="circle-opt">薄</span>，會 <span class="circle-opt">會聚</span><span class="circle-opt">發散</span> 光。<span class="ans">（厚、會聚）</span></li>
+    <li>凹透鏡中間 <span class="circle-opt">薄</span><span class="circle-opt">厚</span>，會 <span class="circle-opt">發散</span><span class="circle-opt">會聚</span> 光。<span class="ans">（薄、發散）</span></li>
+    <li>透鏡是利用光的 <span class="circle-opt">折射</span><span class="circle-opt">反射</span> 原理，讓光線轉彎。<span class="ans">（折射）</span></li>
+  </ol>
+
+  <h2>二、看圖選一選</h2>
+  <div class="panels">
+    <div class="panel">
+      <div class="cap">甲：會聚交於一點</div>
+      <svg width="250" height="105" viewBox="0 0 250 105">
+        <rect width="250" height="105" fill="#f8fbff"/>
+        <path d="M125 12 C155 28 155 77 125 93 C95 77 95 28 125 12Z" fill="#cfefff" stroke="#2b6f95" stroke-width="2"/>
+        <line x1="12" y1="25" x2="125" y2="25" stroke="#e90" stroke-width="2.6"/>
+        <line x1="12" y1="52" x2="125" y2="52" stroke="#e90" stroke-width="2.6"/>
+        <line x1="12" y1="79" x2="125" y2="79" stroke="#e90" stroke-width="2.6"/>
+        <line x1="125" y1="25" x2="208" y2="52" stroke="#d22" stroke-width="2.6"/>
+        <line x1="125" y1="52" x2="208" y2="52" stroke="#d22" stroke-width="2.6"/>
+        <line x1="125" y1="79" x2="208" y2="52" stroke="#d22" stroke-width="2.6"/>
+        <circle cx="208" cy="52" r="5" fill="#f6b300"/>
+        <text x="208" y="74" text-anchor="middle" font-size="12" font-weight="700">焦點</text>
+        <text x="126" y="103" text-anchor="middle" font-size="12" font-weight="700">凸透鏡</text>
+      </svg>
+    </div>
+    <div class="panel">
+      <div class="cap">乙：發散張開</div>
+      <svg width="250" height="105" viewBox="0 0 250 105">
+        <rect width="250" height="105" fill="#f8fbff"/>
+        <path d="M92 12 C118 34 118 71 92 93 L158 93 C132 71 132 34 158 12Z" fill="#cfefff" stroke="#2b6f95" stroke-width="2"/>
+        <line x1="12" y1="25" x2="125" y2="25" stroke="#e90" stroke-width="2.6"/>
+        <line x1="12" y1="52" x2="125" y2="52" stroke="#e90" stroke-width="2.6"/>
+        <line x1="12" y1="79" x2="125" y2="79" stroke="#e90" stroke-width="2.6"/>
+        <line x1="125" y1="25" x2="232" y2="5" stroke="#1684c7" stroke-width="2.6"/>
+        <line x1="125" y1="52" x2="232" y2="52" stroke="#1684c7" stroke-width="2.6"/>
+        <line x1="125" y1="79" x2="232" y2="99" stroke="#1684c7" stroke-width="2.6"/>
+        <text x="126" y="103" text-anchor="middle" font-size="12" font-weight="700">凹透鏡</text>
+      </svg>
+    </div>
+  </div>
+  <ol class="qs">
+    <li>哪一張是凸透鏡讓光線會聚？<span class="circle-opt">甲</span><span class="circle-opt">乙</span><span class="ans">（甲）</span></li>
+    <li>光會聚的那一點叫做 <span class="blank" style="min-width:18mm"><span class="ans">焦點</span></span>。</li>
+  </ol>
+
+  <h2>三、填表：用「放大鏡（凸透鏡）」看東西</h2>
+  <table class="tab">
+    <tr><th>情況</th><th>影像方向</th><th>影像大小</th></tr>
+    <tr>
+      <td>物體在焦距內</td>
+      <td class="fill"><span class="ans">正立</span></td>
+      <td class="fill"><span class="ans">放大</span></td>
+    </tr>
+    <tr>
+      <td>物體超過焦點</td>
+      <td class="fill"><span class="ans">倒立</span></td>
+      <td class="fill">依距離改變</td>
+    </tr>
+    <tr>
+      <td>用凹透鏡看</td>
+      <td class="fill"><span class="ans">正立</span></td>
+      <td class="fill"><span class="ans">縮小</span></td>
+    </tr>
+  </table>
+
+  <h2>四、看圖圈一圈</h2>
+  <div style="margin-bottom:2px;">蠟燭放在焦點外，通過凸透鏡在紙屏上接到的影像是下列哪一個？<span class="ans">（C）</span></div>
+  <div class="choicegrid">
+    <div class="choice">
+      <svg width="88" height="82" viewBox="0 0 88 82">
+        <rect width="88" height="82" fill="#fafafa" stroke="#999"/>
+        <g transform="translate(44 43) scale(1.18)">
+          <rect x="-9" y="-13" width="18" height="44" rx="4" fill="#f7f1d0" stroke="#8d6e63" stroke-width="1.5"/>
+          <rect x="3" y="-6" width="4" height="27" fill="#4fc3f7"/>
+          <rect x="-1.5" y="-20" width="3" height="7" fill="#7a4a24"/>
+          <path d="M0 -46 C-13 -30 -6 -21 0 -22 C9 -21 13 -31 0 -46Z" fill="#ff9800"/>
+          <path d="M0 -37 C-5 -30 -2 -26 0 -26 C4 -26 6 -31 0 -37Z" fill="#ffe082"/>
+          <rect x="-16" y="31" width="32" height="7" rx="3.5" fill="#5d4037"/>
+        </g>
+      </svg>
+      <span class="circle-opt">A 正立放大</span>
+    </div>
+    <div class="choice">
+      <svg width="88" height="82" viewBox="0 0 88 82">
+        <rect width="88" height="82" fill="#fafafa" stroke="#999"/>
+        <g transform="translate(44 43) scale(.78)">
+          <rect x="-9" y="-13" width="18" height="44" rx="4" fill="#f7f1d0" stroke="#8d6e63" stroke-width="1.5"/>
+          <rect x="3" y="-6" width="4" height="27" fill="#4fc3f7"/>
+          <rect x="-1.5" y="-20" width="3" height="7" fill="#7a4a24"/>
+          <path d="M0 -46 C-13 -30 -6 -21 0 -22 C9 -21 13 -31 0 -46Z" fill="#ff9800"/>
+          <path d="M0 -37 C-5 -30 -2 -26 0 -26 C4 -26 6 -31 0 -37Z" fill="#ffe082"/>
+          <rect x="-16" y="31" width="32" height="7" rx="3.5" fill="#5d4037"/>
+        </g>
+      </svg>
+      <span class="circle-opt">B 正立縮小</span>
+    </div>
+    <div class="choice">
+      <svg width="88" height="82" viewBox="0 0 88 82">
+        <rect width="88" height="82" fill="#fafafa" stroke="#999"/>
+        <g transform="translate(44 43) rotate(180)">
+          <rect x="-9" y="-13" width="18" height="44" rx="4" fill="#f7f1d0" stroke="#8d6e63" stroke-width="1.5"/>
+          <rect x="3" y="-6" width="4" height="27" fill="#4fc3f7"/>
+          <rect x="-1.5" y="-20" width="3" height="7" fill="#7a4a24"/>
+          <path d="M0 -46 C-13 -30 -6 -21 0 -22 C9 -21 13 -31 0 -46Z" fill="#ff9800"/>
+          <path d="M0 -37 C-5 -30 -2 -26 0 -26 C4 -26 6 -31 0 -37Z" fill="#ffe082"/>
+          <rect x="-16" y="31" width="32" height="7" rx="3.5" fill="#5d4037"/>
+        </g>
+      </svg>
+      <span class="circle-opt">C 倒立</span>
+    </div>
+    <div class="choice">
+      <svg width="88" height="82" viewBox="0 0 88 82">
+        <rect width="88" height="82" fill="#fafafa" stroke="#999"/>
+        <g transform="translate(44 43) scale(-1 1)">
+          <rect x="-9" y="-13" width="18" height="44" rx="4" fill="#f7f1d0" stroke="#8d6e63" stroke-width="1.5"/>
+          <rect x="3" y="-6" width="4" height="27" fill="#4fc3f7"/>
+          <rect x="-1.5" y="-20" width="3" height="7" fill="#7a4a24"/>
+          <path d="M0 -46 C-13 -30 -6 -21 0 -22 C9 -21 13 -31 0 -46Z" fill="#ff9800"/>
+          <path d="M0 -37 C-5 -30 -2 -26 0 -26 C4 -26 6 -31 0 -37Z" fill="#ffe082"/>
+          <rect x="-16" y="31" width="32" height="7" rx="3.5" fill="#5d4037"/>
+        </g>
+      </svg>
+      <span class="circle-opt">D 左右相反</span>
+    </div>
+  </div>
+
+  <h2>五、眼鏡與透鏡</h2>
+  <ol class="qs">
+    <li>近視眼鏡使用 <span class="circle-opt">凹透鏡</span><span class="circle-opt">凸透鏡</span>：近視的眼睛把光聚得太快，影像落在視網膜前面，要先讓光 <span class="circle-opt">發散</span><span class="circle-opt">會聚</span>，把焦點往後移回視網膜上。<span class="ans">（凹透鏡、發散）</span></li>
+    <li>遠視（老花）眼鏡使用 <span class="circle-opt">凸透鏡</span><span class="circle-opt">凹透鏡</span>：遠視的眼睛聚光太慢，影像落在視網膜後面，要先幫光 <span class="circle-opt">會聚</span><span class="circle-opt">發散</span>，把焦點往前拉回視網膜上。<span class="ans">（凸透鏡、會聚）</span></li>
+  </ol>
+
+  <h2>六、想一想</h2>
+  <div class="thinkbox">
+    用放大鏡看窗外遠處的大樹，看到的影像是正立還是倒立？為什麼？
+    <div class="wline"></div>
+    <div class="wline"><span class="ans">倒立；因為大樹在焦點外，光線通過凸透鏡後交叉，影像旋轉180度（上下顛倒、左右也相反），所以看起來是倒立的。</span></div>
+  </div>
+
+  <div class="foot">🔍 記住：凸會聚、凹發散；焦點內放大正立、超過焦點翻轉倒立；近視戴凹、遠視戴凸；不可用放大鏡看太陽。</div>
+</div>
+</body>
+</html>
