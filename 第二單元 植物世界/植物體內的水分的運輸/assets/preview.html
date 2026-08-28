@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>水滴大冒險・素材預覽</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --cream: #fdf6ec;
+      --ink: #1e1e1e;
+      --green: #2e7d4f;
+      --line: #eadfce;
+      --dark-check: #26343c;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--cream);
+      font-family: system-ui, -apple-system, "Noto Sans TC", sans-serif;
+    }
+
+    header {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 36px 28px 20px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      color: var(--green);
+      font-size: clamp(28px, 4vw, 44px);
+    }
+
+    header p {
+      margin: 0;
+      color: #5d655f;
+      line-height: 1.7;
+    }
+
+    main {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 16px 28px 56px;
+    }
+
+    .card {
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: #fff;
+      box-shadow: 0 8px 24px rgb(77 57 32 / 8%);
+    }
+
+    .art-pair {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .art {
+      display: grid;
+      place-items: center;
+      min-height: 220px;
+      padding: 16px;
+      background-color: #f7f4ee;
+      background-image:
+        linear-gradient(45deg, #ece7dd 25%, transparent 25%),
+        linear-gradient(-45deg, #ece7dd 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #ece7dd 75%),
+        linear-gradient(-45deg, transparent 75%, #ece7dd 75%);
+      background-position: 0 0, 0 10px, 10px -10px, -10px 0;
+      background-size: 20px 20px;
+    }
+
+    .art.dark {
+      background-color: var(--dark-check);
+      background-image:
+        linear-gradient(45deg, #31444d 25%, transparent 25%),
+        linear-gradient(-45deg, #31444d 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #31444d 75%),
+        linear-gradient(-45deg, transparent 75%, #31444d 75%);
+    }
+
+    .art-pair .art + .art { border-left: 1px solid rgb(255 255 255 / 45%); }
+
+    .art img {
+      display: block;
+      width: 100%;
+      height: 210px;
+      object-fit: contain;
+    }
+
+    .wide {
+      min-height: 230px;
+      padding: 0;
+      background: #eaf6fb;
+    }
+
+    .wide img {
+      width: 100%;
+      height: 230px;
+      object-fit: cover;
+    }
+
+    .meta { padding: 15px 17px 18px; }
+
+    .file {
+      margin: 0 0 5px;
+      font: 700 15px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace;
+      overflow-wrap: anywhere;
+    }
+
+    .name {
+      margin: 0;
+      color: #626862;
+      line-height: 1.5;
+    }
+
+    .tag {
+      display: inline-block;
+      margin-top: 10px;
+      padding: 3px 9px;
+      border-radius: 999px;
+      color: #256341;
+      background: #e7f4e7;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    @media (max-width: 420px) {
+      header, main { padding-left: 16px; padding-right: 16px; }
+      .art { min-height: 180px; padding: 10px; }
+      .art img { height: 170px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>水滴大冒險・素材預覽</h1>
+    <p>共 26 張素材。透明 PNG 同時置於淺色與深色格紋上展示，以檢查輪廓、去背與半透明邊緣。</p>
+  </header>
+  <main>
+    <article class="card">
+      <div class="art wide"><img src="bg-scene.png" alt="主場景背景預覽"></div>
+      <div class="meta"><p class="file">bg-scene.png</p><p class="name">主場景背景：明亮天空花園</p><span class="tag">不透明・1536×1024</span></div>
+    </article>
+
+    <article class="card"><div class="art-pair"><div class="art"><img src="mascot-drop.png" alt="小水滴吉祥物淺底預覽"></div><div class="art dark"><img src="mascot-drop.png" alt="小水滴吉祥物深底預覽"></div></div><div class="meta"><p class="file">mascot-drop.png</p><p class="name">小水滴吉祥物（角色基準圖）</p></div></article>
+    <article class="card"><div class="art-pair"><div class="art"><img src="plant-cutaway.png" alt="全株剖面圖淺底預覽"></div><div class="art dark"><img src="plant-cutaway.png" alt="全株剖面圖深底預覽"></div></div><div class="meta"><p class="file">plant-cutaway.png</p><p class="name">全株剖面圖（植物基準圖）</p></div></article>
+    <article class="card"><div class="art-pair"><div class="art"><img src="stage-root-soil.png" alt="根與土壤場景淺底預覽"></div><div class="art dark"><img src="stage-root-soil.png" alt="根與土壤場景深底預覽"></div></div><div class="meta"><p class="file">stage-root-soil.png</p><p class="name">第1站場景：根與土壤</p></div></article>
+    <article class="card"><div class="art-pair"><div class="art"><img src="stage-stem.png" alt="莖與導管場景淺底預覽"></div><div class="art dark"><img src="stage-stem.png" alt="莖與導管場景深底預覽"></div></div><div class="meta"><p class="file">stage-stem.png</p><p class="name">第2站場景：莖與導管</p></div></article>
+    <article class="card"><div class="art-pair"><div class="art"><img src="stage-leaf.png" alt="葉子場景淺底預覽"></div><div class="art dark"><img src="stage-leaf.png" alt="葉子場景深底預覽"></div></div><div class="meta"><p class="file">stage-leaf.png</p><p class="name">第3站場景：葉子食物工廠</p></div></article>
+    <article class="card"><div class="art-pair"><div class="art"><img src="plant-thriving.png" alt="茂盛健康植株淺底預覽"></div><div class="art dark"><img src="plant-thriving.png" alt="茂盛健康植株深底預覽"></div></div><div class="meta"><p class="file">plant-thriving.png</p><p class="name">茂盛健康植株（結尾獎勵）</p></div></article>
+    <article class="card"><div class="art-pair"><div class="art"><img src="item-water.png" alt="水滴資源淺底預覽"></div><div class="art dark"><img src="item-water.png" alt="水滴資源深底預覽"></div></div><div class="meta"><p class="file">item-water.png</p><p class="name">單顆水滴（資源、無臉）</p></div></article>
+    <article class="card"><div class="art-pair"><div class="art"><img src="item-sun.png" alt="陽光淺底預覽"></div><div class="art dark"><img src="item-sun.png" alt="陽光深底預覽"></div></div><div class="meta"><p class="file">item-sun.png</p><p class="name">陽光</p></div></article>
+    <article class="card"><div class="art-pair"><div class="art"><img src="item-co2.png" alt="二氧化碳淺底預覽"></div><div class="art dark"><img src="item-co2.png" alt="二氧化碳深底預覽"></div></div><div class="meta"><p class="file">item-co2.png</p><p class="name">二氧化碳（灰色氣體）</p></div></article>
+    <article class="card"><div class="art-pair"><div class="art"><img src="item-oxygen.png" alt="氧氣淺底預覽"></div><div class="art dark"><img src="item-oxygen.png" alt="氧氣深底預覽"></div></div><div class="meta"><p class="file">item-oxygen.png</p><p class="name">氧氣（淺藍泡泡）</p></div></article>
+    <article class="card"><div class="art-pair"><div class="art"><img src="item-nutrient.png" alt="養分淺底預覽"></div><div class="art dark"><img src="item-nutrient.png" alt="養分深底預覽"></div></div><div class="meta"><p class="file">item-nutrient.png</p><p class="name">養分／糖（金黃能量包）</p></div></article>
+    <article class="card"><div class="art-pair"><div class="art"><img src="icon-part-root.png" alt="根圖示淺底預覽"></div><div class="art dark"><img src="icon-part-root.png" alt="根圖示深底預覽"></div></div><div class="meta"><p class="file">icon-part-root.png</p><p class="name">器官圖示：根</p></div></article>
+    <article class="card"><div class="art-pair"><div class="art"><img src="icon-part-stem.png" alt="莖圖示淺底預覽"></div><div class="art dark"><img src="icon-part-stem.png" alt="莖圖示深底預覽"></div></div><div class="meta"><p class="file">icon-part-stem.png</p><p class="name">器官圖示：莖</p></div></article>
+    <article class="card"><div class="art-pair"><div class="art"><img src="icon-part-leaf.png" alt="葉圖示淺底預覽"></div><div class="art dark"><img src="icon-part-leaf.png" alt="葉圖示深底預覽"></div></div><div class="meta"><p class="file">icon-part-leaf.png</p><p class="name">器官圖示：葉</p></div></article>
+    <article class="card"><div class="art-pair"><div class="art"><img src="part-flower.png" alt="花淺底預覽"></div><div class="art dark"><img src="part-flower.png" alt="花深底預覽"></div></div><div class="meta"><p class="file">part-flower.png</p><p class="name">花（第4站目的地）</p></div></article>
+    <article class="card"><div class="art-pair"><div class="art"><img src="part-fruit.png" alt="果實淺底預覽"></div><div class="art dark"><img src="part-fruit.png" alt="果實深底預覽"></div></div><div class="meta"><p class="file">part-fruit.png</p><p class="name">果實（第4站目的地）</p></div></article>
+    <article class="card"><div class="art-pair"><div class="art"><img src="ui-star.png" alt="星星淺底預覽"></div><div class="art dark"><img src="ui-star.png" alt="星星深底預覽"></div></div><div class="meta"><p class="file">ui-star.png</p><p class="name">計分星星</p></div></article>
+    <article class="card"><div class="art-pair"><div class="art"><img src="ui-badge-success.png" alt="成功勳章淺底預覽"></div><div class="art dark"><img src="ui-badge-success.png" alt="成功勳章深底預覽"></div></div><div class="meta"><p class="file">ui-badge-success.png</p><p class="name">過關成功勳章</p></div></article>
+    <article class="card"><div class="art-pair"><div class="art"><img src="ui-btn-next.png" alt="下一步按鈕淺底預覽"></div><div class="art dark"><img src="ui-btn-next.png" alt="下一步按鈕深底預覽"></div></div><div class="meta"><p class="file">ui-btn-next.png</p><p class="name">下一步按鈕（純箭頭）</p></div></article>
+    <article class="card"><div class="art-pair"><div class="art"><img src="ui-rank-1.png" alt="見習小園丁徽章淺底預覽"></div><div class="art dark"><img src="ui-rank-1.png" alt="見習小園丁徽章深底預覽"></div></div><div class="meta"><p class="file">ui-rank-1.png</p><p class="name">頭銜徽章：見習小園丁</p></div></article>
+    <article class="card"><div class="art-pair"><div class="art"><img src="ui-rank-2.png" alt="植物探險家徽章淺底預覽"></div><div class="art dark"><img src="ui-rank-2.png" alt="植物探險家徽章深底預覽"></div></div><div class="meta"><p class="file">ui-rank-2.png</p><p class="name">頭銜徽章：植物探險家</p></div></article>
+    <article class="card"><div class="art-pair"><div class="art"><img src="ui-rank-3.png" alt="光合作用大師徽章淺底預覽"></div><div class="art dark"><img src="ui-rank-3.png" alt="光合作用大師徽章深底預覽"></div></div><div class="meta"><p class="file">ui-rank-3.png</p><p class="name">頭銜徽章：光合作用大師</p></div></article>
+    <article class="card"><div class="art-pair"><div class="art"><img src="mascot-drop-cheer.png" alt="水滴慶祝姿勢淺底預覽"></div><div class="art dark"><img src="mascot-drop-cheer.png" alt="水滴慶祝姿勢深底預覽"></div></div><div class="meta"><p class="file">mascot-drop-cheer.png</p><p class="name">小水滴慶祝姿勢</p><span class="tag">加值素材</span></div></article>
+    <article class="card"><div class="art-pair"><div class="art"><img src="item-mineral.png" alt="礦物質淺底預覽"></div><div class="art dark"><img src="item-mineral.png" alt="礦物質深底預覽"></div></div><div class="meta"><p class="file">item-mineral.png</p><p class="name">礦物質小顆粒</p><span class="tag">加值素材</span></div></article>
+    <article class="card"><div class="art-pair"><div class="art"><img src="deco-cloud.png" alt="白雲淺底預覽"></div><div class="art dark"><img src="deco-cloud.png" alt="白雲深底預覽"></div></div><div class="meta"><p class="file">deco-cloud.png</p><p class="name">白雲裝飾</p><span class="tag">加值素材</span></div></article>
+  </main>
+</body>
+</html>

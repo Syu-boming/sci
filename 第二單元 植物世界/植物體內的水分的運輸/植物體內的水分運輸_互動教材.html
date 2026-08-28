@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>水滴大冒險｜植物的水分與養分運輸</title>
+<style>
+/* ==========================================================
+   水滴大冒險 — 樣式表
+   色板對應美術素材（詳見 codex-assets-brief.md 第 2.2 節）
+   ========================================================== */
+:root{
+  --bg:#FDF6EC;         /* 奶油底色 */
+  --ink:#1E1E1E;        /* 描邊近黑 */
+  --green:#58B159;      /* 主葉綠 */
+  --green-dark:#2E7D4F; /* 深綠 */
+  --water:#4FB0E5;      /* 水滴藍 */
+  --water-dark:#2E86C1; /* 深水藍 */
+  --sun:#FFC93C;        /* 陽光黃 */
+  --sky:#8FD3F4;        /* 天空藍 */
+  --co2:#9AA5AD;        /* 二氧化碳灰 */
+  --oxy:#CFEBFF;        /* 氧氣泡藍 */
+  --gold:#F2B33D;       /* 養分金糖 */
+  --coral:#FF7F66;      /* 珊瑚點綴 */
+  --wrong:#E4574C;      /* 答錯紅 */
+  --card:#FFFFFF;       /* 卡片白 */
+  --shadow:0 6px 18px rgba(46,86,110,.16);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  min-height:100vh;
+  color:var(--ink);
+  font-family:-apple-system,"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif;
+  /* 背景圖失敗時，下層漸層自動補位（不破版） */
+  background-image:url("assets/bg-scene.png"),linear-gradient(180deg,#8FD3F4 0%,#CDECFF 55%,#7A4E32 55%,#5c3a26 100%);
+  background-size:cover,cover;
+  background-position:center top;
+  background-attachment:fixed;
+}
+#app{max-width:1080px;margin:0 auto;padding:16px}
+
+/* ---------- 畫面切換 ---------- */
+.screen{display:none;animation:fadeIn .45s ease}
+.screen.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.hidden{display:none !important}
+
+/* ---------- 通用卡片與按鈕（粗描邊童書風） ---------- */
+.card{
+  background:var(--card);
+  border:3px solid var(--ink);
+  border-radius:22px;
+  box-shadow:var(--shadow);
+  padding:18px;
+}
+button{
+  font-family:inherit;color:var(--ink);
+  background:var(--card);
+  border:3px solid var(--ink);
+  border-radius:16px;
+  box-shadow:0 4px 0 var(--ink);
+  cursor:pointer;font-weight:800;
+  transition:transform .12s ease,box-shadow .12s ease,background .2s ease;
+}
+button:hover{transform:translateY(-2px);box-shadow:0 6px 0 var(--ink)}
+button:active{transform:translateY(2px);box-shadow:0 2px 0 var(--ink)}
+button:focus-visible{outline:4px solid var(--sky);outline-offset:2px}
+button:disabled{cursor:default;opacity:.55}
+button:disabled:hover{transform:none;box-shadow:0 4px 0 var(--ink)}
+
+/* ---------- 音效開關（固定右上角） ---------- */
+#soundToggle{
+  position:fixed;top:14px;right:14px;z-index:60;
+  width:54px;height:54px;border-radius:50%;
+  font-size:24px;line-height:1;
+}
+
+/* ---------- 圖片載入失敗的 emoji 佔位 ---------- */
+.img-fallback{display:inline-flex;align-items:center;justify-content:center;line-height:1}
+
+/* ==========================================================
+   標題畫面
+   ========================================================== */
+#screen-title .title-card{max-width:640px;margin:5vh auto 0;text-align:center;padding:30px 24px}
+.title-mascot{width:clamp(150px,30vw,220px);height:auto;animation:bob 2.6s ease-in-out infinite}
+span.title-mascot{font-size:120px;height:150px}
+@keyframes bob{50%{transform:translateY(-10px)}}
+#screen-title h1{
+  font-size:clamp(38px,8vw,60px);margin:6px 0 4px;letter-spacing:.06em;
+  color:var(--water-dark);text-shadow:2px 2px 0 var(--sun);
+}
+.title-sub{font-size:clamp(19px,3.4vw,25px);font-weight:800;margin:0 0 14px;color:var(--green-dark)}
+.title-desc{font-size:clamp(17px,3vw,20px);line-height:1.75;margin:0 auto 22px;max-width:480px}
+.btn-big{
+  font-size:clamp(23px,4.5vw,29px);padding:16px 42px;border-radius:24px;
+  background:var(--water);color:#fff;
+}
+.btn-big:hover{background:var(--water-dark)}
+
+/* ==========================================================
+   遊戲畫面 — 頂欄
+   ========================================================== */
+.topbar{
+  display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;
+  background:var(--card);border:3px solid var(--ink);border-radius:18px;
+  box-shadow:var(--shadow);padding:9px 14px;margin-bottom:12px;
+  font-size:18px;font-weight:800;
+}
+#progress{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.path{display:flex;align-items:center;gap:4px}
+.node{
+  min-width:44px;text-align:center;padding:4px 8px;border-radius:12px;
+  border:3px solid var(--ink);background:#EDEDED;color:#888;font-size:16px;
+}
+.node.cur{background:var(--sun);color:var(--ink)}
+.node.done{background:var(--green);color:#fff}
+.path .arrow{color:#aaa;font-weight:900}
+.qlabel{font-size:17px}
+.dots{display:inline-flex;gap:6px;margin-left:6px}
+.dot{width:16px;height:16px;border-radius:50%;border:3px solid var(--ink);background:#fff}
+.dot.done{background:var(--green)}
+.dot.cur{background:var(--sun)}
+.scorebox{display:flex;align-items:center;gap:6px;margin-left:auto}
+.scorebox img,.scorebox .img-fallback{width:28px;height:28px;font-size:22px}
+#scoreNum{min-width:2.2em;text-align:right}
+#scoreNum.pulse{animation:scorePulse .5s ease}
+@keyframes scorePulse{40%{transform:scale(1.4);color:var(--green-dark)}}
+.rankchip{display:flex;align-items:center;gap:6px}
+.rankchip img,.rankchip .img-fallback{width:32px;height:32px;font-size:24px}
+.rankchip.pulse{animation:scorePulse .6s ease}
+.rankchip span{font-size:16px}
+
+/* ==========================================================
+   舞台區（四站共用外框）
+   ========================================================== */
+.stage-card{padding:16px}
+.stage-head{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.stage-tag{
+  background:var(--sun);border:3px solid var(--ink);border-radius:14px;
+  padding:3px 14px;font-size:20px;font-weight:900;white-space:nowrap;
+}
+.stage-title{font-size:clamp(18px,3.2vw,23px);font-weight:900}
+.stage-body{display:grid;grid-template-columns:1fr;gap:14px}
+@media(min-width:860px){.stage-body{grid-template-columns:1fr 1fr;align-items:center}}
+
+/* 正方形場景框（讓 1024×1024 素材定位可預期） */
+.scene{
+  position:relative;width:100%;max-width:460px;margin:0 auto;
+  aspect-ratio:1/1;
+  background:var(--bg);border:3px solid var(--ink);border-radius:20px;overflow:hidden;
+}
+.scene-img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
+.scene-img.fill{object-position:center bottom}
+
+/* 進度量表 */
+.meter-wrap{display:flex;align-items:center;gap:10px;margin:4px 0}
+.meter-ico{width:30px;height:30px}
+.meter{flex:1;height:24px;background:#E4EEF4;border:3px solid var(--ink);border-radius:999px;overflow:hidden}
+.meter-fill{height:100%;width:0;background:linear-gradient(90deg,var(--water),var(--water-dark));transition:width .35s ease}
+.meter-num{font-weight:900;min-width:3em;text-align:right}
+
+/* 可點擊的資源水滴（第1站） */
+.drop{
+  position:absolute;width:15%;height:15%;cursor:pointer;
+  transform-origin:center;transition:transform .12s ease;
+  animation:dropIdle 1.8s ease-in-out infinite;
+}
+.drop img,.drop .img-fallback{width:100%;height:100%;object-fit:contain;pointer-events:none;font-size:34px}
+.drop:hover{transform:scale(1.15)}
+.drop.absorbed{animation:absorb .55s ease forwards;pointer-events:none}
+@keyframes dropIdle{50%{transform:translateY(-5px)}}
+@keyframes absorb{to{transform:translateY(-90px) scale(.15);opacity:0}}
+.drop .mineral{position:absolute;right:-6px;top:-6px;width:46%;height:46%}
+
+/* 上升的水滴（第2站） */
+.riser{position:absolute;left:50%;width:13%;height:13%;margin-left:-6.5%;top:88%;
+  transition:top 1s ease, opacity .3s ease;z-index:3}
+.riser img,.riser .img-fallback{width:100%;height:100%;object-fit:contain;font-size:30px}
+/* 蒸散水蒸氣 */
+.vapor{position:absolute;width:7%;height:7%;border-radius:50%;
+  background:rgba(255,255,255,.85);border:2px solid #cfd8dd;
+  animation:vaporUp 1.8s ease-out forwards;pointer-events:none;z-index:4}
+@keyframes vaporUp{0%{opacity:0;transform:translateY(0) scale(.6)}
+  30%{opacity:.9}100%{opacity:0;transform:translateY(-60px) scale(1.3)}}
+
+/* 材料鈕（第3站） */
+.mats{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin:6px 0}
+.mat{display:flex;flex-direction:column;align-items:center;gap:2px;
+  padding:8px 12px;min-width:92px;position:relative;background:var(--card)}
+.mat img,.mat .img-fallback{width:46px;height:46px;object-fit:contain;font-size:38px}
+.mat b{font-size:16px}
+.mat.added{background:#EAF7EC;border-color:var(--green-dark)}
+.mat.added::after{content:"✓";position:absolute;top:-10px;right:-10px;
+  width:30px;height:30px;border-radius:50%;background:var(--green);color:#fff;
+  border:3px solid var(--ink);display:grid;place-items:center;font-size:17px;font-weight:900}
+#btnSynth{display:block;margin:6px auto 0;font-size:clamp(18px,3vw,22px);
+  padding:12px 26px;background:var(--gold)}
+/* 產物：養分 + 氧氣 */
+.products{position:absolute;left:0;right:0;top:38%;display:flex;justify-content:center;
+  gap:6px;flex-wrap:wrap;padding:0 12%;pointer-events:none;z-index:3}
+.products img,.products .img-fallback{width:15%;font-size:26px;animation:popIn .4s ease both}
+.oxy-layer{position:absolute;inset:0;pointer-events:none;z-index:4}
+.oxy{position:absolute;width:11%;height:11%;animation:oxyUp 1.5s ease-out forwards}
+.oxy img,.oxy .img-fallback{width:100%;height:100%;object-fit:contain;font-size:26px}
+@keyframes oxyUp{0%{opacity:0;transform:translateY(0) scale(.5)}
+  25%{opacity:1}100%{opacity:0;transform:translateY(-90px) scale(1.1)}}
+@keyframes popIn{0%{opacity:0;transform:scale(.3)}70%{transform:scale(1.15)}100%{opacity:1;transform:scale(1)}}
+.leaf-glow{animation:leafGlow .9s ease}
+@keyframes leafGlow{40%{filter:drop-shadow(0 0 26px var(--sun)) brightness(1.15)}}
+
+/* 送養分目的地（第4站） */
+.s4-overlay{position:absolute;object-fit:contain;opacity:0;transform:scale(.2);
+  transition:opacity .5s ease,transform .5s cubic-bezier(.2,1.4,.4,1);z-index:3}
+.s4-overlay.show{opacity:1;transform:scale(1)}
+#s4flower{width:26%;left:37%;top:2%}
+#s4fruit{width:22%;left:64%;top:40%}
+#s4rootGlow{position:absolute;left:20%;right:20%;bottom:3%;height:34%;border-radius:50%;
+  background:radial-gradient(ellipse,rgba(242,179,61,.6),transparent 70%);
+  opacity:0;transition:opacity .5s ease;z-index:2}
+#s4rootGlow.show{opacity:1;animation:glowPulse 1.4s ease-in-out infinite}
+@keyframes glowPulse{50%{opacity:.65}}
+.targets{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:4px}
+.target{display:flex;align-items:center;gap:8px;padding:10px 16px;font-size:clamp(17px,2.8vw,20px)}
+.target img,.target .img-fallback{width:34px;height:34px;object-fit:contain;font-size:28px}
+.target.done{background:#EAF7EC;border-color:var(--green-dark);pointer-events:none}
+.target.done::after{content:"✓";margin-left:2px;color:var(--green-dark);font-weight:900}
+.scene.celebrate{animation:bounceIn 1s ease}
+@keyframes bounceIn{0%{transform:scale(.9)}55%{transform:scale(1.05)}100%{transform:scale(1)}}
+#s4badge{position:absolute;right:3%;top:3%;width:26%;z-index:6;
+  animation:stampIn .55s cubic-bezier(.2,1.4,.4,1) both}
+span#s4badge{font-size:60px}
+@keyframes stampIn{0%{opacity:0;transform:scale(2.3) rotate(-18deg)}
+  70%{opacity:1;transform:scale(.92) rotate(4deg)}100%{opacity:1;transform:scale(1) rotate(0)}}
+
+/* 飛行圖示（材料進葉、養分送出，跨版面用固定定位） */
+.fly-icon{position:fixed;width:52px;height:52px;z-index:200;pointer-events:none;
+  transition:transform .6s ease,opacity .6s ease}
+.fly-icon .img-fallback{font-size:40px}
+
+/* 星星噴發 */
+.starburst{position:absolute;inset:0;pointer-events:none;z-index:7}
+.starburst img,.starburst .img-fallback{position:absolute;left:50%;top:50%;width:40px;height:40px;font-size:32px;
+  animation:popStar 1s ease-out forwards}
+@keyframes popStar{0%{opacity:0;transform:translate(-50%,-50%) scale(.3)}
+  25%{opacity:1}100%{opacity:0;transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy))) scale(1.2)}}
+
+/* ==========================================================
+   小水滴旁白列（旅程與測驗共用）
+   ========================================================== */
+.narration{display:flex;align-items:flex-start;gap:12px;margin-top:14px}
+.narr-avatar{width:70px;height:70px;object-fit:contain;flex:0 0 auto}
+span.narr-avatar{font-size:52px}
+.bubble{position:relative;flex:1;background:var(--card);border:3px solid var(--ink);
+  border-radius:16px;padding:12px 16px;min-height:60px;
+  font-size:clamp(17px,2.8vw,20px);line-height:1.6;font-weight:700}
+.bubble::before{content:"";position:absolute;left:-14px;top:22px;
+  border:8px solid transparent;border-right-color:var(--ink)}
+.bubble.pop{animation:bubblePop .35s ease}
+@keyframes bubblePop{40%{transform:scale(1.02)}}
+.bubble.good{background:#EAF7EC}
+.bubble.bad{background:#FDEAE8}
+.bubble.info{background:#EAF4FD;border-style:dashed}
+
+/* 下一步按鈕 */
+.btn-next{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;
+  margin-top:14px;font-size:clamp(21px,3.6vw,26px);padding:14px;background:var(--sun)}
+.btn-next img,.btn-next .img-fallback{width:58px;height:32px;object-fit:contain;font-size:26px}
+
+/* ==========================================================
+   測驗選項（沿用〈植物醫生〉樣式）
+   ========================================================== */
+#quizArea .q-title{margin:4px 0 14px;font-size:clamp(20px,3.6vw,26px);font-weight:900}
+.options{display:grid;gap:12px}
+.options.triple{grid-template-columns:repeat(3,1fr)}
+.opt{position:relative;display:flex;align-items:center;gap:12px;min-height:64px;
+  padding:12px 16px;font-size:clamp(18px,2.8vw,22px);text-align:left}
+.options.triple .opt{flex-direction:column;justify-content:center;gap:6px;min-height:130px;text-align:center}
+.opt img,.opt .opt-emoji,.opt .img-fallback{width:46px;height:46px;object-fit:contain;font-size:38px;flex:0 0 auto}
+.options.triple .opt img,.options.triple .opt .img-fallback{width:72px;height:72px;font-size:58px}
+.opt-emoji{display:inline-flex;align-items:center;justify-content:center;line-height:1}
+.opt.wrong{animation:shake .45s ease;opacity:.55;pointer-events:none}
+.opt.wrong::after{content:"✕";position:absolute;top:-12px;right:-12px;width:34px;height:34px;
+  border-radius:50%;background:var(--wrong);color:#fff;border:3px solid var(--ink);
+  display:grid;place-items:center;font-size:19px;font-weight:900}
+@keyframes shake{10%,50%,90%{transform:translateX(-6px)}30%,70%{transform:translateX(6px)}}
+.opt.correct{background:#EAF7EC;border-color:var(--green-dark);pointer-events:none}
+.opt.correct::after{content:"✓";position:absolute;top:-12px;right:-12px;width:34px;height:34px;
+  border-radius:50%;background:var(--green);color:#fff;border:3px solid var(--ink);
+  display:grid;place-items:center;font-size:19px;font-weight:900}
+
+/* ==========================================================
+   結算畫面
+   ========================================================== */
+#screen-result .result-card{max-width:620px;margin:4vh auto 0;text-align:center;padding:28px 22px}
+#screen-result h1{font-size:clamp(32px,6vw,46px);margin:0 0 6px;color:var(--water-dark)}
+.final-plant{width:clamp(150px,30vw,220px);height:auto}
+span.final-plant{font-size:120px}
+.final-rank{display:flex;align-items:center;justify-content:center;gap:10px;margin:8px 0}
+.final-rank img,.final-rank .img-fallback{width:clamp(60px,12vw,84px);height:auto;font-size:56px}
+#finalRankName{font-size:clamp(24px,4.6vw,32px);font-weight:900;color:var(--green-dark)}
+#finalScore{font-size:clamp(22px,4vw,28px);font-weight:900;margin:2px 0 12px}
+#finalScore b{font-size:1.4em;color:var(--water-dark)}
+#finalPraise{font-size:clamp(17px,3vw,20px);line-height:1.7;margin:0 0 16px}
+.recap{list-style:none;margin:0 0 20px;padding:0;text-align:left}
+.recap li{display:flex;align-items:center;gap:10px;border-bottom:2px dashed #E0D6C6;
+  padding:8px 6px;font-size:18px;font-weight:700}
+.recap li:last-child{border-bottom:none}
+.recap .rc-score{margin-left:auto;font-weight:900}
+.recap img,.recap .img-fallback{width:24px;height:24px;font-size:18px}
+
+@media(max-width:560px){
+  #app{padding:10px}
+  .topbar{font-size:16px}
+  .node{min-width:38px;font-size:15px;padding:4px 6px}
+}
+</style>
+</head>
+<body>
+<!-- 音效開關（全畫面通用） -->
+<button id="soundToggle" title="音效開關" aria-label="音效開關">🔊</button>
+
+<div id="app">
+
+  <!-- ========== 畫面一：標題 ========== -->
+  <section id="screen-title" class="screen active">
+    <div class="card title-card">
+      <img class="title-mascot" src="assets/mascot-drop.png" alt="小水滴吉祥物" onerror="imgFallback(this)">
+      <h1>水滴大冒險</h1>
+      <p class="title-sub">植物體內的奇妙旅行</p>
+      <p class="title-desc">
+        嗨！我是<b>小水滴</b>💧<br>
+        跟我一起從<b>根</b>出發，沿著<b>莖</b>爬上去，<br>
+        到<b>葉子</b>做養分，再把養分送到植物全身吧！
+      </p>
+      <button id="btnStart" class="btn-big">🚀 出發冒險</button>
+    </div>
+  </section>
+
+  <!-- ========== 畫面二：遊戲（旅程＋測驗共用） ========== -->
+  <section id="screen-game" class="screen">
+    <header class="topbar">
+      <div id="progress"></div>
+      <div class="scorebox">
+        <img src="assets/ui-star.png" alt="分數" onerror="imgFallback(this)">
+        <span id="scoreNum">0</span> 分
+      </div>
+      <div class="rankchip" id="rankChip">
+        <img id="rankImg" src="assets/ui-rank-1.png" alt="" onerror="imgFallback(this)">
+        <span id="rankName">見習小園丁</span>
+      </div>
+    </header>
+
+    <main id="stageArea"></main>
+
+    <div class="narration">
+      <img class="narr-avatar" src="assets/mascot-drop.png" alt="小水滴" onerror="imgFallback(this)">
+      <div class="bubble" id="bubble"></div>
+    </div>
+
+    <button id="btnNext" class="btn-next hidden">
+      <img src="assets/ui-btn-next.png" alt="" onerror="imgFallback(this)">
+      <span id="btnNextText">下一步</span>
+    </button>
+  </section>
+
+  <!-- ========== 畫面三：結算 ========== -->
+  <section id="screen-result" class="screen">
+    <div class="card result-card">
+      <h1>🎉 冒險完成！</h1>
+      <img class="final-plant" id="finalPlant" src="assets/plant-thriving.png" alt="茂盛的植物" onerror="imgFallback(this)">
+      <div class="final-rank">
+        <img id="finalRankImg" src="" alt="頭銜徽章" onerror="imgFallback(this)">
+        <span id="finalRankName"></span>
+      </div>
+      <div id="finalScore">總分 <b>0</b> / 0</div>
+      <p id="finalPraise"></p>
+      <ul class="recap" id="recap"></ul>
+      <button id="btnReplay" class="btn-big">🔄 再玩一次</button>
+    </div>
+  </section>
+
+</div>
+
+<script>
+/* ==========================================================
+   水滴大冒險 — 遊戲程式（原生 JavaScript）
+   科學內容依 gameDesign.md，勿更動正確答案。
+   ========================================================== */
+
+/* ---------- 素材路徑與 emoji 佔位表（圖片載入失敗時自動替換，不破版） ---------- */
+const ASSET_DIR = "assets/";
+const EMOJI_FALLBACK = {
+  "bg-scene.png":"🏞️","mascot-drop.png":"💧","mascot-drop-cheer.png":"💧",
+  "plant-cutaway.png":"🌱","plant-thriving.png":"🌷",
+  "stage-root-soil.png":"🌱","stage-stem.png":"🌿","stage-leaf.png":"🍃",
+  "item-water.png":"💧","item-sun.png":"☀️","item-co2.png":"💨",
+  "item-oxygen.png":"🫧","item-nutrient.png":"🍬","item-mineral.png":"🪨",
+  "icon-part-root.png":"🥕","icon-part-stem.png":"🎋","icon-part-leaf.png":"🍃",
+  "part-flower.png":"🌸","part-fruit.png":"🍎",
+  "ui-star.png":"⭐","ui-badge-success.png":"🏅","ui-btn-next.png":"➡️",
+  "ui-rank-1.png":"🥉","ui-rank-2.png":"🥈","ui-rank-3.png":"🥇","deco-cloud.png":"☁️"
+};
+/* 圖片載入失敗 → 換成同尺寸 emoji 佔位 */
+function imgFallback(img){
+  const file = (img.getAttribute("src")||"").split("/").pop();
+  const span = document.createElement("span");
+  span.className = "img-fallback " + img.className;
+  if (img.id) span.id = img.id;
+  span.textContent = EMOJI_FALLBACK[file] || "🌱";
+  img.replaceWith(span);
+}
+/* 產生一個帶 fallback 的 <img> 元素 */
+function makeImg(file, cls){
+  const im = document.createElement("img");
+  im.src = ASSET_DIR + file; im.className = cls || ""; im.alt = "";
+  im.onerror = function(){ imgFallback(this); };
+  return im;
+}
+/* 給 innerHTML 用的 <img> 字串 */
+function imgTag(file, cls, alt){
+  return `<img src="${ASSET_DIR+file}" class="${cls||''}" alt="${alt||''}" onerror="imgFallback(this)">`;
+}
+
+/* ==========================================================
+   音效模組（Web Audio API 合成，可用右上角按鈕開關）
+   ========================================================== */
+const Sound = {
+  ctx:null, on:true,
+  ensure(){
+    if(!this.ctx){const AC=window.AudioContext||window.webkitAudioContext; if(AC) this.ctx=new AC();}
+    if(this.ctx && this.ctx.state==="suspended") this.ctx.resume();
+  },
+  tone(freq,delay,dur,type,vol){
+    if(!this.on||!this.ctx) return;
+    const t=this.ctx.currentTime+delay;
+    const osc=this.ctx.createOscillator(), gain=this.ctx.createGain();
+    osc.type=type||"sine"; osc.frequency.value=freq;
+    gain.gain.setValueAtTime(0.0001,t);
+    gain.gain.linearRampToValueAtTime(vol||0.16,t+0.02);
+    gain.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+    osc.connect(gain).connect(this.ctx.destination);
+    osc.start(t); osc.stop(t+dur+0.05);
+  },
+  click(){ this.tone(880,0,0.08,"triangle",0.09); },
+  drip(){ this.tone(660,0,0.10,"sine",0.14); this.tone(990,0.05,0.10,"sine",0.10); }, // 吸水
+  pump(){ this.tone(300,0,0.12,"sine",0.12); this.tone(600,0.06,0.14,"sine",0.10); },  // 送水上升
+  synth(){ [523.25,659.25,783.99].forEach((f,i)=>this.tone(f,i*0.09,0.22,"sine",0.14)); }, // 合成成功
+  deliver(){ this.tone(700,0,0.10,"triangle",0.12); this.tone(1046,0.08,0.16,"sine",0.10); }, // 送達
+  correct(){ this.tone(523.25,0,0.15); this.tone(659.25,0.12,0.22); },
+  wrong(){ this.tone(196,0,0.25,"sawtooth",0.10); },
+  clear(){ [523.25,659.25,783.99,1046.5].forEach((f,i)=>this.tone(f,i*0.11,0.3)); } // 過關琶音
+};
+
+/* ==========================================================
+   關卡資料
+   ========================================================== */
+/* 四站旅程（每站的過關原理都寫在這裡，方便老師修改） */
+const STAGES = [
+  { part:"root", tag:"第 1 站", title:"根：吸收水分",
+    principle:"根（特別是細細的根毛）從土裡吸收水分，水裡還溶著礦物質；根也把植物固定在土裡。" },
+  { part:"stem", tag:"第 2 站", title:"莖：往上運輸水分",
+    principle:"莖裡有像吸管一樣的『導管』，把根吸收的水一路往上送到葉子。" },
+  { part:"leaf", tag:"第 3 站", title:"葉：光合作用",
+    principle:"葉子用【水＋二氧化碳＋陽光】行光合作用，製造養分，同時放出氧氣。" },
+  { part:"stem", tag:"第 4 站", title:"莖：運送養分到全株",
+    principle:"莖也把葉子做好的養分往下、往各處送，讓根長壯、花開、果實長大！" }
+];
+
+/* 結尾測驗（單選；科學內容勿更動） */
+const QUIZ = [
+  { q:"植物用哪個部位從土裡吸收水分和礦物質？",
+    options:[
+      {text:"根", icon:"icon-part-root.png", correct:true},
+      {text:"莖", icon:"icon-part-stem.png", correct:false},
+      {text:"葉", icon:"icon-part-leaf.png", correct:false}
+    ], triple:true,
+    hint:"想一想：植物是用哪個部位『喝水』的呢？",
+    principle:"根（尤其是根毛）負責從土裡吸收水分與礦物質。" },
+  { q:"把根吸收的水往上送到葉子，是哪個部位的工作？",
+    options:[
+      {text:"根", icon:"icon-part-root.png", correct:false},
+      {text:"莖", icon:"icon-part-stem.png", correct:true},
+      {text:"葉", icon:"icon-part-leaf.png", correct:false}
+    ], triple:true,
+    hint:"水要往上爬，靠的是莖裡面的『導管』喔！",
+    principle:"莖裡的導管把根吸收的水往上送到葉子。" },
+  { q:"葉子行光合作用，需要哪三樣東西？",
+    options:[
+      {text:"水、陽光、二氧化碳", correct:true},
+      {text:"水、土壤、氧氣", correct:false},
+      {text:"陽光、氧氣、養分", correct:false}
+    ], triple:false,
+    hint:"回想第 3 站：湊齊哪三樣，葉子工廠才會啟動？",
+    principle:"光合作用需要水、陽光、二氧化碳三樣一起。" },
+  { q:"葉子行光合作用時，會放出什麼氣體？",
+    options:[
+      {text:"氧氣", icon:"item-oxygen.png", correct:true},
+      {text:"二氧化碳", icon:"item-co2.png", correct:false},
+      {text:"水蒸氣", emoji:"💨", correct:false}
+    ], triple:true,
+    hint:"二氧化碳是『材料』，光合作用放出的是我們呼吸需要的氣體。",
+    principle:"光合作用製造養分，同時放出氧氣。" },
+  { q:"葉子做好的養分，靠哪個部位送到根、花、果實？",
+    options:[
+      {text:"根", icon:"icon-part-root.png", correct:false},
+      {text:"莖", icon:"icon-part-stem.png", correct:true},
+      {text:"葉", icon:"icon-part-leaf.png", correct:false}
+    ], triple:true,
+    hint:"莖不只把水往上送，也把養分送到各處。",
+    principle:"莖把葉子做好的養分送到根、花、果實等全株各處。" }
+];
+
+/* ---------- 計分與頭銜 ---------- */
+const STAGE_SCORE = 50;                 // 每站完成得分
+const SCORE_TABLE = [50,25,10];         // 測驗：第 1/2/3+ 次答對的分數
+const MAX_SCORE = STAGES.length*STAGE_SCORE + QUIZ.length*SCORE_TABLE[0];
+function scoreByAttempt(wrong){ return SCORE_TABLE[Math.min(wrong,SCORE_TABLE.length-1)]; }
+const RANKS = [
+  { min:Math.round(MAX_SCORE*0.85), name:"光合作用大師", img:"ui-rank-3.png",
+    praise:"太厲害了！植物體內的水分與養分之旅，你完全掌握，是真正的光合作用大師！" },
+  { min:Math.round(MAX_SCORE*0.60), name:"植物探險家", img:"ui-rank-2.png",
+    praise:"很棒喔！再複習一下根、莖、葉的工作，你很快就能成為光合作用大師！" },
+  { min:0, name:"見習小園丁", img:"ui-rank-1.png",
+    praise:"辛苦了！記住：根喝水、莖運輸、葉做養分，再玩一次一定更好！" }
+];
+function rankOf(score){ return RANKS.find(r=>score>=r.min); }
+
+/* ==========================================================
+   遊戲狀態與工具
+   ========================================================== */
+const state = { step:0, score:0, locked:false, qWrong:0, records:[], timers:[] };
+const $ = (s)=>document.querySelector(s);
+const screens = { title:$("#screen-title"), game:$("#screen-game"), result:$("#screen-result") };
+
+function showScreen(name){
+  Object.values(screens).forEach(s=>s.classList.remove("active"));
+  screens[name].classList.add("active");
+  window.scrollTo(0,0);
+}
+function shuffle(arr){ const a=arr.slice(); for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
+function say(text,type){
+  const b=$("#bubble");
+  b.textContent=text;
+  b.className="bubble pop"+(type?" "+type:"");
+  setTimeout(()=>b.classList.remove("pop"),380);
+}
+function addScore(points){
+  state.score+=points;
+  const el=$("#scoreNum"); el.textContent=state.score;
+  el.classList.remove("pulse"); void el.offsetWidth; el.classList.add("pulse");
+  updateRankChip();
+}
+let lastRankName="";
+function updateRankChip(){
+  const r=rankOf(state.score);
+  $("#rankName").textContent=r.name;
+  const img=$("#rankImg");
+  if(img && img.tagName==="IMG") img.src=ASSET_DIR+r.img;
+  else if(img) img.textContent=EMOJI_FALLBACK[r.img]||"🎖️";
+  if(r.name!==lastRankName){
+    lastRankName=r.name;
+    const chip=$("#rankChip"); chip.classList.remove("pulse"); void chip.offsetWidth; chip.classList.add("pulse");
+  }
+}
+function clearTimers(){ state.timers.forEach(t=>clearInterval(t)); state.timers=[]; }
+
+/* 頂欄進度：旅程顯示 根→莖→葉→全株；測驗顯示題號點點 */
+function updateTopbar(){
+  const prog=$("#progress"); prog.innerHTML="";
+  if(state.step < STAGES.length){
+    const names=["根","莖","葉","全株"];
+    const path=document.createElement("div"); path.className="path";
+    names.forEach((n,i)=>{
+      const node=document.createElement("span");
+      node.className="node"+(i<state.step?" done":i===state.step?" cur":"");
+      node.textContent=n; path.appendChild(node);
+      if(i<names.length-1){ const a=document.createElement("span"); a.className="arrow"; a.textContent="→"; path.appendChild(a); }
+    });
+    prog.appendChild(path);
+  } else {
+    const qi=state.step-STAGES.length;
+    const label=document.createElement("span"); label.className="qlabel"; label.textContent=`小測驗 ${qi+1} / ${QUIZ.length}`;
+    const dots=document.createElement("span"); dots.className="dots";
+    QUIZ.forEach((_,i)=>{ const d=document.createElement("span"); d.className="dot"+(i<qi?" done":i===qi?" cur":""); dots.appendChild(d); });
+    prog.appendChild(label); prog.appendChild(dots);
+  }
+}
+
+/* 飛行圖示：從 fromEl 飛到 toEl（用實際版面座標，跨區塊也準） */
+function flyIcon(fromEl,toEl,file,onDone){
+  const a=fromEl.getBoundingClientRect(), b=toEl.getBoundingClientRect();
+  const img=makeImg(file,"fly-icon");
+  document.body.appendChild(img);
+  const size=52;
+  const ax=a.left+a.width/2, ay=a.top+a.height/2;
+  const bx=b.left+b.width/2, by=b.top+b.height/2;
+  img.style.left=(ax-size/2)+"px"; img.style.top=(ay-size/2)+"px";
+  requestAnimationFrame(()=>{
+    img.style.transform=`translate(${bx-ax}px,${by-ay}px) scale(.55)`;
+    img.style.opacity="0.2";
+  });
+  setTimeout(()=>{ img.remove(); if(onDone) onDone(); },620);
+}
+
+/* ==========================================================
+   流程控制
+   ========================================================== */
+function startGame(){
+  state.step=0; state.score=0; state.records=[]; lastRankName="";
+  $("#scoreNum").textContent="0"; updateRankChip();
+  showScreen("game"); renderStep();
+}
+function renderStep(){
+  clearTimers();
+  state.locked=false; state.qWrong=0;
+  $("#btnNext").classList.add("hidden");
+  updateTopbar();
+  if(state.step < STAGES.length){
+    showScreen("game");
+    [renderStage1,renderStage2,renderStage3,renderStage4][state.step]();
+  } else {
+    const qi=state.step-STAGES.length;
+    if(qi < QUIZ.length){ showScreen("game"); renderQuiz(qi); }
+    else { renderResult(); showScreen("result"); }
+  }
+}
+function gotoNext(){
+  Sound.click();
+  state.step++;
+  renderStep();
+}
+/* 一站/一題完成：計分、講原理、顯示下一步 */
+function stageComplete(principle){
+  state.locked=true;
+  state.records.push({ label:STAGES[state.step].tag+"　"+STAGES[state.step].title, score:STAGE_SCORE });
+  addScore(STAGE_SCORE);
+  Sound.clear();
+  say("🎓 "+principle,"good");
+  const last = state.step>=STAGES.length-1;
+  $("#btnNextText").textContent = last ? "去小測驗 ✏️" : "下一站 →";
+  setTimeout(()=>$("#btnNext").classList.remove("hidden"),500);
+}
+
+/* 星星噴發（在指定容器內） */
+function starBurst(container,n){
+  const layer=document.createElement("div"); layer.className="starburst"; container.appendChild(layer);
+  for(let i=0;i<(n||6);i++){
+    setTimeout(()=>{
+      const st=makeImg("ui-star.png");
+      const ang=Math.random()*Math.PI*2, dist=70+Math.random()*90;
+      st.style.setProperty("--dx",Math.cos(ang)*dist+"px");
+      st.style.setProperty("--dy",Math.sin(ang)*dist-30+"px");
+      layer.appendChild(st); setTimeout(()=>st.remove(),1000);
+    }, i*110);
+  }
+  setTimeout(()=>layer.remove(),1400);
+}
+
+/* ==========================================================
+   第 1 站：根 — 點土裡的水滴，讓根毛吸收
+   ========================================================== */
+function renderStage1(){
+  const NEED=8;
+  let got=0;
+  const positions=[
+    {t:40,l:20,m:false},{t:52,l:37,m:true},{t:46,l:62,m:false},{t:60,l:78,m:false},
+    {t:70,l:28,m:false},{t:74,l:56,m:true},{t:56,l:10,m:false},{t:80,l:45,m:false}
+  ];
+  const area=$("#stageArea");
+  area.innerHTML=`
+    <div class="card stage-card">
+      <div class="stage-head"><span class="stage-tag">第 1 站</span><span class="stage-title">根：吸收水分</span></div>
+      <div class="stage-body">
+        <div class="scene" id="s1scene">
+          ${imgTag("stage-root-soil.png","scene-img","土壤與根")}
+          <div id="s1drops"></div>
+        </div>
+        <div>
+          <p style="font-weight:800;font-size:clamp(16px,2.6vw,19px);line-height:1.6;margin:0 0 10px">
+            點土裡的💧水滴，讓<b>根毛</b>把水吸進來，把「吸水量」集滿吧！</p>
+          <div class="meter-wrap">
+            ${imgTag("item-water.png","meter-ico","")}
+            <div class="meter"><div class="meter-fill" id="s1fill"></div></div>
+            <span class="meter-num" id="s1num">0/${NEED}</span>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  const box=$("#s1drops");
+  positions.forEach(p=>{
+    const d=document.createElement("div"); d.className="drop"; d.style.top=p.t+"%"; d.style.left=p.l+"%";
+    d.appendChild(makeImg("item-water.png"));
+    if(p.m){ const m=makeImg("item-mineral.png","mineral"); d.appendChild(m); }
+    d.addEventListener("click",()=>{
+      if(state.locked || d.classList.contains("absorbed")) return;
+      d.classList.add("absorbed"); Sound.drip();
+      got++;
+      $("#s1fill").style.width=(got/NEED*100)+"%"; $("#s1num").textContent=got+"/"+NEED;
+      if(p.m) say("這顆水裡還溶著礦物質（養分）呢！根連礦物質也一起吸收～");
+      if(got>=NEED) setTimeout(()=>stageComplete(STAGES[0].principle),450);
+    });
+    box.appendChild(d);
+  });
+  say("嗨！第一站是「根」。點土裡的水滴，讓根毛吸收吧！");
+}
+
+/* ==========================================================
+   第 2 站：莖 — 按「往上送水」，水沿導管上升到葉
+   ========================================================== */
+function renderStage2(){
+  const NEED=8; let got=0;
+  const area=$("#stageArea");
+  area.innerHTML=`
+    <div class="card stage-card">
+      <div class="stage-head"><span class="stage-tag">第 2 站</span><span class="stage-title">莖：往上運輸水分</span></div>
+      <div class="stage-body">
+        <div class="scene" id="s2scene">
+          ${imgTag("stage-stem.png","scene-img","莖與導管")}
+        </div>
+        <div>
+          <p style="font-weight:800;font-size:clamp(16px,2.6vw,19px);line-height:1.6;margin:0 0 10px">
+            按下按鈕，水就沿著莖裡的<b>導管</b>往上爬，送到葉子！</p>
+          <div class="meter-wrap">
+            ${imgTag("stage-leaf.png","meter-ico","")}
+            <div class="meter"><div class="meter-fill" id="s2fill"></div></div>
+            <span class="meter-num" id="s2num">0/${NEED}</span>
+          </div>
+          <button id="btnPump" style="font-size:clamp(18px,3vw,22px);padding:12px 22px;background:var(--water);color:#fff;margin-top:6px">💧 往上送水 ↑</button>
+        </div>
+      </div>
+    </div>`;
+  const scene=$("#s2scene");
+  // 蒸散作用：頂端持續冒水蒸氣
+  const vaporTimer=setInterval(()=>{
+    const v=document.createElement("div"); v.className="vapor";
+    v.style.left=(38+Math.random()*24)+"%"; v.style.top=(18+Math.random()*8)+"%";
+    scene.appendChild(v); setTimeout(()=>v.remove(),1800);
+  },700);
+  state.timers.push(vaporTimer);
+  let shownInfo=false;
+  $("#btnPump").addEventListener("click",()=>{
+    if(state.locked) return;
+    Sound.pump();
+    // 產生一顆上升水滴
+    const r=document.createElement("div"); r.className="riser"; r.appendChild(makeImg("item-water.png"));
+    scene.appendChild(r);
+    requestAnimationFrame(()=>{ r.style.top="24%"; });
+    setTimeout(()=>{ r.style.opacity="0"; setTimeout(()=>r.remove(),300); },1000);
+    got++;
+    $("#s2fill").style.width=(got/NEED*100)+"%"; $("#s2num").textContent=got+"/"+NEED;
+    if(!shownInfo && got===3){
+      shownInfo=true;
+      say("小知識🌫️：葉子會把一部分水變成水蒸氣散到空氣中（蒸散作用），像從上面幫忙把水往上拉！","info");
+    }
+    if(got>=NEED) setTimeout(()=>stageComplete(STAGES[1].principle),400);
+  });
+  say("第二站是「莖」。按「往上送水」，把水送到葉子吧！");
+}
+
+/* ==========================================================
+   第 3 站：葉 — 湊齊 陽光＋二氧化碳＋水 → 行光合作用
+   ========================================================== */
+function renderStage3(){
+  const NEED=3; let made=0;
+  const added={sun:false,co2:false,water:false};
+  const MAT=[
+    {key:"sun",  label:"陽光",   file:"item-sun.png"},
+    {key:"co2",  label:"二氧化碳",file:"item-co2.png"},
+    {key:"water",label:"水",     file:"item-water.png"}
+  ];
+  const area=$("#stageArea");
+  area.innerHTML=`
+    <div class="card stage-card">
+      <div class="stage-head"><span class="stage-tag">第 3 站</span><span class="stage-title">葉：光合作用（食物工廠）</span></div>
+      <div class="stage-body">
+        <div class="scene" id="s3scene">
+          <img class="scene-img" id="s3leaf" src="assets/stage-leaf.png" alt="葉子工廠" onerror="imgFallback(this)">
+          <div class="products" id="s3products"></div>
+          <div class="oxy-layer" id="s3oxy"></div>
+        </div>
+        <div>
+          <p style="font-weight:800;font-size:clamp(16px,2.6vw,19px);line-height:1.6;margin:0 0 8px">
+            葉子是<b>食物工廠</b>！先把 <b>陽光＋二氧化碳＋水</b> 都送進葉子，再按「行光合作用」。</p>
+          <div class="mats" id="s3mats"></div>
+          <button id="btnSynth">🌟 行光合作用！</button>
+          <p style="text-align:center;font-weight:800;margin:8px 0 0">已做出養分：<span id="s3made">0</span> / ${NEED}</p>
+        </div>
+      </div>
+    </div>`;
+  const matsBox=$("#s3mats");
+  MAT.forEach(m=>{
+    const btn=document.createElement("button"); btn.className="mat"; btn.dataset.key=m.key;
+    btn.innerHTML=`${imgTag(m.file)}<b>${m.label}</b>`;
+    btn.addEventListener("click",()=>{
+      if(state.locked || added[m.key]) return;
+      Sound.click();
+      flyIcon(btn,$("#s3leaf"),m.file);
+      added[m.key]=true; btn.classList.add("added");
+    });
+    matsBox.appendChild(btn);
+  });
+  $("#btnSynth").addEventListener("click",()=>{
+    if(state.locked) return;
+    const missing=MAT.filter(m=>!added[m.key]);
+    if(missing.length){
+      Sound.wrong();
+      say("還缺「"+missing.map(m=>m.label).join("、")+"」！光合作用需要陽光、二氧化碳、水三樣都到齊喔。","bad");
+      return;
+    }
+    // 合成成功
+    Sound.synth();
+    $("#s3leaf").classList.add("leaf-glow");
+    setTimeout(()=>$("#s3leaf").classList.remove("leaf-glow"),900);
+    // 產出養分
+    const prod=makeImg("item-nutrient.png"); $("#s3products").appendChild(prod);
+    // 冒出氧氣泡
+    const oxy=$("#s3oxy");
+    for(let i=0;i<4;i++){
+      setTimeout(()=>{
+        const o=document.createElement("div"); o.className="oxy";
+        o.style.left=(30+Math.random()*40)+"%"; o.style.top=(35+Math.random()*15)+"%";
+        o.appendChild(makeImg("item-oxygen.png")); oxy.appendChild(o);
+        setTimeout(()=>o.remove(),1500);
+      }, i*130);
+    }
+    made++; $("#s3made").textContent=made;
+    // 重設材料，準備下一輪
+    MAT.forEach(m=>{ added[m.key]=false; });
+    matsBox.querySelectorAll(".mat").forEach(b=>b.classList.remove("added"));
+    if(made>=NEED){ setTimeout(()=>stageComplete(STAGES[2].principle),600); }
+    else { say("成功！做出養分💛，還冒出氧氣🫧！再多做幾份吧～","good"); }
+  });
+  say("第三站是「葉子」。湊齊陽光、二氧化碳、水，就能行光合作用！");
+}
+
+/* ==========================================================
+   第 4 站：莖 — 把養分送到 根／花／果實
+   ========================================================== */
+function renderStage4(){
+  const done={root:false,flower:false,fruit:false};
+  const TARGETS=[
+    {key:"root",  label:"根",  icon:"icon-part-root.png"},
+    {key:"flower",label:"花",  icon:"part-flower.png"},
+    {key:"fruit", label:"果實",icon:"part-fruit.png"}
+  ];
+  const area=$("#stageArea");
+  area.innerHTML=`
+    <div class="card stage-card">
+      <div class="stage-head"><span class="stage-tag">第 4 站</span><span class="stage-title">莖：運送養分到全株</span></div>
+      <div class="stage-body">
+        <div class="scene" id="s4scene">
+          ${imgTag("plant-cutaway.png","scene-img","整株植物")}
+          <div id="s4rootGlow"></div>
+          <img class="s4-overlay" id="s4flower" src="assets/part-flower.png" alt="" onerror="imgFallback(this)">
+          <img class="s4-overlay" id="s4fruit" src="assets/part-fruit.png" alt="" onerror="imgFallback(this)">
+          <div class="products" id="s4supply" style="top:20%"></div>
+        </div>
+        <div>
+          <p style="font-weight:800;font-size:clamp(16px,2.6vw,19px);line-height:1.6;margin:0 0 10px">
+            葉子做好的<b>養分</b>要出發囉！點下面的目的地，讓<b>莖</b>把養分送過去～</p>
+          <div class="targets" id="s4targets"></div>
+        </div>
+      </div>
+    </div>`;
+  // 葉子上的養分存量（裝飾）
+  const supply=$("#s4supply"); for(let i=0;i<3;i++) supply.appendChild(makeImg("item-nutrient.png"));
+  const targetsBox=$("#s4targets");
+  TARGETS.forEach(tg=>{
+    const btn=document.createElement("button"); btn.className="target";
+    btn.innerHTML=`${imgTag(tg.icon)}<span>${tg.label}</span>`;
+    btn.addEventListener("click",()=>{
+      if(state.locked || done[tg.key]) return;
+      done[tg.key]=true; btn.classList.add("done"); Sound.deliver();
+      // 從葉子養分飛到場景（用整個場景框當目標，讀起來像沿莖送達）
+      flyIcon(btn,$("#s4scene"),"item-nutrient.png",()=>{
+        if(tg.key==="root") $("#s4rootGlow").classList.add("show");
+        if(tg.key==="flower") $("#s4flower").classList.add("show");
+        if(tg.key==="fruit") $("#s4fruit").classList.add("show");
+      });
+      say("養分送到「"+tg.label+"」囉！");
+      if(TARGETS.every(t=>done[t.key])){
+        setTimeout(()=>{
+          const scene=$("#s4scene");
+          scene.classList.add("celebrate");
+          starBurst(scene,7);
+          const badge=makeImg("ui-badge-success.png"); badge.id="s4badge"; scene.appendChild(badge);
+          // 換成歡呼的小水滴
+          const av=document.querySelector(".narr-avatar");
+          if(av && av.tagName==="IMG") av.src=ASSET_DIR+"mascot-drop-cheer.png";
+          stageComplete(STAGES[3].principle);
+        },700);
+      }
+    });
+    targetsBox.appendChild(btn);
+  });
+  say("最後一站！點根、花、果實，把養分送到植物全身吧～");
+}
+
+/* ==========================================================
+   結尾測驗
+   ========================================================== */
+function renderQuiz(qi){
+  const lv=QUIZ[qi];
+  const area=$("#stageArea");
+  area.innerHTML=`
+    <div class="card stage-card" id="quizArea">
+      <div class="stage-head"><span class="stage-tag">小測驗</span><span class="stage-title">第 ${qi+1} 題</span></div>
+      <h2 class="q-title">${lv.q}</h2>
+      <div class="options ${lv.triple?'triple':''}" id="options"></div>
+    </div>`;
+  // 還原旁白頭像（第4站可能換成 cheer）
+  const av=document.querySelector(".narr-avatar");
+  if(av && av.tagName==="IMG") av.src=ASSET_DIR+"mascot-drop.png";
+  if(qi===0) say("太棒了，冒險完成！最後來個小測驗，檢查看看你學會了嗎？");
+  else say("下一題！仔細想想～");
+  const box=$("#options");
+  shuffle(lv.options).forEach(op=>{
+    const btn=document.createElement("button"); btn.className="opt";
+    const iconHTML = op.icon ? imgTag(op.icon) : (op.emoji ? `<span class="opt-emoji">${op.emoji}</span>` : "");
+    btn.innerHTML=`${iconHTML}<span>${op.text}</span>`;
+    btn.addEventListener("click",()=>onQuizClick(btn,op,lv));
+    box.appendChild(btn);
+  });
+}
+function onQuizClick(btn,op,lv){
+  if(state.locked) return;
+  if(op.correct){
+    state.locked=true;
+    const pts=scoreByAttempt(state.qWrong);
+    state.records.push({ label:"小測驗　"+lv.q.slice(0,10)+"…", score:pts, star:true });
+    btn.classList.add("correct"); Sound.correct(); addScore(pts);
+    say(`答對了！（＋${pts} 分）📖 ${lv.principle}`,"good");
+    const lastQ = state.step >= STAGES.length+QUIZ.length-1;
+    $("#btnNextText").textContent = lastQ ? "看成果 🌷" : "下一題 →";
+    setTimeout(()=>$("#btnNext").classList.remove("hidden"),500);
+  } else {
+    state.qWrong++;
+    btn.classList.add("wrong"); Sound.wrong();
+    say(`再想想看！提示：${lv.hint}（再試一次，答對還是有分數喔）`,"bad");
+  }
+}
+
+/* ==========================================================
+   結算畫面
+   ========================================================== */
+function renderResult(){
+  const r=rankOf(state.score);
+  const img=$("#finalRankImg");
+  if(img && img.tagName==="IMG") img.src=ASSET_DIR+r.img; else if(img) img.textContent=EMOJI_FALLBACK[r.img]||"🎖️";
+  $("#finalRankName").textContent=r.name;
+  $("#finalScore").innerHTML=`總分 <b>${state.score}</b> / ${MAX_SCORE}`;
+  $("#finalPraise").textContent=r.praise;
+  const list=$("#recap"); list.innerHTML="";
+  state.records.forEach(rec=>{
+    const li=document.createElement("li");
+    li.innerHTML=`<span>${rec.label}</span>`+
+      (rec.star && rec.score>=SCORE_TABLE[0] ? imgTag("ui-star.png") : "")+
+      `<span class="rc-score">${rec.score} 分</span>`;
+    list.appendChild(li);
+  });
+}
+
+/* ==========================================================
+   事件繫結與初始化
+   ========================================================== */
+$("#btnStart").addEventListener("click",()=>{ Sound.ensure(); Sound.click(); startGame(); });
+$("#btnNext").addEventListener("click",gotoNext);
+$("#btnReplay").addEventListener("click",()=>{ Sound.click(); startGame(); });
+$("#soundToggle").addEventListener("click",(e)=>{
+  Sound.ensure(); Sound.on=!Sound.on;
+  e.currentTarget.textContent=Sound.on?"🔊":"🔇";
+  if(Sound.on) Sound.click();
+});
+document.addEventListener("pointerdown",()=>Sound.ensure(),{once:true});
+
+/* 預先載入所有圖片，避免動畫時閃爍 */
+Object.keys(EMOJI_FALLBACK).forEach(f=>{ const i=new Image(); i.src=ASSET_DIR+f; });
+</script>
+</body>
+</html>

@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>植物醫生｜根・莖・葉小遊戲</title>
+<style>
+/* ==========================================================
+   植物醫生 — 樣式表
+   色板對應美術素材（詳見 codex-assets-brief.md 第 2.2 節）
+   ========================================================== */
+:root{
+  --bg:#FDF6EC;        /* 奶油底色 */
+  --ink:#1E1E1E;       /* 描邊近黑 */
+  --green:#58B159;     /* 主葉綠 */
+  --green-dark:#2E7D4F;/* 深綠 */
+  --terra:#E17B5A;     /* 陶盆橘紅 */
+  --sun:#FFC93C;       /* 陽光黃 */
+  --sky:#8FD3F4;       /* 天空藍 */
+  --coral:#FF7F66;     /* 珊瑚點綴 */
+  --wrong:#E4574C;     /* 答錯紅 */
+  --card:#FFFFFF;      /* 卡片白 */
+  --shadow:0 6px 18px rgba(122,78,50,.14);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  min-height:100vh;
+  color:var(--ink);
+  font-family:-apple-system,"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif;
+  /* 背景圖失敗時，下層漸層自動補位（不破版） */
+  background-image:url("assets/bg-clinic.png"),linear-gradient(180deg,#FDF6EC 0%,#F6E8D2 100%);
+  background-size:cover,cover;
+  background-position:center bottom;
+  background-attachment:fixed;
+}
+#app{max-width:1100px;margin:0 auto;padding:16px}
+
+/* ---------- 畫面切換 ---------- */
+.screen{display:none;animation:fadeIn .45s ease}
+.screen.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.hidden{display:none !important}
+
+/* ---------- 通用卡片與按鈕（粗描邊童書風） ---------- */
+.card{
+  background:var(--card);
+  border:3px solid var(--ink);
+  border-radius:22px;
+  box-shadow:var(--shadow);
+  padding:20px;
+}
+button{
+  font-family:inherit;color:var(--ink);
+  background:var(--card);
+  border:3px solid var(--ink);
+  border-radius:18px;
+  box-shadow:0 4px 0 var(--ink);
+  cursor:pointer;
+  font-weight:800;
+  transition:transform .12s ease,box-shadow .12s ease,background .2s ease;
+}
+button:hover{transform:translateY(-2px);box-shadow:0 6px 0 var(--ink)}
+button:active{transform:translateY(2px);box-shadow:0 2px 0 var(--ink)}
+button:focus-visible{outline:4px solid var(--sky);outline-offset:2px}
+button:disabled{cursor:default}
+
+/* ---------- 音效開關（固定右上角） ---------- */
+#soundToggle{
+  position:fixed;top:14px;right:14px;z-index:50;
+  width:56px;height:56px;border-radius:50%;
+  font-size:26px;line-height:1;
+}
+
+/* ---------- 圖片載入失敗的 emoji 佔位 ---------- */
+.img-fallback{
+  display:inline-flex;align-items:center;justify-content:center;
+  line-height:1;
+}
+
+/* ==========================================================
+   標題畫面
+   ========================================================== */
+#screen-title .title-card{
+  max-width:640px;margin:6vh auto 0;text-align:center;padding:34px 26px;
+}
+.title-mascot{width:clamp(170px,32vw,250px);height:auto}
+span.title-mascot{font-size:130px;height:170px}
+#screen-title h1{
+  font-size:clamp(40px,8vw,64px);margin:8px 0 4px;letter-spacing:.08em;
+  color:var(--green-dark);
+  text-shadow:2px 2px 0 var(--sun);
+}
+.title-sub{font-size:clamp(20px,3.4vw,26px);font-weight:800;margin:0 0 14px;color:var(--terra)}
+.title-desc{font-size:clamp(18px,3vw,21px);line-height:1.7;margin:0 auto 22px;max-width:460px}
+.btn-big{
+  font-size:clamp(24px,4.5vw,30px);
+  padding:16px 44px;border-radius:26px;
+  background:var(--green);color:#fff;
+}
+.btn-big:hover{background:var(--green-dark)}
+
+/* ==========================================================
+   遊戲畫面 — 頂欄
+   ========================================================== */
+.topbar{
+  display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;
+  background:var(--card);
+  border:3px solid var(--ink);border-radius:18px;
+  box-shadow:var(--shadow);
+  padding:10px 16px;margin-bottom:14px;
+  font-size:20px;font-weight:800;
+}
+.progress{display:flex;align-items:center;gap:10px}
+.dots{display:flex;gap:6px}
+.dot{
+  width:18px;height:18px;border-radius:50%;
+  border:3px solid var(--ink);background:#fff;
+}
+.dot.done{background:var(--green)}
+.dot.cur{background:var(--sun)}
+.scorebox{display:flex;align-items:center;gap:8px;margin-left:auto}
+.scorebox img,.scorebox .img-fallback{width:30px;height:30px;font-size:24px}
+#scoreNum{min-width:2.2em;text-align:right}
+#scoreNum.pulse{animation:scorePulse .5s ease}
+@keyframes scorePulse{40%{transform:scale(1.45);color:var(--green-dark)}}
+.rankchip{display:flex;align-items:center;gap:8px}
+.rankchip img,.rankchip .img-fallback{width:34px;height:34px;font-size:26px}
+.rankchip.pulse{animation:scorePulse .6s ease}
+
+/* ==========================================================
+   遊戲畫面 — 左右兩卡
+   ========================================================== */
+.game-grid{display:grid;grid-template-columns:1fr;gap:16px}
+@media (min-width:900px){
+  .game-grid{grid-template-columns:5fr 6fr;align-items:start}
+}
+
+/* --- 植物卡（左） --- */
+.case-label{
+  display:inline-block;
+  background:var(--sun);
+  border:3px solid var(--ink);border-radius:14px;
+  padding:4px 16px;font-size:22px;font-weight:900;
+}
+.plant-stage{
+  position:relative;
+  height:clamp(260px,38vw,360px);
+  margin:10px 0 6px;
+}
+.plant-stage img,.plant-stage .img-fallback{
+  position:absolute;inset:0;width:100%;height:100%;
+  object-fit:contain;
+  transition:opacity .9s ease;
+  font-size:clamp(120px,20vw,190px);
+}
+#plantHealed{opacity:0}
+.plant-stage.healed #plantSick{opacity:0}
+.plant-stage.healed #plantHealed{opacity:1;animation:bounceIn 1s ease .15s both}
+@keyframes bounceIn{
+  0%{transform:scale(.85)}
+  55%{transform:scale(1.07)}
+  80%{transform:scale(.97)}
+  100%{transform:scale(1)}
+}
+/* 康復勳章：蓋章動畫 */
+#healBadge{
+  position:absolute;right:2%;top:2%;
+  width:clamp(80px,14vw,120px);height:auto;z-index:3;
+  animation:stampIn .55s cubic-bezier(.2,1.4,.4,1) both;
+}
+span#healBadge{font-size:70px}
+@keyframes stampIn{
+  0%{opacity:0;transform:scale(2.4) rotate(-20deg)}
+  70%{opacity:1;transform:scale(.92) rotate(4deg)}
+  100%{opacity:1;transform:scale(1) rotate(0deg)}
+}
+/* 星星噴發 */
+#starBurst{position:absolute;inset:0;pointer-events:none;z-index:4}
+#starBurst img,#starBurst .img-fallback{
+  position:absolute;left:50%;top:55%;
+  width:44px;height:44px;font-size:36px;
+  animation:popStar .95s ease-out forwards;
+}
+@keyframes popStar{
+  0%{opacity:0;transform:translate(-50%,-50%) scale(.3)}
+  25%{opacity:1}
+  100%{opacity:0;transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy))) scale(1.25)}
+}
+.symptom{
+  background:var(--bg);
+  border:3px dashed var(--terra);border-radius:16px;
+  padding:12px 16px;
+  font-size:clamp(19px,3vw,22px);line-height:1.65;font-weight:700;
+}
+.symptom b{color:var(--terra)}
+
+/* --- 問答卡（右） --- */
+.step-chips{display:flex;gap:10px;margin-bottom:10px}
+.chip{
+  border:3px solid var(--ink);border-radius:999px;
+  padding:4px 16px;font-size:18px;font-weight:800;
+  background:#EDEDED;color:#777;
+}
+.chip.on{background:var(--sky);color:var(--ink)}
+.chip.done{background:var(--green);color:#fff}
+#questionTitle{margin:6px 0 14px;font-size:clamp(22px,3.6vw,27px)}
+
+/* 選項按鈕 */
+.options{display:grid;gap:12px}
+.options.parts{grid-template-columns:repeat(3,1fr)}
+.opt{
+  position:relative;
+  display:flex;align-items:center;gap:14px;
+  min-height:72px;padding:12px 18px;
+  font-size:clamp(20px,3vw,23px);
+  text-align:left;
+}
+.options.parts .opt{
+  flex-direction:column;justify-content:center;gap:8px;
+  min-height:150px;text-align:center;font-size:clamp(22px,3.4vw,26px);
+}
+.opt img,.opt .opt-emoji,.opt .img-fallback{
+  width:52px;height:52px;object-fit:contain;font-size:42px;flex:0 0 auto;
+}
+.options.parts .opt img,.options.parts .opt .img-fallback{width:84px;height:84px;font-size:64px}
+.opt-emoji{display:inline-flex;align-items:center;justify-content:center;line-height:1}
+/* 答錯：搖晃＋紅圓白叉（CSS 畫，不需圖檔） */
+.opt.wrong{animation:shake .45s ease;opacity:.55;pointer-events:none}
+.opt.wrong::after{
+  content:"✕";
+  position:absolute;top:-12px;right:-12px;
+  width:36px;height:36px;border-radius:50%;
+  background:var(--wrong);color:#fff;
+  border:3px solid var(--ink);
+  display:grid;place-items:center;
+  font-size:20px;font-weight:900;
+  opacity:1;
+}
+@keyframes shake{
+  10%,50%,90%{transform:translateX(-6px)}
+  30%,70%{transform:translateX(6px)}
+}
+/* 答對：綠底打勾 */
+.opt.correct{background:#EAF7EC;border-color:var(--green-dark);pointer-events:none}
+.opt.correct::after{
+  content:"✓";
+  position:absolute;top:-12px;right:-12px;
+  width:36px;height:36px;border-radius:50%;
+  background:var(--green);color:#fff;
+  border:3px solid var(--ink);
+  display:grid;place-items:center;
+  font-size:20px;font-weight:900;
+}
+
+/* 植物醫生對話框 */
+.doctor-row{display:flex;align-items:flex-start;gap:12px;margin-top:16px}
+.doctor-avatar{width:76px;height:76px;object-fit:contain;flex:0 0 auto}
+span.doctor-avatar{font-size:56px}
+.bubble{
+  position:relative;flex:1;
+  background:var(--bg);
+  border:3px solid var(--ink);border-radius:16px;
+  padding:12px 16px;
+  font-size:clamp(18px,2.8vw,21px);line-height:1.65;font-weight:700;
+  min-height:64px;
+}
+.bubble::before{ /* 對話框的小尾巴 */
+  content:"";position:absolute;left:-14px;top:24px;
+  border:8px solid transparent;border-right-color:var(--ink);
+}
+.bubble.pop{animation:bubblePop .35s ease}
+@keyframes bubblePop{40%{transform:scale(1.03)}}
+.bubble.good{background:#EAF7EC}
+.bubble.bad{background:#FDEAE8}
+
+/* 下一關按鈕 */
+.btn-next{
+  display:flex;align-items:center;justify-content:center;gap:12px;
+  width:100%;margin-top:16px;
+  font-size:clamp(22px,3.6vw,26px);
+  padding:14px;background:var(--sun);
+}
+.btn-next img,.btn-next .img-fallback{width:64px;height:34px;object-fit:contain;font-size:26px}
+
+/* ==========================================================
+   結算畫面
+   ========================================================== */
+#screen-result .result-card{max-width:620px;margin:4vh auto 0;text-align:center;padding:30px 24px}
+#screen-result h1{font-size:clamp(34px,6vw,48px);margin:0 0 10px;color:var(--green-dark)}
+.final-rank img,.final-rank .img-fallback{width:clamp(120px,22vw,160px);height:auto;font-size:100px}
+#finalRankName{font-size:clamp(26px,4.6vw,34px);font-weight:900;margin:6px 0;color:var(--terra)}
+#finalScore{font-size:clamp(24px,4vw,30px);font-weight:900;margin:2px 0 14px}
+#finalScore b{font-size:1.5em;color:var(--green-dark)}
+#finalPraise{font-size:clamp(18px,3vw,21px);line-height:1.7;margin:0 0 18px}
+.level-list{list-style:none;margin:0 0 22px;padding:0;text-align:left}
+.level-list li{
+  display:flex;align-items:center;gap:10px;
+  border-bottom:2px dashed #E5D8C3;
+  padding:9px 6px;font-size:19px;font-weight:700;
+}
+.level-list li:last-child{border-bottom:none}
+.level-list .lv-score{margin-left:auto;font-weight:900}
+.level-list img,.level-list .img-fallback{width:26px;height:26px;font-size:20px}
+
+/* 手機直向的小微調 */
+@media (max-width:560px){
+  #app{padding:10px}
+  .topbar{font-size:17px}
+  .options.parts{grid-template-columns:repeat(3,1fr);gap:8px}
+  .options.parts .opt{min-height:120px;padding:8px}
+}
+</style>
+</head>
+<body>
+<!-- 音效開關（全畫面通用） -->
+<button id="soundToggle" title="音效開關" aria-label="音效開關">🔊</button>
+
+<div id="app">
+
+  <!-- ========== 畫面一：標題 ========== -->
+  <section id="screen-title" class="screen active">
+    <div class="card title-card">
+      <img class="title-mascot" src="assets/mascot-doctor.png" alt="植物醫生吉祥物" onerror="imgFallback(this)">
+      <h1>植物醫生</h1>
+      <p class="title-sub">根・莖・葉 的祕密任務</p>
+      <p class="title-desc">
+        診所裡來了五株生病的植物！<br>
+        先觀察症狀，<b>找出生病的部位</b>，<br>
+        再選出<b>正確的治療方法</b>，把它們通通治好吧！
+      </p>
+      <button id="btnStart" class="btn-big">🩺 開始看診</button>
+    </div>
+  </section>
+
+  <!-- ========== 畫面二：關卡 ========== -->
+  <section id="screen-game" class="screen">
+    <!-- 頂欄：進度、分數、頭銜 -->
+    <header class="topbar">
+      <div class="progress">
+        <span id="levelLabel">第 1 / 5 關</span>
+        <span class="dots" id="dots"></span>
+      </div>
+      <div class="scorebox">
+        <img src="assets/ui-star.png" alt="分數" onerror="imgFallback(this)">
+        <span id="scoreNum">0</span> 分
+      </div>
+      <div class="rankchip" id="rankChip">
+        <img id="rankImg" src="assets/ui-rank-1.png" alt="" onerror="imgFallback(this)">
+        <span id="rankName">實習醫生</span>
+      </div>
+    </header>
+
+    <main class="game-grid">
+      <!-- 左卡：病株與症狀 -->
+      <div class="card plant-card">
+        <span class="case-label" id="caseLabel">病例 1</span>
+        <div class="plant-stage" id="plantStage">
+          <img id="plantSick" src="" alt="生病的植物" onerror="imgFallback(this)">
+          <img id="plantHealed" src="" alt="康復的植物" onerror="imgFallback(this)">
+          <div id="starBurst"></div>
+        </div>
+        <div class="symptom"><b>症狀：</b><span id="symptomText"></span></div>
+      </div>
+
+      <!-- 右卡：問答區 -->
+      <div class="card qa-card">
+        <div class="step-chips">
+          <span class="chip" id="chipStep1">步驟 1｜找部位</span>
+          <span class="chip" id="chipStep2">步驟 2｜選治療</span>
+        </div>
+        <h2 id="questionTitle"></h2>
+        <div id="options" class="options"></div>
+        <div class="doctor-row">
+          <img class="doctor-avatar" src="assets/mascot-doctor.png" alt="植物醫生" onerror="imgFallback(this)">
+          <div class="bubble" id="bubble"></div>
+        </div>
+        <button id="btnNext" class="btn-next hidden">
+          <img src="assets/ui-btn-next.png" alt="" onerror="imgFallback(this)">
+          <span id="btnNextText">下一關</span>
+        </button>
+      </div>
+    </main>
+  </section>
+
+  <!-- ========== 畫面三：結算 ========== -->
+  <section id="screen-result" class="screen">
+    <div class="card result-card">
+      <h1>🎉 看診結束！</h1>
+      <div class="final-rank">
+        <img id="finalRankImg" src="" alt="頭銜徽章" onerror="imgFallback(this)">
+      </div>
+      <div id="finalRankName"></div>
+      <div id="finalScore">總分 <b>0</b> / 500</div>
+      <p id="finalPraise"></p>
+      <ul class="level-list" id="levelList"></ul>
+      <button id="btnReplay" class="btn-big">🔄 再玩一次</button>
+    </div>
+  </section>
+
+</div>
+
+<script>
+/* ==========================================================
+   植物醫生 — 遊戲程式（原生 JavaScript）
+   ========================================================== */
+
+/* ---------- 素材路徑與 emoji 佔位表 ----------
+   任何圖片載入失敗時，會自動換成對應 emoji，版面不會破。 */
+const ASSET_DIR = "assets/";
+const EMOJI_FALLBACK = {
+  "bg-clinic.png": "🏡",
+  "mascot-doctor.png": "🧑‍⚕️",
+  "plant-healthy.png": "🪴",
+  "plant-healthy-sunflower.png": "🌻",
+  "plant-sick-01-etiolated.png": "🥀",
+  "plant-sick-02-wilted.png": "🥀",
+  "plant-sick-03-broken-stem.png": "🥀",
+  "plant-sick-04-loose-roots.png": "🥀",
+  "plant-sick-05-pest.png": "🐛",
+  "icon-part-root.png": "🥕",
+  "icon-part-stem.png": "🎋",
+  "icon-part-leaf.png": "🍃",
+  "icon-tool-watering-can.png": "💧",
+  "icon-tool-sun.png": "☀️",
+  "icon-tool-stake.png": "🪵",
+  "icon-tool-trowel.png": "⛏️",
+  "icon-tool-spray.png": "🧴",
+  "ui-badge-success.png": "🏅",
+  "ui-star.png": "⭐",
+  "ui-btn-next.png": "➡️",
+  "ui-rank-1.png": "🥉",
+  "ui-rank-2.png": "🥈",
+  "ui-rank-3.png": "🥇"
+};
+
+/* 圖片載入失敗 → 換成同尺寸的 emoji 佔位元素 */
+function imgFallback(img){
+  const file = (img.getAttribute("src") || "").split("/").pop();
+  const span = document.createElement("span");
+  span.className = "img-fallback " + img.className;
+  if (img.id) span.id = img.id;                 // 保留 id，讓後續程式仍找得到
+  span.textContent = EMOJI_FALLBACK[file] || "🌱";
+  img.replaceWith(span);
+}
+
+/* ---------- 三個部位（步驟一的選項，順序固定：根／莖／葉） ---------- */
+const PARTS = [
+  { key: "root", label: "根", icon: "icon-part-root.png" },
+  { key: "stem", label: "莖", icon: "icon-part-stem.png" },
+  { key: "leaf", label: "葉", icon: "icon-part-leaf.png" }
+];
+
+/* ---------- 關卡資料（科學內容完全依照 gameDesign.md，勿更動正確答案） ----------
+   欄位說明：
+   sickImg / healedImg…病株與康復後的圖
+   symptom…………………症狀敘述（顯示給玩家）
+   correctPart……………正確部位（root/stem/leaf）
+   partHint………………步驟一答錯時的提示
+   treatments……………三個處置選項（icon 用圖檔、emoji 用表情符號擇一）
+   treatHint………………步驟二答錯時的提示
+   principle………………答對後顯示的科學原理
+   之後要增減關卡，直接在這個陣列加減物件即可。 */
+const LEVELS = [
+  {
+    id: 1,
+    sickImg: "plant-sick-01-etiolated.png",
+    healedImg: "plant-healthy.png",
+    symptom: "這盆植物被放在房間陰暗角落兩週，葉子變黃，莖又細又長還往一邊倒。",
+    correctPart: "leaf",
+    partHint: "想一想：植物靠哪個部位吸收陽光、製造養分呢？葉子變黃跟「陽光」最有關係喔！",
+    treatments: [
+      { text: "移到有陽光的窗邊", icon: "icon-tool-sun.png", correct: true },
+      { text: "再多澆水", icon: "icon-tool-watering-can.png", correct: false },
+      { text: "把葉子剪掉", emoji: "✂️", correct: false }
+    ],
+    treatHint: "它缺的是「陽光」，不是水，也不能把葉子剪掉。想想怎麼讓葉子晒到太陽？",
+    principle: "葉子要靠陽光行光合作用製造養分；長期缺光會黃化，植株還會為了找光而徒長變細長。"
+  },
+  {
+    id: 2,
+    sickImg: "plant-sick-02-wilted.png",
+    healedImg: "plant-healthy.png",
+    symptom: "葉子全部下垂枯萎，土壤又乾又硬還裂開。",
+    correctPart: "root",
+    partHint: "土壤乾巴巴的，水進不了植物的身體。想一想：植物是用哪個部位「喝水」的呢？",
+    treatments: [
+      { text: "澆水", icon: "icon-tool-watering-can.png", correct: true },
+      { text: "移到陰暗處", emoji: "🌙", correct: false },
+      { text: "立支架", icon: "icon-tool-stake.png", correct: false }
+    ],
+    treatHint: "土壤又乾又裂，植物現在最需要的東西是什麼呢？",
+    principle: "根負責從土裡吸收水分，再經由莖送到全株；土太乾，根吸不到水，整株就缺水枯萎。"
+  },
+  {
+    id: 3,
+    sickImg: "plant-sick-03-broken-stem.png",
+    healedImg: "plant-healthy-sunflower.png",
+    symptom: "一株很高的向日葵被大風吹倒，莖彎折，上半部開始枯萎。",
+    correctPart: "stem",
+    partHint: "看看向日葵「折彎」的地方是哪裡？哪個部位負責把植物撐直、還負責運送水分呢？",
+    treatments: [
+      { text: "立支架扶正固定", icon: "icon-tool-stake.png", correct: true },
+      { text: "澆水", icon: "icon-tool-watering-can.png", correct: false },
+      { text: "移到陽光下", icon: "icon-tool-sun.png", correct: false }
+    ],
+    treatHint: "莖折彎了、站不直，要用什麼工具幫它重新站好呢？",
+    principle: "莖負責支撐植物直立，也把根吸收的水分養分往上運輸；莖折斷後運輸中斷，上方就會枯萎。"
+  },
+  {
+    id: 4,
+    sickImg: "plant-sick-04-loose-roots.png",
+    healedImg: "plant-healthy.png",
+    symptom: "植物搖搖晃晃站不穩，根部的土很鬆，還有幾條根露在外面。",
+    correctPart: "root",
+    partHint: "植物站不穩，就像船沒有下錨。想一想：哪個部位像「錨」一樣把植物固定在土裡？",
+    treatments: [
+      { text: "把土培回壓實、固定根部", icon: "icon-tool-trowel.png", correct: true },
+      { text: "剪掉露出的根", emoji: "✂️", correct: false },
+      { text: "噴殺蟲劑", icon: "icon-tool-spray.png", correct: false }
+    ],
+    treatHint: "根露出來、土鬆鬆的，要怎麼讓根重新被土壤緊緊包住呢？",
+    principle: "根除了吸水，也像錨一樣把植物固定在土裡；根沒被土包好，植物就站不穩。"
+  },
+  {
+    id: 5,
+    sickImg: "plant-sick-05-pest.png",
+    healedImg: "plant-healthy.png",
+    symptom: "葉子被蟲咬得坑坑洞洞，幾乎只剩葉脈。",
+    correctPart: "leaf",
+    partHint: "被蟲咬得坑坑洞洞的是哪個部位呢？那可是植物製造養分的「工廠」喔！",
+    treatments: [
+      { text: "除蟲並保護葉片", icon: "icon-tool-spray.png", correct: true },
+      { text: "多澆水", icon: "icon-tool-watering-can.png", correct: false },
+      { text: "立支架", icon: "icon-tool-stake.png", correct: false }
+    ],
+    treatHint: "害蟲還在葉子上大吃特吃，要先解決害蟲，才能保護剩下的葉子喔！",
+    principle: "葉子是植物製造養分的工廠；葉子被吃光，植物無法行光合作用製造足夠養分，就會愈來愈虛弱。"
+  }
+];
+
+/* ---------- 計分規則 ----------
+   每關兩步驟各 50 分，滿分 500。
+   同一步驟：第 1 次就答對 50 分，第 2 次 25 分，第 3 次以後 10 分。 */
+const SCORE_TABLE = [50, 25, 10];
+const MAX_SCORE = LEVELS.length * 100;
+function scoreByAttempt(wrongCount){
+  return SCORE_TABLE[Math.min(wrongCount, SCORE_TABLE.length - 1)];
+}
+
+/* ---------- 頭銜（升級進度）：依累計分數即時升級 ---------- */
+const RANKS = [
+  { min: Math.round(MAX_SCORE * 0.85), name: "植物醫師", img: "ui-rank-3.png",
+    praise: "太厲害了！五株植物都被你治好，你已經是真正的植物醫師！" },
+  { min: Math.round(MAX_SCORE * 0.60), name: "見習醫師", img: "ui-rank-2.png",
+    praise: "很不錯喔！再多觀察根、莖、葉的功能，你很快就能成為植物醫師！" },
+  { min: 0, name: "實習醫生", img: "ui-rank-1.png",
+    praise: "辛苦了！記住：根會喝水又固定、莖會運輸又支撐、葉子會做養分，下次一定更好！" }
+];
+function rankOf(score){
+  return RANKS.find(r => score >= r.min);
+}
+
+/* ==========================================================
+   音效模組（Web Audio API 合成，可用右上角按鈕開關）
+   ========================================================== */
+const Sound = {
+  ctx: null,
+  on: true,
+  /* 瀏覽器規定：必須在使用者互動後才能建立 AudioContext */
+  ensure(){
+    if (!this.ctx) {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (AC) this.ctx = new AC();
+    }
+    if (this.ctx && this.ctx.state === "suspended") this.ctx.resume();
+  },
+  /* 播放一顆音（頻率、開始秒數、長度、波形、音量） */
+  tone(freq, delay, dur, type, vol){
+    if (!this.on || !this.ctx) return;
+    const t = this.ctx.currentTime + delay;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.type = type || "sine";
+    osc.frequency.value = freq;
+    gain.gain.setValueAtTime(0.0001, t);
+    gain.gain.linearRampToValueAtTime(vol || 0.18, t + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    osc.connect(gain).connect(this.ctx.destination);
+    osc.start(t);
+    osc.stop(t + dur + 0.05);
+  },
+  click(){  this.tone(880, 0, 0.08, "triangle", 0.10); },                 // 按鈕聲
+  correct(){ this.tone(523.25, 0, 0.15); this.tone(659.25, 0.12, 0.22); },// 答對：上行雙音
+  wrong(){  this.tone(196, 0, 0.25, "sawtooth", 0.10); },                 // 答錯：短低音
+  heal(){   [523.25, 659.25, 783.99, 1046.5]                              // 康復：四音琶音
+              .forEach((f, i) => this.tone(f, i * 0.12, 0.3)); }
+};
+
+/* ==========================================================
+   遊戲狀態與 DOM 快取
+   ========================================================== */
+const state = {
+  level: 0,        // 目前第幾關（從 0 開始）
+  phase: "part",   // part＝步驟一找部位；treat＝步驟二選治療；healed＝康復
+  score: 0,
+  wrongCount: 0,   // 目前步驟已答錯幾次
+  records: [],     // 每關得分紀錄 [{part, treat}]
+  locked: false    // 轉場中鎖定點擊
+};
+
+const $ = (sel) => document.querySelector(sel);
+const screens = {
+  title: $("#screen-title"),
+  game: $("#screen-game"),
+  result: $("#screen-result")
+};
+
+/* ---------- 小工具 ---------- */
+function showScreen(name){
+  Object.values(screens).forEach(s => s.classList.remove("active"));
+  screens[name].classList.add("active");
+  window.scrollTo(0, 0);
+}
+function shuffle(arr){ // 洗牌（回傳新陣列，不動原本的）
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+/* 對話框說話（type：空字串／good／bad） */
+function say(text, type){
+  const b = $("#bubble");
+  b.textContent = text;
+  b.className = "bubble pop" + (type ? " " + type : "");
+  setTimeout(() => b.classList.remove("pop"), 380);
+}
+/* 更新分數（含跳動動畫） */
+function addScore(points){
+  state.score += points;
+  const el = $("#scoreNum");
+  el.textContent = state.score;
+  el.classList.remove("pulse");
+  void el.offsetWidth;            // 重新觸發動畫的小技巧
+  el.classList.add("pulse");
+  updateRankChip();
+}
+/* 更新頂欄頭銜（升級時跳動提示） */
+let lastRankName = "";
+function updateRankChip(){
+  const r = rankOf(state.score);
+  $("#rankName").textContent = r.name;
+  const img = $("#rankImg");
+  if (img && img.tagName === "IMG") img.src = ASSET_DIR + r.img;
+  else if (img) img.textContent = EMOJI_FALLBACK[r.img] || "🎖️";
+  if (r.name !== lastRankName) {
+    lastRankName = r.name;
+    const chip = $("#rankChip");
+    chip.classList.remove("pulse");
+    void chip.offsetWidth;
+    chip.classList.add("pulse");
+  }
+}
+/* 更新頂欄關卡進度點點 */
+function updateTopbar(){
+  $("#levelLabel").textContent = `第 ${state.level + 1} / ${LEVELS.length} 關`;
+  const dots = $("#dots");
+  dots.innerHTML = "";
+  LEVELS.forEach((_, i) => {
+    const d = document.createElement("span");
+    d.className = "dot" + (i < state.level ? " done" : i === state.level ? " cur" : "");
+    dots.appendChild(d);
+  });
+}
+
+/* ==========================================================
+   關卡流程
+   ========================================================== */
+function startGame(){
+  state.level = 0;
+  state.score = 0;
+  state.records = [];
+  lastRankName = "";
+  $("#scoreNum").textContent = "0";
+  updateRankChip();
+  showScreen("game");
+  renderLevel();
+}
+
+/* 進入一個關卡：重設畫面並出步驟一的題目 */
+function renderLevel(){
+  const lv = LEVELS[state.level];
+  state.phase = "part";
+  state.wrongCount = 0;
+  state.locked = false;
+  state.records[state.level] = { part: 0, treat: 0 };
+
+  updateTopbar();
+  $("#caseLabel").textContent = `病例 ${lv.id}`;
+  $("#symptomText").textContent = lv.symptom;
+
+  /* 病株圖與康復圖（可能已被換成 emoji 佔位，先確認還是 <img>） */
+  const stage = $("#plantStage");
+  stage.classList.remove("healed");
+  stage.querySelector("#healBadge")?.remove();   // 移除上一關的勳章
+  const sick = $("#plantSick"), healed = $("#plantHealed");
+  if (sick && sick.tagName === "IMG") sick.src = ASSET_DIR + lv.sickImg;
+  else if (sick) sick.textContent = EMOJI_FALLBACK[lv.sickImg] || "🥀";
+  if (healed && healed.tagName === "IMG") healed.src = ASSET_DIR + lv.healedImg;
+  else if (healed) healed.textContent = EMOJI_FALLBACK[lv.healedImg] || "🪴";
+
+  $("#btnNext").classList.add("hidden");
+  renderPartOptions();
+}
+
+/* ---------- 步驟一：找出生病的部位 ---------- */
+function renderPartOptions(){
+  $("#chipStep1").className = "chip on";
+  $("#chipStep2").className = "chip";
+  $("#questionTitle").textContent = "🔍 步驟 1｜是哪個部位出問題呢？";
+  say("請仔細觀察圖片和症狀，找出生病的部位！");
+
+  const box = $("#options");
+  box.className = "options parts";
+  box.innerHTML = "";
+  PARTS.forEach(p => {
+    const btn = document.createElement("button");
+    btn.className = "opt";
+    btn.innerHTML =
+      `<img src="${ASSET_DIR + p.icon}" alt="" onerror="imgFallback(this)"><span>${p.label}</span>`;
+    btn.addEventListener("click", () => onPartClick(btn, p));
+    box.appendChild(btn);
+  });
+}
+
+function onPartClick(btn, part){
+  if (state.locked || state.phase !== "part") return;
+  const lv = LEVELS[state.level];
+
+  if (part.key === lv.correctPart) {
+    /* 答對部位 → 計分，稍停一下進入步驟二 */
+    state.locked = true;
+    const pts = scoreByAttempt(state.wrongCount);
+    state.records[state.level].part = pts;
+    btn.classList.add("correct");
+    Sound.correct();
+    addScore(pts);
+    const label = PARTS.find(p => p.key === lv.correctPart).label;
+    say(`答對了！問題部位就是「${label}」！（＋${pts} 分）接下來要怎麼治療呢？`, "good");
+    setTimeout(() => {
+      state.phase = "treat";
+      state.wrongCount = 0;
+      state.locked = false;
+      renderTreatOptions();
+    }, 1400);
+  } else {
+    /* 答錯 → 該選項打叉停用，給提示，可再試（下次得分變少） */
+    state.wrongCount++;
+    btn.classList.add("wrong");
+    Sound.wrong();
+    say(`再想想看！提示：${lv.partHint}（再試一次，答對還是有分數喔）`, "bad");
+  }
+}
+
+/* ---------- 步驟二：選出正確的治療 ---------- */
+function renderTreatOptions(){
+  const lv = LEVELS[state.level];
+  $("#chipStep1").className = "chip done";
+  $("#chipStep2").className = "chip on";
+  $("#questionTitle").textContent = "💊 步驟 2｜要怎麼治療呢？";
+  say("找出部位了！現在選出正確的治療方法吧！");
+
+  const box = $("#options");
+  box.className = "options";
+  box.innerHTML = "";
+  shuffle(lv.treatments).forEach(t => {   // 選項順序每次隨機
+    const btn = document.createElement("button");
+    btn.className = "opt";
+    const iconHTML = t.icon
+      ? `<img src="${ASSET_DIR + t.icon}" alt="" onerror="imgFallback(this)">`
+      : `<span class="opt-emoji">${t.emoji}</span>`;
+    btn.innerHTML = `${iconHTML}<span>${t.text}</span>`;
+    btn.addEventListener("click", () => onTreatClick(btn, t));
+    box.appendChild(btn);
+  });
+}
+
+function onTreatClick(btn, treatment){
+  if (state.locked || state.phase !== "treat") return;
+  const lv = LEVELS[state.level];
+
+  if (treatment.correct) {
+    /* 答對治療 → 計分、講原理、播康復動畫 */
+    state.locked = true;
+    state.phase = "healed";
+    const pts = scoreByAttempt(state.wrongCount);
+    state.records[state.level].treat = pts;
+    btn.classList.add("correct");
+    Sound.correct();
+    addScore(pts);
+    say(`治療成功！（＋${pts} 分）📖 原理：${lv.principle}`, "good");
+    setTimeout(healSequence, 500);
+  } else {
+    state.wrongCount++;
+    btn.classList.add("wrong");
+    Sound.wrong();
+    say(`這個方法不對喔！提示：${lv.treatHint}（再試一次！）`, "bad");
+  }
+}
+
+/* ---------- 康復動畫：病株淡出 → 健康株彈出 ＋ 蓋章 ＋ 星星 ---------- */
+function healSequence(){
+  const stage = $("#plantStage");
+  stage.classList.add("healed");   // 觸發 CSS 交叉淡化與彈跳
+  Sound.heal();
+
+  /* 康復成功勳章（蓋章動畫） */
+  setTimeout(() => {
+    const badge = document.createElement("img");
+    badge.id = "healBadge";
+    badge.src = ASSET_DIR + "ui-badge-success.png";
+    badge.alt = "康復成功";
+    badge.onerror = function(){ imgFallback(this); };
+    stage.appendChild(badge);
+  }, 700);
+
+  /* 星星噴發（六顆，方向隨機） */
+  const burst = $("#starBurst");
+  for (let i = 0; i < 6; i++) {
+    setTimeout(() => {
+      const star = document.createElement("img");
+      star.src = ASSET_DIR + "ui-star.png";
+      star.alt = "";
+      star.onerror = function(){ imgFallback(this); };
+      const ang = Math.random() * Math.PI * 2;
+      const dist = 90 + Math.random() * 110;
+      star.style.setProperty("--dx", Math.cos(ang) * dist + "px");
+      star.style.setProperty("--dy", Math.sin(ang) * dist - 40 + "px");
+      burst.appendChild(star);
+      setTimeout(() => star.remove(), 1000);
+    }, 500 + i * 120);
+  }
+
+  /* 顯示「下一關／看診斷結果」按鈕 */
+  setTimeout(() => {
+    const isLast = state.level >= LEVELS.length - 1;
+    $("#btnNextText").textContent = isLast ? "看診斷結果" : "下一關";
+    $("#btnNext").classList.remove("hidden");
+    state.locked = false;
+  }, 1600);
+}
+
+/* ---------- 下一關或結算 ---------- */
+function gotoNext(){
+  Sound.click();
+  if (state.level >= LEVELS.length - 1) {
+    renderResult();
+    showScreen("result");
+  } else {
+    state.level++;
+    renderLevel();
+  }
+}
+
+/* ---------- 結算畫面 ---------- */
+function renderResult(){
+  const r = rankOf(state.score);
+  const img = $("#finalRankImg");
+  if (img && img.tagName === "IMG") img.src = ASSET_DIR + r.img;
+  else if (img) img.textContent = EMOJI_FALLBACK[r.img] || "🎖️";
+  $("#finalRankName").textContent = `你的頭銜：${r.name}`;
+  $("#finalScore").innerHTML = `總分 <b>${state.score}</b> / ${MAX_SCORE}`;
+  $("#finalPraise").textContent = r.praise;
+
+  /* 逐關成績（滿分 100 的關卡加一顆小勳章） */
+  const list = $("#levelList");
+  list.innerHTML = "";
+  state.records.forEach((rec, i) => {
+    const total = rec.part + rec.treat;
+    const li = document.createElement("li");
+    li.innerHTML =
+      `<span>病例 ${i + 1}</span>` +
+      (total === 100
+        ? `<img src="${ASSET_DIR}ui-badge-success.png" alt="滿分" onerror="imgFallback(this)">`
+        : "") +
+      `<span class="lv-score">${total} 分</span>`;
+    list.appendChild(li);
+  });
+}
+
+/* ==========================================================
+   事件繫結與初始化
+   ========================================================== */
+$("#btnStart").addEventListener("click", () => {
+  Sound.ensure();   // 第一次互動時建立 AudioContext
+  Sound.click();
+  startGame();
+});
+$("#btnNext").addEventListener("click", gotoNext);
+$("#btnReplay").addEventListener("click", () => {
+  Sound.click();
+  startGame();
+});
+$("#soundToggle").addEventListener("click", (e) => {
+  Sound.ensure();
+  Sound.on = !Sound.on;
+  e.currentTarget.textContent = Sound.on ? "🔊" : "🔇";
+  if (Sound.on) Sound.click();
+});
+/* 任何第一次觸碰都先把音效引擎叫醒（涵蓋平板觸控） */
+document.addEventListener("pointerdown", () => Sound.ensure(), { once: true });
+
+/* 預先載入所有圖片，讓康復交叉淡化時不會閃一下 */
+Object.keys(EMOJI_FALLBACK).forEach(f => { const i = new Image(); i.src = ASSET_DIR + f; });
+</script>
+</body>
+</html>

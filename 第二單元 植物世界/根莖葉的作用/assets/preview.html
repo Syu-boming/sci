@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>植物醫生美術素材驗收</title>
+  <style>
+    :root {
+      color: #1e1e1e;
+      background: #fdf6ec;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; padding: 32px; }
+    h1 { margin: 0 0 8px; font-size: 28px; }
+    .summary { margin: 0 0 28px; color: #2e7d4f; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+    }
+    .card {
+      overflow: hidden;
+      border: 2px solid #eadfce;
+      border-radius: 18px;
+      background: #fff;
+      box-shadow: 0 6px 18px rgb(122 78 50 / 10%);
+    }
+    .card h2 {
+      margin: 0;
+      padding: 16px 18px 4px;
+      font-size: 16px;
+      word-break: break-all;
+    }
+    .card p {
+      margin: 0;
+      padding: 0 18px 16px;
+      color: #5b5147;
+      font-size: 14px;
+    }
+    .swatches { display: grid; grid-template-columns: 1fr 1fr; }
+    .swatch {
+      display: grid;
+      place-items: center;
+      aspect-ratio: 1;
+      padding: 10px;
+    }
+    .swatch.light { background: #fdf6ec; }
+    .swatch.dark { background: #263238; }
+    .swatch img { display: block; width: 100%; height: 100%; object-fit: contain; }
+    .wide {
+      display: grid;
+      place-items: center;
+      aspect-ratio: 3 / 2;
+      background: #fdf6ec;
+    }
+    .wide img { display: block; width: 100%; height: 100%; object-fit: contain; }
+    @media (max-width: 640px) {
+      body { padding: 18px; }
+      .grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <h1>「植物醫生」美術素材驗收</h1>
+  <p class="summary">23 張素材：19 張核心素材＋4 張加值素材。透明素材均以淺色／深色底各展示一次。</p>
+
+  <main class="grid">
+    <article class="card">
+      <div class="wide"><img src="bg-clinic.png" alt="主場景背景：溫馨植物診所"></div>
+      <h2>bg-clinic.png</h2><p>主場景背景：溫馨植物診所</p>
+    </article>
+    <article class="card"><div class="swatches"><div class="swatch light"><img src="mascot-doctor.png" alt=""></div><div class="swatch dark"><img src="mascot-doctor.png" alt=""></div></div><h2>mascot-doctor.png</h2><p>植物醫生吉祥物</p></article>
+    <article class="card"><div class="swatches"><div class="swatch light"><img src="plant-healthy.png" alt=""></div><div class="swatch dark"><img src="plant-healthy.png" alt=""></div></div><h2>plant-healthy.png</h2><p>健康植物（風格基準圖）</p></article>
+    <article class="card"><div class="swatches"><div class="swatch light"><img src="plant-sick-01-etiolated.png" alt=""></div><div class="swatch dark"><img src="plant-sick-01-etiolated.png" alt=""></div></div><h2>plant-sick-01-etiolated.png</h2><p>病株①缺光：葉黃化、徒長傾斜</p></article>
+    <article class="card"><div class="swatches"><div class="swatch light"><img src="plant-sick-02-wilted.png" alt=""></div><div class="swatch dark"><img src="plant-sick-02-wilted.png" alt=""></div></div><h2>plant-sick-02-wilted.png</h2><p>病株②缺水：全株枯萎、土壤龜裂</p></article>
+    <article class="card"><div class="swatches"><div class="swatch light"><img src="plant-sick-03-broken-stem.png" alt=""></div><div class="swatch dark"><img src="plant-sick-03-broken-stem.png" alt=""></div></div><h2>plant-sick-03-broken-stem.png</h2><p>病株③向日葵倒伏折莖</p></article>
+    <article class="card"><div class="swatches"><div class="swatch light"><img src="plant-sick-04-loose-roots.png" alt=""></div><div class="swatch dark"><img src="plant-sick-04-loose-roots.png" alt=""></div></div><h2>plant-sick-04-loose-roots.png</h2><p>病株④根部鬆動裸露、植株不穩</p></article>
+    <article class="card"><div class="swatches"><div class="swatch light"><img src="plant-sick-05-pest.png" alt=""></div><div class="swatch dark"><img src="plant-sick-05-pest.png" alt=""></div></div><h2>plant-sick-05-pest.png</h2><p>病株⑤葉片蟲蛀坑洞</p></article>
+    <article class="card"><div class="swatches"><div class="swatch light"><img src="icon-part-root.png" alt=""></div><div class="swatch dark"><img src="icon-part-root.png" alt=""></div></div><h2>icon-part-root.png</h2><p>部位圖示：根</p></article>
+    <article class="card"><div class="swatches"><div class="swatch light"><img src="icon-part-stem.png" alt=""></div><div class="swatch dark"><img src="icon-part-stem.png" alt=""></div></div><h2>icon-part-stem.png</h2><p>部位圖示：莖</p></article>
+    <article class="card"><div class="swatches"><div class="swatch light"><img src="icon-part-leaf.png" alt=""></div><div class="swatch dark"><img src="icon-part-leaf.png" alt=""></div></div><h2>icon-part-leaf.png</h2><p>部位圖示：葉</p></article>
+    <article class="card"><div class="swatches"><div class="swatch light"><img src="icon-tool-watering-can.png" alt=""></div><div class="swatch dark"><img src="icon-tool-watering-can.png" alt=""></div></div><h2>icon-tool-watering-can.png</h2><p>處置圖示：澆水壺</p></article>
+    <article class="card"><div class="swatches"><div class="swatch light"><img src="icon-tool-sun.png" alt=""></div><div class="swatch dark"><img src="icon-tool-sun.png" alt=""></div></div><h2>icon-tool-sun.png</h2><p>處置圖示：太陽</p></article>
+    <article class="card"><div class="swatches"><div class="swatch light"><img src="icon-tool-stake.png" alt=""></div><div class="swatch dark"><img src="icon-tool-stake.png" alt=""></div></div><h2>icon-tool-stake.png</h2><p>處置圖示：支架</p></article>
+    <article class="card"><div class="swatches"><div class="swatch light"><img src="icon-tool-trowel.png" alt=""></div><div class="swatch dark"><img src="icon-tool-trowel.png" alt=""></div></div><h2>icon-tool-trowel.png</h2><p>處置圖示：培土小鏟</p></article>
+    <article class="card"><div class="swatches"><div class="swatch light"><img src="icon-tool-spray.png" alt=""></div><div class="swatch dark"><img src="icon-tool-spray.png" alt=""></div></div><h2>icon-tool-spray.png</h2><p>處置圖示：除蟲噴瓶</p></article>
+    <article class="card"><div class="swatches"><div class="swatch light"><img src="ui-badge-success.png" alt=""></div><div class="swatch dark"><img src="ui-badge-success.png" alt=""></div></div><h2>ui-badge-success.png</h2><p>康復成功勳章</p></article>
+    <article class="card"><div class="swatches"><div class="swatch light"><img src="ui-star.png" alt=""></div><div class="swatch dark"><img src="ui-star.png" alt=""></div></div><h2>ui-star.png</h2><p>計分星星</p></article>
+    <article class="card"><div class="swatches"><div class="swatch light"><img src="ui-btn-next.png" alt=""></div><div class="swatch dark"><img src="ui-btn-next.png" alt=""></div></div><h2>ui-btn-next.png</h2><p>下一關按鈕（無文字）</p></article>
+    <article class="card"><div class="swatches"><div class="swatch light"><img src="plant-healthy-sunflower.png" alt=""></div><div class="swatch dark"><img src="plant-healthy-sunflower.png" alt=""></div></div><h2>plant-healthy-sunflower.png</h2><p>健康的向日葵</p></article>
+    <article class="card"><div class="swatches"><div class="swatch light"><img src="ui-rank-1.png" alt=""></div><div class="swatch dark"><img src="ui-rank-1.png" alt=""></div></div><h2>ui-rank-1.png</h2><p>等級徽章：實習醫生</p></article>
+    <article class="card"><div class="swatches"><div class="swatch light"><img src="ui-rank-2.png" alt=""></div><div class="swatch dark"><img src="ui-rank-2.png" alt=""></div></div><h2>ui-rank-2.png</h2><p>等級徽章：見習醫師</p></article>
+    <article class="card"><div class="swatches"><div class="swatch light"><img src="ui-rank-3.png" alt=""></div><div class="swatch dark"><img src="ui-rank-3.png" alt=""></div></div><h2>ui-rank-3.png</h2><p>等級徽章：植物醫師</p></article>
+  </main>
+</body>
+</html>

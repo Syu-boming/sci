@@ -1,0 +1,209 @@
+[
+  {
+    "file": "bg-clinic.png",
+    "title_zh": "主場景背景：溫馨植物診所",
+    "category": "bg",
+    "size": "1536x1024",
+    "transparent": false,
+    "status": "ok",
+    "notes": ""
+  },
+  {
+    "file": "mascot-doctor.png",
+    "title_zh": "植物醫生吉祥物",
+    "category": "mascot",
+    "size": "1024x1024",
+    "transparent": true,
+    "status": "ok",
+    "notes": ""
+  },
+  {
+    "file": "plant-healthy.png",
+    "title_zh": "健康植物（風格基準圖）",
+    "category": "plant",
+    "size": "1024x1024",
+    "transparent": true,
+    "status": "ok",
+    "notes": ""
+  },
+  {
+    "file": "plant-sick-01-etiolated.png",
+    "title_zh": "病株①缺光：葉黃化、徒長傾斜",
+    "category": "plant",
+    "size": "1024x1024",
+    "transparent": true,
+    "status": "ok",
+    "notes": ""
+  },
+  {
+    "file": "plant-sick-02-wilted.png",
+    "title_zh": "病株②缺水：全株枯萎、土壤龜裂",
+    "category": "plant",
+    "size": "1024x1024",
+    "transparent": true,
+    "status": "ok",
+    "notes": ""
+  },
+  {
+    "file": "plant-sick-03-broken-stem.png",
+    "title_zh": "病株③向日葵倒伏折莖",
+    "category": "plant",
+    "size": "1024x1024",
+    "transparent": true,
+    "status": "ok",
+    "notes": ""
+  },
+  {
+    "file": "plant-sick-04-loose-roots.png",
+    "title_zh": "病株④根部鬆動裸露、植株不穩",
+    "category": "plant",
+    "size": "1024x1024",
+    "transparent": true,
+    "status": "ok",
+    "notes": ""
+  },
+  {
+    "file": "plant-sick-05-pest.png",
+    "title_zh": "病株⑤葉片蟲蛀坑洞",
+    "category": "plant",
+    "size": "1024x1024",
+    "transparent": true,
+    "status": "ok",
+    "notes": ""
+  },
+  {
+    "file": "icon-part-root.png",
+    "title_zh": "部位圖示：根",
+    "category": "icon-part",
+    "size": "1024x1024",
+    "transparent": true,
+    "status": "ok",
+    "notes": ""
+  },
+  {
+    "file": "icon-part-stem.png",
+    "title_zh": "部位圖示：莖",
+    "category": "icon-part",
+    "size": "1024x1024",
+    "transparent": true,
+    "status": "ok",
+    "notes": ""
+  },
+  {
+    "file": "icon-part-leaf.png",
+    "title_zh": "部位圖示：葉",
+    "category": "icon-part",
+    "size": "1024x1024",
+    "transparent": true,
+    "status": "ok",
+    "notes": ""
+  },
+  {
+    "file": "icon-tool-watering-can.png",
+    "title_zh": "處置圖示：澆水壺",
+    "category": "icon-tool",
+    "size": "1024x1024",
+    "transparent": true,
+    "status": "ok",
+    "notes": ""
+  },
+  {
+    "file": "icon-tool-sun.png",
+    "title_zh": "處置圖示：太陽",
+    "category": "icon-tool",
+    "size": "1024x1024",
+    "transparent": true,
+    "status": "ok",
+    "notes": ""
+  },
+  {
+    "file": "icon-tool-stake.png",
+    "title_zh": "處置圖示：支架",
+    "category": "icon-tool",
+    "size": "1024x1024",
+    "transparent": true,
+    "status": "ok",
+    "notes": ""
+  },
+  {
+    "file": "icon-tool-trowel.png",
+    "title_zh": "處置圖示：培土小鏟",
+    "category": "icon-tool",
+    "size": "1024x1024",
+    "transparent": true,
+    "status": "ok",
+    "notes": ""
+  },
+  {
+    "file": "icon-tool-spray.png",
+    "title_zh": "處置圖示：除蟲噴瓶",
+    "category": "icon-tool",
+    "size": "1024x1024",
+    "transparent": true,
+    "status": "ok",
+    "notes": ""
+  },
+  {
+    "file": "ui-badge-success.png",
+    "title_zh": "康復成功勳章",
+    "category": "ui",
+    "size": "1024x1024",
+    "transparent": true,
+    "status": "ok",
+    "notes": ""
+  },
+  {
+    "file": "ui-star.png",
+    "title_zh": "計分星星",
+    "category": "ui",
+    "size": "1024x1024",
+    "transparent": true,
+    "status": "ok",
+    "notes": ""
+  },
+  {
+    "file": "ui-btn-next.png",
+    "title_zh": "下一關按鈕",
+    "category": "ui",
+    "size": "1024x1024",
+    "transparent": true,
+    "status": "ok",
+    "notes": ""
+  },
+  {
+    "file": "plant-healthy-sunflower.png",
+    "title_zh": "健康的向日葵",
+    "category": "plant",
+    "size": "1024x1024",
+    "transparent": true,
+    "status": "ok",
+    "notes": ""
+  },
+  {
+    "file": "ui-rank-1.png",
+    "title_zh": "等級徽章：實習醫生",
+    "category": "ui",
+    "size": "1024x1024",
+    "transparent": true,
+    "status": "ok",
+    "notes": ""
+  },
+  {
+    "file": "ui-rank-2.png",
+    "title_zh": "等級徽章：見習醫師",
+    "category": "ui",
+    "size": "1024x1024",
+    "transparent": true,
+    "status": "ok",
+    "notes": ""
+  },
+  {
+    "file": "ui-rank-3.png",
+    "title_zh": "等級徽章：植物醫師",
+    "category": "ui",
+    "size": "1024x1024",
+    "transparent": true,
+    "status": "ok",
+    "notes": ""
+  }
+]

@@ -24,9 +24,17 @@ UNITS = [
             "直立式與地平式日晷",
         ],
     },
+    {
+        "folder": "第二單元 植物世界",
+        "short": "第二單元",
+        "order": [
+            "根莖葉的作用",
+            "植物體內的水分運輸",
+        ],
+    },
 ]
 # 尚未製作的單元（顯示為「製作中」佔位）
-COMING = [{"short": "第二單元", "name": "植物世界"}]
+COMING = []
 
 TYPES = {
     "互動教材": {"zone": "materials",  "emoji": "🔬", "title": "數位教材",
@@ -85,6 +93,12 @@ DESCS = {"互動教材": "互動探索模型，邊操作邊學。",
          "重點整理": "核心概念整理，複習與列印。",
          "學習單":   "互動作答＋可列印紙本。"}
 
+# 個別主題的卡片說明覆寫；沒列到的沿用上面 DESCS 的通用說明
+TOPIC_DESCS = {
+    ("根莖葉的作用",       "互動教材"): "「植物醫生」看診闖關遊戲。",
+    ("植物體內的水分運輸", "互動教材"): "「水滴大冒險」跟著水滴走一趟。",
+}
+
 # 延伸工具（materials/*.html）各自的卡片資料：檔名 → (emoji, 標題, 說明)
 MATERIALS = {
     "sun-path-explorer.html": ("🌐", "3D 太陽路徑探索", "觀察太陽移動與影子變化。"),
@@ -99,7 +113,7 @@ for t in TYPE_ORDER:
     cards = []
     for unit, topics in scanned:
         unit_cards = [card(info["files"][t], meta["emoji"],
-                           prefix, DESCS[t], info["tag"])
+                           prefix, TOPIC_DESCS.get((prefix, t), DESCS[t]), info["tag"])
                       for prefix, info in topics if t in info["files"]]
         if unit_cards:
             cards.append('  <h3 class="unit-sub">%s %s</h3>' % (unit["short"], unit["folder"].split(" ", 1)[-1]))
