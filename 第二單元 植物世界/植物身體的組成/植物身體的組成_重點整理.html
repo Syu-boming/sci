@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>植物身體的組成　重點整理</title>
+  <link rel="icon" href="../../image/icon.svg">
+  <style>
+    :root{--c-ink:#2c2f31;--c-soft:#55606a;--c-bg:#fff9f0;--c-brand:#f5a623;--c-brandS:#e8890b;--c-brandSoft:#fff2d9;--c-no:#e5484d;--c-noSoft:#fdeaea;--radius:16px;
+      --font:"Noto Sans TC","PingFang TC","Microsoft JhengHei","微軟正黑體",system-ui,-apple-system,sans-serif;}
+    *{box-sizing:border-box;}
+    body{margin:0;font-family:var(--font);color:var(--c-ink);background:var(--c-bg);line-height:1.75;font-size:18px;}
+    .wrap{width:min(880px,92vw);margin:0 auto;}
+    .site-header{background:linear-gradient(135deg,var(--c-brand),var(--c-brandS));color:#fff;padding:24px 0;}
+    .site-header .wrap{display:flex;align-items:center;gap:14px;}
+    .site-header img{width:50px;height:50px;}
+    .site-header h1{margin:0;font-size:1.5rem;}
+    .site-header p{margin:2px 0 0;opacity:.92;font-size:.95rem;}
+    .breadcrumb{padding:14px 0;font-size:.95rem;}
+    .breadcrumb a{color:var(--c-brandS);text-decoration:none;margin-right:14px;}
+    .breadcrumb a:hover{text-decoration:underline;}
+    .keypoint{background:#fff;border:1px solid #ece3d6;border-left:5px solid var(--c-brand);border-radius:12px;
+      padding:14px 16px;margin:12px 0;box-shadow:0 6px 20px rgba(90,70,30,.08);}
+    .keypoint.danger{border-left-color:var(--c-no);background:var(--c-noSoft);}
+    .keypoint b{color:var(--c-brandS);}
+    .keypoint.danger b{color:var(--c-no);}
+    .keytab{width:100%;border-collapse:collapse;margin:14px 0;background:#fff;border-radius:12px;overflow:hidden;
+      box-shadow:0 6px 20px rgba(90,70,30,.08);}
+    .keytab th,.keytab td{border:1px solid #ece3d6;padding:10px 12px;text-align:center;}
+    .keytab th{background:var(--c-brandSoft);color:var(--c-brandS);}
+    .keytab td.l{text-align:left;}
+    h2{font-size:1.3rem;}
+    .toolbar{margin:18px 0;}
+    .btn{cursor:pointer;border:none;border-radius:999px;padding:10px 20px;font-family:inherit;font-size:1rem;font-weight:700;background:var(--c-brand);color:#fff;}
+    .btn:hover{background:var(--c-brandS);}
+    .site-footer{margin:40px 0 26px;text-align:center;color:var(--c-soft);font-size:.9rem;}
+    .site-footer a{color:var(--c-brandS);}
+    /* 三層階梯圖 */
+    .ladder{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;
+      background:#fff;border:1px solid #ece3d6;border-radius:12px;padding:16px;margin:14px 0;
+      box-shadow:0 6px 20px rgba(90,70,30,.08);}
+    .step{text-align:center;min-width:120px;}
+    .step .box{font-size:2rem;line-height:1.2;}
+    .step .nm{font-weight:800;color:var(--c-brandS);}
+    .step .ds{font-size:.85rem;color:var(--c-soft);}
+    .arrow{font-size:1.6rem;color:var(--c-soft);}
+    /* 給高能力學生的延伸小知識 */
+    .extra{background:#f4f7ff;border:1px dashed #9db4e0;border-radius:12px;padding:12px 16px;margin:14px 0;
+      font-size:.95rem;color:#3f5488;}
+    .extra b{color:#2f4680;}
+    @media print{
+      @page{size:A4;margin:14mm;}
+      body{background:#fff;color:#000;font-size:12pt;}
+      .site-header,.breadcrumb,.toolbar,.site-footer{display:none!important;}
+      .keypoint,.keytab,.ladder,.extra{box-shadow:none;break-inside:avoid;}
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap">
+      <img src="../../image/icon.svg" alt="站標">
+      <div>
+        <h1>植物身體的組成</h1>
+        <p>單元重點整理 · 第二單元 植物世界</p>
+      </div>
+    </div>
+  </header>
+
+  <nav class="breadcrumb wrap">
+    <a href="../../index.html">← 回首頁</a><a href="植物身體的組成_互動教材.html">← 回互動教材</a>
+  </nav>
+
+  <main class="wrap">
+    <div class="toolbar"><button class="btn" onclick="window.print()">🖨️ 列印重點</button></div>
+
+  <h2>📌 三個層次：細胞 → 器官 → 個體</h2>
+  <div class="ladder">
+    <div class="step"><div class="box">🔬</div><div class="nm">細胞</div><div class="ds">要用顯微鏡才看得到<br>植物體的<b>基本單位</b></div></div>
+    <div class="arrow">→</div>
+    <div class="step"><div class="box">🍃</div><div class="nm">器官</div><div class="ds">許多細胞組成<br>根莖葉花果實種子</div></div>
+    <div class="arrow">→</div>
+    <div class="step"><div class="box">🌳</div><div class="nm">個體</div><div class="ds">許多器官組成<br>一整棵植物</div></div>
+  </div>
+  <div class="keypoint">🔬 <b>細胞</b>是植物體的<b>基本單位</b>——每一個器官，都是由許許多多細胞組成的。</div>
+  <div class="keypoint">🍃 <b>器官</b>：根、莖、葉、花、果實、種子。（你玩「植物醫生」時說的「部位」，正式名稱就是器官。）</div>
+  <div class="keypoint">🌳 <b>個體</b>：一整棵植物就是一個個體。</div>
+
+  <h2>🌿 兩類器官：看它在幫植物做什麼</h2>
+  <table class="keytab">
+    <tr><th>類別</th><th>包含</th><th>在幫植物做什麼</th></tr>
+    <tr><td><b>營養器官</b></td><td>根、莖、葉</td><td class="l">幫植物<b>活下去</b>：根吸水、莖運輸、葉製造養分</td></tr>
+    <tr><td><b>繁殖器官</b></td><td>花、果實、種子</td><td class="l">幫植物<b>產生下一代</b>：開花 → 結果實 → 果實裡有種子</td></tr>
+  </table>
+
+  <h2>🍽️ 判斷的方法：我們吃的是哪個器官？</h2>
+  <p>不用死背，記住每一個的「判準」，遇到沒看過的也推得出來。</p>
+  <table class="keytab">
+    <tr><th>食物</th><th>器官</th><th>怎麼判斷</th></tr>
+    <tr><td>蘋果</td><td>果實</td><td class="l">切開<b>裡面包著種子</b>——果實就是裝種子的地方</td></tr>
+    <tr><td>菠菜</td><td>葉</td><td class="l">薄薄的、綠綠的，是<b>行光合作用</b>製造養分的地方</td></tr>
+    <tr><td>胡蘿蔔</td><td>根</td><td class="l">長在土裡、上面直接連著葉子、身上<b>沒有節</b></td></tr>
+    <tr><td>花生</td><td>種子</td><td class="l">種到土裡<b>可以長出新的植物</b></td></tr>
+    <tr><td>油菜花</td><td>花</td><td class="l">開完花之後<b>會結出果實</b></td></tr>
+    <tr><td>甘蔗</td><td>莖</td><td class="l">身上有<b>一節一節的節</b>，負責把水往上送</td></tr>
+  </table>
+
+  <h2>⚠️ 容易搞混的地方</h2>
+  <div class="keypoint danger">細胞<b>不是</b>第四種器官！器官只有六種（根莖葉花果實種子）。細胞是把器官<b>再放大</b>之後才看到的東西，是<b>更小的層次</b>。</div>
+  <div class="keypoint danger">「個體」指的是<b>一整棵</b>植物。把一片葉子剪成兩半，只是把一個器官分成兩塊，<b>不會變成兩個個體</b>。</div>
+  <div class="keypoint danger">分類時先想<b>功能</b>，不要背順序：這個器官是幫植物「活下去」還是「生下一代」？</div>
+
+  <h2>🔎 挑戰：都長在土裡，可是……</h2>
+  <table class="keytab">
+    <tr><th>食物</th><th>器官</th><th>關鍵線索</th></tr>
+    <tr><td>馬鈴薯</td><td><b>莖</b></td><td class="l">身上有<b>芽眼</b>，而<b>芽只會長在莖上</b></td></tr>
+    <tr><td>地瓜</td><td><b>根</b></td><td class="l">沒有芽眼，是膨大的根</td></tr>
+  </table>
+  <div class="keypoint">會用這個線索之後，看到<b>薑、蓮藕、竹筍</b>（都是莖）也可以自己推推看。</div>
+
+  <div class="extra">
+    🎓 <b>再往下一點點（國中會學到）</b>：其實在細胞和器官中間，還有一層叫做「<b>組織</b>」——
+    形狀和工作相同的細胞會先聚在一起變成組織，幾種組織再合起來變成一個器官。
+    完整的層次是：細胞 → 組織 → 器官 → 個體。
+  </div>
+
+  </main>
+
+  <footer class="site-footer"><div class="wrap"><a href="../../index.html">← 回首頁</a> · 豬豬的自然探索</div></footer>
+</body>
+</html>

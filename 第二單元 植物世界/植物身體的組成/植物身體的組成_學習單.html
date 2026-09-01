@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<title>植物身體的組成 學習單</title>
+<style>
+  @page { size: A4 portrait; margin: 9mm 11mm; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:"PingFang TC","Microsoft JhengHei","Heiti TC",sans-serif;
+         font-size:11.5pt; line-height:1.45; color:#111; background:#f0f0f0; }
+  .sheet { width:190mm; min-height:275mm; margin:8px auto; background:#fff;
+           padding:6mm 7mm; box-shadow:0 2px 12px rgba(0,0,0,.25); }
+  @media print {
+    body { background:#fff; }
+    .sheet { margin:0; box-shadow:none; width:auto; min-height:auto; padding:0; }
+    .no-print { display:none !important; }
+  }
+  .head { display:flex; align-items:flex-end; gap:10px; border-bottom:2.5px solid #111;
+          padding-bottom:4px; margin-bottom:6px; }
+  .head h1 { font-size:15pt; letter-spacing:0.5px; white-space:nowrap; }
+  .head .sub { font-size:9.5pt; color:#444; }
+  .head .blanks { margin-left:auto; font-size:11pt; white-space:nowrap; }
+  .blank { display:inline-block; border-bottom:1px solid #111; min-width:16mm; text-align:center; }
+  h2 { font-size:12.5pt; background:#e8e8e8; border-left:5px solid #555;
+       padding:2px 8px; margin:7px 0 5px; }
+  h2.star { background:#fff2d9; border-left-color:#e8890b; }
+  ol.qs { padding-left:1.6em; }
+  ol.qs li { margin-bottom:4px; }
+  .circle-opt { border:1.2px solid #333; border-radius:12px; padding:0 7px; margin:0 2px;
+                display:inline-block; }
+  svg { display:block; margin:0 auto; }
+  table.tab { width:100%; border-collapse:collapse; text-align:center; font-size:11pt; }
+  table.tab th, table.tab td { border:1.2px solid #333; padding:3px 4px; }
+  table.tab th { background:#eee; }
+  .tab td.fill { min-width:20mm; height:8mm; }
+  .thinkbox { border:1.2px solid #333; border-radius:6px; padding:5px 8px; }
+  .thinkbox.star { border-color:#e8890b; background:#fffdf6; }
+  .wline { border-bottom:1px solid #999; min-height:8.5mm; }
+  .ans { display:none; color:#d00; font-weight:700; }
+  body.show-ans .ans { display:inline; }
+  .toolbar { text-align:center; padding:8px; }
+  .toolbar button { font-size:14px; padding:8px 18px; border-radius:8px; border:1px solid #888;
+                    background:#fff; cursor:pointer; font-family:inherit; }
+  .foot { margin-top:5px; font-size:9pt; color:#666; text-align:right; }
+  .hint { background:#f3f3f3; border-radius:5px; padding:2px 7px; font-size:10.5pt; }
+</style>
+<link rel="icon" href="../../image/icon.svg">
+</head>
+<body>
+<div class="toolbar no-print">
+  <button onclick="document.body.classList.toggle('show-ans')">👨‍🏫 顯示 / 隱藏答案（教師版）</button>
+  <button onclick="window.print()">🖨️ 列印</button>
+</div>
+
+<div class="sheet">
+  <div class="head">
+    <h1>🔬 植物身體的組成</h1>
+    <div class="sub">五年級自然．第二單元<br>植物世界 學習單</div>
+    <div class="blanks">班級<span class="blank"></span> 座號<span class="blank" style="min-width:10mm"></span> 姓名<span class="blank" style="min-width:22mm"></span></div>
+  </div>
+
+  <h2>一、從細胞到個體：植物身體的三個層次</h2>
+  <div style="display:flex; gap:4mm; align-items:center;">
+    <svg width="252" height="104" viewBox="0 0 252 104">
+      <!-- 細胞：一格一格像磚牆 -->
+      <g stroke="#3d8b37" stroke-width="1.4" fill="#dff0d8">
+        <rect x="8" y="30" width="20" height="14" rx="3"/><rect x="30" y="30" width="20" height="14" rx="3"/>
+        <rect x="8" y="46" width="20" height="14" rx="3"/><rect x="30" y="46" width="20" height="14" rx="3"/>
+        <rect x="8" y="62" width="20" height="14" rx="3"/><rect x="30" y="62" width="20" height="14" rx="3"/>
+      </g>
+      <text x="29" y="90" text-anchor="middle" font-size="11" font-weight="bold">細胞</text>
+      <text x="62" y="57" font-size="15" fill="#555">→</text>
+      <!-- 器官：一片葉 -->
+      <ellipse cx="112" cy="53" rx="30" ry="15" fill="#7cc576" stroke="#3d8b37" stroke-width="1.6"/>
+      <line x1="84" y1="58" x2="140" y2="48" stroke="#3d8b37" stroke-width="1.4"/>
+      <text x="112" y="90" text-anchor="middle" font-size="11" font-weight="bold">器官</text>
+      <text x="152" y="57" font-size="15" fill="#555">→</text>
+      <!-- 個體：一整棵植物 -->
+      <rect x="176" y="70" width="62" height="12" fill="#efe0c8" stroke="#b08d57" stroke-width="1"/>
+      <line x1="207" y1="70" x2="207" y2="30" stroke="#4caf50" stroke-width="4" stroke-linecap="round"/>
+      <ellipse cx="190" cy="40" rx="16" ry="8" fill="#7cc576" stroke="#3d8b37" stroke-width="1.4" transform="rotate(-18 190 40)"/>
+      <ellipse cx="224" cy="32" rx="16" ry="8" fill="#7cc576" stroke="#3d8b37" stroke-width="1.4" transform="rotate(18 224 32)"/>
+      <g stroke="#a9762f" stroke-width="1.6" fill="none" stroke-linecap="round">
+        <path d="M207 72 L207 82 M207 74 L196 82 M207 74 L218 82"/>
+      </g>
+      <text x="207" y="98" text-anchor="middle" font-size="11" font-weight="bold">個體</text>
+    </svg>
+    <div style="flex:1; font-size:11pt;">
+      <ol class="qs">
+        <li>植物體的<b>基本單位</b>是 <span class="blank" style="min-width:18mm"><span class="ans">細胞</span></span>，要用 <span class="blank" style="min-width:20mm"><span class="ans">顯微鏡</span></span> 才看得到。</li>
+        <li>根、莖、葉、花、果實、種子，都叫做 <span class="blank" style="min-width:18mm"><span class="ans">器官</span></span>；器官是由許多 <span class="blank" style="min-width:18mm"><span class="ans">細胞</span></span> 組成的。</li>
+        <li>一整棵植物叫做一個 <span class="blank" style="min-width:18mm"><span class="ans">個體</span></span>。</li>
+        <li>圈圈看：細胞是 <span class="circle-opt">植物的第四種器官</span><span class="circle-opt">組成器官的基本單位</span>。<span class="ans">（組成器官的基本單位）</span></li>
+      </ol>
+    </div>
+  </div>
+
+  <h2>二、兩類器官：填出它們各包含哪些</h2>
+  <table class="tab">
+    <tr><th style="width:22%">類別</th><th style="width:40%">包含哪些器官</th><th>它們在幫植物做什麼？</th></tr>
+    <tr><td>🌿 營養器官</td><td class="fill"><span class="ans">根、莖、葉</span></td><td class="fill"><span class="ans">幫植物活下去（吸水、運輸、製造養分）</span></td></tr>
+    <tr><td>🌸 繁殖器官</td><td class="fill"><span class="ans">花、果實、種子</span></td><td>幫植物產生下一代</td></tr>
+  </table>
+
+  <h2>三、餐桌上的植物：我們吃的是哪個器官？</h2>
+  <table class="tab">
+    <tr><th style="width:20%">食物</th><th style="width:24%">是哪個器官</th><th>屬於營養器官還是繁殖器官</th></tr>
+    <tr><td>🍎 蘋果</td><td class="fill"><span class="ans">果實</span></td><td class="fill"><span class="ans">繁殖器官</span></td></tr>
+    <tr><td>🥬 菠菜</td><td class="fill"><span class="ans">葉</span></td><td>營養器官</td></tr>
+    <tr><td>🥕 胡蘿蔔</td><td>根</td><td class="fill"><span class="ans">營養器官</span></td></tr>
+    <tr><td>🥜 花生</td><td class="fill"><span class="ans">種子</span></td><td class="fill"><span class="ans">繁殖器官</span></td></tr>
+    <tr><td>🌼 油菜花</td><td class="fill"><span class="ans">花</span></td><td class="fill"><span class="ans">繁殖器官</span></td></tr>
+    <tr><td>🎋 甘蔗</td><td class="fill"><span class="ans">莖</span></td><td class="fill"><span class="ans">營養器官</span></td></tr>
+  </table>
+
+  <h2 class="star">★ 四、挑戰題：都長在土裡，可是……</h2>
+  <div class="thinkbox star">
+    馬鈴薯和地瓜都長在土裡。<span class="hint">提示：芽只會長在<b>莖</b>上。馬鈴薯身上有<b>芽眼</b>，地瓜沒有。</span><br>
+    馬鈴薯是 <span class="blank" style="min-width:16mm"><span class="ans">莖</span></span>，地瓜是 <span class="blank" style="min-width:16mm"><span class="ans">根</span></span>。
+    　理由：<span class="blank" style="min-width:78mm"><span class="ans">馬鈴薯有芽眼、芽長在莖上，所以是莖</span></span>
+  </div>
+
+  <h2>五、想一想</h2>
+  <div class="thinkbox">
+    小明說：「我把一片葉子剪成兩半，就變成兩個個體了。」他說得對嗎？請說明理由。
+    <div class="wline"></div>
+    <div class="wline"><span class="ans">不對。一整棵植物才叫一個個體，葉子只是它的一個器官；把葉子剪成兩半，只是把一個器官分成兩塊，並沒有變成兩棵植物。</span></div>
+  </div>
+
+  <div class="foot">🔬 細胞 → 器官 → 個體　｜　根莖葉＝營養器官　花果實種子＝繁殖器官</div>
+</div>
+</body>
+</html>
