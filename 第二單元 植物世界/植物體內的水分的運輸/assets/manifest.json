@@ -3,7 +3,7 @@
     "file": "bg-scene.png",
     "title_zh": "主場景背景：明亮天空花園",
     "category": "bg",
-    "size": "1536x1024",
+    "size": "1440x960",
     "transparent": false,
     "status": "ok",
     "notes": ""
@@ -12,7 +12,7 @@
     "file": "mascot-drop.png",
     "title_zh": "小水滴吉祥物（角色基準圖）",
     "category": "mascot",
-    "size": "1024x1024",
+    "size": "460x460",
     "transparent": true,
     "status": "ok",
     "notes": ""
@@ -21,7 +21,7 @@
     "file": "plant-cutaway.png",
     "title_zh": "全株剖面圖（植物基準圖）",
     "category": "plant",
-    "size": "1024x1024",
+    "size": "920x920",
     "transparent": true,
     "status": "ok",
     "notes": ""
@@ -30,7 +30,7 @@
     "file": "stage-root-soil.png",
     "title_zh": "第1站場景：根與土壤",
     "category": "scene",
-    "size": "1024x1024",
+    "size": "920x920",
     "transparent": true,
     "status": "ok",
     "notes": ""
@@ -39,7 +39,7 @@
     "file": "stage-stem.png",
     "title_zh": "第2站場景：莖與導管",
     "category": "scene",
-    "size": "1024x1024",
+    "size": "920x920",
     "transparent": true,
     "status": "ok",
     "notes": ""
@@ -48,7 +48,7 @@
     "file": "stage-leaf.png",
     "title_zh": "第3站場景：葉子食物工廠",
     "category": "scene",
-    "size": "1024x1024",
+    "size": "920x920",
     "transparent": true,
     "status": "ok",
     "notes": ""
@@ -57,7 +57,7 @@
     "file": "plant-thriving.png",
     "title_zh": "茂盛健康植株（結尾獎勵）",
     "category": "plant",
-    "size": "1024x1024",
+    "size": "920x920",
     "transparent": true,
     "status": "ok",
     "notes": ""
@@ -66,7 +66,7 @@
     "file": "item-water.png",
     "title_zh": "單顆水滴（資源、無臉）",
     "category": "item",
-    "size": "1024x1024",
+    "size": "180x180",
     "transparent": true,
     "status": "ok",
     "notes": ""
@@ -75,7 +75,7 @@
     "file": "item-sun.png",
     "title_zh": "陽光",
     "category": "item",
-    "size": "1024x1024",
+    "size": "180x180",
     "transparent": true,
     "status": "ok",
     "notes": ""
@@ -84,7 +84,7 @@
     "file": "item-co2.png",
     "title_zh": "二氧化碳（灰色氣體）",
     "category": "item",
-    "size": "1024x1024",
+    "size": "180x180",
     "transparent": true,
     "status": "ok",
     "notes": ""
@@ -93,7 +93,7 @@
     "file": "item-oxygen.png",
     "title_zh": "氧氣（淺藍泡泡）",
     "category": "item",
-    "size": "1024x1024",
+    "size": "180x180",
     "transparent": true,
     "status": "ok",
     "notes": ""
@@ -102,7 +102,7 @@
     "file": "item-nutrient.png",
     "title_zh": "養分／糖（金黃能量包）",
     "category": "item",
-    "size": "1024x1024",
+    "size": "180x180",
     "transparent": true,
     "status": "ok",
     "notes": ""
@@ -111,7 +111,7 @@
     "file": "icon-part-root.png",
     "title_zh": "器官圖示：根",
     "category": "icon-part",
-    "size": "1024x1024",
+    "size": "220x220",
     "transparent": true,
     "status": "ok",
     "notes": ""
@@ -120,7 +120,7 @@
     "file": "icon-part-stem.png",
     "title_zh": "器官圖示：莖",
     "category": "icon-part",
-    "size": "1024x1024",
+    "size": "220x220",
     "transparent": true,
     "status": "ok",
     "notes": ""
@@ -129,7 +129,7 @@
     "file": "icon-part-leaf.png",
     "title_zh": "器官圖示：葉",
     "category": "icon-part",
-    "size": "1024x1024",
+    "size": "220x220",
     "transparent": true,
     "status": "ok",
     "notes": ""
@@ -138,7 +138,7 @@
     "file": "part-flower.png",
     "title_zh": "花（第4站目的地）",
     "category": "part",
-    "size": "1024x1024",
+    "size": "280x280",
     "transparent": true,
     "status": "ok",
     "notes": ""
@@ -147,7 +147,7 @@
     "file": "part-fruit.png",
     "title_zh": "果實（第4站目的地）",
     "category": "part",
-    "size": "1024x1024",
+    "size": "240x240",
     "transparent": true,
     "status": "ok",
     "notes": ""
@@ -156,7 +156,7 @@
     "file": "ui-star.png",
     "title_zh": "計分星星",
     "category": "ui",
-    "size": "1024x1024",
+    "size": "120x120",
     "transparent": true,
     "status": "ok",
     "notes": ""
@@ -165,7 +165,7 @@
     "file": "ui-badge-success.png",
     "title_zh": "過關成功勳章",
     "category": "ui",
-    "size": "1024x1024",
+    "size": "340x340",
     "transparent": true,
     "status": "ok",
     "notes": ""
@@ -174,7 +174,7 @@
     "file": "ui-btn-next.png",
     "title_zh": "下一步按鈕（純箭頭）",
     "category": "ui",
-    "size": "1024x1024",
+    "size": "160x160",
     "transparent": true,
     "status": "ok",
     "notes": ""
@@ -183,7 +183,7 @@
     "file": "ui-rank-1.png",
     "title_zh": "頭銜徽章：見習小園丁",
     "category": "ui",
-    "size": "1024x1024",
+    "size": "340x340",
     "transparent": true,
     "status": "ok",
     "notes": ""
@@ -192,7 +192,7 @@
     "file": "ui-rank-2.png",
     "title_zh": "頭銜徽章：植物探險家",
     "category": "ui",
-    "size": "1024x1024",
+    "size": "340x340",
     "transparent": true,
     "status": "ok",
     "notes": ""
@@ -201,7 +201,7 @@
     "file": "ui-rank-3.png",
     "title_zh": "頭銜徽章：光合作用大師",
     "category": "ui",
-    "size": "1024x1024",
+    "size": "340x340",
     "transparent": true,
     "status": "ok",
     "notes": ""
@@ -210,7 +210,7 @@
     "file": "mascot-drop-cheer.png",
     "title_zh": "小水滴慶祝姿勢",
     "category": "mascot",
-    "size": "1024x1024",
+    "size": "460x460",
     "transparent": true,
     "status": "ok",
     "notes": ""
@@ -219,7 +219,7 @@
     "file": "item-mineral.png",
     "title_zh": "礦物質小顆粒",
     "category": "item",
-    "size": "1024x1024",
+    "size": "180x180",
     "transparent": true,
     "status": "ok",
     "notes": ""
@@ -228,7 +228,7 @@
     "file": "deco-cloud.png",
     "title_zh": "白雲裝飾",
     "category": "deco",
-    "size": "1024x1024",
+    "size": "460x460",
     "transparent": true,
     "status": "ok",
     "notes": ""
