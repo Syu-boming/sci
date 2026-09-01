@@ -232,3 +232,43 @@ a { color: var(--c-brand-strong); }
 
 /* 螢幕上隱藏列印專用標題 */
 .print-title { display: none; }
+
+/* =====================================================================
+   RWD：手機 → 平板 → 筆電 → 75 吋教室觸控螢幕
+   以筆電為基準（上面的規則不動），只往兩端延伸。
+   ===================================================================== */
+@media (max-width: 640px) {
+  body { font-size: 16px; line-height: 1.65; }
+  .wrap { width: 94vw; }
+  .site-header { padding: 18px 0; }
+  .site-header img { width: 42px; height: 42px; }
+  .site-header h1 { font-size: 1.3rem; }
+  .site-header p  { font-size: .85rem; }
+  .section-title { font-size: 1.1rem; margin: 22px 0 10px; flex-wrap: wrap; }
+  .zone { padding: 14px 14px 18px; border-radius: 12px; margin: 16px 0; }
+  .zone-head h2 { font-size: 1.12rem; }
+  .zone-head .zone-emoji { font-size: 1.4rem; }
+  .card-grid { grid-template-columns: 1fr; gap: 12px; }
+  .card { padding: 15px; }
+  .card:hover { transform: none; }            /* 觸控裝置不做浮起效果 */
+  .btn { padding: 12px 18px; }                /* 觸控目標不縮小 */
+}
+@media (min-width: 641px) and (max-width: 1024px) {
+  .wrap { width: 94vw; }
+  .card-grid { grid-template-columns: repeat(auto-fill, minmax(215px, 1fr)); }
+}
+@media (min-width: 1800px) {
+  body { font-size: 22px; }
+  .wrap { width: min(1500px, 90vw); }
+  .site-header { padding: 36px 0; }
+  .site-header img { width: 72px; height: 72px; }
+  .card-grid { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 24px; }
+  .card { padding: 26px; }
+}
+@media (min-width: 2600px) {
+  body { font-size: 28px; }
+  .wrap { width: min(2100px, 88vw); }
+  .site-header img { width: 96px; height: 96px; }
+  .card-grid { grid-template-columns: repeat(auto-fill, minmax(400px, 1fr)); gap: 30px; }
+  .card { padding: 34px; }
+}

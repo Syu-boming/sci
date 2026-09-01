@@ -2,7 +2,7 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>直立式與地平式日晷｜互動教材</title>
 <style>
   * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
@@ -116,6 +116,68 @@
     .info { top:132px; right:8px; width:250px; padding:10px 12px; }
     .btn.small { font-size:14px; padding:8px 9px; }
     #quizCard { top:140px; }
+  }
+
+  /* ===== RWD：手機 / 平板 / 筆電 / 75 吋觸控螢幕 =====
+     這類教材是滿版 canvas，畫布本來就跟著視窗大小；要調的是上面的
+     控制列與資訊卡——手機要縮小才不會蓋住畫面，大螢幕要放大才看得清楚。 */
+  @media (max-width:640px){
+    .title{ font-size:16px; }
+    .title small{ font-size:11px; }
+    /* 控制列固定單行、可橫向滑動——換行會撐高並壓到下面的資訊卡 */
+    .topbar{ padding:6px 8px; gap:6px; flex-wrap:nowrap; overflow-x:auto;
+             scrollbar-width:none; -webkit-overflow-scrolling:touch; }
+    .topbar::-webkit-scrollbar{ display:none; }
+    .topbar > *{ flex:0 0 auto; }
+    .title{ margin-right:6px; }
+    .title small{ display:none; }        /* 手機省空間，副標不顯示 */
+    .btn{ font-size:15px; padding:9px 13px; border-radius:11px; }
+    .btn.small{ font-size:13px; padding:7px 10px; }
+    .info{ width:min(48vw,200px); padding:8px 10px; border-radius:12px; }
+    .info h3{ font-size:12px; letter-spacing:1px; margin-bottom:3px; }
+    .row{ padding:3px 0; }
+    .row .k{ font-size:12px; } .row .v{ font-size:16px; }
+    .bottombar{ padding:6px 8px 10px; gap:7px; }
+    .bar{ gap:6px; }
+    .sliderwrap{ min-width:0; gap:7px; }
+    .clock{ min-width:74px; font-size:18px; padding:3px 7px; }
+    input[type=range]{ height:38px; }
+  }
+  @media (min-width:641px) and (max-width:1024px){
+    .title{ font-size:20px; }
+    .btn{ font-size:18px; padding:10px 16px; }
+    .info{ width:228px; }
+  }
+  /* 手機直向：提示轉橫向（6 秒後淡出，不擋操作） */
+  @media (max-width:640px) and (orientation:portrait){
+    body::before{
+      content:"↻ 轉成橫向操作會更好用";
+      position:fixed; left:50%; top:calc(50% - 20px); transform:translateX(-50%);
+      z-index:60; background:rgba(0,0,0,.74); color:#fff; font-size:13px;
+      font-weight:700; padding:8px 16px; border-radius:999px; pointer-events:none;
+      animation:rwdHint 6s ease forwards;
+    }
+    @keyframes rwdHint{ 0%,72%{opacity:1} 100%{opacity:0} }
+  }
+  @media (min-width:1800px){
+    .title{ font-size:33px; } .title small{ font-size:19px; }
+    .btn{ font-size:27px; padding:16px 27px; border-radius:18px; }
+    .btn.small{ font-size:22px; padding:12px 18px; }
+    .info{ width:345px; padding:17px 21px; border-radius:24px; }
+    .info h3{ font-size:20px; } .row{ padding:9px 0; }
+    .row .k{ font-size:21px; } .row .v{ font-size:30px; }
+    .clock{ font-size:37px; min-width:150px; }
+    input[type=range]{ height:60px; }
+  }
+  @media (min-width:2600px){
+    .title{ font-size:46px; } .title small{ font-size:26px; }
+    .btn{ font-size:37px; padding:22px 36px; border-radius:24px; }
+    .btn.small{ font-size:30px; padding:16px 24px; }
+    .info{ width:470px; padding:22px 28px; }
+    .info h3{ font-size:27px; }
+    .row .k{ font-size:29px; } .row .v{ font-size:40px; }
+    .clock{ font-size:50px; min-width:200px; }
+    input[type=range]{ height:78px; }
   }
 </style>
 <link rel="icon" href="../../image/icon.svg">

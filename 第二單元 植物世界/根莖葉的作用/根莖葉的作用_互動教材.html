@@ -310,6 +310,35 @@ span.doctor-avatar{font-size:56px}
   .options.parts{grid-template-columns:repeat(3,1fr);gap:8px}
   .options.parts .opt{min-height:120px;padding:8px}
 }
+
+  /* ===== RWD：手機 / 平板 / 筆電 / 75 吋觸控螢幕 ===== */
+  @media (max-width:640px){
+    #app{ padding:10px 10px 28px; }
+    .card,.panel{ border-radius:14px; padding:12px 13px; }
+    .btn{ padding:12px 20px; min-height:52px; }
+    .opt{ min-height:52px; padding:11px 15px; }
+    .options.parts .opt img,.options.parts .opt .img-fallback{ width:60px; height:60px; }
+    .opt img,.opt .img-fallback{ width:40px; height:40px; }
+  }
+  @media (min-width:1800px){
+    /* 按鈕與選項都是 font:inherit，放大 body 字級它們就跟著長大 */
+    body{ font-size:26px; }
+    #app{ max-width:1680px; padding:26px 30px 60px; }
+    .organ{ width:clamp(160px,11vw,230px); }
+    .basket{ min-height:300px; }
+    .btn{ min-height:80px; padding:20px 42px; }
+    .opt{ min-height:88px; }
+    .station-btn{ min-height:76px; padding:14px 30px; }
+  }
+  @media (min-width:2600px){
+    body{ font-size:34px; }
+    #app{ max-width:2280px; padding:34px 40px 80px; }
+    .organ{ width:clamp(210px,10vw,300px); }
+    .basket{ min-height:390px; }
+    .btn{ min-height:104px; padding:26px 56px; }
+    .opt{ min-height:116px; }
+    .station-btn{ min-height:98px; padding:18px 40px; }
+  }
 </style>
 </head>
 <body>

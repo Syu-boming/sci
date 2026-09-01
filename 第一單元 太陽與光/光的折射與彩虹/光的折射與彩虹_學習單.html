@@ -2,6 +2,7 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>光的折射與彩虹 學習單</title>
 <style>
   @page { size: A4 portrait; margin: 9mm 11mm; }
@@ -43,6 +44,26 @@
   .toolbar button { font-size:14px; padding:8px 18px; border-radius:8px; border:1px solid #888;
                     background:#fff; cursor:pointer; font-family:inherit; }
   .foot { margin-top:3px; font-size:9pt; color:#666; text-align:right; }
+
+  /* ===== RWD =====
+     學習單是 A4 列印物（.sheet 固定 190mm）。螢幕上把整張紙等比例縮到
+     裝置寬度（做法同 PDF 檢視器，雙指可放大讀細節）；列印完全不受影響。 */
+  @media print { .sheet { zoom: 1 !important; } }
+  .toolbar button { min-height: 44px; }          /* 觸控目標 */
+  @media (max-width: 820px) {
+    body { background:#e6e6e6; }
+    .toolbar { display:flex; gap:8px; justify-content:center; flex-wrap:wrap; padding:6px 5px; }
+    .toolbar button { font-size:13px; padding:10px 12px; }
+    .sheet { margin:4px auto; }
+  }
+  @media (min-width: 1800px) {                    /* 75 吋：紙張放大到看得清楚 */
+    .sheet { zoom: 1.45; }
+    .toolbar button { font-size:19px; padding:12px 26px; min-height:56px; }
+  }
+  @media (min-width: 2600px) {
+    .sheet { zoom: 2.1; }
+    .toolbar button { font-size:26px; padding:16px 34px; min-height:70px; }
+  }
 </style>
 <link rel="icon" href="../../image/icon.svg">
 </head>
@@ -182,5 +203,22 @@
 
   <div class="foot">🌈 記住：光斜射進不同物質會折射。陽光＝七色光。紫彎多、紅彎少。背對太陽找彩虹。</div>
 </div>
+<script>
+/* 螢幕上讓整張 A4 等比例縮到裝置寬度（列印時由 @media print 還原成 1）。
+   .sheet 固定 190mm；小於這個寬度的裝置才縮，桌機以上不動。 */
+(function () {
+  var SHEET_PX = 190 * 96 / 25.4;                 /* 190mm 換算成 px */
+  var el = document.querySelector('.sheet');
+  if (!el) return;
+  function fit() {
+    var avail = document.documentElement.clientWidth - 10;
+    if (avail >= SHEET_PX) { el.style.zoom = ''; return; }   /* 夠寬就交還給 CSS */
+    el.style.zoom = Math.max(0.3, avail / SHEET_PX);
+  }
+  fit();
+  addEventListener('resize', fit);
+  addEventListener('orientationchange', fit);
+})();
+</script>
 </body>
 </html>
