@@ -270,7 +270,7 @@ const SPEED0     = 0.50;             /* 起始速度（螢幕寬度／秒） */
 const SPEED_MAX  = 1.05;
 const RAMP_SEC   = 90;               /* 幾秒後到達最高速 */
 const GRAVITY    = 5.0;              /* × H  ／秒² */
-const JUMP_V     = 1.62;             /* × H  ／秒（跳躍初速） */
+const JUMP_WINDOW= 0.30;             /* 起跳時機的容錯（秒），各種長寬比都維持這個值 */
 const FLIP_EVERY = 20;               /* 秒 */
 const CJK_FONT   = '"PingFang TC","Microsoft JhengHei","Noto Sans TC",sans-serif';
 
@@ -282,9 +282,25 @@ function sizeFrac(){ return Math.min(0.155, 0.13 * W / H); }
 
 /* 兩個障礙之間至少要留多久，才跳得過去：
    滯空時間 + （障礙寬 + 跑者寬 + 餘裕）÷ 速度。用幾何算，任何長寬比都成立。 */
+/* 跳躍初速由幾何反推，而不是寫死。
+   要閃過一個障礙，跑者「停留在障礙高度以上的時間」必須大於
+   「障礙穿過跑者危險區的時間」，中間還要留給學生起跳時機的容錯。
+   直式手機的障礙佔螢幕寬 13%（橫式只有 5.5%），穿越時間長得多，
+   用同一組跳躍參數的話容錯只剩 0.09 秒 —— 物理上幾乎閃不過。
+   停留時間 = 2·√(V² − 2·g·h) / g，反解 V 即可。 */
+function jumpV(){
+  const sz    = sizeFrac();
+  const danger= sz * (H / W) * 0.7 * 2;          /* 跑者＋障礙的有效碰撞寬（螢幕寬比例） */
+  const above = danger / SPEED0 + JUMP_WINDOW;   /* 需要停在障礙上方多久 */
+  const hO    = sz * 0.85;                        /* 障礙碰撞框頂端（H 比例） */
+  const v     = Math.sqrt(Math.pow(above * GRAVITY / 2, 2) + 2 * GRAVITY * hO);
+  return Math.min(v, 2.24);                       /* 上限：跳躍高度不超過畫布一半 */
+}
+function jumpDurSec(){ return 2 * jumpV() / GRAVITY; }
+
 function minGapSec(){
   const wFrac = sizeFrac() * (H / W);          /* 物件寬度換算成螢幕寬度比例 */
-  return (2 * JUMP_V / GRAVITY) * 1.12 + (wFrac * 2 + 0.10) / speedSW();  /* 留餘裕，別剛好卡在臨界 */
+  return jumpDurSec() * 1.12 + (wFrac * 2 + 0.10) / speedSW();   /* 留餘裕，別剛好卡在臨界 */
 }
 const WARN_AT    = 3;                /* 反轉前幾秒開始倒數 */
 
@@ -320,7 +336,7 @@ function spawn(){
 }
 
 function jump(){
-  if (state === "play" && onGround){ vy = -JUMP_V; onGround = false; }
+  if (state === "play" && onGround){ vy = -jumpV(); onGround = false; }
 }
 
 function step(dt){
