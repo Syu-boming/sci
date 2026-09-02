@@ -272,6 +272,20 @@ const RAMP_SEC   = 90;               /* 幾秒後到達最高速 */
 const GRAVITY    = 5.0;              /* × H  ／秒² */
 const JUMP_V     = 1.62;             /* × H  ／秒（跳躍初速） */
 const FLIP_EVERY = 20;               /* 秒 */
+const CJK_FONT   = '"PingFang TC","Microsoft JhengHei","Noto Sans TC",sans-serif';
+
+/* 物件大小（畫布高度的比例）。
+   ⚠️ 不能只看高度：直式手機的畫布比寬還高（例如 364x405），
+   只用 0.155*H 的話障礙會佔掉 17% 的螢幕寬，跟跑者加起來比一次跳躍
+   能跨過的距離還大 —— 橫式螢幕不會遇到，直式手機必撞。所以再用寬度封頂。 */
+function sizeFrac(){ return Math.min(0.155, 0.13 * W / H); }
+
+/* 兩個障礙之間至少要留多久，才跳得過去：
+   滯空時間 + （障礙寬 + 跑者寬 + 餘裕）÷ 速度。用幾何算，任何長寬比都成立。 */
+function minGapSec(){
+  const wFrac = sizeFrac() * (H / W);          /* 物件寬度換算成螢幕寬度比例 */
+  return (2 * JUMP_V / GRAVITY) * 1.12 + (wFrac * 2 + 0.10) / speedSW();  /* 留餘裕，別剛好卡在臨界 */
+}
 const WARN_AT    = 3;                /* 反轉前幾秒開始倒數 */
 
 let state = "title";                 /* title | play | over */
@@ -302,7 +316,7 @@ function spawn(){
   const cat  = Math.random() < 0.5 ? "營養" : "繁殖";
   const list = BY_CAT[cat].length ? BY_CAT[cat] : POOL;
   const item = list[(Math.random() * list.length) | 0];
-  obstacles.push({ item, x: 1.02, w: 0.155, h: 0.155 });   /* x 用螢幕寬度比例、w/h 用 H 比例 */
+  obstacles.push({ item, x: 1.02 });          /* x 用螢幕寬度比例；大小一律即時由 sizeFrac() 算 */
 }
 
 function jump(){
@@ -345,21 +359,22 @@ function step(dt){
   spawnIn -= dt;
   if (spawnIn <= 0){
     spawn();
-    spawnIn = 1.15 + Math.random() * 0.8;          /* 時間間隔固定，難度只來自速度 */
+    spawnIn = Math.max(minGapSec(), 1.15 + Math.random() * 0.8);
   }
   const v = speedSW();
-  const pxL = PLAYER_X, pxR = PLAYER_X + 0.155 * (H / W);   /* 跑者的寬度換算成螢幕寬度比例 */
+  const sz = sizeFrac();
+  const pxL = PLAYER_X, pxR = PLAYER_X + sz * (H / W);     /* 跑者寬度換算成螢幕寬度比例 */
   for (let i = obstacles.length - 1; i >= 0; i--){
     const o = obstacles[i];
     o.x -= v * dt;
     if (o.x < -0.2){ obstacles.splice(i, 1); continue; }
 
     /* 碰撞（雙方各縮 15%，手感寬鬆一點） */
-    const oL = o.x + o.w * (H / W) * 0.15, oR = o.x + o.w * (H / W) * 0.85;
+    const oL = o.x + sz * (H / W) * 0.15, oR = o.x + sz * (H / W) * 0.85;
     const pL = pxL + (pxR - pxL) * 0.15,   pR = pxL + (pxR - pxL) * 0.85;
     const playerBottom = py;                                   /* 0 = 站在地面 */
-    const playerTop    = py - 0.155 * 0.85;
-    const obsTop       = -o.h * 0.85;
+    const playerTop    = py - sz * 0.85;
+    const obsTop       = -sz * 0.85;
     if (oL < pR && oR > pL && playerBottom > obsTop && playerTop < 0){
       if (o.item.cat === avoidCat){ die(o.item); return; }
       score += 10;
@@ -398,31 +413,34 @@ function draw(){
 
   /* 障礙 */
   for (const o of obstacles){
-    const size = o.h * H;
+    const size = sizeFrac() * H;
     const x = o.x * W, y = groundY - size;
+    /* 全部畫成同一種卡片：形狀一致，高速下才好辨識，也不會忽然是圖忽然是字。
+       食物一定要標名字 —— 🎋 沒有人看得出是甘蔗、🌿 也不像菠菜。
+       ⚠️ 卡片一律中性黑，不可依類別上色：顏色只能標示「規則」
+       （天空色隨規則變），絕不能標示「答案」，否則比對顏色就好，
+       這遊戲要練的分類就沒了。 */
+    ctx.fillStyle = "#fff";
+    ctx.strokeStyle = "#1E1E1E"; ctx.lineWidth = 3;
+    roundRect(x, y, size, size, size * 0.22); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = "#1E1E1E";
+    ctx.textAlign = "center"; ctx.textBaseline = "middle";
     if (o.item.kind === "emo"){
-      ctx.font = size * 0.92 + "px " + EMOJI_FONT;
-      ctx.textAlign = "left"; ctx.textBaseline = "bottom";   /* 對齊地面，別讓下伸部沉下去 */
-      ctx.fillText(o.item.face, x, groundY);
+      ctx.font = size * 0.46 + "px " + EMOJI_FONT;
+      ctx.fillText(o.item.face, x + size / 2, y + size * 0.37);
+      /* 直式手機的卡片只有 47px，名字會小到讀不清——給一個下限 */
+      const nameSize = Math.max(size * (o.item.name.length > 2 ? 0.21 : 0.26), 11);
+      ctx.font = "900 " + nameSize + "px " + CJK_FONT;
+      ctx.fillText(o.item.name, x + size / 2, y + size * 0.79);
     } else {
-      /* 器官字卡：根／莖／葉沒有夠清楚的 emoji，高速下一個大字最好認。
-         ⚠️ 一律用同一個中性色，不可依類別上色——
-         顏色只能標示「規則」（天空色隨規則變），絕不能標示「答案」，
-         否則學生只要比對顏色就好，這遊戲要練的分類就沒了。 */
-      ctx.fillStyle = "#fff";
-      ctx.strokeStyle = "#1E1E1E"; ctx.lineWidth = 3;
-      roundRect(x, y, size, size, size * 0.22); ctx.fill(); ctx.stroke();
-      ctx.fillStyle = "#1E1E1E";
-      const two = o.item.face.length > 1;
-      ctx.font = "900 " + size * (two ? 0.40 : 0.60) + "px " +
-                 '"PingFang TC","Microsoft JhengHei",sans-serif';
-      ctx.textAlign = "center"; ctx.textBaseline = "middle";
-      ctx.fillText(o.item.face, x + size / 2, y + size / 2 + size * 0.02);
+      /* 器官本身：根／莖／葉沒有夠清楚的 emoji，一個大字最好認 */
+      ctx.font = "900 " + size * (o.item.face.length > 1 ? 0.40 : 0.58) + "px " + CJK_FONT;
+      ctx.fillText(o.item.face, x + size / 2, y + size * 0.52);
     }
   }
 
   /* 跑者 */
-  const psize = 0.155 * H;
+  const psize = sizeFrac() * H;
   const pxpx  = PLAYER_X * W;
   const bob   = onGround ? Math.sin(elapsed * 14) * psize * 0.035 : 0;
   ctx.font = psize * 0.95 + "px " + EMOJI_FONT;
