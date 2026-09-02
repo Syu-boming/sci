@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>器官大跑酷｜營養器官 vs 繁殖器官</title>
+<link rel="icon" href="../../image/icon.svg">
+<style>
+/* ==========================================================
+   器官大跑酷 — Chrome 恐龍風跑酷
+   規則：該躲的用「跳」的、該拿的直接撞上去。每 20 秒規則反轉一次。
+   反轉是這個遊戲的重點——背動作的人會死，真的懂分類的人不會。
+   ========================================================== */
+:root{
+  --bg:#FDF6EC; --ink:#1E1E1E; --muted:#6B7A82; --card:#fff;
+  --veg:#2E7D4F;  --veg-l:#DCF0E3;   /* 營養器官：綠 */
+  --rep:#E4574C;  --rep-l:#FCE4E1;   /* 繁殖器官：紅 */
+  --sun:#FFC93C; --shadow:0 6px 18px rgba(46,86,110,.16);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  background:var(--bg);color:var(--ink);
+  font-family:-apple-system,"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif;
+  font-size:clamp(16px,1.7vw,21px);line-height:1.6;
+}
+#app{max-width:1240px;margin:0 auto;padding:12px 14px 36px}
+
+.sitehead{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+.sitehead h1{margin:0;font-size:clamp(21px,2.5vw,30px);font-weight:900;letter-spacing:.5px}
+.sitehead .sub{color:var(--muted);font-size:clamp(13px,1.4vw,17px)}
+
+/* ---------- HUD：畫面上永遠顯示當前規則 ---------- */
+#hud{
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  background:var(--card);border:3px solid var(--ink);border-radius:16px;
+  padding:8px 14px;box-shadow:var(--shadow);margin-bottom:8px;font-weight:900;
+}
+#hud .pill{
+  display:inline-flex;align-items:center;gap:7px;border-radius:999px;
+  padding:5px 14px;border:3px solid var(--ink);font-size:clamp(14px,1.6vw,20px);
+}
+#hud .pill.bad{background:var(--rep-l);color:var(--rep)}
+#hud .pill.good{background:var(--veg-l);color:var(--veg)}
+#hud .sc{margin-left:auto;font-size:clamp(18px,2.1vw,26px);white-space:nowrap}
+#hud .lv{color:var(--muted);font-size:clamp(12px,1.3vw,16px);font-weight:800}
+
+/* ---------- 舞台 ---------- */
+#stage{position:relative;border:3px solid var(--ink);border-radius:18px;overflow:hidden;
+  box-shadow:var(--shadow);background:#BFE6FF}
+#cv{display:block;width:100%;height:clamp(270px,48vh,460px);touch-action:manipulation;cursor:pointer}
+
+/* 反轉倒數橫幅 */
+#flash{
+  position:absolute;left:50%;top:14%;transform:translateX(-50%);
+  background:rgba(20,20,20,.86);color:#fff;border-radius:999px;
+  padding:9px 26px;font-weight:900;font-size:clamp(16px,2.4vw,30px);
+  white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .18s;
+}
+#flash.on{opacity:1}
+
+/* ---------- 覆蓋畫面（開始 / 結束） ---------- */
+/* 用 flex + 子元素 margin:auto 置中：align-items:center 在內容溢出時會把上緣裁掉 */
+.overlay{
+  position:absolute;inset:0;display:none;
+  background:rgba(255,253,247,.94);padding:14px;overflow:auto;
+}
+.overlay.on{display:flex}
+.sheet{width:min(760px,100%);text-align:center;margin:auto}
+.sheet h2{margin:0 0 6px;font-size:clamp(20px,2.8vw,34px);font-weight:900}
+.sheet p{margin:6px 0}
+.howto{font-size:clamp(13px,1.5vw,18px);color:var(--muted);font-weight:700;line-height:1.75}
+.howto b{color:var(--ink)}
+.pickrow{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:14px}
+.btn{
+  border:3px solid var(--ink);border-radius:999px;background:var(--sun);
+  padding:13px 26px;font:inherit;font-weight:900;cursor:pointer;
+  box-shadow:0 4px 0 var(--ink);min-height:52px;
+}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--ink)}
+.btn.veg{background:var(--veg);color:#fff}
+.btn.rep{background:var(--rep);color:#fff}
+.btn.ghost{background:#fff}
+.btn.sm{padding:9px 18px;min-height:44px;font-size:.9em}
+
+/* 死亡說明 */
+.dead{
+  background:var(--rep-l);border:3px solid var(--rep);border-radius:16px;
+  padding:11px 16px;margin:10px 0;font-weight:800;font-size:clamp(14px,1.7vw,21px);
+  text-align:left;line-height:1.7;
+}
+.dead .big{font-size:1.5em;vertical-align:-.12em}
+
+/* 排行榜 */
+.namerow{display:flex;gap:8px;justify-content:center;align-items:center;flex-wrap:wrap;margin:10px 0}
+.namerow input{
+  font:inherit;font-weight:800;padding:10px 14px;border:3px solid var(--ink);
+  border-radius:12px;width:min(190px,52vw);text-align:center;min-height:52px;
+}
+table.lb{width:100%;border-collapse:collapse;margin-top:8px;font-size:clamp(13px,1.5vw,19px)}
+table.lb th,table.lb td{border:2px solid #E2DBCC;padding:5px 8px;text-align:center}
+table.lb th{background:#F3ECDE;font-weight:900}
+table.lb tr.me td{background:var(--sun);font-weight:900}
+table.lb td.nm{text-align:left}
+.empty{color:var(--muted);font-weight:700;padding:14px}
+
+.tip{margin-top:12px;font-size:clamp(12px,1.3vw,16px);color:var(--muted);
+  border-left:5px solid var(--sun);padding:7px 12px;background:#FFFCF2;border-radius:0 10px 10px 0}
+
+/* ---------- RWD：手機 / 平板 / 筆電 / 75 吋觸控螢幕 ---------- */
+@media (max-width:640px){
+  #app{padding:10px 10px 26px}
+  #hud{padding:7px 10px;gap:7px;border-radius:13px}
+  #hud .sc{width:100%;margin-left:0;text-align:right}
+  .btn{padding:12px 20px}
+}
+@media (min-width:1800px){
+  #app{max-width:1680px;padding:22px 26px 50px}
+  #cv{height:clamp(360px,54vh,680px)}
+  .btn{min-height:76px;padding:19px 40px}
+  .namerow input{min-height:76px}
+  #hud{padding:12px 22px;border-radius:22px}
+}
+@media (min-width:2600px){
+  #app{max-width:2280px}
+  #cv{height:clamp(480px,58vh,920px)}
+  .btn{min-height:98px;padding:24px 52px}
+  .namerow input{min-height:98px}
+}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <div class="sitehead">
+    <h1>🏃 器官大跑酷</h1>
+    <div class="sub">五年級自然｜第二單元 植物世界　營養器官 vs 繁殖器官</div>
+  </div>
+
+  <div id="hud">
+    <span class="pill bad">躲開 <span id="ruleAvoid">營養器官</span></span>
+    <span class="pill good">收集 <span id="ruleGet">繁殖器官</span></span>
+    <span class="lv" id="lv">速度 1.0×</span>
+    <span class="sc">⭐ <span id="score">0</span></span>
+  </div>
+
+  <div id="stage">
+    <canvas id="cv"></canvas>
+    <div id="flash"></div>
+
+    <!-- 開始畫面 -->
+    <div class="overlay on" id="scrTitle">
+      <div class="sheet">
+        <h2>🐷 器官大跑酷</h2>
+        <p class="howto">
+          <b>該躲的用跳的，該拿的直接撞上去。</b><br>
+          撞到「要躲開」的 → <b>game over</b>；撞到另一類 → <b>+10 分</b>。　⚠️ 每 <b>20 秒</b>規則<b>反轉</b>一次。<br>
+          <span style="font-size:.92em">跳躍：<b>空白鍵</b> / <b>↑</b> / 點畫面</span>
+        </p>
+        <p style="font-weight:900;margin-top:14px">這一輪，你要先躲開哪一類？</p>
+        <div class="pickrow">
+          <button class="btn veg" data-avoid="營養">躲開 營養器官<br><span style="font-weight:700;font-size:.8em">根・莖・葉</span></button>
+          <button class="btn rep" data-avoid="繁殖">躲開 繁殖器官<br><span style="font-weight:700;font-size:.8em">花・果實・種子</span></button>
+        </div>
+        <div class="tip"><b>給老師：</b>規則列一直顯示在畫面上方，所以這是考「分類的速度」，不是考記憶。
+          反轉那一下最能看出誰是真的懂、誰只是在背動作。</div>
+      </div>
+    </div>
+
+    <!-- 結束畫面 -->
+    <div class="overlay" id="scrOver">
+      <div class="sheet">
+        <h2 id="overTitle">💥 撞到了！</h2>
+        <div class="dead" id="deadMsg"></div>
+        <p style="font-weight:900;font-size:clamp(19px,2.5vw,30px)">本局得分 <span id="finalScore">0</span> 分
+          <span style="font-weight:700;font-size:.62em;color:var(--muted)" id="scoreBreak"></span></p>
+
+        <div class="namerow">
+          <input id="nameIn" maxlength="6" placeholder="你的名字" aria-label="你的名字">
+          <button class="btn sm" id="saveBtn">存進排行榜</button>
+        </div>
+
+        <table class="lb" id="lbTable"></table>
+
+        <div class="pickrow" style="margin-top:14px">
+          <button class="btn" id="againBtn">↺ 再玩一次</button>
+          <button class="btn ghost sm" id="clearBtn">清除排行榜</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ==========================================================
+   資料：只用「直覺」的食物（馬鈴薯＝莖、地瓜＝根、花椰菜＝花這類
+   反直覺案例刻意不放——街機反應時間只有一秒多，放了會變成雙重懲罰）。
+   why 句沿用〈植物身體的組成〉重點整理的判準，全站用語一致。
+   ========================================================== */
+const ITEMS = [
+  /* ---- 營養器官：根・莖・葉 ---- */
+  {kind:"card", face:"根",  name:"根",     organ:"根", cat:"營養", why:"根從土裡吸收水分和養分，也把植物固定在土裡。"},
+  {kind:"card", face:"莖",  name:"莖",     organ:"莖", cat:"營養", why:"莖把根吸到的水往上送到葉，也支撐植株直立。"},
+  {kind:"card", face:"葉",  name:"葉",     organ:"葉", cat:"營養", why:"葉行光合作用，是植物製造養分的地方。"},
+  {kind:"emo",  face:"🥕", name:"胡蘿蔔", organ:"根", cat:"營養", why:"長在土裡、上面直接連著葉子、身上沒有節 —— 是根。"},
+  {kind:"emo",  face:"🎋", name:"甘蔗",   organ:"莖", cat:"營養", why:"身上有一節一節的節，負責把水往上送 —— 是莖。"},
+  {kind:"emo",  face:"🥬", name:"高麗菜", organ:"葉", cat:"營養", why:"一層一層包起來的全都是葉子 —— 是葉。"},
+  {kind:"emo",  face:"🌿", name:"菠菜",   organ:"葉", cat:"營養", why:"薄薄的、綠綠的，是行光合作用的地方 —— 是葉。"},
+  /* ---- 繁殖器官：花・果實・種子 ---- */
+  {kind:"card", face:"花",   name:"花",    organ:"花",   cat:"繁殖", why:"花開完之後會結出果實，是產生下一代的開始。"},
+  {kind:"card", face:"果實", name:"果實",  organ:"果實", cat:"繁殖", why:"果實就是裝種子的地方。"},
+  {kind:"card", face:"種子", name:"種子",  organ:"種子", cat:"繁殖", why:"種子種下去可以長出新的植物。"},
+  {kind:"emo",  face:"🍎", name:"蘋果",   organ:"果實", cat:"繁殖", why:"切開裡面包著種子 —— 果實就是裝種子的地方。"},
+  {kind:"emo",  face:"🍇", name:"葡萄",   organ:"果實", cat:"繁殖", why:"裡面有籽，是包著種子的果實。"},
+  {kind:"emo",  face:"🍓", name:"草莓",   organ:"果實", cat:"繁殖", why:"是植物開完花之後結出來的果實。"},
+  {kind:"emo",  face:"🍊", name:"橘子",   organ:"果實", cat:"繁殖", why:"剝開裡面有籽 —— 是果實。"},
+  {kind:"emo",  face:"🍉", name:"西瓜",   organ:"果實", cat:"繁殖", why:"裡面滿滿的西瓜子 —— 是果實。"},
+  {kind:"emo",  face:"🌰", name:"栗子",   organ:"種子", cat:"繁殖", why:"種下去可以長出新的植物 —— 是種子。"},
+  {kind:"emo",  face:"🥜", name:"花生",   organ:"種子", cat:"繁殖", why:"種到土裡會發芽長成新的花生 —— 是種子。"},
+  {kind:"emo",  face:"🌻", name:"向日葵", organ:"花",   cat:"繁殖", why:"大大的花盤，開完之後會結出種子 —— 是花。"},
+  {kind:"emo",  face:"🌼", name:"油菜花", organ:"花",   cat:"繁殖", why:"開完花之後會結出果實 —— 是花。"}
+];
+const RUNNER = "🐷";                 /* 站名是「豬豬的自然探索」，順勢用站徽形象 */
+
+/* ---------- emoji 自檢 ----------
+   這個專案被字型坑過兩次（🫧、🪴 在 Windows 10 會變空白方框）。
+   開場先量寬度：跟必定沒有字的碼位 U+10FFFD 一樣寬 = 豆腐框，直接剔除。   */
+const EMOJI_FONT = '"Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif';
+function usableEmoji(list){
+  const c = document.createElement("canvas").getContext("2d");
+  c.font = "40px " + EMOJI_FONT;
+  const tofu = c.measureText("\u{10FFFD}").width;
+  const dropped = [];
+  const ok = list.filter(it=>{
+    if (it.kind !== "emo") return true;
+    const good = Math.abs(c.measureText(it.face).width - tofu) > 0.5;
+    if (!good) dropped.push(it.name + " " + it.face);
+    return good;
+  });
+  if (dropped.length) console.warn("[器官大跑酷] 這台裝置的字型缺少下列 emoji，已自動剔除：", dropped);
+  return ok;
+}
+const POOL = usableEmoji(ITEMS);
+const BY_CAT = { 營養: POOL.filter(i=>i.cat==="營養"), 繁殖: POOL.filter(i=>i.cat==="繁殖") };
+
+/* ==========================================================
+   遊戲
+   ========================================================== */
+const cv  = document.getElementById("cv");
+const ctx = cv.getContext("2d");
+const $   = id => document.getElementById(id);
+
+let W = 0, H = 0;                    /* canvas 的 CSS 尺寸 */
+function resize(){
+  const r = cv.getBoundingClientRect();
+  W = r.width; H = r.height;
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  cv.width  = Math.round(W * dpr);
+  cv.height = Math.round(H * dpr);
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+addEventListener("resize", resize);
+
+/* --- 尺寸全部以 canvas 高度 H 為單位，速度以「螢幕寬度／秒」為單位 ---
+   這是能同時在 390px 手機與 75 吋螢幕上玩的關鍵：
+   障礙從右緣飛到跑者的時間 = (1 - PLAYER_X) / speedSW，與螢幕寬度無關。
+   起始 0.50 → 任何裝置都有約 1.76 秒反應時間。                      */
+const PLAYER_X   = 0.12;             /* 跑者位置（螢幕寬度比例） */
+const SPEED0     = 0.50;             /* 起始速度（螢幕寬度／秒） */
+const SPEED_MAX  = 1.05;
+const RAMP_SEC   = 90;               /* 幾秒後到達最高速 */
+const GRAVITY    = 5.0;              /* × H  ／秒² */
+const JUMP_V     = 1.62;             /* × H  ／秒（跳躍初速） */
+const FLIP_EVERY = 20;               /* 秒 */
+const WARN_AT    = 3;                /* 反轉前幾秒開始倒數 */
+
+let state = "title";                 /* title | play | over */
+let avoidCat, elapsed, score, obstacles, spawnIn, py, vy, onGround, flipT, lastWarn, killedBy, pops;
+
+function reset(avoid){
+  avoidCat = avoid;
+  elapsed = 0; score = 0; obstacles = []; pops = [];
+  spawnIn = 0.7; py = 0; vy = 0; onGround = true;
+  flipT = 0; lastWarn = -1; killedBy = null;
+  updateRuleUI();
+}
+function otherCat(c){ return c === "營養" ? "繁殖" : "營養"; }
+function updateRuleUI(){
+  $("ruleAvoid").textContent = avoidCat + "器官";
+  $("ruleGet").textContent   = otherCat(avoidCat) + "器官";
+}
+/* 前 90 秒從 0.50 爬到 1.05（反應時間 1.76s → 0.84s）；
+   之後每秒再 +0.004 慢慢加壓——不然高手可以無限玩下去，教室裡會卡住輪替。 */
+function speedSW(){
+  const ramp = SPEED0 + (SPEED_MAX - SPEED0) * Math.min(1, elapsed / RAMP_SEC);
+  return ramp + Math.max(0, elapsed - RAMP_SEC) * 0.004;
+}
+
+function spawn(){
+  /* 先 50/50 抽類別再抽項目——兩類的常見食物數量不對等（營養器官本來就少），
+     不這樣做的話繁殖器官會出現得比較頻繁。 */
+  const cat  = Math.random() < 0.5 ? "營養" : "繁殖";
+  const list = BY_CAT[cat].length ? BY_CAT[cat] : POOL;
+  const item = list[(Math.random() * list.length) | 0];
+  obstacles.push({ item, x: 1.02, w: 0.155, h: 0.155 });   /* x 用螢幕寬度比例、w/h 用 H 比例 */
+}
+
+function jump(){
+  if (state === "play" && onGround){ vy = -JUMP_V; onGround = false; }
+}
+
+function step(dt){
+  elapsed += dt;
+  score   += dt;                                  /* 存活：每秒 +1 */
+
+  /* --- 反轉 --- */
+  flipT += dt;
+  const left = FLIP_EVERY - flipT;
+  if (left <= WARN_AT && left > 0){
+    const n = Math.ceil(left);
+    if (n !== lastWarn){
+      lastWarn = n;
+      showFlash("⚠️ " + n + " 秒後規則反轉", 900);
+    }
+  }
+  if (flipT >= FLIP_EVERY){
+    flipT = 0; lastWarn = -1;
+    avoidCat = otherCat(avoidCat);
+    updateRuleUI();
+    /* 公平性：已經飛到眼前、來不及重新判斷的障礙，在反轉的瞬間一併清掉。
+       否則學生對一顆胡蘿蔔早就決定「不跳」，規則卻在撞上前 0.1 秒翻轉，
+       等於被陰死——這不是他不會分類。門檻取 0.9 秒的飛行距離。 */
+    const cutoff = PLAYER_X + speedSW() * 0.9;
+    obstacles = obstacles.filter(o => o.x > cutoff);
+    spawnIn = Math.max(spawnIn, 0.55);
+    showFlash("🔄 反轉！現在要躲開「" + avoidCat + "器官」", 1900);
+  }
+
+  /* --- 跳躍 --- */
+  vy += GRAVITY * dt;
+  py += vy * dt;
+  if (py >= 0){ py = 0; vy = 0; onGround = true; }
+
+  /* --- 障礙 --- */
+  spawnIn -= dt;
+  if (spawnIn <= 0){
+    spawn();
+    spawnIn = 1.15 + Math.random() * 0.8;          /* 時間間隔固定，難度只來自速度 */
+  }
+  const v = speedSW();
+  const pxL = PLAYER_X, pxR = PLAYER_X + 0.155 * (H / W);   /* 跑者的寬度換算成螢幕寬度比例 */
+  for (let i = obstacles.length - 1; i >= 0; i--){
+    const o = obstacles[i];
+    o.x -= v * dt;
+    if (o.x < -0.2){ obstacles.splice(i, 1); continue; }
+
+    /* 碰撞（雙方各縮 15%，手感寬鬆一點） */
+    const oL = o.x + o.w * (H / W) * 0.15, oR = o.x + o.w * (H / W) * 0.85;
+    const pL = pxL + (pxR - pxL) * 0.15,   pR = pxL + (pxR - pxL) * 0.85;
+    const playerBottom = py;                                   /* 0 = 站在地面 */
+    const playerTop    = py - 0.155 * 0.85;
+    const obsTop       = -o.h * 0.85;
+    if (oL < pR && oR > pL && playerBottom > obsTop && playerTop < 0){
+      if (o.item.cat === avoidCat){ die(o.item); return; }
+      score += 10;
+      pops.push({ x: o.x, y: -0.2, t: 0 });
+      obstacles.splice(i, 1);
+    }
+  }
+  for (let i = pops.length - 1; i >= 0; i--){
+    pops[i].t += dt; pops[i].y -= dt * 0.35;
+    if (pops[i].t > 0.9) pops.splice(i, 1);
+  }
+}
+
+/* ---------- 繪圖 ---------- */
+function draw(){
+  const warm = avoidCat === "繁殖";
+  /* 天空：規則的第二層視覺提示（躲營養＝綠系、躲繁殖＝橘紅系） */
+  const g = ctx.createLinearGradient(0, 0, 0, H);
+  g.addColorStop(0, warm ? "#FFE0D6" : "#CFEEFF");
+  g.addColorStop(1, warm ? "#FFF3EC" : "#EAF8FF");
+  ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+
+  const groundY = H * 0.80;
+  ctx.fillStyle = warm ? "#F3D9C8" : "#D9EFCF";
+  ctx.fillRect(0, groundY, W, H - groundY);
+  ctx.strokeStyle = "#1E1E1E"; ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.moveTo(0, groundY); ctx.lineTo(W, groundY); ctx.stroke();
+
+  /* 捲動虛線，製造速度感 */
+  const dashOff = (elapsed * speedSW() * W) % 60;
+  ctx.strokeStyle = "rgba(30,30,30,.28)"; ctx.lineWidth = 3;
+  ctx.setLineDash([26, 34]); ctx.lineDashOffset = dashOff;
+  ctx.beginPath(); ctx.moveTo(0, groundY + (H - groundY) * 0.42);
+  ctx.lineTo(W, groundY + (H - groundY) * 0.42); ctx.stroke();
+  ctx.setLineDash([]);
+
+  /* 障礙 */
+  for (const o of obstacles){
+    const size = o.h * H;
+    const x = o.x * W, y = groundY - size;
+    if (o.item.kind === "emo"){
+      ctx.font = size * 0.92 + "px " + EMOJI_FONT;
+      ctx.textAlign = "left"; ctx.textBaseline = "bottom";   /* 對齊地面，別讓下伸部沉下去 */
+      ctx.fillText(o.item.face, x, groundY);
+    } else {
+      /* 器官字卡：根／莖／葉沒有夠清楚的 emoji，高速下一個大字最好認。
+         ⚠️ 一律用同一個中性色，不可依類別上色——
+         顏色只能標示「規則」（天空色隨規則變），絕不能標示「答案」，
+         否則學生只要比對顏色就好，這遊戲要練的分類就沒了。 */
+      ctx.fillStyle = "#fff";
+      ctx.strokeStyle = "#1E1E1E"; ctx.lineWidth = 3;
+      roundRect(x, y, size, size, size * 0.22); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = "#1E1E1E";
+      const two = o.item.face.length > 1;
+      ctx.font = "900 " + size * (two ? 0.40 : 0.60) + "px " +
+                 '"PingFang TC","Microsoft JhengHei",sans-serif';
+      ctx.textAlign = "center"; ctx.textBaseline = "middle";
+      ctx.fillText(o.item.face, x + size / 2, y + size / 2 + size * 0.02);
+    }
+  }
+
+  /* 跑者 */
+  const psize = 0.155 * H;
+  const pxpx  = PLAYER_X * W;
+  const bob   = onGround ? Math.sin(elapsed * 14) * psize * 0.035 : 0;
+  ctx.font = psize * 0.95 + "px " + EMOJI_FONT;
+  ctx.textAlign = "left"; ctx.textBaseline = "bottom";
+  ctx.fillText(RUNNER, pxpx, groundY + py * H + bob);
+
+  /* +10 飄字 */
+  ctx.textAlign = "center"; ctx.textBaseline = "middle";
+  for (const p of pops){
+    ctx.globalAlpha = Math.max(0, 1 - p.t / 0.9);
+    ctx.fillStyle = "#2E7D4F";
+    ctx.font = "900 " + H * 0.10 + "px " + '"PingFang TC",sans-serif';
+    ctx.fillText("+10", p.x * W, groundY + p.y * H);
+    ctx.globalAlpha = 1;
+  }
+}
+function roundRect(x, y, w, h, r){
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y,     x + w, y + h, r);
+  ctx.arcTo(x + w, y + h, x,     y + h, r);
+  ctx.arcTo(x,     y + h, x,     y,     r);
+  ctx.arcTo(x,     y,     x + w, y,     r);
+  ctx.closePath();
+}
+
+/* ---------- 主迴圈 ---------- */
+let last = 0;
+function loop(ts){
+  requestAnimationFrame(loop);
+  const dt = Math.min(0.05, (ts - last) / 1000 || 0);   /* 切到別的分頁再回來不會爆衝 */
+  last = ts;
+  if (state === "play"){ step(dt); }
+  draw();
+  if (state === "play"){
+    $("score").textContent = Math.floor(score);
+    $("lv").textContent = "速度 " + (speedSW() / SPEED0).toFixed(1) + "×";
+  }
+}
+requestAnimationFrame(ts => { last = ts; requestAnimationFrame(loop); });
+
+/* ---------- 操作 ---------- */
+addEventListener("keydown", e => {
+  if (e.code === "Space" || e.code === "ArrowUp" || e.code === "KeyW"){
+    e.preventDefault();
+    if (state === "play") jump();
+  }
+});
+cv.addEventListener("pointerdown", e => { e.preventDefault(); jump(); });
+
+function showFlash(text, ms){
+  const f = $("flash");
+  f.textContent = text; f.classList.add("on");
+  clearTimeout(showFlash._t);
+  showFlash._t = setTimeout(() => f.classList.remove("on"), ms);
+}
+
+/* ---------- 開始 / 結束 ---------- */
+document.querySelectorAll("[data-avoid]").forEach(b => {
+  b.addEventListener("click", () => {
+    reset(b.dataset.avoid);
+    $("scrTitle").classList.remove("on");
+    $("scrOver").classList.remove("on");
+    state = "play";
+  });
+});
+
+function die(item){
+  state = "over";
+  killedBy = item;
+  const survive = Math.floor(elapsed);
+  const collected = Math.max(0, Math.floor(score) - survive);
+  $("finalScore").textContent = Math.floor(score);
+  $("scoreBreak").textContent = "（收集 " + collected + "　存活 " + survive + "）";
+  /* 字卡的 face 跟 name 是同一個字（例如「葉」），不要印成「葉 葉」 */
+  const shown = item.kind === "emo"
+    ? '<span class="big">' + item.face + '</span> <b>' + item.name + '</b>'
+    : '<b>' + item.name + '</b>';
+  $("deadMsg").innerHTML =
+    '你撞到了 ' + shown + ' —— ' + item.why +
+    '<br>它是<b>' + item.organ + '</b>，屬於<b>' + item.cat + '器官</b>；' +
+    '而這一輪的規則是「<b>躲開' + avoidCat + '器官</b>」。';
+  $("nameIn").value = localStorage.getItem(LAST_NAME) || "";
+  $("saveBtn").disabled = false;
+  $("saveBtn").textContent = "存進排行榜";
+  renderBoard(null);
+  $("scrOver").classList.add("on");
+}
+
+/* ---------- 排行榜（localStorage，單機） ---------- */
+const LB_KEY    = "organ-runner-scores-v1";
+const LAST_NAME = "organ-runner-lastname";
+
+function loadBoard(){
+  try{
+    const a = JSON.parse(localStorage.getItem(LB_KEY) || "[]");
+    return Array.isArray(a) ? a : [];
+  }catch(_){ return []; }                       /* 私密視窗／封鎖網站資料時不要壞掉 */
+}
+function saveBoard(a){
+  try{ localStorage.setItem(LB_KEY, JSON.stringify(a)); }catch(_){}
+}
+function renderBoard(highlight){
+  const rows = loadBoard();
+  const t = $("lbTable");
+  if (!rows.length){
+    t.innerHTML = '<tr><td class="empty">還沒有紀錄，你可以是第一個 🏆</td></tr>';
+    return;
+  }
+  let html = "<tr><th>名次</th><th>名字</th><th>分數</th><th>日期</th></tr>";
+  rows.forEach((r, i) => {
+    const medal = ["🥇", "🥈", "🥉"][i] || (i + 1);
+    const me = (highlight !== null && i === highlight) ? ' class="me"' : "";
+    html += "<tr" + me + "><td>" + medal + '</td><td class="nm">' + esc(r.name) +
+            "</td><td>" + r.score + "</td><td>" + r.date + "</td></tr>";
+  });
+  t.innerHTML = html;
+}
+function esc(s){
+  return String(s).replace(/[&<>"']/g, c =>
+    ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
+}
+$("saveBtn").addEventListener("click", () => {
+  const name = ($("nameIn").value || "").trim().slice(0, 6) || "無名氏";
+  try{ localStorage.setItem(LAST_NAME, name); }catch(_){}
+  const d = new Date();
+  const entry = {
+    name, score: Math.floor(score),
+    date: (d.getMonth() + 1) + "/" + d.getDate()
+  };
+  const rows = loadBoard();
+  rows.push(entry);
+  rows.sort((a, b) => b.score - a.score);
+  const top = rows.slice(0, 10);
+  saveBoard(top);
+  renderBoard(top.indexOf(entry) >= 0 ? top.indexOf(entry) : null);
+  $("saveBtn").disabled = true;
+  $("saveBtn").textContent = "已存入 ✓";
+});
+$("againBtn").addEventListener("click", () => {
+  $("scrOver").classList.remove("on");
+  $("scrTitle").classList.add("on");
+  state = "title";
+});
+$("clearBtn").addEventListener("click", () => {
+  saveBoard([]);
+  renderBoard(null);
+});
+
+/* ---------- 啟動 ---------- */
+resize();
+reset("營養");
+state = "title";
+</script>
+</body>
+</html>
