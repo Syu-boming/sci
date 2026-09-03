@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>水中射箭｜光的折射練習</title>
+<link rel="icon" href="../../image/icon.svg">
+<style>
+/* ==========================================================
+   水中射箭 — 光的折射練習遊戲
+   箭從空氣射進水裡會「轉彎變陡」，所以實際落點永遠比直直走的近。
+   不懂折射的人會一直射短；懂的人知道要瞄得比靶更遠一點。
+   ========================================================== */
+:root{
+  --bg:#FDF6EC; --ink:#1E1E1E; --muted:#6B7A82; --card:#fff;
+  --air:#BFE6FF;                      /* 空氣 */
+  --sea:#1E6E9C;  --sea-l:#DCEEF8;    /* 水 */
+  --hit:#2E7D4F;  --hit-l:#DCF0E3;    /* 命中 */
+  --miss:#E4574C; --miss-l:#FCE4E1;   /* 沒中 */
+  --sun:#FFC93C; --shadow:0 6px 18px rgba(46,86,110,.16);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  background:var(--bg);color:var(--ink);
+  font-family:-apple-system,"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif;
+  font-size:clamp(16px,1.7vw,21px);line-height:1.6;
+}
+#app{max-width:1240px;margin:0 auto;padding:12px 14px 36px}
+
+.sitehead{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+.sitehead h1{margin:0;font-size:clamp(21px,2.5vw,30px);font-weight:900;letter-spacing:.5px}
+.sitehead .sub{color:var(--muted);font-size:clamp(13px,1.4vw,17px)}
+
+/* ---------- HUD ---------- */
+#hud{
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  background:var(--card);border:3px solid var(--ink);border-radius:16px;
+  padding:8px 14px;box-shadow:var(--shadow);margin-bottom:8px;font-weight:900;
+}
+#hud .pill{
+  display:inline-flex;align-items:center;gap:7px;border-radius:999px;
+  padding:5px 14px;border:3px solid var(--ink);font-size:clamp(14px,1.6vw,20px);
+  background:var(--sea-l);color:var(--sea);
+}
+#hud .ang{background:var(--sun);color:var(--ink)}
+#hud .sc{margin-left:auto;font-size:clamp(18px,2.1vw,26px);white-space:nowrap}
+
+/* ---------- 舞台 ---------- */
+#stage{position:relative;border:3px solid var(--ink);border-radius:18px;overflow:hidden;
+  box-shadow:var(--shadow);background:var(--air)}
+#cv{display:block;width:100%;height:clamp(270px,48vh,460px);touch-action:manipulation}
+
+/* ---------- 控制列 ---------- */
+#ctrl{
+  display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:10px;
+  background:var(--card);border:3px solid var(--ink);border-radius:16px;
+  padding:10px 14px;box-shadow:var(--shadow);
+}
+.slwrap{flex:1;display:flex;align-items:center;gap:12px;min-width:250px}
+.slwrap label{font-weight:900;white-space:nowrap;font-size:clamp(14px,1.5vw,19px)}
+input[type=range]{flex:1;height:46px;-webkit-appearance:none;appearance:none;background:transparent;cursor:grab}
+input[type=range]::-webkit-slider-runnable-track{height:14px;border-radius:8px;
+  background:linear-gradient(90deg,#FFE9A8,var(--sun));border:2px solid var(--ink)}
+input[type=range]::-moz-range-track{height:14px;border-radius:8px;
+  background:linear-gradient(90deg,#FFE9A8,var(--sun));border:2px solid var(--ink)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;
+  width:46px;height:46px;margin-top:-18px;border-radius:50%;background:#fff;
+  border:3px solid var(--ink);box-shadow:0 3px 0 rgba(0,0,0,.25)}
+input[type=range]::-moz-range-thumb{width:40px;height:40px;border-radius:50%;background:#fff;
+  border:3px solid var(--ink)}
+input[type=range]:disabled{opacity:.45}
+
+.btn{
+  border:3px solid var(--ink);border-radius:999px;background:var(--sun);
+  padding:13px 26px;font:inherit;font-weight:900;cursor:pointer;
+  box-shadow:0 4px 0 var(--ink);min-height:52px;
+}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--ink)}
+.btn.ghost{background:#fff}
+.btn.sm{padding:9px 18px;min-height:44px;font-size:.9em}
+.btn:disabled{opacity:.4;cursor:default;box-shadow:0 4px 0 rgba(0,0,0,.25)}
+
+.advwrap{display:flex;align-items:center;gap:6px;font-size:clamp(12px,1.3vw,16px);
+  color:var(--muted);font-weight:800;white-space:nowrap}
+.advwrap input{width:22px;height:22px;accent-color:var(--sea)}
+
+/* ---------- 每箭回饋 ---------- */
+#fb{display:none;margin-top:10px;border:3px solid var(--ink);border-radius:16px;
+  padding:12px 16px;box-shadow:var(--shadow);background:var(--card)}
+#fb.on{display:block}
+#fb.good{background:var(--hit-l);border-color:var(--hit)}
+#fb.bad{background:var(--miss-l);border-color:var(--miss)}
+#fb .head{font-size:clamp(17px,2.1vw,26px);font-weight:900;margin-bottom:4px}
+#fb .body{font-size:clamp(14px,1.6vw,20px);font-weight:700;line-height:1.7}
+#fb .why{margin-top:8px;font-size:clamp(12px,1.4vw,17px);color:var(--muted);font-weight:700;
+  border-left:5px solid var(--sun);padding:6px 12px;background:#FFFCF2;border-radius:0 10px 10px 0}
+#fb .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:10px}
+
+/* ---------- 覆蓋畫面（開始 / 結束） ---------- */
+/* 用 flex + 子元素 margin:auto 置中：align-items:center 在內容溢出時會把上緣裁掉 */
+.overlay{position:absolute;inset:0;display:none;
+  background:rgba(255,253,247,.94);padding:14px;overflow:auto}
+.overlay.on{display:flex}
+.sheet{width:min(760px,100%);text-align:center;margin:auto}
+.sheet h2{margin:0 0 6px;font-size:clamp(20px,2.8vw,34px);font-weight:900}
+.sheet p{margin:6px 0}
+.howto{font-size:clamp(13px,1.5vw,18px);color:var(--muted);font-weight:700;line-height:1.75}
+.howto b{color:var(--ink)}
+.pickrow{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:14px}
+.tip{margin-top:12px;font-size:clamp(12px,1.3vw,16px);color:var(--muted);text-align:left;
+  border-left:5px solid var(--sun);padding:7px 12px;background:#FFFCF2;border-radius:0 10px 10px 0}
+
+/* 排行榜 */
+.namerow{display:flex;gap:8px;justify-content:center;align-items:center;flex-wrap:wrap;margin:10px 0}
+.namerow input{font:inherit;font-weight:800;padding:10px 14px;border:3px solid var(--ink);
+  border-radius:12px;width:min(190px,52vw);text-align:center;min-height:52px}
+/* 排行榜自己捲，讓「再玩一次」永遠留在畫面上（換人玩時最常按的就是它） */
+.lbwrap{max-height:clamp(110px,20vh,230px);overflow:auto;border-radius:10px}
+table.lb{width:100%;border-collapse:collapse;margin-top:8px;font-size:clamp(13px,1.5vw,19px)}
+table.lb th{position:sticky;top:0;z-index:1}
+table.lb th,table.lb td{border:2px solid #E2DBCC;padding:5px 8px;text-align:center}
+table.lb th{background:#F3ECDE;font-weight:900}
+table.lb tr.me td{background:var(--sun);font-weight:900}
+table.lb td.nm{text-align:left}
+.empty{color:var(--muted);font-weight:700;padding:14px}
+
+/* ---------- RWD：手機 / 平板 / 筆電 / 75 吋觸控螢幕 ---------- */
+@media (max-width:640px){
+  #app{padding:10px 10px 26px}
+  #hud{padding:7px 10px;gap:7px;border-radius:13px}
+  #hud .sc{width:100%;margin-left:0;text-align:right}
+  .btn{padding:12px 20px}
+  .slwrap{min-width:100%}
+}
+@media (min-width:1800px){
+  #app{max-width:1680px;padding:22px 26px 50px}
+  #cv{height:clamp(360px,54vh,680px)}
+  .btn{min-height:76px;padding:19px 40px}
+  .namerow input{min-height:76px}
+  #hud{padding:12px 22px;border-radius:22px}
+  input[type=range]{height:64px}
+  input[type=range]::-webkit-slider-thumb{width:64px;height:64px;margin-top:-27px}
+}
+@media (min-width:2600px){
+  #app{max-width:2280px}
+  #cv{height:clamp(480px,58vh,920px)}
+  .btn{min-height:98px;padding:24px 52px}
+  .namerow input{min-height:98px}
+  input[type=range]{height:84px}
+  input[type=range]::-webkit-slider-thumb{width:84px;height:84px;margin-top:-37px}
+}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <div class="sitehead">
+    <h1>🎯 水中射箭</h1>
+    <div class="sub">五年級自然｜第一單元 太陽與光　光的折射</div>
+  </div>
+
+  <div id="hud">
+    <span class="pill">第 <span id="shotNo">1</span> / 5 箭</span>
+    <span class="pill ang">角度 <span id="angTxt">30.0</span>°</span>
+    <span class="sc">⭐ <span id="score">0</span> 分</span>
+  </div>
+
+  <div id="stage">
+    <canvas id="cv"></canvas>
+
+    <!-- 開始畫面 -->
+    <div class="overlay on" id="scrTitle">
+      <div class="sheet">
+        <h2>🎯 水中射箭</h2>
+        <p class="howto">
+          從岸上把箭射進水裡，射中池底的靶。<br>
+          <b>箭一進到水裡就會轉彎</b>——所以它掉下來的地方，
+          <b>永遠比那條虛線指的地方更近</b>。<br>
+          調整角度，一共 <b>5 箭</b>，射中越靠近紅心分數越高。
+        </p>
+        <p class="howto" style="margin-top:10px">
+          角度<b>小</b>＝射得平＝飛得<b>遠</b>　｜　角度<b>大</b>＝射得陡＝掉得<b>近</b>
+        </p>
+        <div class="pickrow">
+          <button class="btn" id="startBtn">開始射箭 🎯</button>
+        </div>
+        <div class="tip"><b>給老師：</b>水面高度和靶的位置每一箭都會重新隨機，
+          所以背不起來「哪個角度會中」，只能靠理解折射去修正。
+          虛線是「假如不會轉彎」的路徑，讓學生自己發現實際落點永遠比虛線近。</div>
+      </div>
+    </div>
+
+    <!-- 結束畫面 -->
+    <div class="overlay" id="scrOver">
+      <div class="sheet">
+        <h2 id="overTitle">🎯 五箭射完！</h2>
+        <p style="font-weight:900;font-size:clamp(19px,2.5vw,30px)">
+          總分 <span id="finalScore">0</span> / 50 分</p>
+        <p class="howto" id="overMsg"></p>
+
+        <div class="namerow">
+          <input id="nameIn" maxlength="6" placeholder="你的名字" aria-label="你的名字">
+          <button class="btn sm" id="saveBtn">存進排行榜</button>
+          <button class="btn sm" id="againBtn">↺ 換人玩</button>
+        </div>
+
+        <div class="lbwrap"><table class="lb" id="lbTable"></table></div>
+
+        <div class="pickrow" style="margin-top:10px">
+          <button class="btn ghost sm" id="clearBtn">清除排行榜</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="ctrl">
+    <div class="slwrap">
+      <label for="angSl">射箭角度</label>
+      <button class="btn sm" id="minusBtn" aria-label="角度減 0.5 度">−</button>
+      <input type="range" id="angSl" min="10" max="65" step="0.5" value="30" aria-label="射箭角度">
+      <button class="btn sm" id="plusBtn" aria-label="角度加 0.5 度">＋</button>
+    </div>
+    <button class="btn" id="fireBtn">放箭 ➤</button>
+    <button class="btn" id="nextBtn" style="display:none">下一箭 →</button>
+    <label class="advwrap"><input type="checkbox" id="advCk"> 進階：顯示角度</label>
+  </div>
+
+  <div id="fb">
+    <div class="head" id="fbHead"></div>
+    <div class="body" id="fbBody"></div>
+    <div class="why" id="fbWhy"></div>
+  </div>
+
+</div>
+
+<script>
+'use strict';
+const $ = id => document.getElementById(id);
+const cv = $("cv"), ctx = cv.getContext("2d");
+let W = 0, H = 0;
+
+function resize(){
+  const r = cv.getBoundingClientRect();
+  W = r.width; H = r.height;
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  cv.width  = Math.round(W * dpr);
+  cv.height = Math.round(H * dpr);
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  if (shot) layout();            /* 版面變了要重算這一箭的幾何 */
+}
+addEventListener("resize", resize);
+
+/* ==========================================================
+   物理：司乃耳定律
+   θ 一律「從鉛直法線量」。UI 顯示的「射箭角度」是與水面的夾角 = 90 - θ。
+   空氣 n=1.00、水 n=1.33。空氣→水一定折得更陡，不會有全反射。
+   ========================================================== */
+const N_WATER = 1.33;
+const rad = d => d * Math.PI / 180;
+const deg = r => r * 180 / Math.PI;
+
+function refractRad(th1){ return Math.asin(Math.sin(th1) / N_WATER); }
+
+/* 箭到達「靶的深度」時，離弓的水平距離 */
+function landX(th1Deg, h, d){
+  const t1 = rad(th1Deg);
+  return h * Math.tan(t1) + d * Math.tan(refractRad(t1));
+}
+/* 「假如不會轉彎」會走到哪 */
+function straightX(th1Deg, h, d){ return (h + d) * Math.tan(rad(th1Deg)); }
+
+/* landX 對 th1 在 0~85° 嚴格遞增 → 可以二分法反解，且任何靶位置都恰有唯一解 */
+function solveTheta(dx, h, d){
+  let lo = 1, hi = 84;
+  for (let i = 0; i < 60; i++){
+    const mid = (lo + hi) / 2;
+    if (landX(mid, h, d) < dx) lo = mid; else hi = mid;
+  }
+  return (lo + hi) / 2;
+}
+
+/* ==========================================================
+   計分：環寬用「角度容差」定義，不是固定像素。
+   角度靈敏度在可用範圍內差 2~3 倍（45° 每 1° 移動的距離遠小於 66°），
+   若用固定像素半徑，平射的題目會比陡射難好幾倍，同一局 5 箭難度亂跳。
+   用角度容差 → 每一箭的難度一致，畫面上的同心圓只是這個容差的視覺化。
+   ========================================================== */
+const RINGS = [
+  { tol:4.5, score:1,  fill:"#EAF3F8", line:"#8FB8CC" },
+  { tol:3.0, score:4,  fill:"#9FD0EA", line:"#4A90B8" },
+  { tol:1.8, score:7,  fill:"#FFD86B", line:"#C79A12" },
+  { tol:0.7, score:10, fill:"#E4574C", line:"#8E2B23" },
+];
+const SHOTS = 5;
+
+/* ---------- 版面常數（都以 canvas 高度為單位，手機到 75 吋通用） ---------- */
+const BOW_XF = 0.085, BOW_YF = 0.10, FLOOR_YF = 0.90;
+
+let state = "title";            /* title | aim | fly | result | over */
+let shotNo = 0, total = 0;
+let shot = null;                /* 這一箭的幾何 */
+let aimDisp = 30;               /* 滑桿上的「射箭角度」（與水面夾角） */
+let fly = null;                 /* 飛行動畫狀態 */
+let lastResult = null;
+let showAdv = false;
+let tSec = 0;
+
+const aimTheta = () => 90 - aimDisp;   /* 換成從法線量的 θ₁ */
+
+/* ==========================================================
+   出題：反推法 —— 先決定「正解角度」，再由它算出靶要擺哪裡。
+   這樣天生保證有解，不必事後檢查，也不會出現怎麼射都射不到的題目。
+   ========================================================== */
+function newShot(){
+  const airFrac = 0.28 + Math.random() * 0.34;      /* 空氣段佔比 → 水面高度隨機 */
+  shot = { airFrac, thStar:0, targetX:0, h:0, d:0, waterY:0, floorY:0, bowX:0, bowY:0 };
+  layout(true);
+}
+
+/* 依目前畫布尺寸算出這一箭的實際幾何。resize 後也要重算。 */
+function layout(pickNew){
+  const s = shot;
+  s.bowX  = W * BOW_XF;
+  s.bowY  = H * BOW_YF;
+  s.floorY = H * FLOOR_YF;
+  const span = s.floorY - s.bowY;                   /* h + d 恆定 */
+  s.h = span * s.airFrac;
+  s.d = span - s.h;
+  s.waterY = s.bowY + s.h;
+
+  /* 靶心可以擺的水平範圍（離弓的距離），留白避免貼邊 */
+  const dxMin = W * 0.30 - s.bowX;
+
+  /* 角度上界：靶心「加上最外環」都還要放得進畫布。
+     landX 與環寬都隨 θ 遞增 → 兩者的和也遞增，可以直接二分法解出上界。
+     （只算右緣：左緣有 dxMin 的留白，最外環最多佔畫布寬 15%，不會壓到弓。） */
+  const edge = W - 6 - s.bowX;
+  let bLo = 1, bHi = 84;
+  for (let i = 0; i < 50; i++){
+    const m = (bLo + bHi) / 2;
+    if (landX(m, s.h, s.d) + outerAt(m, s.h, s.d) < edge) bLo = m; else bHi = m;
+  }
+  const thFit = (bLo + bHi) / 2;
+
+  /* 正解角度鎖在 45°~66°（離法線）：低於 40° 折射效果太小，學生看不出轉彎；
+     太高則角度靈敏度暴增。再與畫布能容納的範圍取交集。 */
+  let lo = Math.max(45, solveTheta(dxMin, s.h, s.d));
+  let hi = Math.min(66, thFit);
+  if (hi - lo < 3){                                  /* 極端視窗比例時放寬 */
+    lo = Math.max(32, solveTheta(dxMin, s.h, s.d));
+    hi = Math.min(76, thFit);
+  }
+  if (hi < lo){ const m = (lo + hi) / 2; lo = hi = m; }
+
+  if (pickNew) s.thStar = lo + Math.random() * (hi - lo);
+  else         s.thStar = Math.min(hi, Math.max(lo, s.thStar));
+
+  s.targetX = s.bowX + landX(s.thStar, s.h, s.d);
+}
+
+/* 把角度容差換算成畫面上的距離（取兩側平均） */
+function tolPx(tol, th, h, d){
+  const c = landX(th, h, d);
+  return (Math.abs(landX(th + tol, h, d) - c) + Math.abs(c - landX(th - tol, h, d))) / 2;
+}
+/* 最外環的半徑（RINGS[0] 是最寬的那一環），出題時用來確認靶放得進畫布 */
+function outerAt(th, h, d){ return tolPx(RINGS[0].tol, th, h, d); }
+/* 這一箭的環寬 */
+function ringPx(tol){ return tolPx(tol, shot.thStar, shot.h, shot.d); }
+
+function scoreOf(errDeg){
+  for (let i = RINGS.length - 1; i >= 0; i--) if (errDeg <= RINGS[i].tol) return RINGS[i].score;
+  return 0;
+}
+
+/* ==========================================================
+   繪圖
+   ========================================================== */
+function draw(){
+  const s = shot;
+  ctx.clearRect(0, 0, W, H);
+  if (!s) return;
+
+  /* --- 空氣 --- */
+  let g = ctx.createLinearGradient(0, 0, 0, s.waterY);
+  g.addColorStop(0, "#DFF2FF"); g.addColorStop(1, "#AEDCF7");
+  ctx.fillStyle = g; ctx.fillRect(0, 0, W, s.waterY);
+
+  /* --- 水 --- */
+  g = ctx.createLinearGradient(0, s.waterY, 0, H);
+  g.addColorStop(0, "#5EAFD6"); g.addColorStop(1, "#14567F");
+  ctx.fillStyle = g; ctx.fillRect(0, s.waterY, W, H - s.waterY);
+
+  /* --- 池底 --- */
+  ctx.fillStyle = "#C9A96B";
+  ctx.beginPath(); ctx.rect(0, s.floorY, W, H - s.floorY); ctx.fill();
+  ctx.strokeStyle = "rgba(0,0,0,.25)"; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(0, s.floorY); ctx.lineTo(W, s.floorY); ctx.stroke();
+
+  /* --- 水面（波紋） --- */
+  ctx.strokeStyle = "#EAF7FF"; ctx.lineWidth = 3;
+  ctx.beginPath();
+  for (let x = 0; x <= W; x += 6){
+    const y = s.waterY + Math.sin((x / 34) + tSec * 1.6) * 2.4;
+    x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+
+  drawTarget();
+  drawArcher();
+
+  if (state === "aim" || state === "fly" || state === "result") drawAimLines();
+  if (state === "fly" || state === "result") drawArrow();
+  if (state === "result") drawGap();
+  if (showAdv) drawAngles();
+}
+
+/* 射完後標出「轉彎讓它少飛了這一段」——把折射的效果變成看得見的一段長度 */
+function drawGap(){
+  const s = shot, f = fly;
+  if (!f) return;
+  const sx = Math.min(s.bowX + straightX(f.th1, s.h, s.d), W - 6);
+  const y  = s.floorY + (H - s.floorY) * 0.5;
+  if (sx - f.lx < 14) return;                    /* 差距太小就不標，免得糊成一團 */
+
+  ctx.save();
+  ctx.strokeStyle = "#5B3A12"; ctx.fillStyle = "#5B3A12"; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(f.lx, y); ctx.lineTo(sx, y); ctx.stroke();
+  for (const [x, dir] of [[f.lx, 1], [sx, -1]]){   /* 兩端箭頭 */
+    ctx.beginPath();
+    ctx.moveTo(x, y); ctx.lineTo(x + 7 * dir, y - 4); ctx.lineTo(x + 7 * dir, y + 4);
+    ctx.closePath(); ctx.fill();
+  }
+  /* 文字直接壓在線上（池底帶很窄，放線上方會撞到靶） */
+  const fs = Math.min(Math.max(11, Math.round(W * 0.0115)), (H - s.floorY) * 0.62);
+  ctx.font = "900 " + fs + "px sans-serif";
+  ctx.textAlign = "center"; ctx.textBaseline = "middle";
+  const txt = "轉彎少飛了這段";
+  const tw = ctx.measureText(txt).width;
+  if (sx - f.lx > tw + 26){
+    ctx.fillStyle = "rgba(255,252,242,.94)";
+    ctx.fillRect((f.lx + sx) / 2 - tw / 2 - 5, y - fs * .72, tw + 10, fs * 1.44);
+    ctx.fillStyle = "#5B3A12";
+    ctx.fillText(txt, (f.lx + sx) / 2, y);
+  }
+  ctx.restore();
+}
+
+/* 池底的同心圓靶：畫成壓扁的橢圓，表示「畫在池底上」 */
+function drawTarget(){
+  const s = shot;
+  /* 壓扁比例：正常 0.32，但不讓最外環凸出池底帶（極端視窗比例時會） */
+  const flat = Math.min(0.32, (H - s.floorY) * 0.72 / Math.max(ringPx(RINGS[0].tol), 1));
+  for (const r of RINGS){
+    const rx = ringPx(r.tol), ry = rx * flat;
+    ctx.beginPath();
+    ctx.ellipse(s.targetX, s.floorY, Math.max(rx, 1), Math.max(ry, 1), 0, 0, Math.PI * 2);
+    ctx.fillStyle = r.fill; ctx.fill();
+    ctx.strokeStyle = r.line; ctx.lineWidth = 2; ctx.stroke();
+  }
+  /* 靶心永遠看得見的小記號（純視覺，不影響計分） */
+  ctx.fillStyle = "#5B1712";
+  ctx.beginPath(); ctx.arc(s.targetX, s.floorY, 2.5, 0, Math.PI * 2); ctx.fill();
+}
+
+function drawArcher(){
+  const s = shot, x = s.bowX, y = s.bowY;
+  /* 岸邊平台 */
+  ctx.fillStyle = "#8A6A44";
+  ctx.fillRect(0, y + 10, x + 16, 12);
+  ctx.fillStyle = "#6E5335";
+  ctx.fillRect(0, y + 22, x + 16, Math.max(s.waterY - y - 22, 0));
+  /* 射手 */
+  ctx.strokeStyle = "#1E1E1E"; ctx.lineWidth = 3; ctx.lineCap = "round";
+  ctx.beginPath(); ctx.arc(x - 10, y - 16, 6, 0, Math.PI * 2);
+  ctx.fillStyle = "#F2C9A0"; ctx.fill(); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(x - 10, y - 10); ctx.lineTo(x - 10, y + 8); ctx.stroke();
+  /* 弓 */
+  ctx.strokeStyle = "#8A4B1E"; ctx.lineWidth = 3.5;
+  ctx.beginPath(); ctx.arc(x, y, 15, -Math.PI * 0.62, Math.PI * 0.62); ctx.stroke();
+}
+
+/* 瞄準線（空氣段實線）＋「假如不會轉彎」虛線 */
+function drawAimLines(){
+  const s = shot, t1 = aimTheta();
+  const ex = s.bowX + s.h * Math.tan(rad(t1));      /* 入水點 */
+
+  ctx.save();
+  ctx.strokeStyle = "rgba(255,201,60,.95)"; ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.moveTo(s.bowX, s.bowY); ctx.lineTo(ex, s.waterY); ctx.stroke();
+
+  /* 虛線：從入水點沿原方向直直穿下去，末端在靶的深度 */
+  const sx = s.bowX + straightX(t1, s.h, s.d);
+  ctx.setLineDash([9, 7]);
+  ctx.strokeStyle = "rgba(255,255,255,.85)"; ctx.lineWidth = 2.5;
+  ctx.beginPath(); ctx.moveTo(ex, s.waterY); ctx.lineTo(sx, s.floorY); ctx.stroke();
+  ctx.setLineDash([]);
+
+  /* 虛線落點的空心圈（超出畫面就在邊緣畫箭頭） */
+  if (sx <= W - 8){
+    ctx.beginPath(); ctx.arc(sx, s.floorY, 7, 0, Math.PI * 2);
+    ctx.strokeStyle = "#fff"; ctx.lineWidth = 2.5; ctx.stroke();
+  } else {
+    ctx.fillStyle = "#fff";
+    ctx.beginPath();
+    ctx.moveTo(W - 4, s.floorY - 8); ctx.lineTo(W - 4, s.floorY + 8);
+    ctx.lineTo(W - 16, s.floorY); ctx.closePath(); ctx.fill();
+  }
+  ctx.restore();
+}
+
+function drawArrow(){
+  const s = shot, f = fly;
+  if (!f) return;
+  /* 已走過的實際路徑：畫成實線且比「假如不折射」的白虛線更醒目——
+     真正發生的事情要比假設的事情搶眼，否則學生會盯著錯的那條線看。 */
+  ctx.lineCap = "round";
+  ctx.strokeStyle = "#FFD166"; ctx.lineWidth = 4;          /* 空氣段 */
+  ctx.beginPath(); ctx.moveTo(s.bowX, s.bowY);
+  ctx.lineTo(f.p > f.pEntry ? f.ex : f.x, f.p > f.pEntry ? s.waterY : f.y);
+  ctx.stroke();
+  if (f.p > f.pEntry){                                      /* 水中段：換色，強調轉彎 */
+    ctx.strokeStyle = "#FF7A29"; ctx.lineWidth = 4.5;
+    ctx.beginPath(); ctx.moveTo(f.ex, s.waterY); ctx.lineTo(f.x, f.y); ctx.stroke();
+    /* 轉折點標一個小圓，指出「就是在這裡轉彎的」 */
+    ctx.fillStyle = "#fff"; ctx.strokeStyle = "#FF7A29"; ctx.lineWidth = 2.5;
+    ctx.beginPath(); ctx.arc(f.ex, s.waterY, 5, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+  }
+
+  /* 箭身：沿目前行進方向 */
+  const L = Math.max(W * 0.035, 16);
+  const ax = f.x - Math.sin(rad(f.dir)) * L, ay = f.y - Math.cos(rad(f.dir)) * L;
+  ctx.strokeStyle = "#3A2A16"; ctx.lineWidth = 3.5; ctx.lineCap = "round";
+  ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(f.x, f.y); ctx.stroke();
+  ctx.fillStyle = "#B0341F";
+  ctx.beginPath(); ctx.arc(f.x, f.y, 4.5, 0, Math.PI * 2); ctx.fill();
+}
+
+/* 進階模式：法線與角度數值（與〈光的折射與彩虹〉站2 用語一致） */
+function drawAngles(){
+  const s = shot;
+  if (state === "title") return;
+  const t1 = (state === "aim") ? aimTheta() : (lastResult ? lastResult.th1 : aimTheta());
+  const ex = s.bowX + s.h * Math.tan(rad(t1));
+  const t2 = deg(refractRad(rad(t1)));
+
+  ctx.save();
+  ctx.setLineDash([5, 5]);
+  ctx.strokeStyle = "rgba(255,255,255,.75)"; ctx.lineWidth = 1.8;
+  ctx.beginPath();
+  ctx.moveTo(ex, s.waterY - Math.min(s.h, H * 0.16));
+  ctx.lineTo(ex, s.waterY + Math.min(s.d, H * 0.16));
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  /* 水面上下的底色差很多，字一律加深色底牌才讀得到 */
+  const fs = Math.max(12, Math.round(W * 0.013));
+  ctx.font = "900 " + fs + "px sans-serif";
+  ctx.textBaseline = "middle";
+  const chip = (txt, y, col) => {
+    const w = ctx.measureText(txt).width;
+    ctx.fillStyle = "rgba(8,32,52,.78)";
+    ctx.fillRect(ex + 8, y - fs * .78, w + 12, fs * 1.56);
+    ctx.fillStyle = col;
+    ctx.fillText(txt, ex + 14, y);
+  };
+  chip("入射角 " + t1.toFixed(1) + "°", s.waterY - fs * 1.3, "#FFE9A8");
+  chip("折射角 " + t2.toFixed(1) + "°", s.waterY + fs * 1.3, "#9AD9FF");
+  ctx.restore();
+}
+
+/* ==========================================================
+   主迴圈
+   ========================================================== */
+let last = performance.now();
+function loop(now){
+  const dt = Math.min((now - last) / 1000, 0.05);
+  last = now; tSec += dt;
+
+  if (state === "fly" && fly){
+    fly.p += dt / fly.dur;
+    if (fly.p >= 1){ fly.p = 1; stepFly(); settle(); }
+    else stepFly();
+  }
+  draw();
+  requestAnimationFrame(loop);
+}
+
+/* 依進度 p 求出箭現在的位置與方向（空氣段走直線，入水後換折射方向） */
+function stepFly(){
+  const s = shot, f = fly, p = fly.p;
+  if (p <= f.pEntry){
+    const k = f.pEntry ? p / f.pEntry : 1;
+    f.x = s.bowX + (f.ex - s.bowX) * k;
+    f.y = s.bowY + (s.waterY - s.bowY) * k;
+    f.dir = f.th1;
+  } else {
+    const k = (p - f.pEntry) / (1 - f.pEntry);
+    f.x = f.ex + (f.lx - f.ex) * k;
+    f.y = s.waterY + (s.floorY - s.waterY) * k;
+    f.dir = f.th2;
+  }
+}
+
+function shoot(){
+  if (state !== "aim") return;
+  const s = shot, t1 = aimTheta();
+  const ex = s.bowX + s.h * Math.tan(rad(t1));
+  const lx = s.bowX + landX(t1, s.h, s.d);
+  const air = Math.hypot(ex - s.bowX, s.waterY - s.bowY);
+  const wat = Math.hypot(lx - ex, s.floorY - s.waterY);
+  /* 水中「走得比較慢」（速度 ÷1.33）——折射的真正原因就是速度變慢，
+     讓學生看得到箭一入水就慢下來，順便呼應重點整理那一句。 */
+  const rAir = air, rWat = wat * N_WATER;
+  fly = { p:0, dur:0.85, pEntry: rAir / (rAir + rWat), ex, lx,
+          th1: t1, th2: deg(refractRad(rad(t1))), x:s.bowX, y:s.bowY, dir:t1 };
+  state = "fly";
+  lockAim(true);
+  $("fireBtn").disabled = true;
+}
+
+function settle(){
+  const s = shot, t1 = fly.th1;
+  const err = Math.abs(t1 - s.thStar);
+  const pts = scoreOf(err);
+  total += pts;
+  lastResult = { th1: t1, pts: pts };
+  $("score").textContent = total;
+
+  /* 角度比正解大 → 射得平 → 飛過頭；小 → 射得陡 → 掉在前面 */
+  const over = t1 > s.thStar;
+  const el = $("fb");
+  el.className = "on " + (pts >= 7 ? "good" : "bad");
+
+  if (pts === 10){
+    $("fbHead").textContent = "🎯 正中紅心！+10 分";
+    $("fbBody").innerHTML = "漂亮！你抓到了——<b>瞄準的地方要比看到的靶更遠一點</b>，" +
+      "因為箭進到水裡會轉彎變陡。";
+  } else if (pts > 0){
+    $("fbHead").textContent = (pts === 7 ? "👍 很接近！" : "🎯 有中！") + " +" + pts + " 分";
+    $("fbBody").innerHTML = over
+      ? "稍微過頭了一點，角度再<b>調大一點</b>（射陡一點）就更準。"
+      : "稍微短了一點，角度再<b>調小一點</b>（射平一點）就更準。";
+  } else {
+    $("fbHead").textContent = "💧 沒中，0 分";
+    $("fbBody").innerHTML = over
+      ? "過頭了！這次角度太小、射得太平，箭飛過靶了。下一箭把角度<b>調大一點</b>（射陡一點）。"
+      : "差一點！箭一進到水裡就<b>轉彎變陡</b>了，所以掉在靶的前面。" +
+        "下一箭把角度<b>調小一點</b>（射平一點），讓它飛遠一些。";
+  }
+  $("fbWhy").innerHTML = "看到那條白色虛線了嗎？那是「<b>假如不會轉彎</b>」箭會到的地方。" +
+    "實際落點永遠比它<b>近</b>——這就是<b>折射</b>。";
+
+  state = "result";
+  $("fireBtn").style.display = "none";
+  $("nextBtn").style.display = "";
+  $("nextBtn").textContent = (shotNo >= SHOTS) ? "看成績 →" : "下一箭 →";
+}
+
+function nextShot(){
+  $("fb").className = "";
+  if (shotNo >= SHOTS){ gameOver(); return; }
+  shotNo++;
+  $("shotNo").textContent = shotNo;
+  newShot();
+  fly = null; lastResult = null;
+  state = "aim";
+  lockAim(false);
+  $("fireBtn").disabled = false;
+  $("fireBtn").style.display = "";
+  $("nextBtn").style.display = "none";
+}
+
+function startGame(){
+  shotNo = 0; total = 0;
+  $("score").textContent = "0";
+  $("scrTitle").classList.remove("on");
+  $("scrOver").classList.remove("on");
+  nextShot();
+}
+
+function gameOver(){
+  state = "over";
+  $("finalScore").textContent = total;
+  $("overMsg").innerHTML = total >= 40
+    ? "太厲害了！你已經很清楚<b>箭進到水裡會轉彎變陡</b>這件事。<br>" +
+      "小知識：不管你射得多平，箭在水裡都不可能比 <b>48.75°</b> 更平，這是水的極限。"
+    : (total >= 20
+      ? "不錯！記住這一句就會更準：<b>瞄準的地方要比靶更遠一點</b>。"
+      : "再試一次！關鍵是：箭進到水裡會<b>轉彎變陡</b>，所以要瞄得比靶<b>更遠</b>一點。");
+  $("saveBtn").disabled = false;
+  $("saveBtn").textContent = "存進排行榜";
+  try{ $("nameIn").value = localStorage.getItem(LAST_NAME) || ""; }catch(_){ $("nameIn").value = ""; }
+  renderBoard(null);
+  $("scrOver").classList.add("on");
+  $("fireBtn").style.display = "";
+  $("fireBtn").disabled = true;
+  $("nextBtn").style.display = "none";
+  lockAim(true);
+}
+
+/* ==========================================================
+   排行榜（localStorage，單機）
+   ========================================================== */
+const LB_KEY    = "water-archery-scores-v1";
+const LAST_NAME = "water-archery-lastname";
+
+function loadBoard(){
+  try{
+    const a = JSON.parse(localStorage.getItem(LB_KEY) || "[]");
+    return Array.isArray(a) ? a : [];
+  }catch(_){ return []; }                       /* 私密視窗／封鎖網站資料時不要壞掉 */
+}
+function saveBoard(a){
+  try{ localStorage.setItem(LB_KEY, JSON.stringify(a)); }catch(_){}
+}
+function renderBoard(highlight){
+  const rows = loadBoard();
+  const t = $("lbTable");
+  if (!rows.length){
+    t.innerHTML = '<tr><td class="empty">還沒有紀錄，你可以是第一個 🏆</td></tr>';
+    return;
+  }
+  let html = "<tr><th>名次</th><th>名字</th><th>分數</th><th>日期</th></tr>";
+  rows.forEach((r, i) => {
+    const medal = ["🥇", "🥈", "🥉"][i] || (i + 1);
+    const me = (highlight !== null && i === highlight) ? ' class="me"' : "";
+    html += "<tr" + me + "><td>" + medal + '</td><td class="nm">' + esc(r.name) +
+            "</td><td>" + r.score + "</td><td>" + r.date + "</td></tr>";
+  });
+  t.innerHTML = html;
+}
+function esc(s){
+  return String(s).replace(/[&<>"']/g, c =>
+    ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
+}
+$("saveBtn").addEventListener("click", () => {
+  const name = ($("nameIn").value || "").trim().slice(0, 6) || "無名氏";
+  try{ localStorage.setItem(LAST_NAME, name); }catch(_){}
+  const d = new Date();
+  const entry = {
+    name, score: Math.floor(total),
+    date: (d.getMonth() + 1) + "/" + d.getDate()
+  };
+  const rows = loadBoard();
+  rows.push(entry);
+  rows.sort((a, b) => b.score - a.score);
+  const top = rows.slice(0, 10);
+  saveBoard(top);
+  renderBoard(top.indexOf(entry) >= 0 ? top.indexOf(entry) : null);
+  $("saveBtn").disabled = true;
+  $("saveBtn").textContent = "已存入 ✓";
+});
+$("againBtn").addEventListener("click", () => {
+  $("scrOver").classList.remove("on");
+  $("scrTitle").classList.add("on");
+  $("fb").className = "";
+  state = "title";
+});
+/* 兩段式確認：換班時整節課的分數一按就沒了，誤觸的代價太大 */
+let clearArm = 0;
+$("clearBtn").addEventListener("click", () => {
+  const b = $("clearBtn");
+  const reset = () => { clearArm = 0; b.textContent = "清除排行榜"; b.style.background = ""; };
+  if (!clearArm){
+    b.textContent = "⚠️ 再按一次就清空";
+    b.style.background = "#FCE4E1";
+    clearArm = setTimeout(reset, 2500);
+    return;
+  }
+  clearTimeout(clearArm); reset();
+  saveBoard([]);
+  renderBoard(null);
+});
+
+/* ==========================================================
+   輸入
+   ========================================================== */
+/* 滑桿與微調鈕一起鎖／解鎖 */
+function lockAim(b){
+  $("angSl").disabled = b; $("minusBtn").disabled = b; $("plusBtn").disabled = b;
+}
+function setAim(v){
+  const sl = $("angSl");
+  aimDisp = Math.min(+sl.max, Math.max(+sl.min, Math.round(v * 2) / 2));
+  sl.value = aimDisp;
+  $("angTxt").textContent = aimDisp.toFixed(1);
+}
+$("angSl").addEventListener("input", e => setAim(parseFloat(e.target.value)));
+/* 大螢幕觸控時滑桿很難微調，用按鈕一次一格 */
+$("minusBtn").addEventListener("click", () => { if (state === "aim") setAim(aimDisp - 0.5); });
+$("plusBtn").addEventListener("click",  () => { if (state === "aim") setAim(aimDisp + 0.5); });
+$("fireBtn").addEventListener("click", shoot);
+$("nextBtn").addEventListener("click", nextShot);
+$("startBtn").addEventListener("click", startGame);
+$("advCk").addEventListener("change", e => { showAdv = e.target.checked; });
+addEventListener("keydown", e => {
+  if (e.code === "Space"){
+    e.preventDefault();
+    if (state === "aim") shoot();
+    else if (state === "result") nextShot();
+    else if (state === "title") startGame();
+  }
+});
+
+/* ---------- 開發用自檢：在 console 打 selfTest(20000)，bad 必須是 0 ---------- */
+function selfTest(n){
+  n = n || 20000;
+  const W0 = W, H0 = H, keep = shot;
+  let bad = 0;
+  for (let k = 0; k < n; k++){
+    newShot();
+    const s = shot, outer = outerAt(s.thStar, s.h, s.d);
+    if (!isFinite(s.targetX) || !isFinite(s.thStar)) bad++;            /* NaN */
+    if (s.targetX + outer > W + 0.5) bad++;                            /* 靶凸出右緣 */
+    if (s.targetX - outer < s.bowX) bad++;                             /* 靶壓到弓 */
+    if (s.thStar < 90 - +$("angSl").max || s.thStar > 90 - +$("angSl").min) bad++; /* 滑桿搆不到 */
+    if (Math.abs(solveTheta(s.targetX - s.bowX, s.h, s.d) - s.thStar) > 0.02) bad++;
+  }
+  shot = keep;
+  console.log("selfTest", n, "次 @", Math.round(W0) + "×" + Math.round(H0), "→ bad =", bad);
+  return bad;
+}
+
+/* ---------- 啟動 ---------- */
+resize();
+newShot();          /* 開始畫面背後也要有一個場景可以看 */
+state = "title";
+$("fireBtn").disabled = true;
+lockAim(true);
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>
