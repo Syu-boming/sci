@@ -8,16 +8,20 @@
 <style>
 /* ==========================================================
    器官大跑酷 — Chrome 恐龍風跑酷
-   規則：該躲的用「跳」的、該拿的直接撞上去。每 20 秒規則反轉一次。
-   反轉是這個遊戲的重點——背動作的人會死，真的懂分類的人不會。
+   規則：該躲的用「跳」的、該拿的直接撞上去。規則整局固定。
+   （原本每 20 秒規則反轉一次，老師評估對小孩太難，2026-09 拿掉。）
+   單人挑戰：跑到撞到為止，可以存進排行榜。
+   雙人對戰：同一個畫面切成兩條跑道，兩人遇到的器官一模一樣，60 秒內分數高的贏。
    ========================================================== */
 :root{
   --bg:#FDF6EC; --ink:#1E1E1E; --muted:#6B7A82; --card:#fff;
   --veg:#2E7D4F;  --veg-l:#DCF0E3;   /* 營養器官：綠 */
   --rep:#E4574C;  --rep-l:#FCE4E1;   /* 繁殖器官：紅 */
   --sun:#FFC93C; --shadow:0 6px 18px rgba(46,86,110,.16);
+  --p1:#286b8b; --p2:#ad5a2f;        /* 雙人：玩家 1／玩家 2 */
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+[hidden]{display:none!important}
 html,body{margin:0;padding:0}
 body{
   background:var(--bg);color:var(--ink);
@@ -29,6 +33,9 @@ body{
 .sitehead{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:10px}
 .sitehead h1{margin:0;font-size:clamp(21px,2.5vw,30px);font-weight:900;letter-spacing:.5px}
 .sitehead .sub{color:var(--muted);font-size:clamp(13px,1.4vw,17px)}
+
+/* 單人／雙人各自才有的東西 */
+#app.duo .solo-only, #app:not(.duo) .duo-only{display:none}
 
 /* ---------- HUD：畫面上永遠顯示當前規則 ---------- */
 #hud{
@@ -43,21 +50,20 @@ body{
 #hud .pill.bad{background:var(--rep-l);color:var(--rep)}
 #hud .pill.good{background:var(--veg-l);color:var(--veg)}
 #hud .sc{margin-left:auto;font-size:clamp(18px,2.1vw,26px);white-space:nowrap}
+#hud .sc small{font-size:.62em}
 #hud .lv{color:var(--muted);font-size:clamp(12px,1.3vw,16px);font-weight:800}
+/* 不比規則膠囊高：開賽時按鈕出現，整個舞台才不會往下跳 */
+#hud .quit{
+  margin-left:10px;border:2px solid var(--ink);border-radius:999px;background:#fff;
+  font:inherit;font-size:.55em;font-weight:900;padding:4px 14px;cursor:pointer;vertical-align:middle;
+}
 
 /* ---------- 舞台 ---------- */
 #stage{position:relative;border:3px solid var(--ink);border-radius:18px;overflow:hidden;
   box-shadow:var(--shadow);background:#BFE6FF}
 #cv{display:block;width:100%;height:clamp(270px,48vh,460px);touch-action:manipulation;cursor:pointer}
-
-/* 反轉倒數橫幅 */
-#flash{
-  position:absolute;left:50%;top:14%;transform:translateX(-50%);
-  background:rgba(20,20,20,.86);color:#fff;border-radius:999px;
-  padding:9px 26px;font-weight:900;font-size:clamp(16px,2.4vw,30px);
-  white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .18s;
-}
-#flash.on{opacity:1}
+/* 雙人：兩個人可能同時點螢幕，別讓瀏覽器當成雙指縮放 */
+#app.duo #cv{touch-action:none}
 
 /* ---------- 覆蓋畫面（開始 / 結束） ---------- */
 /* 用 flex + 子元素 margin:auto 置中：align-items:center 在內容溢出時會把上緣裁掉 */
@@ -71,6 +77,8 @@ body{
 .sheet p{margin:6px 0}
 .howto{font-size:clamp(13px,1.5vw,18px);color:var(--muted);font-weight:700;line-height:1.75}
 .howto b{color:var(--ink)}
+.howto .c1{color:var(--p1)}
+.howto .c2{color:var(--p2)}
 .pickrow{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:14px}
 .btn{
   border:3px solid var(--ink);border-radius:999px;background:var(--sun);
@@ -83,6 +91,15 @@ body{
 .btn.ghost{background:#fff}
 .btn.sm{padding:9px 18px;min-height:44px;font-size:.9em}
 
+/* 單人／雙人切換 */
+.modes{display:inline-flex;margin:4px 0 6px;border:3px solid var(--ink);border-radius:999px;overflow:hidden;background:#fff}
+.modes .mode{
+  border:0;background:#fff;color:var(--ink);font:inherit;font-weight:900;
+  padding:9px 22px;min-height:50px;cursor:pointer;
+}
+.modes .mode + .mode{border-left:3px solid var(--ink)}
+.modes .mode[aria-pressed="true"]{background:var(--ink);color:#fff}
+
 /* 死亡說明 */
 .dead{
   background:var(--rep-l);border:3px solid var(--rep);border-radius:16px;
@@ -90,6 +107,22 @@ body{
   text-align:left;line-height:1.7;
 }
 .dead .big{font-size:1.5em;vertical-align:-.12em}
+
+/* 雙人結算 */
+.duel-sub{color:var(--muted);font-weight:800;font-size:.5em;white-space:nowrap}
+.duel-cards{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:8px 0;text-align:left}
+.pcard{background:#fff;border:3px solid #E2DBCC;border-radius:16px;padding:9px 14px}
+.pcard.win{border-color:var(--ink);background:#FFF6D6;box-shadow:0 4px 0 var(--ink)}
+.phead{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.ptag{display:inline-block;color:#fff;font-weight:900;border-radius:999px;padding:3px 14px;white-space:nowrap}
+.pscore{font-size:clamp(26px,3.4vw,44px);font-weight:900;line-height:1.15;white-space:nowrap}
+.pscore small{font-size:.45em}
+.pbrk{color:var(--muted);font-weight:800;font-size:clamp(12px,1.3vw,16px)}
+.pwhy{margin-top:8px;padding:8px 11px;border-radius:12px;background:var(--rep-l);
+  font-weight:800;font-size:clamp(13px,1.45vw,18px);line-height:1.65}
+.pwhy.ok{background:var(--veg-l)}
+.pwhy .big{font-size:1.4em;vertical-align:-.12em}
+.note{color:var(--muted);font-size:clamp(12px,1.2vw,15px);font-weight:700}
 
 /* 排行榜 */
 .namerow{display:flex;gap:8px;justify-content:center;align-items:center;flex-wrap:wrap;margin:10px 0}
@@ -113,11 +146,32 @@ table.lb td.nm{text-align:left}
   #hud{padding:7px 10px;gap:7px;border-radius:13px}
   #hud .sc{width:100%;margin-left:0;text-align:right}
   .btn{padding:12px 20px}
+  .modes .mode{padding:8px 14px}
+  /* 直式手機雙人是上下兩條跑道，畫布拉高，每條跑道才不會太扁 */
+  #app.duo #cv{height:clamp(300px,62vh,600px)}
+}
+@media (max-width:520px){
+  .duel-cards{grid-template-columns:1fr}
+}
+/* 橫的螢幕（筆電、75 吋、橫拿的手機）舞台又寬又矮：開始畫面與雙人結算改左右兩欄。
+   1366×650 的筆電舞台只有 312px 高，排成一欄會把「開始」「再比一場」擠到捲軸下面。
+   直的螢幕維持一欄（順序相同）。 */
+@media (orientation:landscape) and (min-width:641px){
+  #scrTitle .sheet{width:min(1060px,100%)}
+  #scrDuel .sheet{width:min(1180px,100%)}          /* 卡片寬一點，撞到的說明才不會折成四行 */
+  .cols{display:flex;align-items:center;gap:26px}
+  #scrTitle .cols > *{flex:1;min-width:0}
+  #scrDuel .cols{gap:14px}
+  #scrDuel .duel-cards{flex:1;min-width:0;margin:0}
+  #scrDuel .pwhy{font-size:clamp(13px,1.25vw,17px);line-height:1.55}
+  .duel-actions{flex:0 0 clamp(160px,17vw,250px)}
+  .duel-actions .pickrow{flex-direction:column;align-items:stretch;margin-top:0!important;gap:10px}
 }
 @media (min-width:1800px){
   #app{max-width:1680px;padding:22px 26px 50px}
   #cv{height:clamp(360px,54vh,680px)}
   .btn{min-height:76px;padding:19px 40px}
+  .modes .mode{min-height:60px;padding:10px 32px}
   .namerow input{min-height:76px}
   #hud{padding:12px 22px;border-radius:22px}
 }
@@ -125,6 +179,7 @@ table.lb td.nm{text-align:left}
   #app{max-width:2280px}
   #cv{height:clamp(480px,58vh,920px)}
   .btn{min-height:98px;padding:24px 52px}
+  .modes .mode{min-height:78px;padding:14px 42px}
   .namerow input{min-height:98px}
 }
 </style>
@@ -141,33 +196,46 @@ table.lb td.nm{text-align:left}
     <span class="pill bad">躲開 <span id="ruleAvoid">營養器官</span></span>
     <span class="pill good">收集 <span id="ruleGet">繁殖器官</span></span>
     <span class="lv" id="lv">速度 1.0×</span>
-    <span class="sc">⭐ <span id="score">0</span></span>
+    <span class="sc">
+      <span class="solo-only">⭐ <span id="score">0</span></span>
+      <span class="duo-only">⏱ <span id="clock">60</span><small> 秒</small></span>
+      <button type="button" class="quit" id="quitBtn" hidden>✕ 離開對戰</button>
+    </span>
   </div>
 
   <div id="stage">
     <canvas id="cv"></canvas>
-    <div id="flash"></div>
 
     <!-- 開始畫面 -->
     <div class="overlay on" id="scrTitle">
       <div class="sheet">
-        <h2>🐷 器官大跑酷</h2>
-        <p class="howto">
-          <b>該躲的用跳的，該拿的直接撞上去。</b><br>
-          撞到「要躲開」的 → <b>game over</b>；撞到另一類 → <b>+10 分</b>。　⚠️ 每 <b>20 秒</b>規則<b>反轉</b>一次。<br>
-          <span style="font-size:.92em">跳躍：<b>空白鍵</b> / <b>↑</b> / 點畫面</span>
-        </p>
-        <p style="font-weight:900;margin-top:14px">這一輪，你要先躲開哪一類？</p>
-        <div class="pickrow">
-          <button class="btn veg" data-avoid="營養">躲開 營養器官<br><span style="font-weight:700;font-size:.8em">根・莖・葉</span></button>
-          <button class="btn rep" data-avoid="繁殖">躲開 繁殖器官<br><span style="font-weight:700;font-size:.8em">花・果實・種子</span></button>
+        <div class="cols">
+          <div>
+            <h2>🐷 器官大跑酷</h2>
+            <div class="modes" role="group" aria-label="遊玩人數">
+              <button type="button" class="mode" data-mode="1" aria-pressed="true">👤 單人挑戰</button>
+              <button type="button" class="mode" data-mode="2" aria-pressed="false">👥 雙人對戰</button>
+            </div>
+            <p class="howto">
+              <b>該躲的用跳的，該拿的直接撞上去。</b><br>
+              撞到「要躲開」的就<b>出局</b>；撞到另一類 → <b>+10 分</b>。<br>
+              <span class="solo-only" style="font-size:.92em">跳躍：<b>空白鍵</b> / <b>↑</b> / 點畫面</span>
+              <span class="duo-only" style="font-size:.92em">兩人同時跑、遇到的器官<b>一模一樣</b>，<b>60 秒</b>內分數高的贏！<br>
+                <b class="c1">玩家 1 🐷</b>：<b>F</b> 鍵或點<span id="sideA">左</span>半邊　<b class="c2">玩家 2 🐗</b>：<b>J</b> 鍵或點<span id="sideB">右</span>半邊</span>
+            </p>
+          </div>
+          <div>
+            <p style="font-weight:900;margin-top:14px">這一局要躲開哪一類？</p>
+            <div class="pickrow">
+              <button class="btn veg" data-avoid="營養">躲開 營養器官<br><span style="font-weight:700;font-size:.8em">根・莖・葉</span></button>
+              <button class="btn rep" data-avoid="繁殖">躲開 繁殖器官<br><span style="font-weight:700;font-size:.8em">花・果實・種子</span></button>
+            </div>
+          </div>
         </div>
-        <div class="tip"><b>給老師：</b>規則列一直顯示在畫面上方，所以這是考「分類的速度」，不是考記憶。
-          反轉那一下最能看出誰是真的懂、誰只是在背動作。</div>
       </div>
     </div>
 
-    <!-- 結束畫面 -->
+    <!-- 單人結束畫面 -->
     <div class="overlay" id="scrOver">
       <div class="sheet">
         <h2 id="overTitle">💥 撞到了！</h2>
@@ -188,7 +256,31 @@ table.lb td.nm{text-align:left}
         </div>
       </div>
     </div>
+
+    <!-- 雙人結算畫面（要跟開始畫面一樣塞得進 75 吋螢幕的舞台，不用捲動就按得到「再比一場」） -->
+    <div class="overlay" id="scrDuel">
+      <div class="sheet">
+        <h2><span id="duelTitle"></span> <span class="duel-sub" id="duelSub"></span></h2>
+        <div class="cols">
+          <div class="duel-cards">
+            <div class="pcard" id="pc0"></div>
+            <div class="pcard" id="pc1"></div>
+          </div>
+          <div class="duel-actions">
+            <div class="pickrow" style="margin-top:10px">
+              <button class="btn" id="rematchBtn">↺ 再比一場</button>
+              <button class="btn ghost sm" id="duelHomeBtn">回到開始畫面</button>
+            </div>
+            <p class="note">雙人對戰不記入排行榜（排行榜只記單人挑戰）。</p>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
+
+  <!-- 給老師的提示放在舞台外：開始畫面留給學生看的內容，75 吋螢幕（1920×約 900）才塞得下雙人說明 -->
+  <div class="tip"><b>給老師：</b>規則列一直顯示在畫面上方，所以考的是「分類的速度」，不是記憶；兩種規則都值得各玩一輪。
+    雙人對戰時兩邊出現的器官完全相同，輸贏只看誰分得又快又準。</div>
 </div>
 
 <script>
@@ -222,6 +314,13 @@ const ITEMS = [
 ];
 const RUNNER = "🐷";                 /* 站名是「豬豬的自然探索」，順勢用站徽形象 */
 
+/* 雙人模式的兩位玩家。稱呼、顏色、按鍵沿用本單元其他雙人遊戲（共用/plant-duel.js）：
+   F、J 是鍵盤上有凸點的兩個鍵，兩個人擠一台筆電也各佔一邊。 */
+const PLAYERS = [
+  { name:"玩家 1", runner:RUNNER, color:"#286b8b", key:"KeyF", keyLabel:"F" },
+  { name:"玩家 2", runner:"🐗",  color:"#ad5a2f", key:"KeyJ", keyLabel:"J" }
+];
+
 /* ---------- emoji 自檢 ----------
    這個專案被字型坑過兩次（🫧、🪴 在 Windows 10 會變空白方框）。
    開場先量寬度：跟必定沒有字的碼位 U+10FFFD 一樣寬 = 豆腐框，直接剔除。   */
@@ -249,8 +348,20 @@ const BY_CAT = { 營養: POOL.filter(i=>i.cat==="營養"), 繁殖: POOL.filter(i
 const cv  = document.getElementById("cv");
 const ctx = cv.getContext("2d");
 const $   = id => document.getElementById(id);
+const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 
+/* ---------- 跑道 ----------
+   單人：整張畫布是一條跑道。
+   雙人：切成兩條一樣大的跑道，左右並排或上下疊——哪種切法卡片比較大就用哪種
+   （橫的螢幕 → 左右；直式手機 → 上下）。
+   下面所有尺寸與物理都以「一條跑道」的寬 LW、高 LH 為單位；兩條跑道一樣大，
+   障礙又是同一串，所以兩個人的難度完全相同。                              */
+const LANE_GAP = 6;                  /* 兩條跑道中間的分隔線（px） */
 let W = 0, H = 0;                    /* canvas 的 CSS 尺寸 */
+let LW = 0, LH = 0;                  /* 一條跑道的 CSS 尺寸 */
+let lanes = [], layout = "solo";     /* solo | side | stack */
+let mode = 1;                        /* 1 = 單人挑戰、2 = 雙人對戰 */
+
 function resize(){
   const r = cv.getBoundingClientRect();
   W = r.width; H = r.height;
@@ -258,27 +369,53 @@ function resize(){
   cv.width  = Math.round(W * dpr);
   cv.height = Math.round(H * dpr);
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  layoutLanes();
 }
 addEventListener("resize", resize);
 
-/* --- 尺寸全部以 canvas 高度 H 為單位，速度以「螢幕寬度／秒」為單位 ---
+function layoutLanes(){
+  if (mode === 1){
+    layout = "solo";
+    lanes = [{ x:0, y:0, w:W, h:H }];
+  } else {
+    const sw = (W - LANE_GAP) / 2, sh = (H - LANE_GAP) / 2;
+    /* 卡片邊長 = min(0.155×跑道高, 0.13×跑道寬)（見 sizeFrac），兩種切法比一比 */
+    const side  = Math.min(0.155 * H,  0.13 * sw);
+    const stack = Math.min(0.155 * sh, 0.13 * W);
+    if (side >= stack){
+      layout = "side";
+      lanes = [{ x:0, y:0, w:sw, h:H }, { x:W - sw, y:0, w:sw, h:H }];
+    } else {
+      layout = "stack";
+      lanes = [{ x:0, y:0, w:W, h:sh }, { x:0, y:H - sh, w:W, h:sh }];
+    }
+    $("sideA").textContent = layout === "stack" ? "上" : "左";
+    $("sideB").textContent = layout === "stack" ? "下" : "右";
+  }
+  LW = lanes[0].w; LH = lanes[0].h;
+}
+
+/* --- 尺寸全部以跑道高度 LH 為單位，速度以「跑道寬度／秒」為單位 ---
    這是能同時在 390px 手機與 75 吋螢幕上玩的關鍵：
    障礙從右緣飛到跑者的時間 = (1 - PLAYER_X) / speedSW，與螢幕寬度無關。
    起始 0.50 → 任何裝置都有約 1.76 秒反應時間。                      */
-const PLAYER_X   = 0.12;             /* 跑者位置（螢幕寬度比例） */
-const SPEED0     = 0.50;             /* 起始速度（螢幕寬度／秒） */
+const PLAYER_X   = 0.12;             /* 跑者位置（跑道寬度比例） */
+const SPEED0     = 0.50;             /* 起始速度（跑道寬度／秒） */
 const SPEED_MAX  = 1.05;
 const RAMP_SEC   = 90;               /* 幾秒後到達最高速 */
-const GRAVITY    = 5.0;              /* × H  ／秒² */
+const GRAVITY    = 5.0;              /* × LH ／秒² */
 const JUMP_WINDOW= 0.30;             /* 起跳時機的容錯（秒），各種長寬比都維持這個值 */
-const FLIP_EVERY = 20;               /* 秒 */
+const DUEL_SEC   = 60;               /* 雙人對戰一局幾秒（跟本單元其他雙人遊戲一樣） */
+const COUNT_SEC  = 3;                /* 雙人都準備好之後倒數幾秒 */
 const CJK_FONT   = '"PingFang TC","Microsoft JhengHei","Noto Sans TC",sans-serif';
+const LABEL_FONT = '"PingFang TC","Microsoft JhengHei","Noto Sans TC","Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif';
 
-/* 物件大小（畫布高度的比例）。
+/* 物件大小（跑道高度的比例）。
    ⚠️ 不能只看高度：直式手機的畫布比寬還高（例如 364x405），
    只用 0.155*H 的話障礙會佔掉 17% 的螢幕寬，跟跑者加起來比一次跳躍
-   能跨過的距離還大 —— 橫式螢幕不會遇到，直式手機必撞。所以再用寬度封頂。 */
-function sizeFrac(){ return Math.min(0.155, 0.13 * W / H); }
+   能跨過的距離還大 —— 橫式螢幕不會遇到，直式手機必撞。所以再用寬度封頂。
+   雙人左右並排時每條跑道只有半個畫面寬，也是靠這一行自動縮。 */
+function sizeFrac(){ return Math.min(0.155, 0.13 * LW / LH); }
 
 /* 兩個障礙之間至少要留多久，才跳得過去：
    滯空時間 + （障礙寬 + 跑者寬 + 餘裕）÷ 速度。用幾何算，任何長寬比都成立。 */
@@ -290,28 +427,37 @@ function sizeFrac(){ return Math.min(0.155, 0.13 * W / H); }
    停留時間 = 2·√(V² − 2·g·h) / g，反解 V 即可。 */
 function jumpV(){
   const sz    = sizeFrac();
-  const danger= sz * (H / W) * 0.7 * 2;          /* 跑者＋障礙的有效碰撞寬（螢幕寬比例） */
+  const danger= sz * (LH / LW) * 0.7 * 2;        /* 跑者＋障礙的有效碰撞寬（跑道寬比例） */
   const above = danger / SPEED0 + JUMP_WINDOW;   /* 需要停在障礙上方多久 */
-  const hO    = sz * 0.85;                        /* 障礙碰撞框頂端（H 比例） */
+  const hO    = sz * 0.85;                        /* 障礙碰撞框頂端（LH 比例） */
   const v     = Math.sqrt(Math.pow(above * GRAVITY / 2, 2) + 2 * GRAVITY * hO);
-  return Math.min(v, 2.24);                       /* 上限：跳躍高度不超過畫布一半 */
+  return Math.min(v, 2.24);                       /* 上限：跳躍高度不超過跑道一半 */
 }
 function jumpDurSec(){ return 2 * jumpV() / GRAVITY; }
 
 function minGapSec(){
-  const wFrac = sizeFrac() * (H / W);          /* 物件寬度換算成螢幕寬度比例 */
+  const wFrac = sizeFrac() * (LH / LW);        /* 物件寬度換算成跑道寬度比例 */
   return jumpDurSec() * 1.12 + (wFrac * 2 + 0.10) / speedSW();   /* 留餘裕，別剛好卡在臨界 */
 }
-const WARN_AT    = 3;                /* 反轉前幾秒開始倒數 */
 
-let state = "title";                 /* title | play | over */
-let avoidCat, elapsed, score, obstacles, spawnIn, py, vy, onGround, flipT, lastWarn, killedBy, pops;
+let state = "title";                 /* title | ready | count | play | over（ready、count 只有雙人） */
+let avoidCat, elapsed, dist, obstacles, spawnIn, pops, players, countT, goT, endReason;
+let matchId = 0;                     /* 換局就 +1，讓上一局排好的 setTimeout 失效 */
+
+function newPlayer(i){
+  return { i, py:0, vy:0, onGround:true, alive:true, ready:false,
+           aliveT:0, got:0, killedBy:null, frozen:null };
+}
+/* 分數 = 撐過的整秒數（每秒 +1）+ 收集數 × 10。
+   一律用整數算：HUD、結算、比輸贏、排行榜才不會因為小數差 1 分。 */
+function pts(p){ return Math.floor(p.aliveT) + 10 * p.got; }
 
 function reset(avoid){
   avoidCat = avoid;
-  elapsed = 0; score = 0; obstacles = []; pops = [];
-  spawnIn = 0.7; py = 0; vy = 0; onGround = true;
-  flipT = 0; lastWarn = -1; killedBy = null;
+  elapsed = 0; dist = 0; obstacles = []; pops = [];
+  spawnIn = 0.7; countT = 0; goT = 0; endReason = null;
+  players = PLAYERS.slice(0, mode).map((_, i) => newPlayer(i));
+  matchId++;
   updateRuleUI();
 }
 function otherCat(c){ return c === "營養" ? "繁殖" : "營養"; }
@@ -332,147 +478,287 @@ function spawn(){
   const cat  = Math.random() < 0.5 ? "營養" : "繁殖";
   const list = BY_CAT[cat].length ? BY_CAT[cat] : POOL;
   const item = list[(Math.random() * list.length) | 0];
-  obstacles.push({ item, x: 1.02 });          /* x 用螢幕寬度比例；大小一律即時由 sizeFrac() 算 */
+  /* x 用跑道寬度比例；大小一律即時由 sizeFrac() 算。
+     taken：誰已經收集走了——只從那個人的跑道消失，另一人照樣看得到。 */
+  obstacles.push({ item, x: 1.02, taken: [false, false] });
 }
 
-function jump(){
-  if (state === "play" && onGround){ vy = -jumpV(); onGround = false; }
+/* 某位玩家按了「跳」。雙人準備階段順便登記「準備好了」，也讓他先跳一下認認自己是哪隻。 */
+function press(i){
+  const p = players[i];
+  if (!p || !p.alive) return;
+  if (state === "ready" && !p.ready){
+    p.ready = true;
+    if (players.every(q => q.ready)){ state = "count"; countT = COUNT_SEC; }
+  }
+  if ((state === "play" || state === "ready" || state === "count") && p.onGround){
+    p.vy = -jumpV(); p.onGround = false;
+  }
 }
 
 function step(dt){
+  /* --- 跳躍（準備、倒數時也能先跳跳看） --- */
+  for (const p of players){
+    if (!p.alive) continue;
+    p.vy += GRAVITY * dt;
+    p.py += p.vy * dt;
+    if (p.py >= 0){ p.py = 0; p.vy = 0; p.onGround = true; }
+  }
+
+  if (state === "count"){
+    countT -= dt;
+    if (countT <= 0){ state = "play"; goT = 0.9; syncHud(); }
+    return;
+  }
+  if (state !== "play") return;
+
+  if (mode === 2) dt = Math.min(dt, DUEL_SEC - elapsed);   /* 剛好停在 60 秒，存活分才公平 */
   elapsed += dt;
-  score   += dt;                                  /* 存活：每秒 +1 */
+  goT = Math.max(0, goT - dt);
+  for (const p of players) if (p.alive) p.aliveT += dt;
 
-  /* --- 反轉 --- */
-  flipT += dt;
-  const left = FLIP_EVERY - flipT;
-  if (left <= WARN_AT && left > 0){
-    const n = Math.ceil(left);
-    if (n !== lastWarn){
-      lastWarn = n;
-      showFlash("⚠️ " + n + " 秒後規則反轉", 900);
-    }
-  }
-  if (flipT >= FLIP_EVERY){
-    flipT = 0; lastWarn = -1;
-    avoidCat = otherCat(avoidCat);
-    updateRuleUI();
-    /* 公平性：已經飛到眼前、來不及重新判斷的障礙，在反轉的瞬間一併清掉。
-       否則學生對一顆胡蘿蔔早就決定「不跳」，規則卻在撞上前 0.1 秒翻轉，
-       等於被陰死——這不是他不會分類。門檻取 0.9 秒的飛行距離。 */
-    const cutoff = PLAYER_X + speedSW() * 0.9;
-    obstacles = obstacles.filter(o => o.x > cutoff);
-    spawnIn = Math.max(spawnIn, 0.55);
-    showFlash("🔄 反轉！現在要躲開「" + avoidCat + "器官」", 1900);
-  }
-
-  /* --- 跳躍 --- */
-  vy += GRAVITY * dt;
-  py += vy * dt;
-  if (py >= 0){ py = 0; vy = 0; onGround = true; }
-
-  /* --- 障礙 --- */
+  /* --- 障礙：兩條跑道共用同一串，兩人遇到的器官與時間點完全一樣 --- */
   spawnIn -= dt;
   if (spawnIn <= 0){
     spawn();
     spawnIn = Math.max(minGapSec(), 1.15 + Math.random() * 0.8);
   }
   const v = speedSW();
-  const sz = sizeFrac();
-  const pxL = PLAYER_X, pxR = PLAYER_X + sz * (H / W);     /* 跑者寬度換算成螢幕寬度比例 */
-  for (let i = obstacles.length - 1; i >= 0; i--){
-    const o = obstacles[i];
-    o.x -= v * dt;
-    if (o.x < -0.2){ obstacles.splice(i, 1); continue; }
+  dist += v * dt;
+  for (let j = obstacles.length - 1; j >= 0; j--){
+    obstacles[j].x -= v * dt;
+    if (obstacles[j].x < -0.2) obstacles.splice(j, 1);
+  }
 
-    /* 碰撞（雙方各縮 15%，手感寬鬆一點） */
-    const oL = o.x + sz * (H / W) * 0.15, oR = o.x + sz * (H / W) * 0.85;
-    const pL = pxL + (pxR - pxL) * 0.15,   pR = pxL + (pxR - pxL) * 0.85;
-    const playerBottom = py;                                   /* 0 = 站在地面 */
-    const playerTop    = py - sz * 0.85;
-    const obsTop       = -sz * 0.85;
-    if (oL < pR && oR > pL && playerBottom > obsTop && playerTop < 0){
-      if (o.item.cat === avoidCat){ die(o.item); return; }
-      score += 10;
-      pops.push({ x: o.x, y: -0.2, t: 0 });
-      obstacles.splice(i, 1);
+  /* 碰撞（雙方各縮 15%，手感寬鬆一點）。k：跑道高度比例 → 跑道寬度比例 */
+  const sz = sizeFrac(), k = LH / LW;
+  const pL = PLAYER_X + sz * k * 0.15, pR = PLAYER_X + sz * k * 0.85;
+  for (const o of obstacles){
+    const oL = o.x + sz * k * 0.15, oR = o.x + sz * k * 0.85;
+    if (oL >= pR || oR <= pL) continue;
+    for (const p of players){
+      if (!p.alive || o.taken[p.i]) continue;
+      const playerBottom = p.py;                                 /* 0 = 站在地面 */
+      const playerTop    = p.py - sz * 0.85;
+      const obsTop       = -sz * 0.85;
+      if (playerBottom <= obsTop || playerTop >= 0) continue;
+      if (o.item.cat === avoidCat){ crash(p, o.item); continue; }
+      p.got++;
+      o.taken[p.i] = true;
+      pops.push({ lane: p.i, x: o.x, y: -0.2, t: 0 });
     }
   }
-  for (let i = pops.length - 1; i >= 0; i--){
-    pops[i].t += dt; pops[i].y -= dt * 0.35;
-    if (pops[i].t > 0.9) pops.splice(i, 1);
+  for (let j = pops.length - 1; j >= 0; j--){
+    pops[j].t += dt; pops[j].y -= dt * 0.35;
+    if (pops[j].t > 0.9) pops.splice(j, 1);
   }
+
+  if (mode === 1){
+    if (!players[0].alive) die(players[0].killedBy);
+  } else if (elapsed >= DUEL_SEC){
+    endDuel("time");
+  } else if (players.every(p => !p.alive)){
+    endDuel("crash");
+  }
+}
+
+function crash(p, item){
+  p.alive = false;
+  p.killedBy = item;
+  /* 出局的跑道停在撞到的那一瞬間；另一個人繼續跑 */
+  p.frozen = { dist, obs: obstacles.filter(o => !o.taken[p.i]).map(o => ({ item: o.item, x: o.x })) };
+  pops = pops.filter(q => q.lane !== p.i);
 }
 
 /* ---------- 繪圖 ---------- */
 function draw(){
+  ctx.fillStyle = "#1E1E1E";                     /* 兩條跑道中間的分隔線 */
+  ctx.fillRect(0, 0, W, H);
+  lanes.forEach((ln, i) => {
+    ctx.save();
+    ctx.translate(ln.x, ln.y);
+    ctx.beginPath(); ctx.rect(0, 0, ln.w, ln.h); ctx.clip();
+    drawLane(i);
+    ctx.restore();
+  });
+  if (mode === 2) drawCenter();
+}
+
+function drawLane(i){
+  const p  = players[i];
+  const fz = p.frozen;
   const warm = avoidCat === "繁殖";
   /* 天空：規則的第二層視覺提示（躲營養＝綠系、躲繁殖＝橘紅系） */
-  const g = ctx.createLinearGradient(0, 0, 0, H);
+  const g = ctx.createLinearGradient(0, 0, 0, LH);
   g.addColorStop(0, warm ? "#FFE0D6" : "#CFEEFF");
   g.addColorStop(1, warm ? "#FFF3EC" : "#EAF8FF");
-  ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = g; ctx.fillRect(0, 0, LW, LH);
 
-  const groundY = H * 0.80;
+  const groundY = LH * 0.80;
   ctx.fillStyle = warm ? "#F3D9C8" : "#D9EFCF";
-  ctx.fillRect(0, groundY, W, H - groundY);
+  ctx.fillRect(0, groundY, LW, LH - groundY);
   ctx.strokeStyle = "#1E1E1E"; ctx.lineWidth = 3;
-  ctx.beginPath(); ctx.moveTo(0, groundY); ctx.lineTo(W, groundY); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(0, groundY); ctx.lineTo(LW, groundY); ctx.stroke();
 
   /* 捲動虛線，製造速度感 */
-  const dashOff = (elapsed * speedSW() * W) % 60;
+  const dashOff = ((fz ? fz.dist : dist) * LW) % 60;
   ctx.strokeStyle = "rgba(30,30,30,.28)"; ctx.lineWidth = 3;
   ctx.setLineDash([26, 34]); ctx.lineDashOffset = dashOff;
-  ctx.beginPath(); ctx.moveTo(0, groundY + (H - groundY) * 0.42);
-  ctx.lineTo(W, groundY + (H - groundY) * 0.42); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(0, groundY + (LH - groundY) * 0.42);
+  ctx.lineTo(LW, groundY + (LH - groundY) * 0.42); ctx.stroke();
   ctx.setLineDash([]);
 
   /* 障礙 */
-  for (const o of obstacles){
-    const size = sizeFrac() * H;
-    const x = o.x * W, y = groundY - size;
-    /* 全部畫成同一種卡片：形狀一致，高速下才好辨識，也不會忽然是圖忽然是字。
-       食物一定要標名字 —— 🎋 沒有人看得出是甘蔗、🌿 也不像菠菜。
-       ⚠️ 卡片一律中性黑，不可依類別上色：顏色只能標示「規則」
-       （天空色隨規則變），絕不能標示「答案」，否則比對顏色就好，
-       這遊戲要練的分類就沒了。 */
-    ctx.fillStyle = "#fff";
-    ctx.strokeStyle = "#1E1E1E"; ctx.lineWidth = 3;
-    roundRect(x, y, size, size, size * 0.22); ctx.fill(); ctx.stroke();
-    ctx.fillStyle = "#1E1E1E";
-    ctx.textAlign = "center"; ctx.textBaseline = "middle";
-    if (o.item.kind === "emo"){
-      ctx.font = size * 0.46 + "px " + EMOJI_FONT;
-      ctx.fillText(o.item.face, x + size / 2, y + size * 0.37);
-      /* 直式手機的卡片只有 47px，名字會小到讀不清——給一個下限 */
-      const nameSize = Math.max(size * (o.item.name.length > 2 ? 0.21 : 0.26), 11);
-      ctx.font = "900 " + nameSize + "px " + CJK_FONT;
-      ctx.fillText(o.item.name, x + size / 2, y + size * 0.79);
-    } else {
-      /* 器官本身：根／莖／葉沒有夠清楚的 emoji，一個大字最好認 */
-      ctx.font = "900 " + size * (o.item.face.length > 1 ? 0.40 : 0.58) + "px " + CJK_FONT;
-      ctx.fillText(o.item.face, x + size / 2, y + size * 0.52);
-    }
+  const size = sizeFrac() * LH;
+  for (const o of (fz ? fz.obs : obstacles)){
+    if (o.taken && o.taken[i]) continue;
+    drawCard(o.item, o.x * LW, groundY - size, size);
   }
 
   /* 跑者 */
-  const psize = sizeFrac() * H;
-  const pxpx  = PLAYER_X * W;
-  const bob   = onGround ? Math.sin(elapsed * 14) * psize * 0.035 : 0;
-  ctx.font = psize * 0.95 + "px " + EMOJI_FONT;
+  const bob = (state === "play" && p.alive && p.onGround) ? Math.sin(elapsed * 14) * size * 0.035 : 0;
+  ctx.font = size * 0.95 + "px " + EMOJI_FONT;
   ctx.textAlign = "left"; ctx.textBaseline = "bottom";
-  ctx.fillText(RUNNER, pxpx, groundY + py * H + bob);
+  ctx.fillText(PLAYERS[i].runner, PLAYER_X * LW, groundY + p.py * LH + bob);
 
   /* +10 飄字 */
   ctx.textAlign = "center"; ctx.textBaseline = "middle";
-  for (const p of pops){
-    ctx.globalAlpha = Math.max(0, 1 - p.t / 0.9);
+  for (const q of pops){
+    if (q.lane !== i) continue;
+    ctx.globalAlpha = Math.max(0, 1 - q.t / 0.9);
     ctx.fillStyle = "#2E7D4F";
-    ctx.font = "900 " + H * 0.10 + "px " + '"PingFang TC",sans-serif';
-    ctx.fillText("+10", p.x * W, groundY + p.y * H);
+    ctx.font = "900 " + LH * 0.10 + "px " + '"PingFang TC",sans-serif';
+    ctx.fillText("+10", q.x * LW, groundY + q.y * LH);
     ctx.globalAlpha = 1;
   }
+
+  if (mode === 2) drawLaneHud(i);
 }
+
+function drawCard(item, x, y, size){
+  /* 全部畫成同一種卡片：形狀一致，高速下才好辨識，也不會忽然是圖忽然是字。
+     食物一定要標名字 —— 🎋 沒有人看得出是甘蔗、🌿 也不像菠菜。
+     ⚠️ 卡片一律中性黑，不可依類別上色：顏色只能標示「規則」
+     （天空色隨規則變），絕不能標示「答案」，否則比對顏色就好，
+     這遊戲要練的分類就沒了。 */
+  ctx.fillStyle = "#fff";
+  ctx.strokeStyle = "#1E1E1E"; ctx.lineWidth = 3;
+  roundRect(x, y, size, size, size * 0.22); ctx.fill(); ctx.stroke();
+  ctx.fillStyle = "#1E1E1E";
+  ctx.textAlign = "center"; ctx.textBaseline = "middle";
+  if (item.kind === "emo"){
+    ctx.font = size * 0.46 + "px " + EMOJI_FONT;
+    ctx.fillText(item.face, x + size / 2, y + size * 0.37);
+    /* 直式手機的卡片只有 40 幾 px，名字會小到讀不清——給一個下限 */
+    const nameSize = Math.max(size * (item.name.length > 2 ? 0.21 : 0.26), 11);
+    ctx.font = "900 " + nameSize + "px " + CJK_FONT;
+    ctx.fillText(item.name, x + size / 2, y + size * 0.79);
+  } else {
+    /* 器官本身：根／莖／葉沒有夠清楚的 emoji，一個大字最好認 */
+    ctx.font = "900 " + size * (item.face.length > 1 ? 0.40 : 0.58) + "px " + CJK_FONT;
+    ctx.fillText(item.face, x + size / 2, y + size * 0.52);
+  }
+}
+
+/* 雙人：每條跑道自己的名牌、分數、準備提示、出局說明 */
+function drawLaneHud(i){
+  const p = players[i], st = PLAYERS[i], cx = LW / 2;
+  const f = clamp(LH * 0.058, 13, 40);
+  const pad = Math.max(8, f * 0.45);
+
+  if (!p.alive){                                   /* 出局：整條跑道刷淡 */
+    ctx.fillStyle = "rgba(255,253,247,.82)";
+    ctx.fillRect(0, 0, LW, LH);
+  }
+  /* 跑道框成自己的顏色：觸控螢幕上一眼看出「這一塊是我的」 */
+  ctx.strokeStyle = st.color; ctx.lineWidth = 5;
+  ctx.strokeRect(2.5, 2.5, LW - 5, LH - 5);
+
+  /* 左上名牌、右上分數 */
+  const label = st.runner + " " + st.name;
+  ctx.font = "900 " + f + "px " + LABEL_FONT;
+  const tw = ctx.measureText(label).width;
+  ctx.fillStyle = st.color;
+  roundRect(pad, pad, tw + f * 1.2, f * 1.75, f * 0.875); ctx.fill();
+  ctx.fillStyle = "#fff"; ctx.textAlign = "left"; ctx.textBaseline = "middle";
+  ctx.fillText(label, pad + f * 0.6, pad + f * 0.9);
+  ctx.fillStyle = "#1E1E1E"; ctx.textAlign = "right";
+  ctx.font = "900 " + f * 1.3 + "px " + LABEL_FONT;
+  ctx.fillText("⭐ " + pts(p), LW - pad, pad + f * 0.9);
+
+  const big = clamp(LH * 0.085, 15, 52);
+  if (state === "ready"){
+    textBlock(cx, LH * 0.47, p.ready
+      ? [["✓ 準備好了", big], ["等另一位…", big * 0.6]]
+      : [["👆 點這裡準備", big], ["或按鍵盤 " + st.keyLabel + " 鍵", big * 0.6]], st.color);
+  } else if (!p.alive){
+    const it = p.killedBy;
+    textBlock(cx, LH * 0.56, [
+      ["💥 出局！", big],
+      ["撞到 " + (it.kind === "emo" ? it.face + " " : "") + it.name, big * 0.66],
+      ["它是" + it.organ + "，屬於" + it.cat + "器官", big * 0.66],
+      [pts(p) + " 分", big]
+    ], null);
+  } else if (state === "play" && players.some(q => !q.alive)){
+    /* 對手已出局：告訴還在跑的人差多少，最後幾秒才有看頭 */
+    const need = pts(players[1 - i]);
+    pill(cx, pad + f * 3, pts(p) > need ? "🏆 贏定了！繼續衝高分" : "🎯 超過 " + need + " 分就贏", f, "#1E1E1E", "#fff");
+  }
+}
+
+/* 置中的多行字，太寬就整組等比例縮小（窄跑道也塞得下）。border 有給就加白底框。 */
+function textBlock(cx, cy, lines, border){
+  const maxW = LW * (border ? 0.78 : 0.9);
+  let w = 0;
+  for (const [t, s] of lines){
+    ctx.font = "900 " + s + "px " + LABEL_FONT;
+    w = Math.max(w, ctx.measureText(t).width);
+  }
+  const k = Math.min(1, maxW / w);
+  const hs = lines.map(([, s]) => s * k * 1.4);
+  const h = hs.reduce((a, b) => a + b, 0);
+  if (border){
+    const px = lines[0][1] * k * 0.7, py = lines[0][1] * k * 0.4;
+    ctx.fillStyle = "rgba(255,255,255,.94)";
+    ctx.strokeStyle = border; ctx.lineWidth = 4;
+    roundRect(cx - w * k / 2 - px, cy - h / 2 - py, w * k + px * 2, h + py * 2, lines[0][1] * k * 0.5);
+    ctx.fill(); ctx.stroke();
+  }
+  ctx.fillStyle = "#1E1E1E"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+  let y = cy - h / 2;
+  lines.forEach(([t, s], j) => {
+    ctx.font = "900 " + s * k + "px " + LABEL_FONT;
+    ctx.fillText(t, cx, y + hs[j] / 2);
+    y += hs[j];
+  });
+}
+function pill(cx, cy, text, f, bg, fg){
+  ctx.font = "900 " + f + "px " + LABEL_FONT;
+  const s = Math.min(f, f * LW * 0.9 / (ctx.measureText(text).width + f * 1.4));
+  ctx.font = "900 " + s + "px " + LABEL_FONT;
+  const w = ctx.measureText(text).width + s * 1.4;
+  ctx.fillStyle = bg;
+  roundRect(cx - w / 2, cy - s * 0.85, w, s * 1.7, s * 0.85); ctx.fill();
+  ctx.fillStyle = fg; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+  ctx.fillText(text, cx, cy + 1);
+}
+
+/* 雙人：畫面正中央的倒數／開始／時間到 */
+function drawCenter(){
+  let t = "";
+  if (state === "count") t = String(Math.max(1, Math.ceil(countT)));
+  else if (state === "play" && goT > 0) t = "開始！";
+  else if (state === "over" && endReason === "time") t = "⏱ 時間到！";
+  if (!t) return;
+  const r = Math.min(W, H) * 0.15;
+  ctx.font = "900 " + r * (t.length > 1 ? 0.6 : 1.15) + "px " + LABEL_FONT;
+  const w = Math.max(r * 2, ctx.measureText(t).width + r * 0.9);
+  ctx.fillStyle = "rgba(30,30,30,.88)";
+  roundRect(W / 2 - w / 2, H / 2 - r, w, r * 2, r); ctx.fill();
+  ctx.fillStyle = "#fff"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+  ctx.fillText(t, W / 2, H / 2 + r * 0.04);
+}
+
 function roundRect(x, y, w, h, r){
   ctx.beginPath();
   ctx.moveTo(x + r, y);
@@ -489,64 +775,142 @@ function loop(ts){
   requestAnimationFrame(loop);
   const dt = Math.min(0.05, (ts - last) / 1000 || 0);   /* 切到別的分頁再回來不會爆衝 */
   last = ts;
-  if (state === "play"){ step(dt); }
+  if (state === "ready" || state === "count" || state === "play"){ step(dt); }
   draw();
-  if (state === "play"){
-    $("score").textContent = Math.floor(score);
-    $("lv").textContent = "速度 " + (speedSW() / SPEED0).toFixed(1) + "×";
-  }
+  if (state !== "title") updateHud();
 }
 requestAnimationFrame(ts => { last = ts; requestAnimationFrame(loop); });
 
-/* ---------- 操作 ---------- */
-addEventListener("keydown", e => {
-  if (e.code === "Space" || e.code === "ArrowUp" || e.code === "KeyW"){
-    e.preventDefault();
-    if (state === "play") jump();
-  }
-});
-cv.addEventListener("pointerdown", e => { e.preventDefault(); jump(); });
-
-function showFlash(text, ms){
-  const f = $("flash");
-  f.textContent = text; f.classList.add("on");
-  clearTimeout(showFlash._t);
-  showFlash._t = setTimeout(() => f.classList.remove("on"), ms);
+function updateHud(){
+  if (mode === 1) $("score").textContent = pts(players[0]);
+  else $("clock").textContent = Math.max(0, Math.ceil(DUEL_SEC - elapsed - 1e-9));
+  $("lv").textContent = "速度 " + (speedSW() / SPEED0).toFixed(1) + "×";
+}
+function syncHud(){
+  $("quitBtn").hidden = !(mode === 2 && (state === "ready" || state === "count" || state === "play"));
+  updateHud();
 }
 
-/* ---------- 開始 / 結束 ---------- */
-document.querySelectorAll("[data-avoid]").forEach(b => {
-  b.addEventListener("click", () => {
-    reset(b.dataset.avoid);
-    $("scrTitle").classList.remove("on");
-    $("scrOver").classList.remove("on");
-    state = "play";
-  });
+/* ---------- 操作 ---------- */
+addEventListener("keydown", e => {
+  if (e.target.tagName === "INPUT") return;       /* 在排行榜打名字時，W、空白鍵要能打字 */
+  const live = state === "ready" || state === "count" || state === "play";
+  let i = -1;
+  if (mode === 1){
+    if (e.code === "Space" || e.code === "ArrowUp" || e.code === "KeyW") i = 0;
+  } else {
+    i = PLAYERS.findIndex(s => s.key === e.code);
+    if (i < 0 && live && (e.code === "Space" || e.code === "ArrowUp")) e.preventDefault();   /* 別讓頁面捲動 */
+  }
+  if (i < 0) return;
+  e.preventDefault();
+  if (!e.repeat) press(i);                        /* 按住不放不會連跳：每一跳都要自己判斷 */
 });
+cv.addEventListener("pointerdown", e => {
+  e.preventDefault();
+  if (mode === 1){ press(0); return; }
+  /* 雙人：看點在哪條跑道。每根手指各自一個 pointerdown，兩人同時點也分得開。 */
+  const r = cv.getBoundingClientRect();
+  const x = e.clientX - r.left, y = e.clientY - r.top;
+  press(layout === "stack" ? (y < H / 2 ? 0 : 1) : (x < W / 2 ? 0 : 1));
+});
+cv.addEventListener("contextmenu", e => e.preventDefault());   /* 觸控螢幕長按不要跳出右鍵選單 */
 
-function die(item){
-  state = "over";
-  killedBy = item;
-  const survive = Math.floor(elapsed);
-  const collected = Math.max(0, Math.floor(score) - survive);
-  $("finalScore").textContent = Math.floor(score);
-  $("scoreBreak").textContent = "（收集 " + collected + "　存活 " + survive + "）";
-  /* 字卡的 face 跟 name 是同一個字（例如「葉」），不要印成「葉 葉」 */
-  const shown = item.kind === "emo"
+/* ---------- 開始 / 模式 ---------- */
+const MODE_KEY = "organ-runner-mode";
+
+function setMode(m){
+  mode = m;
+  $("app").classList.toggle("duo", m === 2);
+  document.querySelectorAll("[data-mode]").forEach(b =>
+    b.setAttribute("aria-pressed", String(Number(b.dataset.mode) === m)));
+  try{ localStorage.setItem(MODE_KEY, String(m)); }catch(_){}
+  resize();                                       /* 直式手機的雙人畫布比較高，要重量 */
+  reset(avoidCat || "營養");
+  syncHud();
+}
+document.querySelectorAll("[data-mode]").forEach(b =>
+  b.addEventListener("click", () => setMode(Number(b.dataset.mode))));
+
+function start(avoid){
+  reset(avoid);
+  ["scrTitle", "scrOver", "scrDuel"].forEach(id => $(id).classList.remove("on"));
+  state = mode === 1 ? "play" : "ready";          /* 雙人先等兩人都按過一次，再倒數 */
+  syncHud();
+}
+document.querySelectorAll("[data-avoid]").forEach(b =>
+  b.addEventListener("click", () => start(b.dataset.avoid)));
+
+function goTitle(){
+  reset(avoidCat);
+  ["scrOver", "scrDuel"].forEach(id => $(id).classList.remove("on"));
+  $("scrTitle").classList.add("on");
+  state = "title";
+  syncHud();
+}
+
+/* ---------- 單人結束 ---------- */
+/* 字卡的 face 跟 name 是同一個字（例如「葉」），不要印成「葉 葉」 */
+function itemHTML(item){
+  return item.kind === "emo"
     ? '<span class="big">' + item.face + '</span> <b>' + item.name + '</b>'
     : '<b>' + item.name + '</b>';
+}
+function die(item){
+  state = "over";
+  const p = players[0];
+  updateHud();
+  $("finalScore").textContent = pts(p);
+  $("scoreBreak").textContent = "（收集 " + p.got * 10 + "　存活 " + Math.floor(p.aliveT) + "）";
   $("deadMsg").innerHTML =
-    '你撞到了 ' + shown + ' —— ' + item.why +
+    '你撞到了 ' + itemHTML(item) + ' —— ' + item.why +
     '<br>它是<b>' + item.organ + '</b>，屬於<b>' + item.cat + '器官</b>；' +
-    '而這一輪的規則是「<b>躲開' + avoidCat + '器官</b>」。';
-  $("nameIn").value = localStorage.getItem(LAST_NAME) || "";
+    '而這一局的規則是「<b>躲開' + avoidCat + '器官</b>」。';
+  let lastName = "";
+  try{ lastName = localStorage.getItem(LAST_NAME) || ""; }catch(_){}
+  $("nameIn").value = lastName;
   $("saveBtn").disabled = false;
   $("saveBtn").textContent = "存進排行榜";
   renderBoard(null);
   $("scrOver").classList.add("on");
 }
 
-/* ---------- 排行榜（localStorage，單機） ---------- */
+/* ---------- 雙人結束 ---------- */
+function endDuel(reason){
+  state = "over";
+  endReason = reason;
+  syncHud();
+  const id = matchId;
+  /* 停一下再出結算：讓全班看清楚最後一撞／時間到 */
+  setTimeout(() => { if (id === matchId) showDuelResult(); }, 1200);
+}
+function showDuelResult(){
+  const s = players.map(pts);
+  const win = s[0] === s[1] ? -1 : (s[0] > s[1] ? 0 : 1);
+  $("duelSub").textContent = endReason === "time" ? "⏱ " + DUEL_SEC + " 秒時間到" : "💥 兩個人都出局了";
+  $("duelTitle").textContent = win < 0 ? "🤝 平手！旗鼓相當" : "🏆 " + PLAYERS[win].name + " 獲勝！";
+  players.forEach((p, i) => {
+    const st = PLAYERS[i];
+    /* 撞到什麼、為什麼是那一類——這是整個遊戲唯一真正在「教」的地方，一定要留 */
+    const why = p.killedBy
+      ? '撞到 ' + itemHTML(p.killedBy) + ' —— ' + p.killedBy.why +
+        '<br>它是<b>' + p.killedBy.organ + '</b>，屬於<b>' + p.killedBy.cat + '器官</b>，是這一局要躲開的。'
+      : '撐完 ' + DUEL_SEC + ' 秒，一次都沒撞到要躲開的！👍';
+    const c = $("pc" + i);
+    c.classList.toggle("win", i === win);
+    c.innerHTML =
+      '<div class="phead"><span class="ptag" style="background:' + st.color + '">' + st.runner + ' ' + st.name + (i === win ? ' 👑' : '') + '</span>' +
+      '<span class="pscore">' + s[i] + '<small> 分</small></span></div>' +
+      '<div class="pbrk">收集 ' + p.got * 10 + '・存活 ' + Math.floor(p.aliveT) + ' 秒</div>' +
+      '<div class="pwhy' + (p.killedBy ? '' : ' ok') + '">' + why + '</div>';
+  });
+  $("scrDuel").classList.add("on");
+}
+$("rematchBtn").addEventListener("click", () => start(avoidCat));
+$("duelHomeBtn").addEventListener("click", goTitle);
+$("quitBtn").addEventListener("click", goTitle);
+
+/* ---------- 排行榜（localStorage，單機；只記單人挑戰） ---------- */
 const LB_KEY    = "organ-runner-scores-v1";
 const LAST_NAME = "organ-runner-lastname";
 
@@ -584,7 +948,7 @@ $("saveBtn").addEventListener("click", () => {
   try{ localStorage.setItem(LAST_NAME, name); }catch(_){}
   const d = new Date();
   const entry = {
-    name, score: Math.floor(score),
+    name, score: pts(players[0]),
     date: (d.getMonth() + 1) + "/" + d.getDate()
   };
   const rows = loadBoard();
@@ -596,19 +960,16 @@ $("saveBtn").addEventListener("click", () => {
   $("saveBtn").disabled = true;
   $("saveBtn").textContent = "已存入 ✓";
 });
-$("againBtn").addEventListener("click", () => {
-  $("scrOver").classList.remove("on");
-  $("scrTitle").classList.add("on");
-  state = "title";
-});
+$("againBtn").addEventListener("click", goTitle);
 $("clearBtn").addEventListener("click", () => {
   saveBoard([]);
   renderBoard(null);
 });
 
 /* ---------- 啟動 ---------- */
-resize();
-reset("營養");
+let savedMode = 1;
+try{ if (localStorage.getItem(MODE_KEY) === "2") savedMode = 2; }catch(_){}
+setMode(savedMode);                              /* 內含 resize()、reset() */
 state = "title";
 </script>
 </body>
