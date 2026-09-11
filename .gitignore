@@ -4,3 +4,6 @@ Thumbs.db
 .DS_Store
 ~$*
 *.tmp
+
+# 瀏覽器自動化測試留下的紀錄（含登入電子書時的網址與頁面快照，不可上傳）
+.playwright-mcp/
