@@ -109,16 +109,6 @@ TOPIC_DESCS = {
     ("植物身體的組成",     "互動教材"): "分類白板＋放大鏡頭，看見細胞。",
     ("器官大跑酷",         "互動教材"): "跳過危險、撞上得分，單人或雙人對戰。",
     ("水中射箭",           "互動教材"): "調角度射進水裡打靶，箭會轉彎。",
-    ("植物身體的組成",     "重點整理"): "兩課一起複習：細胞→器官→個體＋根莖葉的特殊本領。",
-    ("植物身體的組成",     "學習單"):   "兩課合併一張 A4：正面身體組成、背面營養器官本領。",
-}
-
-# 個別主題的卡片標題覆寫（預設用檔名前綴）。
-# 兩課合併成一份的講義放在前一課的資料夾、沿用它的檔名（連結不會斷），標題在這裡寫清楚涵蓋哪兩課。
-# <br> 放在「＋」後面：不然卡片會把「營養」拆成兩行。
-TOPIC_TITLES = {
-    ("植物身體的組成", "重點整理"): "植物身體的組成＋<br>多功能的營養器官",
-    ("植物身體的組成", "學習單"):   "植物身體的組成＋<br>多功能的營養器官",
 }
 
 # 延伸工具（materials/*.html）各自的卡片資料：檔名 → (emoji, 標題, 說明)
@@ -135,8 +125,7 @@ for t in TYPE_ORDER:
     cards = []
     for unit, topics in scanned:
         unit_cards = [card(info["files"][t], meta["emoji"],
-                           TOPIC_TITLES.get((prefix, t), prefix),
-                           TOPIC_DESCS.get((prefix, t), DESCS[t]), info["tag"])
+                           prefix, TOPIC_DESCS.get((prefix, t), DESCS[t]), info["tag"])
                       for prefix, info in topics if t in info["files"]]
         if unit_cards:
             cards.append('  <h3 class="unit-sub">%s %s</h3>' % (unit["short"], unit["folder"].split(" ", 1)[-1]))
