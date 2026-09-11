@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#173f32">
+<title>絲瓜攀登王｜植物超能力挑戰賽</title>
+<link rel="icon" href="../../image/icon.svg">
+<style>
+:root{--ink:#173f32;--green:#28794c;--lime:#cde982;--cream:#faf5e9;--muted:#536c60;--line:#d7dfce;--sun:#f9c956}
+*{box-sizing:border-box}body{margin:0;background:var(--cream);color:var(--ink);font:18px/1.6 "Microsoft JhengHei","PingFang TC",sans-serif}button,a,input{touch-action:manipulation}button{font:inherit;cursor:pointer}button:disabled{cursor:default}button:focus-visible,a:focus-visible,input:focus-visible{outline:4px solid #cf7105;outline-offset:4px}a{color:inherit}button{border:0}h1,h2,p{margin:0}button:active:not(:disabled){transform:translateY(2px)}[hidden]{display:none!important}
+.top{max-width:1440px;margin:auto;display:flex;justify-content:space-between;align-items:center;padding:18px 28px;border-bottom:1px solid var(--line);gap:16px}.brand{font-weight:900;text-decoration:none;display:flex;gap:10px;align-items:center}.brand span{background:var(--ink);color:var(--lime);width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font-size:25px}.top nav{display:flex;gap:20px;font-size:15px}.top nav a{padding:10px 0;text-decoration:none}
+.wrap{max-width:1320px;margin:auto;padding:32px 28px}.hero{display:grid;grid-template-columns:1.05fr 1fr;gap:42px;align-items:center}.eyebrow{font-size:14px;font-weight:900;letter-spacing:3px;color:var(--green);margin-bottom:16px}.hero h1{font-size:clamp(48px,5.7vw,84px);letter-spacing:-3px;line-height:1.12;margin-bottom:20px}.hero h1 em{font-style:normal;color:var(--green)}.lead{font-size:21px;max-width:490px;color:var(--muted)}.pills{display:flex;gap:10px;flex-wrap:wrap;margin:22px 0}.pill{font-size:14px;border:1px solid #bdcfb6;border-radius:99px;padding:4px 12px;font-weight:700}.modes{border:0;padding:0;margin:26px 0 18px;display:grid;gap:9px}.modes legend{font-weight:900;margin-bottom:10px}.mode{display:flex;align-items:center;gap:12px;border:1.5px solid #bacab4;border-radius:14px;padding:11px 14px;cursor:pointer;background:#fffaf2}.mode:has(input:checked){border-color:var(--green);background:#eaf2dc;box-shadow:inset 4px 0 var(--green)}.mode input{accent-color:var(--green);width:21px;height:21px;flex-shrink:0}.mode b{display:block}.mode small{display:block;color:var(--muted);font-size:14px}.primary,.secondary{min-height:52px;border-radius:12px;padding:12px 24px;font-weight:900}.primary{background:var(--ink);color:#f4f6dc;box-shadow:0 4px 0 #08281c}.secondary{background:#e8eddc;color:var(--ink);border:1px solid #bacaaf}.start{width:100%;display:flex;align-items:center;justify-content:space-between}.record{font-size:14px;margin:14px 0;color:var(--muted)}.art{position:relative;border-radius:140px 140px 24px 24px;background:#e7efd9;overflow:hidden;border:1px solid #c6d9b9;box-shadow:16px 16px 0 #e9e2cf}.art svg{width:100%;display:block}.art-label{position:absolute;left:24px;right:24px;bottom:22px;background:#fffcf0ed;border:1px solid #fff;padding:15px 18px;border-radius:15px;backdrop-filter:blur(5px)}.art-label strong{display:block;font-size:21px}.art-label span{font-size:14px;color:var(--muted)}.how{margin-top:38px;display:grid;grid-template-columns:repeat(3,1fr);gap:24px;padding-top:24px;border-top:1px solid var(--line)}.how article{display:flex;gap:14px}.how .num{background:#e7edda;border-radius:50%;width:36px;height:36px;flex-shrink:0;text-align:center;line-height:36px;font-weight:900}.how h2{font-size:18px}.how p{font-size:15px;color:var(--muted)}.foot{font-size:13px;color:var(--muted);margin:30px 0 5px}
+#play{max-width:1140px;margin:auto;padding:16px 22px 22px}.playhead{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:12px}.playhead h1{font-size:23px}.playhead p{font-size:13px;color:var(--muted)}.playhead button{padding:8px 15px;min-height:46px}.hud{display:grid;grid-template-columns:repeat(3,1fr);background:var(--ink);color:#f7f8df;border-radius:15px;margin-bottom:12px;overflow:hidden}.stat{padding:8px 16px;display:flex;gap:10px;align-items:baseline;border-right:1px solid #4d6b50}.stat:last-child{border:0}.stat span{font-size:14px;white-space:nowrap}.stat b{font-size:28px;font-variant-numeric:tabular-nums}.stat.urgent{background:#8c3725}.playlayout{display:grid;grid-template-columns:minmax(300px,510px) 1fr;gap:25px;align-items:start;justify-content:center}.board{position:relative;aspect-ratio:480/540;max-height:none;min-height:0;width:min(100%,calc((100dvh - 330px)*.88889));max-width:100%;margin:auto;overflow:hidden;border-radius:20px;border:2px solid #8aaa7a;background:#e2eed7;isolation:isolate}.board svg{width:100%;height:100%;display:block}.node{position:absolute;width:15%;min-width:44px;aspect-ratio:1;transform:translate(-50%,-50%);border:3px solid #36744d;background:#fffbea;border-radius:50%;color:#284d29;padding:0;box-shadow:0 5px 0 #739463;font-weight:900;font-size:clamp(14px,2.5vw,20px);line-height:1.15;z-index:2}.node small{display:block;font-size:11px}.node:not(:disabled):hover{background:#ffe3a0}.node:active:not(:disabled){transform:translate(-50%,-45%)}.node.cracked{background:#e4dfd2;border-color:#8c8170;box-shadow:0 5px 0 #9d9280;color:#5a5144}.node:disabled{opacity:.45}.node.locked{opacity:1}.node:focus-visible{outline:4px solid #ce6502;outline-offset:3px}.board.growing .node{animation:pulse .65s ease}.board .sign{position:absolute;top:13px;left:12px;font-size:12px;font-weight:900;background:#fff9e3db;padding:5px 10px;border-radius:20px}.feedback{min-height:62px;line-height:1.45;display:flex;align-items:center;padding:10px 15px;font-weight:900;background:#eaf0d9;border-radius:12px;margin:12px 0;font-size:17px}.side{padding:10px 0}.side .eyebrow{margin:0 0 8px}.side h2{font-size:31px;line-height:1.3;margin-bottom:12px}.side p{color:var(--muted);margin:12px 0;font-size:16px}.legend{display:grid;gap:10px;margin:24px 0;padding:20px;border:1px solid #c4d2b8;border-radius:15px;background:#fdfcf1}.legend div{display:flex;gap:13px;align-items:center;font-size:16px}.legend b{font-size:22px;min-width:36px}.teach{border-top:1px solid var(--line);padding-top:16px}.teach strong{display:block}.mini{font-size:13px!important}.progress{height:7px;background:#cfdbbf;border-radius:6px;overflow:hidden;margin-top:14px}.progress i{display:block;height:100%;background:var(--green);width:0;transition:width .3s}.mobilehint{font-size:13px;text-align:center;color:var(--muted);margin:6px 0;display:none}
+dialog{border:1px solid #b9c7a9;border-radius:25px;padding:30px;max-width:480px;width:calc(100% - 28px);color:var(--ink);background:#fffbed;box-shadow:0 30px 80px #09281755}dialog::backdrop{background:#10281db8;backdrop-filter:blur(5px)}dialog h2{font-size:30px;line-height:1.3;margin:8px 0 14px}dialog p{color:var(--muted);margin:10px 0}.dialogactions{display:grid;gap:10px;margin-top:22px}.resultscore{font-size:58px;font-weight:900;line-height:1.2}.resultscore small{font-size:18px}.resultlearn{border:1px solid #bbd19e;border-radius:14px;background:#eef3dc;padding:16px;margin:20px 0;font-size:17px}.resultlearn strong{display:block}.chips{display:flex;gap:10px;flex-wrap:wrap;font-size:14px}.chips span{background:#e8eddb;padding:5px 12px;border-radius:15px}@keyframes pulse{50%{box-shadow:0 0 0 8px #d2e4a780}}@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+@media(min-width:1800px){body{font-size:24px}.top{max-width:1800px}.wrap{max-width:1600px}.lead{font-size:27px}.mode small,.how p{font-size:19px}.hero h1{font-size:100px}.primary,.secondary{min-height:68px}#play{max-width:1560px}.playlayout{grid-template-columns:minmax(500px,730px) 1fr}.board{max-height:calc(100dvh - 230px)}.side p,.legend div{font-size:24px}.node{font-size:25px}.node small{font-size:15px}}
+@media(max-width:800px){.top{padding:12px 18px}.top nav{font-size:13px;gap:12px}.wrap{padding:24px 20px}.hero{gap:26px}.hero h1{font-size:52px}.lead{font-size:18px}.art-label{left:12px;right:12px;bottom:12px}.how{gap:16px}.playlayout{grid-template-columns:minmax(300px,480px) 1fr;gap:16px}.side h2{font-size:24px}.legend{padding:13px}.side p{font-size:14px}}
+@media(max-width:620px){body{font-size:16px}.top nav a:first-child{display:none}.top{padding:10px 16px}.brand{font-size:15px}.brand span{width:32px;height:32px;font-size:20px}.hero{grid-template-columns:1fr;gap:24px}.hero h1{font-size:54px;letter-spacing:-2px}.eyebrow{font-size:12px;letter-spacing:2px;margin-bottom:12px}.lead{font-size:18px}.pills{margin:15px 0}.art{display:none}.modes{margin:20px 0 15px}.mode{padding:10px 12px}.how{grid-template-columns:1fr;gap:16px;margin-top:24px}.how h2{font-size:17px}.how p{font-size:14px}.foot{font-size:12px}#play{padding:10px 12px}.playhead{margin-bottom:8px}.playhead h1{font-size:20px}.playhead p{font-size:11px}.hud{margin-bottom:8px;border-radius:12px}.stat{gap:6px;padding:7px 10px}.stat b{font-size:23px}.stat span{font-size:12px}.playlayout{display:block}.board{width:min(100%,440px,calc((100dvh - 310px)*.88889));max-height:none;min-height:0}.side{display:none}.feedback{font-size:15px;min-height:49px;margin:8px 0 0;padding:8px 12px}.mobilehint{display:block}.node small{font-size:10px}.node{font-size:17px}.node.locked{opacity:.75}dialog{padding:24px}.resultscore{font-size:48px}}
+@media(max-height:540px) and (orientation:landscape){.top{display:none}#play{padding:8px 16px}.playhead{margin-bottom:6px}.hud{position:absolute;right:16px;top:66px;width:35%;grid-template-columns:1fr}.stat{border-right:0;border-bottom:1px solid #4d6b50}.playlayout{display:block}.board{width:min(52vw,330px,calc((100dvh - 78px)*.88889));max-height:none;min-height:0;max-width:330px;margin-left:0}.side{display:none}.feedback{position:absolute;right:16px;top:270px;width:35%;font-size:13px}.mobilehint{display:none}.node{min-width:44px}.node small{font-size:9px}#play .playhead p{display:none}.hero{grid-template-columns:1fr 1fr}.art{display:block}.wrap{padding:16px}}
+body.duel-player .top,body.duel-player .playhead,body.duel-player .hud,body.duel-player .side,body.duel-player .mobilehint{display:none!important}body.duel-player #play{padding:8px;max-width:none}body.duel-player .playlayout{display:block}body.duel-player .board{width:min(100%,calc((100dvh - 86px)*.88889));max-width:none;max-height:none;min-height:0;margin:auto;touch-action:none}body.duel-player .node{min-width:44px;touch-action:none}body.duel-player .feedback{position:static;width:auto;min-height:46px;margin:7px 0 0;font-size:clamp(12px,2vw,18px);padding:8px 10px}body.duel-player .node small{font-size:11px}
+</style>
+</head>
+<body>
+<header class="top"><a class="brand" href="../../index.html"><span>❧</span> 豬豬的自然探索</a><nav aria-label="教材導覽"><a href="../多功能的營養器官/多功能的營養器官_互動教材.html">回到這一課</a><a href="../補充教材 捕蠅草獵手/捕蠅草獵手_互動教材.html">捕蠅草獵手 ↗</a></nav></header>
+<main>
+<section id="menu" class="wrap">
+<div class="hero">
+<div><p class="eyebrow">植物超能力挑戰賽 · 01</p><h1>絲瓜<br><em>攀登王。</em></h1><p class="lead">借個力，再往上！<br>替絲瓜找好支架，攀向森林上方的陽光。</p>
+<div class="pills"><span class="pill">單指點選</span><span class="pill">觀察 × 選路</span><span class="pill">五年級自然</span></div>
+<fieldset class="modes"><legend>今天想怎麼挑戰？</legend>
+<label class="mode"><input type="radio" name="mode" value="class" checked><span><b>課堂挑戰 · 60 秒</b><small>每位同學使用相同路線，輪流比一比。</small></span></label>
+<label class="mode"><input type="radio" name="mode" value="home"><span><b>回家挑戰 · 60 秒</b><small>每次換一條路線，挑戰自己的紀錄。</small></span></label>
+<label class="mode"><input type="radio" name="mode" value="practice"><span><b>慢慢練習 · 不限時</b><small>先看懂路線，爬上 12 層就完成練習。</small></span></label></fieldset>
+<button id="start" class="primary start"><span>出發，往陽光前進</span><span aria-hidden="true">↑</span></button><p class="record" id="best">這台裝置的最佳紀錄：尚未挑戰</p>
+</div>
+<div class="art" aria-label="絲瓜以彎曲的卷鬚纏繞竹架，朝陽光向上生長的示意圖" role="img">
+<svg viewBox="0 0 520 650" aria-hidden="true">
+<defs><linearGradient id="sky" x2="0" y2="1"><stop stop-color="#d3e5c3"/><stop offset="1" stop-color="#f1f2d7"/></linearGradient><pattern id="grain" width="23" height="23" patternUnits="userSpaceOnUse"><circle cx="3" cy="3" r=".7" fill="#466f42" opacity=".13"/></pattern></defs>
+<path fill="url(#sky)" d="M0 0h520v650H0z"/><path fill="url(#grain)" d="M0 0h520v650H0z"/>
+<circle cx="387" cy="130" r="68" fill="#f6d36b"/><circle cx="387" cy="130" r="88" fill="none" stroke="#faf2b5" stroke-width="2"/>
+<path d="M347 204L66 531M400 220L205 583M449 196L362 560" stroke="#fff9ce" stroke-width="26" opacity=".4"/>
+<path d="M114 579V132M404 579V165M103 235H421M103 379H421M103 519H421" stroke="#829d64" stroke-width="13" stroke-linecap="round"/><path d="M114 579V132M404 579V165" stroke="#b8c28c" stroke-width="3"/>
+<path d="M252 592C230 520 119 533 156 460S358 403 339 326S191 290 229 214S310 178 302 111" fill="none" stroke="#235e39" stroke-width="12" stroke-linecap="round"/>
+<path d="M167 444q-61 -48 -35 -79q40 2 51 62M255 405q54 -68 98 -50q1 57 -77 68M254 278q-66 -50 -102 -8q28 65 105 31M280 190q41 -55 85 -40q1 49 -74 60" fill="#62a557" stroke="#34783f" stroke-width="3"/>
+<path d="M325 305c50 3 99 -34 80 -61c-15 -22 -48 18 -12 27M215 212c-27 25 -87 39 -99 17c-12 -26 33 -30 21 -7" fill="none" stroke="#34793d" stroke-width="4" stroke-linecap="round"/>
+<path d="M299 399q-18 23 -9 72q8 34 28 28q20 -10 12 -45l-13 -58" fill="#8da34e" stroke="#527d38" stroke-width="3"/><path d="M305 416l12 62M298 426l10 57" stroke="#c9cf79" stroke-width="3"/>
+<path d="M255 586q-55 -24 -87 6M253 586q50 -36 86 -4" fill="none" stroke="#759246" stroke-width="7"/>
+<g fill="#f4d660" stroke="#c69736" stroke-width="1.5"><path d="M294 108l-14 -21 24 3 14 -19 5 25 25 8 -23 12 -2 24 -20 -15 -24 6z"/></g>
+<text x="56" y="83" font-size="14" fill="#476b3d" letter-spacing="3">LUFFA · 向光而生</text>
+</svg><div class="art-label"><strong>小小卷鬚，大大本領。</strong><span>莖的特殊構造能攀附支架，幫助絲瓜爭取日照。</span></div>
+</div></div>
+<div class="how"><article><span class="num">1</span><div><h2>看一看上方路線</h2><p>預覽未來兩層，找出陽光較多的方向。</p></div></article><article><span class="num">2</span><div><h2>點選可到達的支架</h2><p>每次能移到同一欄或隔壁欄。斷架抓不住！</p></div></article><article><span class="num">3</span><div><h2>往上爬，也收集陽光</h2><p>成功攀附得 10 分，每格陽光再加 5 分。</p></div></article></div>
+<p class="foot">生長過程已加速。實際植物不會由人控制路線，陽光格數與分數是遊戲設計。紀錄只保存在目前裝置的瀏覽器，不需要登入。<a href="https://reader.nani.com.tw/9200a013cbef8e66" target="_blank" rel="noopener">課本 P.43</a></p>
+</section>
+<section id="play" hidden aria-label="攀登挑戰">
+<div class="playhead"><div><h1>絲瓜攀登王</h1><p id="modeLabel"></p></div><button id="pause" class="secondary">Ⅱ 暫停</button></div>
+<div class="hud"><div class="stat" id="timeStat"><span>剩餘</span><b id="time">60</b><span id="timeUnit">秒</span></div><div class="stat"><span>攀登</span><b id="height">0</b><span>層</span></div><div class="stat"><span>得分</span><b id="score">0</b></div></div>
+<div class="playlayout"><div><div id="board" class="board"><svg id="scene" viewBox="0 0 480 540" aria-hidden="true"></svg><div class="sign">↑ 朝陽光前進</div><div id="targets"></div></div><p id="feedback" class="feedback" role="status">找個牢固的支架，開始向上攀！</p><p class="mobilehint">金色圓點＝陽光　╳＝斷架　淡色＝太遠<br>生長已加速；點選路線是遊戲操作。</p></div>
+<aside class="side"><p class="eyebrow">看準下一步</p><h2>哪條路，<br>有更多陽光？</h2><p>先看看上方兩層，再點選最近一層的支架。繞一點路，也可能收集更多陽光。</p><div class="legend"><div><b style="color:#b07b13">●●●</b>金色圓點越多，陽光加分越多</div><div><b>╳</b>斷裂支架：抓不牢，會耽誤時間</div><div><b>↔</b>一次只能往旁邊移動一欄</div></div><div class="teach"><strong>你正在用哪個器官的本領？</strong><p>絲瓜的卷鬚能攀附支架，幫助柔軟的莖向上生長、爭取日照。</p><p class="mini">本遊戲加速了生長。實際植物不會瞬間攀上一層，也不會由人控制路線。</p></div><div class="progress" aria-hidden="true"><i id="progress"></i></div><p id="milestone" class="mini">小目標：先爬上 5 層。</p></aside></div>
+</section>
+</main>
+<dialog id="pauseDialog" aria-labelledby="pauseTitle"><p class="eyebrow">休息一下</p><h2 id="pauseTitle">藤蔓等你回來。</h2><p>倒數與生長已暫停。繼續後，從原本的位置出發。</p><div class="dialogactions"><button id="resume" class="primary">繼續攀登</button><button id="quitAsk" class="secondary">離開這一局</button></div></dialog>
+<dialog id="quitDialog" aria-labelledby="quitTitle"><h2 id="quitTitle">要結束這一局嗎？</h2><p>本局分數不會存入最佳紀錄。</p><div class="dialogactions"><button id="cancelQuit" class="primary">回去繼續玩</button><button id="quit" class="secondary">確定離開</button></div></dialog>
+<dialog id="resultDialog" aria-labelledby="resultTitle"><p class="eyebrow" id="resultMode"></p><h2 id="resultTitle">向陽小高手</h2><div class="resultscore"><span id="resultScore">0</span> <small>分</small></div><p id="resultDetail"></p><div class="chips"><span id="resultHeight"></span><span id="resultLight"></span></div><p id="resultBest"></p><div class="resultlearn"><strong>這次用到的植物本領</strong>絲瓜利用卷鬚攀附，幫助莖向上生長，讓葉獲得更多陽光。</div><div class="dialogactions"><button id="replay" class="primary">下一位同學，換你挑戰</button><button id="backMenu" class="secondary">回到選單</button></div></dialog>
+<script>
+(() => {
+'use strict';
+const $=id=>document.getElementById(id);
+const names={class:'課堂挑戰 · 固定路線 · 60 秒',home:'回家挑戰 · 變化路線 · 60 秒',practice:'慢慢練習 · 12 層 · 不限時'};
+const storageKey='plant-luffa-best-v1';
+let best={},storageOK=true,state=null,raf=0;
+let duelManaged=false,duelSeed=437,duelElapsed=0;
+try{const data=JSON.parse(localStorage.getItem(storageKey)||'{}');if(data&&typeof data==='object')for(const mode of ['class','home'])if(Number.isFinite(data[mode])&&data[mode]>=0)best[mode]=Math.floor(data[mode]);}catch(_){storageOK=false;}
+function selectedMode(){return document.querySelector('input[name="mode"]:checked').value;}
+function updateBest(){const mode=selectedMode();$('best').textContent=mode==='practice'?'練習不計入紀錄，放心試試不同路線。':!storageOK?'瀏覽器目前無法保存紀錄，仍可正常遊玩。':'這台裝置的'+(mode==='class'?'課堂':'回家')+'最佳紀錄：'+(best[mode]===undefined?'尚未挑戰':best[mode]+' 分');}
+document.querySelectorAll('input[name="mode"]').forEach(input=>input.addEventListener('change',updateBest));
+function random(seed){return()=>{seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function makeRows(seed){const rand=random(seed),rows=[];for(let row=0;row<140;row++){const sunny=Math.floor(rand()*3);rows.push([0,1,2].map(lane=>({lane,x:84+156*lane,light:lane===sunny?3:1+Math.floor(rand()*2),broken:row>1&&lane!==1&&rand()<.22})));}return rows;}
+function focusStart(){requestAnimationFrame(()=>$('start').focus());}
+function start(){
+  cancelAnimationFrame(raf);
+  document.querySelectorAll('dialog[open]').forEach(d=>d.close());
+  const mode=selectedMode(),seed=duelManaged?duelSeed:mode==='class'?437:Math.floor(Math.random()*2147483647);
+  state={mode,seed,rows:makeRows(seed),level:0,lane:1,score:0,light:0,misses:0,remaining:60,status:'running',busy:0,last:performance.now(),path:[{level:0,lane:1}]};
+  $('menu').hidden=true;$('play').hidden=false;$('modeLabel').textContent=names[mode];
+  $('feedback').textContent='找個牢固的支架，開始向上攀！';$('timeStat').classList.remove('urgent');
+  $('timeUnit').textContent=mode==='practice'?'':'秒';
+  render();updateHUD();if(!duelManaged){$('pause').focus();window.scrollTo(0,0);raf=requestAnimationFrame(tick);}
+}
+function updateHUD(){
+  $('time').textContent=state.mode==='practice'?'∞':Math.ceil(Math.max(0,state.remaining));
+  $('height').textContent=state.level;$('score').textContent=state.score;
+  $('timeStat').classList.toggle('urgent',state.mode!=='practice'&&state.remaining<=10);
+  $('progress').style.width=(state.level%5)*20+'%';
+  $('milestone').textContent=state.mode==='practice'?'練習目標：'+state.level+' / 12 層':'下一個小目標：'+(Math.floor(state.level/5)+1)*5+' 層。';
+}
+function tick(now){
+  if(duelManaged)return;
+  if(!state||state.status!=='running')return;
+  const dt=Math.max(0,(now-state.last)/1000);state.last=now;
+  if(state.mode!=='practice')state.remaining-=dt;
+  const wasBusy=state.busy>0;state.busy=Math.max(0,state.busy-dt);
+  if(wasBusy&&state.busy===0){$('board').classList.remove('growing');enableTargets();}
+  updateHUD();
+  if(state.mode!=='practice'&&state.remaining<=0){finish();return;}
+  raf=requestAnimationFrame(tick);
+}
+function render(){
+  let s='<defs><linearGradient id="field" x2="0" y2="1"><stop stop-color="#cfdfbd"/><stop offset="1" stop-color="#eff3d8"/></linearGradient></defs><path fill="url(#field)" d="M0 0h480v540H0z"/><circle cx="424" cy="46" r="49" fill="#f5cc62"/><path d="M381 73L156 540M425 92L287 540" stroke="#fff8ce" stroke-width="28" opacity=".4"/>';
+  s+='<path d="M25 540Q0 375 38 240Q60 319 46 380Q104 335 104 390Q64 402 62 540M465 540Q433 397 464 270Q498 360 467 399" fill="#86a678" opacity=".2"/>';
+  for(let lane=0;lane<3;lane++)s+='<path d="M'+(84+lane*156)+' 0V540" stroke="#9caf7b" stroke-width="11"/><path d="M'+(81+lane*156)+' 0V540" stroke="#cccf9c" stroke-width="2"/>';
+  for(let row=state.level-1;row<=state.level+3;row++){
+    if(row<0)continue;const y=400-(row-state.level)*108;const nodes=state.rows[row];
+    s+='<path d="M47 '+y+'H430" stroke="#a5b784" stroke-width="8" stroke-linecap="round"/>';
+    nodes.forEach(n=>{
+      const x=n.x;s+='<path d="M'+(x-7)+' '+(y-9)+'l14 18m-14 0l14 -18" stroke="#6e8752" stroke-width="2"/>';
+      if(row>state.level+1){
+        if(n.broken)s+='<circle cx="'+x+'" cy="'+y+'" r="23" fill="#ddd8cb" stroke="#aa9b83" stroke-width="2"/><path d="M'+(x-8)+' '+(y-8)+'l16 16m0 -16l-16 16" stroke="#7c715f" stroke-width="3"/>';
+        else {s+='<circle cx="'+x+'" cy="'+y+'" r="24" fill="#f9f6dc" stroke="#8fa876" stroke-width="2"/>';for(let i=0;i<n.light;i++)s+='<circle cx="'+(x+(i-(n.light-1)/2)*11)+'" cy="'+y+'" r="4" fill="#c09128"/>';}
+      }
+    });
+  }
+  const visible=state.path.filter(p=>p.level>=state.level-2);
+  let d='M'+(84+visible[0].lane*156)+' 550';
+  visible.forEach(p=>{const x=84+p.lane*156,y=400-(p.level-state.level)*108;d+=' Q'+x+' '+(y+54)+' '+x+' '+y;});
+  s+='<path d="'+d+'" fill="none" stroke="#306638" stroke-width="13" stroke-linecap="round"/><path d="'+d+'" fill="none" stroke="#79a653" stroke-width="4" stroke-linecap="round"/>';
+  visible.forEach(p=>{const x=84+p.lane*156,y=400-(p.level-state.level)*108;s+='<path d="M'+x+' '+(y+33)+'q-46 -48 -62 -14q9 39 57 24M'+x+' '+(y+52)+'q44 -38 61 -6q-13 34 -56 16" fill="#65a056" stroke="#3b793f" stroke-width="2"/><path d="M'+x+' '+y+'q38 -45 32 -18q-7 26 -24 6" fill="none" stroke="#39763c" stroke-width="3"/>';});
+  s+='<circle cx="'+(84+state.lane*156)+'" cy="400" r="13" fill="#e9d970" stroke="#416d35" stroke-width="3"/><text x="14" y="523" fill="#486d43" font-size="12">第 '+state.level+' 層</text>';
+  $('scene').innerHTML=s;
+  $('targets').replaceChildren();
+  state.rows[state.level+1].forEach(n=>{
+    const btn=document.createElement('button');btn.className='node'+(n.broken?' cracked':'');
+    btn.style.left=n.x/480*100+'%';btn.style.top=292/540*100+'%';btn.dataset.lane=n.lane;
+    const far=Math.abs(n.lane-state.lane)>1;
+    btn.innerHTML=n.broken?'╳<small>斷架</small>':'<span style="color:#b18120">'+'●'.repeat(n.light)+'</span><small>'+(far?'太遠':'攀附')+'</small>';
+    btn.setAttribute('aria-label',['左','中','右'][n.lane]+'方支架，'+(n.broken?'斷裂':n.light+' 格陽光')+(far?'，距離太遠':''));
+    btn.addEventListener('click',()=>choose(n.lane));btn.addEventListener('pointerdown',event=>{if(duelManaged&&event.pointerType!=='mouse'){event.preventDefault();choose(n.lane);}});$('targets').append(btn);
+  });
+  enableTargets();
+}
+function enableTargets(){document.querySelectorAll('.node').forEach(btn=>{const far=Math.abs(Number(btn.dataset.lane)-state.lane)>1;btn.disabled=far||state.busy>0||state.status!=='running';btn.classList.toggle('locked',state.busy>0&&!far);});}
+function choose(lane){
+  if(duelManaged)window.parent.plantDuelSync();
+  if(!state||state.status!=='running'||state.busy>0||Math.abs(lane-state.lane)>1)return;
+  // Account for elapsed active time before awarding a move at the deadline.
+  const now=performance.now();
+  if(!duelManaged&&state.mode!=='practice'){state.remaining-=(now-state.last)/1000;if(state.remaining<=0){finish();return;}}
+  state.last=now;const target=state.rows[state.level+1][lane];
+  if(target.broken){state.misses++;state.busy=1.8;$('feedback').textContent='這根支架斷了，抓不牢！等一下，再找牢固的支架。';enableTargets();return;}
+  state.level++;state.lane=lane;state.light+=target.light;state.score+=10+target.light*5;state.path.push({level:state.level,lane});state.busy=.7;
+  $('feedback').textContent=state.level%5===0?'已爬上 '+state.level+' 層！卷鬚幫絲瓜站上更高的位置。':'攀附成功！向上 1 層 ＋ 陽光 '+target.light+' 格，得 '+(10+target.light*5)+' 分。';
+  render();$('board').classList.add('growing');updateHUD();
+  if(state.mode==='practice'&&state.level>=12)finish();
+}
+function pause(){
+  if(duelManaged)return;
+  if(!state||state.status!=='running')return;
+  const now=performance.now();if(state.mode!=='practice')state.remaining-=(now-state.last)/1000;
+  state.busy=Math.max(0,state.busy-(now-state.last)/1000);state.last=now;
+  if(state.mode!=='practice'&&state.remaining<=0){finish();return;}
+  state.status='paused';cancelAnimationFrame(raf);updateHUD();enableTargets();$('pauseDialog').showModal();
+}
+function resume(){
+  $('quitDialog').close();$('pauseDialog').close();
+  if(!state||state.status!=='paused')return;
+  state.status='running';state.last=performance.now();enableTargets();$('pause').focus();raf=requestAnimationFrame(tick);
+}
+function finish(){
+  if(duelManaged){state.status='finished';state.remaining=0;cancelAnimationFrame(raf);updateHUD();enableTargets();return;}
+  state.status='finished';cancelAnimationFrame(raf);state.remaining=Math.max(0,state.remaining);updateHUD();enableTargets();
+  $('resultMode').textContent=names[state.mode];
+  $('resultTitle').textContent=state.mode==='practice'?'完成練習，準備挑戰！':state.level>=35?'森林攀登王！':state.level>=20?'向陽探險家！':state.level>=8?'卷鬚小高手！':'找到向上的第一步！';
+  $('resultScore').textContent=state.score;$('resultHeight').textContent='攀登 '+state.level+' 層';$('resultLight').textContent='陽光 '+state.light+' 格';
+  $('resultDetail').textContent=state.misses?'有 '+state.misses+' 次遇到斷架。下次先看看上方路線，試試更順的走法。':'一路抓穩支架！下次試著兼顧路線與陽光。';
+  let msg=state.mode==='practice'?'練習不計入最佳紀錄。':'這次最佳紀錄保存在目前裝置。';
+  if(state.mode!=='practice'){
+    const previous=best[state.mode]||0;
+    if(state.score>previous){best[state.mode]=state.score;msg='個人新紀錄！'+state.score+' 分。';try{localStorage.setItem(storageKey,JSON.stringify(best));}catch(_){storageOK=false;}}
+    else msg='目前個人最佳：'+previous+' 分。';
+    if(!storageOK)msg+=' 瀏覽器無法保存；重新整理後可能消失。';
+  }
+  $('resultBest').textContent=msg;$('replay').textContent=state.mode==='class'?'下一位同學，換你挑戰':state.mode==='practice'?'再練習一次':'換條路線，再挑戰一次';
+  $('resultDialog').showModal();
+}
+function toMenu(){cancelAnimationFrame(raf);document.querySelectorAll('dialog[open]').forEach(d=>d.close());if(state)state.status='idle';$('play').hidden=true;$('menu').hidden=false;updateBest();focusStart();}
+$('start').addEventListener('click',start);$('pause').addEventListener('click',pause);$('resume').addEventListener('click',resume);
+$('quitAsk').addEventListener('click',()=>{$('pauseDialog').close();$('quitDialog').showModal();});
+$('cancelQuit').addEventListener('click',resume);$('quit').addEventListener('click',toMenu);$('replay').addEventListener('click',start);$('backMenu').addEventListener('click',toMenu);
+$('pauseDialog').addEventListener('cancel',e=>{e.preventDefault();resume();});$('quitDialog').addEventListener('cancel',e=>{e.preventDefault();resume();});$('resultDialog').addEventListener('cancel',e=>{e.preventDefault();toMenu();});
+document.addEventListener('visibilitychange',()=>{if(document.hidden)pause();});
+window.addEventListener('pagehide',pause);
+document.addEventListener('keydown',e=>{if(duelManaged||e.repeat)return;if(e.key==='Escape'&&state&&state.status==='running'){e.preventDefault();pause();}if(['1','2','3'].includes(e.key)&&state&&state.status==='running'){e.preventDefault();choose(Number(e.key)-1);}});
+
+const duelQuery = new URLSearchParams(location.search);
+if (duelQuery.get('duel') === 'player' && window.parent !== window) {
+  duelManaged = true;
+  document.body.classList.add('duel-player');
+  window.plantGameBridge = {
+    prepare(seed) {
+      duelSeed=seed;document.querySelector('input[value="class"]').checked=true;start();
+      state.status='paused';duelElapsed=0;cancelAnimationFrame(raf);enableTargets();
+    },
+    start(){state.status='running';duelElapsed=0;enableTargets();},
+    step(elapsed){
+      if(state.status!=='running')return;
+      const dt=Math.max(0,elapsed-duelElapsed)/1000;duelElapsed=elapsed;
+      state.remaining=Math.max(0,60-elapsed/1000);state.busy=Math.max(0,state.busy-dt);
+      if(state.busy===0)$('board').classList.remove('growing');
+      updateHUD();enableTargets();if(elapsed>=60000)finish();
+    },
+    pause(){if(state&&state.status==='running'){state.status='paused';enableTargets();}},
+    resume(){if(state&&state.status==='paused'){state.status='running';enableTargets();}},
+    action(lane){choose(lane);},
+    finish(){if(state&&state.status!=='finished')finish();},
+    snapshot(){return {score:state.score,height:state.level,light:state.light};}
+  };
+  document.addEventListener('keydown',event=>{
+    if(['KeyA','KeyS','KeyD','KeyJ','KeyK','KeyL'].includes(event.code)){
+      event.preventDefault();window.parent.plantDuelKey(event.code,event.repeat);
+    }
+  });
+}
+
+updateBest();
+})();
+</script>
+<script src="../共用/plant-duel.js"></script>
+</body>
+</html>

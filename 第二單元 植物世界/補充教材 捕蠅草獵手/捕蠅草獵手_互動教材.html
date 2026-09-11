@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#112d2b">
+<title>捕蠅草獵手｜植物超能力挑戰賽</title>
+<link rel="icon" href="../../image/icon.svg">
+<style>
+:root{color-scheme:dark;--bg:#102826;--panel:#173632;--line:#35534a;--cream:#fff2d6;--muted:#bfd0bb;--lime:#d8f28a;--amber:#ffd187;--pink:#e49f93}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 12% 0%,#23443a,transparent 55%),var(--bg);color:var(--cream);font-family:"Noto Sans TC","Microsoft JhengHei",system-ui,sans-serif;line-height:1.6}button,a{-webkit-tap-highlight-color:transparent}button{font:inherit;cursor:pointer;touch-action:manipulation}button:disabled{cursor:default;opacity:.58}a{color:inherit;text-underline-offset:4px}button:focus-visible,a:focus-visible,summary:focus-visible{outline:3px solid var(--amber);outline-offset:4px}[hidden]{display:none!important}.wrap{max-width:1220px;margin:auto;padding:24px 28px 40px}.topbar{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:30px;font-size:.86rem;color:var(--muted)}.back{display:inline-flex;min-height:48px;align-items:center;gap:8px;text-decoration:none}.edition{border:1px solid var(--line);border-radius:30px;padding:7px 14px;letter-spacing:1px}.intro{display:flex;align-items:flex-end;justify-content:space-between;gap:28px;margin-bottom:24px}.eyebrow{color:var(--lime);font-size:.78rem;letter-spacing:2.5px;font-weight:700;margin:0 0 9px}h1{font-size:clamp(2.15rem,5vw,3.65rem);line-height:1.1;letter-spacing:2px;margin:0 0 12px}h1 span{color:var(--lime)}.intro p:last-child{margin:0;color:var(--muted);font-size:1rem}.lesson-chip{display:flex;align-items:center;gap:12px;padding:14px 18px;border:1px solid var(--line);border-radius:18px;flex-shrink:0;font-size:.83rem}.lesson-chip strong{display:block;color:var(--lime);font-size:1rem}.leaf-icon{font-size:2rem}.game-grid{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:22px;align-items:start}.arena{border:1px solid #587264;border-radius:24px;overflow:hidden;box-shadow:0 18px 60px #031a2466;background:#15312c}.hud{display:grid;grid-template-columns:repeat(3,1fr);background:#122f2a;border-bottom:1px solid var(--line);padding:16px 0}.stat{text-align:center;border-right:1px solid var(--line)}.stat:last-child{border:0}.stat small{font-size:.75rem;display:block;color:var(--muted);letter-spacing:1px}.stat b{font-variant-numeric:tabular-nums;font-size:1.8rem;line-height:1.2}.stat b em{font:inherit;font-size:.85rem;margin-left:4px}.stat:nth-child(2) b{color:var(--lime)}.scene{position:relative;min-height:335px;aspect-ratio:900/540;isolation:isolate;overflow:hidden;background:#123d34}.scene svg{position:absolute;inset:0;width:100%;height:100%;display:block}.scene-label{position:absolute;top:16px;left:18px;z-index:1;font-size:.7rem;letter-spacing:2px;color:#d7dfc1;background:#183b318c;padding:5px 10px;border:1px solid #90b59455;border-radius:5px}.scene-status{position:absolute;z-index:1;bottom:13px;left:50%;transform:translateX(-50%);margin:0;width:max-content;max-width:90%;text-align:center;background:#082d26e6;border:1px solid #73925e;border-radius:30px;padding:7px 18px;font-weight:700;font-size:.9rem}.scene-status.ready{background:var(--lime);color:#1c3928;border-color:var(--lime)}#targetRing{transition:stroke .15s,fill .15s}.ready #targetRing{fill:#d8f28a26;stroke:#e5ffa4;stroke-width:4}.trap-lobes{transform-origin:450px 353px;transition:transform .17s ease}.closed .trap-lobes{transform:scaleX(.25)}.firefly{animation:glow 3.5s ease-in-out infinite alternate}.firefly:nth-child(2n){animation-delay:-1.8s}@keyframes glow{from{opacity:.25}to{opacity:1}}.overlay{position:absolute;inset:0;z-index:4;display:flex;align-items:center;justify-content:center;background:#0a241fcf;backdrop-filter:blur(5px);padding:20px;text-align:center;overflow-y:auto}.overlay-card{max-width:420px;width:100%;margin:auto}.overline{font-size:.72rem;letter-spacing:2px;color:var(--lime);margin:0 0 8px}.overlay h2{font-size:1.65rem;line-height:1.25;margin:8px 0 10px}.overlay p{margin:8px 0 15px;color:#e4e9d5;font-size:.92rem}.big-mark{font-size:2.7rem;line-height:1.15;color:var(--amber);font-weight:800}.primary,.secondary,.subtle{min-height:48px;border-radius:13px;padding:11px 18px;font-weight:700;border:1px solid var(--line)}.primary{background:var(--lime);color:#203628;border-color:var(--lime)}.secondary{background:#294a3f;color:var(--cream);border-color:#6d8771}.subtle{background:transparent;color:var(--muted)}.wide{width:100%}.button-row{display:flex;justify-content:center;gap:10px;flex-wrap:wrap}.controls{padding:16px 18px 14px;background:#173a30}.capture{position:relative;display:flex;align-items:center;justify-content:center;gap:16px;width:100%;min-height:70px;border:1px solid #edd497;border-radius:15px;background:var(--amber);color:#2d3829;box-shadow:0 4px 0 #bb9858;font-size:1.22rem;font-weight:800;overflow:hidden}.capture:active:not(:disabled){transform:translateY(2px);box-shadow:0 2px 0 #bb9858}.capture:disabled{opacity:1;background:#39574a;border-color:#648171;color:#d6ddcc;box-shadow:none}.key{font-size:.7rem;border:1px solid #54684490;border-radius:5px;padding:3px 7px;font-weight:500}.control-foot{display:flex;gap:10px;align-items:center;justify-content:space-between;margin-top:11px}.control-foot p{margin:0;color:var(--muted);font-size:.77rem}.tool-buttons{display:flex;gap:6px;flex-shrink:0}.tool{border:1px solid #496954;border-radius:10px;min-height:48px;padding:8px 13px;background:#1c4135;color:var(--cream);font-size:.85rem}.sidebar{display:grid;gap:16px}.panel{background:#1a3830;border:1px solid var(--line);border-radius:20px;padding:20px}.panel h2{font-size:.95rem;margin:0 0 15px;display:flex;align-items:center;gap:9px}.panel h2:before{content:"";width:7px;height:7px;background:var(--lime);border-radius:50%}.mode-stack{display:grid;gap:9px}.mode{display:flex;align-items:center;gap:12px;min-height:68px;text-align:left;padding:11px 13px;border-radius:13px;border:1px solid #4f6853;background:#19392f;color:var(--cream)}.mode[aria-pressed=true]{border-color:var(--lime);background:#304a34}.mode-icon{font-size:1.4rem}.mode strong{font-size:.92rem;display:block}.mode small{display:block;font-size:.72rem;color:var(--muted);font-weight:400}.mode-text{font-size:.77rem;color:var(--muted);margin:13px 0 0;min-height:2.7em}.best{display:flex;justify-content:space-between;align-items:center;padding-top:14px;margin-top:14px;border-top:1px solid var(--line);font-size:.78rem;color:var(--muted)}.best b{font-size:1.3rem;color:var(--amber)}.steps{padding:0;list-style:none;margin:0;display:grid;gap:14px}.steps li{display:flex;gap:12px;align-items:flex-start;font-size:.82rem;color:var(--muted)}.steps b{color:var(--cream)}.step-num{background:#34543b;color:var(--lime);border-radius:50%;width:25px;height:25px;flex-shrink:0;text-align:center;font-weight:800}.small-note{font-size:.72rem;color:#b9cbb1;margin:14px 0 0}.science{margin-top:22px;border:1px solid #688363;border-radius:18px;overflow:hidden;background:#213d2d}.science summary{cursor:pointer;padding:17px 20px;min-height:56px;font-size:.95rem;font-weight:700;color:var(--lime)}.science-body{padding:0 20px 20px;font-size:.86rem;color:#e2e7d2}.science-body p{margin:0 0 10px}.science-body p:last-child{margin:0;color:var(--muted);font-size:.77rem}.footer{display:flex;gap:18px;flex-wrap:wrap;justify-content:space-between;padding:20px 3px 0;font-size:.78rem;color:var(--muted)}.footer a{display:inline-flex;align-items:center;min-height:48px}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}dialog{width:min(420px,calc(100% - 32px));padding:28px;border:1px solid #7f9472;border-radius:20px;background:#1b392e;color:var(--cream);box-shadow:0 20px 90px #0008}dialog::backdrop{background:#041b16bf}dialog h2{margin:0 0 12px;font-size:1.35rem}dialog p{font-size:.9rem;color:var(--muted);margin:0 0 22px}#recordNotice{font-size:.7rem;color:var(--amber);margin:10px 0 0}
+@media(max-width:960px){.game-grid{grid-template-columns:minmax(0,1fr) 260px;gap:16px}.wrap{padding:18px}.lesson-chip{display:none}.panel{padding:16px}.control-foot{align-items:flex-start}.control-foot p{max-width:150px}.scene{min-height:330px}}
+@media(max-width:760px){.wrap{padding:12px 14px 28px}.topbar{margin-bottom:20px;font-size:.72rem}.edition{padding:5px 8px;letter-spacing:0}.intro{margin-bottom:20px}.intro p:last-child{font-size:.88rem}.eyebrow{font-size:.68rem}.game-grid{grid-template-columns:1fr}.sidebar{grid-template-columns:1fr 1fr}.scene{min-height:330px}.hud{padding:12px 0}.stat b{font-size:1.65rem}.stat small{font-size:.7rem}.key{display:none}.control-foot p{max-width:none}.panel{padding:16px}.scene-label{top:10px;left:12px;font-size:.65rem}.overlay{padding:18px}.overlay h2{font-size:1.55rem}.overlay p{font-size:.84rem}.science{margin-top:16px}}
+@media(max-width:500px){.sidebar{grid-template-columns:1fr}.scene{min-height:310px;aspect-ratio:auto}.scene-status{font-size:.8rem;padding:6px 13px}.controls{padding:13px}.capture{min-height:62px}.control-foot p{font-size:.69rem;max-width:155px}.tool{font-size:.78rem;padding:7px 10px}.big-mark{font-size:2.2rem}.footer{gap:0;flex-direction:column}.steps{gap:11px}}
+@media(max-height:520px) and (orientation:landscape){.wrap{max-width:960px}.topbar{margin-bottom:8px}.intro{margin-bottom:12px}.game-grid{grid-template-columns:minmax(0,1fr) 240px}.sidebar{grid-template-columns:1fr}.scene{min-height:290px}.intro h1{font-size:2rem}.lesson-chip{display:none}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+@media(max-width:760px){.playing .topbar,.playing .intro,.playing .sidebar,.playing .science,.playing .footer{display:none}.playing .scene{min-height:280px}.playing .wrap{padding-top:12px}}
+@media(max-height:520px) and (orientation:landscape){.playing .topbar,.playing .intro,.playing .sidebar,.playing .science,.playing .footer{display:none}.playing .game-grid{display:block}.playing .arena{display:grid;grid-template-columns:58% 42%}.playing .scene{grid-column:1;grid-row:1 / 3;min-height:0;height:calc(100dvh - 32px);aspect-ratio:auto}.playing .hud{grid-column:2;grid-row:1;align-self:start;padding:10px 0}.playing .controls{grid-column:2;grid-row:2;align-self:end;padding:10px}.playing .control-foot{flex-direction:column}.playing .capture{min-height:62px;font-size:1rem}.playing .stat b{font-size:1.4rem}.playing .wrap{padding:14px}}
+.playing .topbar,.playing .intro,.playing .science,.playing .footer,.playing .duel-choice{display:none}.playing .wrap{padding-top:16px}
+body.duel-player .topbar,body.duel-player .intro,body.duel-player .sidebar,body.duel-player .science,body.duel-player .footer,body.duel-player .hud,body.duel-player .control-foot,body.duel-player .overlay{display:none!important}body.duel-player .wrap{padding:0;max-width:none}body.duel-player .game-grid{display:block}body.duel-player .arena{display:flex;flex-direction:column;border:0;border-radius:0;height:100dvh}body.duel-player .scene{height:auto;min-height:0;aspect-ratio:auto;flex:1;grid-column:auto;grid-row:auto}body.duel-player .controls{padding:9px;flex-shrink:0;align-self:stretch}body.duel-player .capture{min-height:60px;touch-action:none;font-size:clamp(16px,2.5vw,24px)}body.duel-player .scene-label{display:none}body.duel-player .scene-status{font-size:clamp(12px,1.8vw,17px)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav class="topbar" aria-label="教材導覽"><a class="back" href="../../index.html">← 回教材首頁</a><span class="edition">植物超能力挑戰賽 · 02</span></nav>
+  <header class="intro"><div><p class="eyebrow">THE PATIENT HUNTER · 植物觀察任務</p><h1>捕蠅草<span>獵手</span></h1><p>等一等，讓昆蟲靠近。最好的獵手，懂得觀察。</p></div><div class="lesson-chip"><span class="leaf-icon" aria-hidden="true">❧</span><div>這次的主角<strong>會閉合的葉片</strong></div></div></header>
+  <main>
+    <div class="game-grid">
+      <section class="arena" aria-label="捕蠅草遊戲">
+        <div class="hud" aria-label="本局成績">
+          <div class="stat"><small id="timeLabel">剩餘時間</small><b id="timeValue">60<em>秒</em></b></div>
+          <div class="stat"><small>營養點數</small><b id="scoreValue">0</b></div>
+          <div class="stat"><small>連續捕獲</small><b id="streakValue">0<em>次</em></b></div>
+        </div>
+        <div class="scene" id="scene">
+          <div class="scene-label" aria-hidden="true">NIGHT BOG / 夜間觀察站</div>
+          <svg viewBox="0 0 900 540" preserveAspectRatio="xMidYMid slice" role="img" aria-label="夜晚的沼澤裡，一株捕蠅草張開葉片，等待飛近的昆蟲。">
+            <defs>
+              <linearGradient id="sky" x2="0" y2="1"><stop stop-color="#14352f"/><stop offset="1" stop-color="#3b6548"/></linearGradient>
+              <radialGradient id="haze"><stop stop-color="#b5c983" stop-opacity=".32"/><stop offset="1" stop-color="#b5c983" stop-opacity="0"/></radialGradient>
+              <linearGradient id="leaf" x2=".7" y2="1"><stop stop-color="#d0e882"/><stop offset=".55" stop-color="#87b957"/><stop offset="1" stop-color="#456e3b"/></linearGradient>
+              <linearGradient id="inside" x2="0" y2="1"><stop stop-color="#e7a080"/><stop offset="1" stop-color="#b66359"/></linearGradient>
+              <linearGradient id="stem" x2="1" y2="0"><stop stop-color="#416f43"/><stop offset=".55" stop-color="#9abd63"/><stop offset="1" stop-color="#4a7847"/></linearGradient>
+              <pattern id="grain" width="37" height="37" patternUnits="userSpaceOnUse"><circle cx="3" cy="7" r="1" fill="#d0e8b9" opacity=".045"/><circle cx="24" cy="26" r=".8" fill="#fff" opacity=".06"/></pattern>
+            </defs>
+            <rect width="900" height="540" fill="url(#sky)"/><ellipse cx="445" cy="253" rx="380" ry="290" fill="url(#haze)"/>
+            <circle cx="737" cy="82" r="35" fill="#eddfb1"/><circle cx="750" cy="72" r="32" fill="#173b31"/>
+            <g fill="#153c30" opacity=".8"><path d="M0 352Q83 279 132 353T290 346T441 354T626 346T900 336V540H0Z"/><path d="M82 360Q91 156 59 109Q115 158 99 360ZM125 359Q161 204 196 182Q161 260 146 359ZM779 374Q759 175 813 118Q787 232 798 374Z"/></g>
+            <g fill="none" stroke="#527953" stroke-width="4" opacity=".65"><path d="M54 416Q103 318 66 200M107 420Q146 339 190 316M836 447Q792 264 842 193M773 423Q736 331 687 301"/></g>
+            <g fill="#61855b" opacity=".65"><ellipse cx="78" cy="263" rx="11" ry="35" transform="rotate(-38 78 263)"/><ellipse cx="93" cy="306" rx="12" ry="31" transform="rotate(35 93 306)"/><ellipse cx="823" cy="271" rx="14" ry="39" transform="rotate(40 823 271)"/></g>
+            <g fill="#e8eda4"><circle class="firefly" cx="165" cy="157" r="2.5"/><circle class="firefly" cx="665" cy="170" r="3"/><circle class="firefly" cx="250" cy="276" r="2"/><circle class="firefly" cx="731" cy="344" r="2.5"/><circle class="firefly" cx="555" cy="103" r="2"/><circle class="firefly" cx="292" cy="97" r="2.5"/></g>
+            <path d="M0 451Q113 415 202 452T432 440T652 451T900 427V540H0Z" fill="#183e2e"/>
+            <ellipse cx="451" cy="486" rx="240" ry="21" fill="#0c3028" opacity=".8"/>
+            <g fill="url(#leaf)" stroke="#547c43" stroke-width="2"><path d="M446 490Q317 395 231 432Q306 514 446 490Z"/><path d="M450 489Q526 393 656 426Q583 517 450 489Z"/><path d="M450 491Q364 464 349 514Q414 521 450 491Z"/><path d="M451 491Q499 469 542 513Q482 525 451 491Z"/></g>
+            <g stroke="#355d37" fill="none" opacity=".7"><path d="M445 489L252 443M452 488L633 438M449 491L371 508M453 491L524 508"/></g>
+            <path d="M431 487Q454 429 435 368L460 363Q482 436 457 493Z" fill="url(#stem)" stroke="#3f6b3d" stroke-width="2"/>
+            <g id="trapBody">
+              <g class="trap-lobes">
+                <path d="M450 389C389 417 311 370 309 302C312 253 386 258 450 334C514 258 588 253 591 302C589 370 511 417 450 389Z" fill="url(#leaf)" stroke="#d8eca0" stroke-width="3"/>
+                <path d="M444 363C393 381 335 351 332 304C338 280 394 292 444 346Z" fill="url(#inside)"/>
+                <path d="M456 363C507 381 565 351 568 304C562 280 506 292 456 346Z" fill="url(#inside)"/>
+                <g stroke="#eff0ae" stroke-width="5" stroke-linecap="round"><path d="M315 298L300 275M330 277L321 253M352 275L349 250M374 284L377 259M397 299L404 276M419 317L431 296M585 298L600 275M570 277L579 253M548 275L551 250M526 284L523 259M503 299L496 276M481 317L469 296"/></g>
+                <g stroke="#743e3e" stroke-width="2.5" stroke-linecap="round"><path d="M382 334L377 319M412 349L408 334M353 320L350 310M518 334L523 319M488 349L492 334M547 320L550 310"/></g>
+              </g>
+              <path d="M449 335L450 389" stroke="#3d603a" stroke-width="4" stroke-linecap="round"/>
+            </g>
+            <circle id="targetRing" cx="450" cy="316" r="62" fill="#e9efbe0c" stroke="#e8d692" stroke-width="2" stroke-dasharray="6 9"/>
+            <text x="450" y="231" text-anchor="middle" fill="#f2e5b6" font-size="17" font-family="sans-serif" letter-spacing="3">捕獲範圍</text>
+            <g id="insect" visibility="hidden">
+              <g fill="#f7e2ac" stroke="#deb875" stroke-width="1.5"><ellipse cx="-11" cy="-9" rx="17" ry="10" transform="rotate(25 -11 -9)"/><ellipse cx="11" cy="-9" rx="17" ry="10" transform="rotate(-25 11 -9)"/></g>
+              <ellipse rx="9" ry="16" fill="#dbad65" stroke="#362e2b" stroke-width="2"/><path d="M-7 -2H7M-7 5H7" stroke="#6b5035" stroke-width="3"/><circle cy="-14" r="7" fill="#f4d79c"/><circle cx="-3" cy="-16" r="1.7" fill="#272f29"/><circle cx="3" cy="-16" r="1.7" fill="#272f29"/><path d="M-3 -20L-8 -26M3 -20L8 -26" stroke="#f4d79c" stroke-width="2" stroke-linecap="round"/>
+            </g>
+            <g fill="#305537"><path d="M0 513Q102 460 170 540H0ZM900 505Q805 451 734 540H900Z"/><path d="M131 540Q168 451 200 451Q170 499 168 540ZM736 540Q717 470 684 468Q724 505 721 540Z"/></g>
+            <rect width="900" height="540" fill="url(#grain)" pointer-events="none"/>
+          </svg>
+          <p class="scene-status" id="sceneStatus" hidden>等昆蟲飛進圈裡…</p>
+          <div class="overlay" id="startOverlay"><div class="overlay-card"><p class="overline">觀察 → 等待 → 閉合</p><h2>耐心，就是你的超能力。</h2><p id="startDescription">同一條昆蟲路線，公平輪流挑戰。<br>每人 60 秒，看看誰最會掌握時機。</p><button class="primary wide" id="startButton">開始 60 秒挑戰 →</button><p class="small-note">昆蟲進圈、提示亮綠時，按下閉合。</p></div></div>
+          <div class="overlay" id="pauseOverlay" hidden><div class="overlay-card"><p class="overline">TAKE A BREATH</p><h2>葉片休息中</h2><p id="pauseReason">時間已暫停，準備好再繼續。</p><button class="primary wide" id="resumeButton">繼續觀察 →</button></div></div>
+          <div class="overlay" id="resultOverlay" hidden><div class="overlay-card"><p class="overline" id="resultMode">課堂挑戰完成</p><h2 id="rankTitle">耐心獵手</h2><div class="big-mark"><span id="resultScore">0</span> <span style="font-size:.9rem;font-weight:500">營養點數</span></div><p id="resultDetails"></p><p id="resultHint"></p><div class="button-row"><button class="primary" id="retryButton">再挑戰一次</button><button class="secondary" id="nextButton">下一位／選模式</button></div></div></div>
+        </div>
+        <div class="controls">
+          <button id="captureButton" class="capture" disabled><span aria-hidden="true">❧</span><span id="captureLabel">準備開始</span><span class="key">SPACE</span></button>
+          <div class="control-foot"><p id="actionHint">一次點按即可，不需要連打。<br>碰錯或錯過都能繼續挑戰。</p><div class="tool-buttons"><button class="tool" id="pauseButton" disabled>暫停</button><button class="tool" id="quitButton" disabled>離開</button></div></div>
+        </div>
+      </section>
+      <aside class="sidebar">
+        <section class="panel"><h2>選擇你的挑戰</h2><div class="mode-stack" role="group" aria-label="遊戲模式">
+          <button class="mode" id="mode-class" data-mode="class" aria-pressed="true"><span class="mode-icon" aria-hidden="true">◷</span><span><strong>課堂輪流賽</strong><small>60 秒 · 每次相同路線</small></span></button>
+          <button class="mode" id="mode-home" data-mode="home" aria-pressed="false"><span class="mode-icon" aria-hidden="true">⌂</span><span><strong>回家挑戰</strong><small>60 秒 · 每次不同路線</small></span></button>
+          <button class="mode" id="mode-practice" data-mode="practice" aria-pressed="false"><span class="mode-icon" aria-hidden="true">∞</span><span><strong>慢慢練習</strong><small>不限時 · 練習觀察時機</small></span></button>
+        </div><p class="mode-text" id="modeDescription">全班使用相同路線與速度；上一位結束，就能換下一位。</p><div class="best"><span id="bestLabel">課堂輪流賽 · 本機最佳</span><b id="bestValue">0 分</b></div><p id="recordNotice" hidden></p></section>
+        <section class="panel"><h2>獵手觀察筆記</h2><ol class="steps"><li><span class="step-num">1</span><span><b>看昆蟲，先等等</b><br>飛進圈內，提示會亮綠。</span></li><li><span class="step-num">2</span><span><b>按一下，葉片閉合</b><br>點下方大按鈕，或按空白鍵。</span></li><li><span class="step-num">3</span><span><b>等待葉片恢復</b><br>捕獲得 10 分，連續成功每次多 2 分，最多加 8 分。</span></li></ol><p class="small-note">台下也來觀察：昆蟲進圈了嗎？捕蟲的是根、莖，還是葉？</p></section>
+      </aside>
+    </div>
+    <details class="science" open><summary>剛才閉合的是「葉」，植物還是需要陽光！</summary><div class="science-body"><p>捕蠅草的捕蟲構造是特化的葉。昆蟲觸動葉片上的感覺毛，達到觸發條件後，葉片就會閉合。捕蟲能補充部分養分；捕蠅草仍然需要光合作用製造養分。</p><p>遊戲中，按鍵代表昆蟲觸動感覺毛；真實植物會受到刺激後自行反應。閉合、消化與重新張開的時間都已大幅縮短，圈圈與點數是遊戲提示。</p></div></details>
+  </main>
+  <footer class="footer"><a href="../多功能的營養器官/多功能的營養器官_互動教材.html">← 回「多功能的營養器官」講解</a><a href="../補充教材 絲瓜攀登王/絲瓜攀登王_互動教材.html">另一種植物超能力：絲瓜攀登王 →</a></footer>
+</div>
+<div class="sr-only" id="announcer" role="status" aria-live="polite" aria-atomic="true"></div>
+<dialog id="quitDialog" aria-labelledby="quitTitle" aria-describedby="quitDescription"><h2 id="quitTitle">要離開這一局嗎？</h2><p id="quitDescription">這一局的成績不會保存。時間已暫停，可以繼續挑戰。</p><div class="button-row"><button class="secondary" id="cancelQuitButton" autofocus>繼續這一局</button><button class="primary" id="confirmQuitButton">離開這一局</button></div></dialog>
+<script>
+"use strict";
+const $ = id => document.getElementById(id);
+const modes = {
+  class: {name:"課堂輪流賽", text:"全班使用相同路線與速度；上一位結束，就能換下一位。", intro:"同一條昆蟲路線，公平輪流挑戰。<br>每人 60 秒，看看誰最會掌握時機。", button:"開始 60 秒挑戰 →"},
+  home: {name:"回家挑戰", text:"昆蟲從哪裡來？每局換個方向和高度，挑戰自己的紀錄。", intro:"每次出發，都有不同的昆蟲路線。<br>觀察 60 秒，刷新自己的最佳成績。", button:"開始回家挑戰 →"},
+  practice: {name:"慢慢練習", text:"沒有倒數壓力。練熟後，按「結束練習」查看這次的成果。", intro:"不倒數，慢慢看、慢慢試。<br>練熟了，再去挑戰 60 秒的紀錄。", button:"開始不限時練習 →"}
+};
+const game = {status:"menu", mode:"class", elapsed:0, last:0, score:0, streak:0, maxStreak:0, caught:0, missed:0, empty:0, cooldown:0, enemy:null, nextSpawn:600, rng:()=>.5, ready:false, feedback:"", feedbackUntil:0};
+let duelControlled=false;
+const DURATION = 60000, FLIGHT = 4500, INTERVAL = 5100, RECOVERY = 1300;
+const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
+let selectedMode = "class", resumeAfterCancel = false, lastAnnouncement = "", lastVisual = "";
+let records = {class:0,home:0,practice:0};
+function announce(message) {
+  if (message !== lastAnnouncement) { $("announcer").textContent = message; lastAnnouncement = message; }
+}
+function storageNotice() {
+  $("recordNotice").hidden = false;
+  $("recordNotice").textContent = "此裝置無法保存紀錄；仍可正常遊玩。";
+}
+try {
+  const saved = JSON.parse(localStorage.getItem("plant-flytrap-best-v1") || "{}");
+  for (const key of Object.keys(records)) if (saved && Number.isFinite(saved[key]) && saved[key] >= 0) records[key] = Math.floor(saved[key]);
+} catch (_) { storageNotice(); }
+function saveRecord() {
+  records[game.mode] = Math.max(records[game.mode], game.score);
+  try { localStorage.setItem("plant-flytrap-best-v1", JSON.stringify(records)); } catch (_) { storageNotice(); }
+  renderRecord();
+}
+function renderRecord() {
+  $("bestLabel").textContent = modes[selectedMode].name + " · 本機最佳";
+  $("bestValue").textContent = records[selectedMode] + " 分";
+}
+function seeded(seed) {
+  let value = seed >>> 0;
+  return () => { value += 0x6D2B79F5; let n = value; n = Math.imul(n ^ n >>> 15, n | 1); n ^= n + Math.imul(n ^ n >>> 7, n | 61); return ((n ^ n >>> 14) >>> 0) / 4294967296; };
+}
+function chooseMode(mode) {
+  if (game.status !== "menu" || !modes[mode]) return;
+  selectedMode = mode;
+  document.querySelectorAll("[data-mode]").forEach(button => button.setAttribute("aria-pressed", String(button.dataset.mode === mode)));
+  $("modeDescription").textContent = modes[mode].text;
+  $("startDescription").innerHTML = modes[mode].intro;
+  $("startButton").textContent = modes[mode].button;
+  $("timeLabel").textContent = mode === "practice" ? "已練習時間" : "剩餘時間";
+  $("timeValue").innerHTML = mode === "practice" ? '0<em>秒</em>' : '60<em>秒</em>';
+  renderRecord();
+}
+function setModeLock(locked) { document.querySelectorAll("[data-mode]").forEach(button => { button.disabled = locked; }); }
+function startGame() {
+  if (game.status === "running" || game.status === "paused") return;
+  document.body.classList.add("playing");
+  Object.assign(game, {status:"running",mode:selectedMode,elapsed:0,last:performance.now(),score:0,streak:0,maxStreak:0,caught:0,missed:0,empty:0,cooldown:0,enemy:null,nextSpawn:600,ready:false,feedback:"",feedbackUntil:0});
+  game.rng = seeded(selectedMode === "class" ? 2045042 : (Date.now() ^ Math.floor(Math.random()*4294967295)) >>> 0);
+  $("startOverlay").hidden = true; $("pauseOverlay").hidden = true; $("resultOverlay").hidden = true;
+  $("sceneStatus").hidden = false; $("pauseButton").disabled = false; $("pauseButton").textContent = "暫停"; $("quitButton").disabled = false;
+  $("quitButton").textContent = game.mode === "practice" ? "結束練習" : "離開";
+  setModeLock(true); lastVisual = ""; render(); if(!duelControlled)$("captureButton").focus({preventScroll:true});
+  if (!duelControlled && (innerWidth <= 760 || innerHeight <= 520)) window.scrollTo(0,0);
+  announce(modes[game.mode].name + "開始。等昆蟲進圈，再按閉合葉片。");
+}
+function enemyPosition(enemy) {
+  const age = Math.max(0, game.elapsed - enemy.born);
+  let x;
+  if (age < 1450) x = 60 + 332 * age / 1450;
+  else if (age < 3050) x = 392 + 116 * (age - 1450) / 1600;
+  else x = 508 + 332 * (age - 3050) / 1450;
+  if (enemy.reverse) x = 900 - x;
+  const y = enemy.y + (motion.matches ? 0 : Math.sin(age / 500) * 7);
+  return {x,y};
+}
+function missEnemy() {
+  if (!game.enemy) return;
+  game.missed++; game.streak = 0; game.enemy = null;
+  game.feedback = "飛走了，下一隻再試試！"; game.feedbackUntil = game.elapsed + 950;
+  announce("昆蟲飛走了。下一隻再試試。");
+}
+function advance(now) {
+  if (game.status !== "running") return;
+  const dt = Math.max(0, now - game.last); game.last = now;
+  game.elapsed += dt; game.cooldown = Math.max(0,game.cooldown-dt);
+  if (game.mode !== "practice" && game.elapsed >= DURATION) { game.elapsed = DURATION; finishGame(); return; }
+  if (game.enemy && game.elapsed - game.enemy.born >= FLIGHT) missEnemy();
+  while (game.nextSpawn <= game.elapsed) {
+    if (game.enemy) missEnemy();
+    game.enemy = {born:game.nextSpawn, reverse:game.rng()>.5, y:309+game.rng()*14};
+    game.nextSpawn += INTERVAL;
+    if (game.elapsed - game.enemy.born >= FLIGHT) missEnemy();
+  }
+}
+function render() {
+  const active = game.status === "running";
+  const seconds = game.mode === "practice" ? Math.floor(game.elapsed/1000) : Math.ceil(Math.max(0,DURATION-game.elapsed)/1000);
+  $("timeValue").innerHTML = seconds + "<em>秒</em>";
+  $("scoreValue").textContent = game.score;
+  $("streakValue").innerHTML = game.streak + "<em>次</em>";
+  let ready = false;
+  if (game.enemy && (active || game.status === "paused")) {
+    const pos = enemyPosition(game.enemy);
+    $("insect").setAttribute("visibility","visible");
+    $("insect").setAttribute("transform","translate("+pos.x.toFixed(2)+" "+pos.y.toFixed(2)+") rotate("+(game.enemy.reverse ? -10 : 10)+")");
+    ready = Math.hypot(pos.x-450,pos.y-316) <= 62 && game.cooldown <= 0;
+  } else $("insect").setAttribute("visibility","hidden");
+  game.ready = ready;
+  $("scene").classList.toggle("ready",ready && active);
+  $("trapBody").classList.toggle("closed",game.cooldown > 0);
+  $("captureButton").disabled = !active || game.cooldown > 0;
+  let status = "等昆蟲飛進圈裡…", label = "閉合葉片";
+  if (game.cooldown > 0) { status = "葉片恢復中…"; label = "恢復中 "+(game.cooldown/1000).toFixed(1)+" 秒"; }
+  else if (ready) status = "就是現在！按一下閉合";
+  else if (game.feedbackUntil > game.elapsed) status = game.feedback;
+  if (game.status === "menu") label = "準備開始";
+  else if (game.status === "paused") label = "已暫停";
+  else if (game.status === "result") label = "本次觀察完成";
+  $("captureLabel").textContent = label;
+  $("sceneStatus").textContent = status;
+  $("sceneStatus").classList.toggle("ready",ready && active);
+  const visual = ready && active ? "ready" : "waiting";
+  if (visual !== lastVisual && visual === "ready") announce("昆蟲進圈了，現在可以閉合葉片。");
+  lastVisual = visual;
+}
+function capture() {
+  if(duelControlled)window.parent.plantDuelSync();
+  if (game.status !== "running") return;
+  if(!duelControlled)advance(performance.now());
+  if (game.status !== "running" || game.cooldown > 0) return;
+  const pos = game.enemy ? enemyPosition(game.enemy) : null;
+  if (pos && Math.hypot(pos.x-450,pos.y-316) <= 62) {
+    game.caught++; game.streak++; game.maxStreak = Math.max(game.maxStreak,game.streak);
+    const points = 10 + Math.min(game.streak-1,4)*2; game.score += points; game.enemy = null;
+    game.feedback = "捕獲成功！+"+points+" 分"; game.feedbackUntil = game.elapsed+2300;
+    announce("捕獲成功，加 "+points+" 分。連續捕獲 "+game.streak+" 次。");
+  } else {
+    game.empty++; game.streak = 0;
+    game.feedback = "太早或太晚了，進圈再閉合。"; game.feedbackUntil = game.elapsed+2300;
+    announce("這次沒有捕獲。等昆蟲進圈再閉合。");
+  }
+  game.cooldown = RECOVERY; render();
+}
+function pauseGame(reason) {
+  if(duelControlled)return;
+  if (game.status !== "running") return;
+  if(!duelControlled)advance(performance.now());
+  if (game.status !== "running") return;
+  game.status = "paused"; $("pauseOverlay").hidden = false; $("pauseButton").textContent = "繼續";
+  $("pauseReason").textContent = reason === "hidden" ? "離開畫面時已自動暫停。回來後，按繼續觀察。" : "時間已暫停，準備好再繼續。";
+  render(); announce("遊戲已暫停。");
+  if (reason !== "hidden" && reason !== "quit") $("resumeButton").focus({preventScroll:true});
+}
+function resumeGame() {
+  if (game.status !== "paused" || document.hidden || $("quitDialog").open) return;
+  game.status = "running"; game.last = performance.now(); $("pauseOverlay").hidden = true; $("pauseButton").textContent = "暫停";
+  render(); $("captureButton").focus({preventScroll:true}); announce("繼續觀察。");
+}
+function finishGame() {
+  if(duelControlled){game.status="result";game.enemy=null;game.cooldown=0;render();return;}
+  if (game.status !== "running" && game.status !== "paused") return;
+  game.status = "result"; game.enemy = null; game.cooldown = 0; saveRecord();
+  $("pauseOverlay").hidden = true; $("resultOverlay").hidden = false; $("sceneStatus").hidden = true;
+  $("pauseButton").disabled = true; $("quitButton").disabled = true;
+  const rank = game.caught >= 10 ? "葉片傳奇" : game.caught >= 7 ? "觀察高手" : game.caught >= 4 ? "耐心獵手" : "自然見習員";
+  $("resultMode").textContent = modes[game.mode].name + " · 觀察完成";
+  $("rankTitle").textContent = rank; $("resultScore").textContent = game.score;
+  $("resultDetails").textContent = "捕獲 "+game.caught+" 隻 · 最高連續 "+game.maxStreak+" 次";
+  $("resultHint").textContent = game.caught >= 7 ? "捕蟲的是葉！補充養分後，仍需要光合作用。" : "記住：亮綠時閉合，恢復時耐心等一等。";
+  $("retryButton").textContent = game.mode === "class" ? "同場再挑戰" : "再挑戰一次";
+  render(); $("retryButton").focus({preventScroll:true});
+  announce("觀察完成，獲得 "+game.score+" 分，稱號："+rank+"。");
+}
+function toMenu() {
+  document.body.classList.remove("playing");
+  game.status = "menu"; game.enemy = null; game.cooldown = 0; game.elapsed = 0; game.score = 0; game.streak = 0;
+  $("startOverlay").hidden = false; $("pauseOverlay").hidden = true; $("resultOverlay").hidden = true; $("sceneStatus").hidden = true;
+  $("pauseButton").disabled = true; $("quitButton").disabled = true; $("quitButton").textContent = "離開";
+  setModeLock(false); render(); chooseMode(selectedMode); $("startButton").focus({preventScroll:true});
+}
+function askQuit() {
+  if (game.status !== "running" && game.status !== "paused") return;
+  resumeAfterCancel = game.status === "running";
+  if (resumeAfterCancel) pauseGame("quit");
+  if (game.status !== "paused") return;
+  const practice = game.mode === "practice";
+  $("quitTitle").textContent = practice ? "結束這次練習嗎？" : "要離開這一局嗎？";
+  $("quitDescription").textContent = practice ? "結束後可以查看本次成果，並保存這台裝置的練習最佳紀錄。" : "這一局的成績不會保存。時間已暫停，可以繼續挑戰。";
+  $("confirmQuitButton").textContent = practice ? "結束並看成果" : "離開這一局";
+  $("quitDialog").showModal();
+}
+function cancelQuit() {
+  $("quitDialog").close();
+  if (resumeAfterCancel) resumeGame(); else $("resumeButton").focus({preventScroll:true});
+}
+$("startButton").addEventListener("click",startGame);
+$("retryButton").addEventListener("click",startGame);
+$("nextButton").addEventListener("click",toMenu);
+$("captureButton").addEventListener("click",capture);
+$("pauseButton").addEventListener("click",()=>game.status === "paused" ? resumeGame() : pauseGame("manual"));
+$("resumeButton").addEventListener("click",resumeGame);
+$("quitButton").addEventListener("click",askQuit);
+$("cancelQuitButton").addEventListener("click",cancelQuit);
+$("confirmQuitButton").addEventListener("click",()=>{ $("quitDialog").close(); if (game.mode === "practice") finishGame(); else toMenu(); });
+$("quitDialog").addEventListener("cancel",event=>{event.preventDefault(); cancelQuit();});
+document.querySelectorAll("[data-mode]").forEach(button=>button.addEventListener("click",()=>chooseMode(button.dataset.mode)));
+document.addEventListener("visibilitychange",()=>{if(document.hidden) pauseGame("hidden");});
+document.addEventListener("keydown",event=>{
+  if(duelControlled)return;
+  if ($("quitDialog").open) return;
+  if (event.code === "Space" && (event.target === document.body || event.target === $("captureButton"))) {
+    event.preventDefault();
+    if (!event.repeat) capture();
+  } else if (event.key === "Escape" && !event.repeat) {
+    if (game.status === "running") pauseGame("manual"); else if (game.status === "paused") resumeGame();
+  }
+});
+function frame(now) { if (!duelControlled && game.status === "running") { advance(now); if (game.status === "running") render(); } requestAnimationFrame(frame); }
+
+if (new URLSearchParams(location.search).get('duel') === 'player' && window.parent !== window) {
+  duelControlled=true;document.body.classList.add('duel-player');
+  window.plantGameBridge={
+    prepare(seed){game.status='menu';selectedMode='class';startGame();game.rng=seeded(seed);game.last=0;game.elapsed=0;game.status='paused';render();},
+    start(){game.status='running';game.last=0;render();},
+    step(elapsed){if(game.status!=='running')return;advance(Math.max(game.last,Math.min(60000,elapsed)));render();},
+    pause(){if(game.status==='running'){game.status='paused';render();}},
+    resume(){if(game.status==='paused'){game.status='running';render();}},
+    action(){capture();},
+    finish(){if(game.status==='running'||game.status==='paused'){game.elapsed=60000;finishGame();}},
+    snapshot(){return {score:game.score,caught:game.caught,maxStreak:game.maxStreak};}
+  };
+  $('captureButton').addEventListener('pointerdown',event=>{if(event.pointerType!=='mouse'){event.preventDefault();capture();}});
+  document.addEventListener('keydown',event=>{
+    if(['KeyF','KeyJ'].includes(event.code)){event.preventDefault();window.parent.plantDuelKey(event.code,event.repeat);}
+  });
+}
+
+chooseMode("class");
+requestAnimationFrame(frame);
+</script>
+<script src="../共用/plant-duel.js"></script>
+</body>
+</html>
