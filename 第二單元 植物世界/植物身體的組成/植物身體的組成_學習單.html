@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>植物身體的組成 學習單</title>
+<title>植物身體的組成＋多功能的營養器官 學習單</title>
 <style>
   @page { size: A4 portrait; margin: 9mm 11mm; }
   * { margin:0; padding:0; box-sizing:border-box; }
@@ -11,15 +11,17 @@
          font-size:11.5pt; line-height:1.45; color:#111; background:#f0f0f0; }
   .sheet { width:190mm; min-height:275mm; margin:8px auto; background:#fff;
            padding:6mm 7mm; box-shadow:0 2px 12px rgba(0,0,0,.25); }
+  .sheet + .sheet { margin-top:16px; }
   @media print {
     body { background:#fff; }
     .sheet { margin:0; box-shadow:none; width:auto; min-height:auto; padding:0; }
+    .sheet + .sheet { margin-top:0; break-before:page; }   /* 正反兩面：背面從新的一頁開始 */
     .no-print { display:none !important; }
   }
   .head { display:flex; align-items:flex-end; gap:10px; border-bottom:2.5px solid #111;
           padding-bottom:4px; margin-bottom:6px; }
-  .head h1 { font-size:15pt; letter-spacing:0.5px; white-space:nowrap; }
-  .head .sub { font-size:9.5pt; color:#444; }
+  .head h1 { font-size:13.5pt; letter-spacing:0.5px; white-space:nowrap; line-height:1.3; }
+  .head h1 small { display:block; font-size:9pt; font-weight:400; color:#444; letter-spacing:0; }
   .head .blanks { margin-left:auto; font-size:11pt; white-space:nowrap; }
   .blank { display:inline-block; border-bottom:1px solid #111; min-width:16mm; text-align:center; }
   h2 { font-size:12.5pt; background:#e8e8e8; border-left:5px solid #555;
@@ -34,6 +36,7 @@
   table.tab th, table.tab td { border:1.2px solid #333; padding:3px 4px; }
   table.tab th { background:#eee; }
   .tab td.fill { min-width:20mm; height:8mm; }
+  .tab td.l { text-align:left; }
   .thinkbox { border:1.2px solid #333; border-radius:6px; padding:5px 8px; }
   .thinkbox.star { border-color:#e8890b; background:#fffdf6; }
   .wline { border-bottom:1px solid #999; min-height:8.5mm; }
@@ -44,6 +47,13 @@
                     background:#fff; cursor:pointer; font-family:inherit; }
   .foot { margin-top:5px; font-size:9pt; color:#666; text-align:right; }
   .hint { background:#f3f3f3; border-radius:5px; padding:2px 7px; font-size:10.5pt; }
+  /* 背面：本領代號表、左右兩張小表 */
+  .bank { border:1.2px dashed #555; border-radius:6px; padding:3px 8px; margin-bottom:5px;
+          font-size:10.5pt; line-height:1.65; }
+  .bank span { white-space:nowrap; margin-right:9px; }
+  .two { display:flex; gap:4mm; align-items:flex-start; }
+  .two > * { flex:1; }
+  .opts span { white-space:nowrap; margin-right:12px; }
 
   /* ===== RWD =====
      學習單是 A4 列印物（.sheet 固定 190mm）。螢幕上把整張紙等比例縮到
@@ -70,13 +80,13 @@
 <body>
 <div class="toolbar no-print">
   <button onclick="document.body.classList.toggle('show-ans')">👨‍🏫 顯示 / 隱藏答案（教師版）</button>
-  <button onclick="window.print()">🖨️ 列印</button>
+  <button onclick="window.print()">🖨️ 列印（正反兩面）</button>
 </div>
 
+<!-- ===================== 正面：植物身體的組成 ===================== -->
 <div class="sheet">
   <div class="head">
-    <h1>🔬 植物身體的組成</h1>
-    <div class="sub">五年級自然．第二單元<br>植物世界 學習單</div>
+    <h1>🔬 植物身體的組成 ＋ 🌿 多功能的營養器官<small>五年級自然．第二單元 植物世界 學習單（正面）</small></h1>
     <div class="blanks">班級<span class="blank"></span> 座號<span class="blank" style="min-width:10mm"></span> 姓名<span class="blank" style="min-width:22mm"></span></div>
   </div>
 
@@ -135,10 +145,11 @@
   </table>
 
   <h2 class="star">★ 四、挑戰題：都長在土裡，可是……</h2>
+  <!-- 提示不用「芽只會長在莖上」：地瓜（根）放久了也會冒芽，學生會拿這個反問。改用「節」當判準，和甘蔗、胡蘿蔔的判準一致。 -->
   <div class="thinkbox star">
-    馬鈴薯和地瓜都長在土裡。<span class="hint">提示：芽只會長在<b>莖</b>上。馬鈴薯身上有<b>芽眼</b>，地瓜沒有。</span><br>
+    馬鈴薯和地瓜都長在土裡。<span class="hint">提示：莖上有<b>節</b>，節上長著芽。馬鈴薯身上一個個的<b>芽眼</b>就是節；地瓜身上找不到芽眼。</span><br>
     馬鈴薯是 <span class="blank" style="min-width:16mm"><span class="ans">莖</span></span>，地瓜是 <span class="blank" style="min-width:16mm"><span class="ans">根</span></span>。
-    　理由：<span class="blank" style="min-width:78mm"><span class="ans">馬鈴薯有芽眼、芽長在莖上，所以是莖</span></span>
+    　理由：<span class="blank" style="min-width:78mm"><span class="ans">馬鈴薯有芽眼（莖上的節），所以是莖</span></span>
   </div>
 
   <h2>五、想一想</h2>
@@ -148,19 +159,88 @@
     <div class="wline"><span class="ans">不對。一整棵植物才叫一個個體，葉子只是它的一個器官；把葉子剪成兩半，只是把一個器官分成兩塊，並沒有變成兩棵植物。</span></div>
   </div>
 
-  <div class="foot">🔬 細胞 → 器官 → 個體　｜　根莖葉＝營養器官　花果實種子＝繁殖器官</div>
+  <div class="foot">🔬 細胞 → 器官 → 個體　｜　根莖葉＝營養器官　花果實種子＝繁殖器官　｜　背面還有題目 →</div>
 </div>
+
+<!-- ===================== 背面：多功能的營養器官 ===================== -->
+<div class="sheet">
+  <div class="head">
+    <h1>🌿 多功能的營養器官<small>植物身體的組成＋多功能的營養器官 學習單（背面）</small></h1>
+    <div class="blanks">座號<span class="blank" style="min-width:10mm"></span> 姓名<span class="blank" style="min-width:22mm"></span></div>
+  </div>
+
+  <h2>六、根、莖、葉的特殊本領：它是哪個器官？在做什麼？</h2>
+  <div class="bank"><b>本領代號：</b>
+    <span>① 加強支撐、站得更穩</span><span>② 儲藏養分和水分</span><span>③ 吸收空氣中的水分</span><span>④ 長出新的小植株</span><br>
+    <span>⑤ 攀附支架、向上生長</span><span>⑥ 減少水分散失、保護自己</span><span>⑦ 顏色鮮豔、吸引昆蟲</span><span>⑧ 捕捉昆蟲、補充營養</span>
+  </div>
+  <div class="two">
+    <table class="tab">
+      <tr><th>植物身上的構造</th><th style="width:19%">器官<br><span style="font-weight:400;font-size:9pt">根／莖／葉</span></th><th style="width:15%">本領</th></tr>
+      <tr><td class="l">白蘿蔔胖胖的部分</td><td class="fill"><span class="ans">根</span></td><td class="fill"><span class="ans">②</span></td></tr>
+      <tr><td class="l">絲瓜的卷鬚</td><td class="fill"><span class="ans">莖</span></td><td class="fill"><span class="ans">⑤</span></td></tr>
+      <tr><td class="l">仙人掌的刺</td><td class="fill"><span class="ans">葉</span></td><td class="fill"><span class="ans">⑥</span></td></tr>
+      <tr><td class="l">榕樹垂下來的氣生根</td><td class="fill"><span class="ans">根</span></td><td class="fill"><span class="ans">③</span></td></tr>
+      <tr><td class="l">吊蘭長長的走莖</td><td class="fill"><span class="ans">莖</span></td><td class="fill"><span class="ans">④</span></td></tr>
+    </table>
+    <table class="tab">
+      <tr><th>植物身上的構造</th><th style="width:19%">器官<br><span style="font-weight:400;font-size:9pt">根／莖／葉</span></th><th style="width:15%">本領</th></tr>
+      <tr><td class="l">聖誕紅紅色的部分</td><td class="fill"><span class="ans">葉</span></td><td class="fill"><span class="ans">⑦</span></td></tr>
+      <tr><td class="l">銀葉樹基部的板根</td><td class="fill"><span class="ans">根</span></td><td class="fill"><span class="ans">①</span></td></tr>
+      <tr><td class="l">毛氈苔長滿黏毛的部分</td><td class="fill"><span class="ans">葉</span></td><td class="fill"><span class="ans">⑧</span></td></tr>
+      <tr><td class="l">石蓮厚厚的部分</td><td class="fill"><span class="ans">葉</span></td><td class="fill"><span class="ans">②</span></td></tr>
+      <tr><td class="l" colspan="3" style="font-size:10pt">✏️ 白蘿蔔和石蓮的本領一樣，器官卻不同，<br>代表：<span class="blank" style="min-width:52mm"><span class="ans">不同的器官也可能有相同的本領</span></span></td></tr>
+    </table>
+  </div>
+
+  <h2>七、想一想：營養器官也能「生寶寶」？</h2>
+  <div class="thinkbox">
+    吊蘭的走莖末端長出了新的小植株。小華說：「走莖會長出新植物，所以它是繁殖器官。」你同意嗎？請說明理由。
+    <div class="wline"></div>
+    <div class="wline"><span class="ans">不同意。走莖是莖，屬於營養器官；營養器官主要幫植物活下去，有些也能長出新植株，但它還是營養器官。</span></div>
+  </div>
+
+  <h2>八、植物會回應環境：快的、慢的</h2>
+  <div class="opts" style="font-size:11pt;margin-bottom:3px">
+    <span>甲 捕蠅草的葉受到刺激後閉合</span><span>乙 幼苗的莖朝著光慢慢彎過去</span><br>
+    <span>丙 含羞草被碰到後小葉合起來</span><span>丁 秋冬時有些樹的葉子變色、掉落</span>
+  </div>
+  <ol class="qs">
+    <li>很快就看得到的反應：<span class="blank" style="min-width:22mm"><span class="ans">甲、丙</span></span>　要觀察好幾天、甚至跨季節才看得出來：<span class="blank" style="min-width:22mm"><span class="ans">乙、丁</span></span></li>
+    <li>捕蠅草和含羞草會「動」的部分，都是植物的 <span class="blank" style="min-width:16mm"><span class="ans">葉</span></span>。</li>
+  </ol>
+
+  <h2>九、判斷對錯：對的畫「○」，錯的畫「╳」</h2>
+  <ol class="qs">
+    <li>（<span class="blank" style="min-width:8mm"><span class="ans">╳</span></span>）根一定長在土裡。<span class="ans">　榕樹的氣生根就長在空中。</span></li>
+    <li>（<span class="blank" style="min-width:8mm"><span class="ans">╳</span></span>）植物是吃土裡的「食物」長大的。<span class="ans">　養分主要是葉行光合作用製造的。</span></li>
+    <li>（<span class="blank" style="min-width:8mm"><span class="ans">╳</span></span>）捕蟲植物抓到昆蟲以後，就不需要陽光了。<span class="ans">　仍要行光合作用，昆蟲只是補充營養。</span></li>
+    <li>（<span class="blank" style="min-width:8mm"><span class="ans">○</span></span>）同一種器官，在不同植物身上可能有不同的本領。</li>
+  </ol>
+
+  <h2 class="star">★ 十、挑戰題：仙人掌的「身體」是什麼器官？</h2>
+  <div class="thinkbox star">
+    仙人掌的刺是特化的<b>葉</b>。<span class="hint">提示：葉都是從<b>莖</b>上長出來的。仙人掌的刺，是從哪裡長出來的？</span><br>
+    仙人掌綠色、肥厚的身體是 <span class="blank" style="min-width:16mm"><span class="ans">莖</span></span>。葉變成刺以後，改由它來行
+    <span class="blank" style="min-width:24mm"><span class="ans">光合作用</span></span> 製造養分，它還能 <span class="blank" style="min-width:24mm"><span class="ans">儲存水分</span></span>。
+  </div>
+
+  <div class="foot">🌿 同一種器官，本領可以不只一種　｜　營養器官主要幫植物活下去，有些也能長出新植株</div>
+</div>
+
 <script>
 /* 螢幕上讓整張 A4 等比例縮到裝置寬度（列印時由 @media print 還原成 1）。
-   .sheet 固定 190mm；小於這個寬度的裝置才縮，桌機以上不動。 */
+   .sheet 固定 190mm；小於這個寬度的裝置才縮，桌機以上不動。正反兩面各自套用。 */
 (function () {
   var SHEET_PX = 190 * 96 / 25.4;                 /* 190mm 換算成 px */
-  var el = document.querySelector('.sheet');
-  if (!el) return;
+  var sheets = document.querySelectorAll('.sheet');
+  if (!sheets.length) return;
   function fit() {
     var avail = document.documentElement.clientWidth - 10;
-    if (avail >= SHEET_PX) { el.style.zoom = ''; return; }   /* 夠寬就交還給 CSS */
-    el.style.zoom = Math.max(0.3, avail / SHEET_PX);
+    for (var i = 0; i < sheets.length; i++) {
+      if (avail >= SHEET_PX) { sheets[i].style.zoom = ''; continue; }   /* 夠寬就交還給 CSS */
+      sheets[i].style.zoom = Math.max(0.3, avail / SHEET_PX);
+    }
   }
   fit();
   addEventListener('resize', fit);
