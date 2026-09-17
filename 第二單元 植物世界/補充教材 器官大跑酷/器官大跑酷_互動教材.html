@@ -10,7 +10,7 @@
    器官大跑酷 — Chrome 恐龍風跑酷
    規則：該躲的用「跳」的、該拿的直接撞上去。規則整局固定。
    （原本每 20 秒規則反轉一次，老師評估對小孩太難，2026-09 拿掉。）
-   單人挑戰：3 顆愛心，撞錯一次扣一顆並停格說明；用完才結束，可以存進排行榜。
+   單人挑戰：3 顆愛心，撞錯一次、或連續漏吃 3 個，都扣一顆並停格說明；用完才結束，可以存進排行榜。
    雙人對戰：同一個畫面切成兩條跑道，兩人遇到的器官一模一樣；撞錯暈 1.5 秒、扣 20 分，60 秒內分數高的贏。
    連擊與漏吃（2026-09-17）：跳過該吃的＝漏吃、連擊歸零——堵住「全部都跳就不會死」的偷懶玩法。
    ========================================================== */
@@ -268,7 +268,7 @@ table.lb td.nm{text-align:left}
             <p class="howto">
               <b>該躲的用跳的，該拿的直接撞上去。</b><br>
               連吃越多分越高；<b>跳過該吃的＝漏吃</b>，連擊會斷！<br>
-              <span class="solo-only" style="font-size:.92em">撞到要躲的扣 <b>♥</b>，3 顆用完就結束。跳：<b>空白鍵</b> / <b>↑</b> / 點畫面</span>
+              <span class="solo-only" style="font-size:.92em">撞到要躲的、<b>連續漏吃 3 個</b>都扣 <b>♥</b>。跳：<b>空白鍵</b> / <b>↑</b> / 點畫面</span>
               <span class="duo-only" style="font-size:.92em">撞到要躲的<b>暈 1.5 秒、−20 分</b>；兩人的器官<b>一樣</b>，<b>60 秒</b>比高分！<br>
                 <b class="c1">玩家 1 🐷</b>：<b>F</b> 鍵或點<span id="sideA">左</span>半邊　<b class="c2">玩家 2 🐗</b>：<b>J</b> 鍵或點<span id="sideB">右</span>半邊</span>
             </p>
@@ -340,7 +340,7 @@ table.lb td.nm{text-align:left}
 
   <!-- 給老師的提示放在舞台外：開始畫面留給學生看的內容，75 吋螢幕（1920×約 900）才塞得下雙人說明 -->
   <div class="tip"><b>給老師：</b>規則列一直顯示在畫面上方，所以考的是「分類的速度」，不是記憶；兩種規則都值得各玩一輪。
-    單人有 3 顆愛心，每撞錯一次都會停格說明「它是什麼、屬於哪一類」；跳過該吃的會記成「漏吃」並讓連擊歸零，所以「全部都跳」拿不到高分。
+    單人有 3 顆愛心，每撞錯一次都會停格說明「它是什麼、屬於哪一類」；跳過該吃的會記成「漏吃」並讓連擊歸零，連續漏吃 3 個也會扣一顆愛心，所以「全部都跳」既拿不到高分、也撐不久。
     結算頁會列出撞到與漏吃的清單，可以拿來全班討論。雙人撞錯會暈 1.5 秒並扣 20 分，兩人都能玩滿 60 秒，兩邊出現的器官完全相同。</div>
 </div>
 
@@ -497,8 +497,10 @@ const LABEL_FONT = '"PingFang TC","Microsoft JhengHei","Noto Sans TC","Segoe UI 
 /* --- 愛心、連擊、暈眩 --- */
 const HEARTS_MAX  = 3;               /* 單人愛心數 */
 const HEAL_EVERY  = 10;              /* 單人連吃幾個補一顆愛心（分類越準越能撐） */
+const MISS_LIMIT  = 3;               /* 單人連續漏吃幾個扣一顆愛心。沒有這條的話，「全部都跳」
+                                        的學生分數雖低卻能活很久（模擬約 160 秒），佔住教室輪替 */
 const COMBO_AT    = 5;               /* 連吃第幾個起，每個 +20 */
-const FREEZE_SEC  = 1.5;             /* 單人撞錯：停格讓全班看清楚撞到什麼、為什麼 */
+const FREEZE_SEC  = 1.5;             /* 單人扣愛心（撞錯或連續漏吃）：停格讓全班看清楚是什麼、為什麼 */
 const INV_FREEZE  = 1.0;             /* 停格結束後的無敵時間：還卡在跑者身上的那張卡片才不會再扣一次 */
 const STUN_SEC    = 1.5;             /* 雙人撞錯：暈眩（世界照跑，兩人才公平） */
 const INV_STUN    = 0.5;             /* 暈眩醒來的無敵時間 */
@@ -550,6 +552,7 @@ let animT = 0;                       /* 純動畫用的時間（停格時也會�
 function newPlayer(i){
   return { i, py:0, vy:0, onGround:true, alive:true, ready:false,
            aliveT:0, got:0, bonus:0, lost:0, combo:0, bestCombo:0, hearts:HEARTS_MAX,
+           missRun:0, missHearts:0,
            inv:0, stun:0, shake:0, why:null, banner:null, mistakes:[], misses:[] };
 }
 /* 分數 = 撐過的整秒數（每秒 +1）+ 吃到的加分（一般 +10，連吃 5 個起 +20）。
@@ -609,11 +612,13 @@ function press(i){
 function tick(dt){
   for (const p of players) p.shake = Math.max(0, p.shake - dt);
   if (state === "freeze"){
-    /* 單人撞錯停格：世界完全暫停（間距幾何不受影響），時間到給一小段無敵再繼續 */
+    /* 單人扣愛心停格：世界完全暫停（間距幾何不受影響）。
+       撞錯的話那張卡片還卡在跑者身上，給一小段無敵；連續漏吃停格時跑者身上沒有卡片，
+       不給無敵，免得下一張該躲的白白穿過去（下一張最快也要約 0.8 秒後才碰到跑者）。 */
     freezeT -= dt;
     if (freezeT <= 0){
       const p = players[0];
-      state = "play"; p.inv = INV_FREEZE; p.why = null;
+      state = "play"; p.inv = p.why && p.why.kind === "hit" ? INV_FREEZE : 0; p.why = null;
     }
   } else if (state === "ready" || state === "count" || state === "play"){
     step(dt);
@@ -659,6 +664,7 @@ function step(dt){
   const v = speedSW();
   dist += v * dt;
   for (let j = obstacles.length - 1; j >= 0; j--){
+    obstacles[j].px = obstacles[j].x;              /* 上一格的位置：掃過式碰撞用 */
     obstacles[j].x -= v * dt;
     if (obstacles[j].x < -0.2) obstacles.splice(j, 1);
   }
@@ -676,31 +682,39 @@ function step(dt){
     players.forEach(p => banner(p, "🏞️ 第 " + (z + 1) + " 區"));
   }
 
-  /* 碰撞（雙方各縮 15%，手感寬鬆一點）。k：跑道高度比例 → 跑道寬度比例 */
+  /* 碰撞（雙方各縮 15%，手感寬鬆一點）。k：跑道高度比例 → 跑道寬度比例
+     ⚠️ 掃過式：用「這一格從 px 移到 x」掃過的整段範圍判斷，不只看終點。
+     低幀率（教室觸控螢幕可能只有 30 fps）又跑到高速時，卡片一格就跨過整個碰撞區，
+     只看終點的話會直接穿過跑者——該躲的沒撞到、站著沒跳卻被算成漏吃（而漏吃會扣愛心）。 */
   const sz = sizeFrac(), k = LH / LW;
   const pL = PLAYER_X + sz * k * 0.15, pR = PLAYER_X + sz * k * 0.85;
   for (const o of obstacles){
     const oL = o.x + sz * k * 0.15, oR = o.x + sz * k * 0.85;
+    const sweptR = (o.px === undefined ? o.x : o.px) + sz * k * 0.85;
     const avoid = o.item.cat === avoidCat;
     for (const p of players){
       if (!p.alive || o.taken[p.i] || o.passed[p.i]) continue;
-      if (oR < pL){
-        /* 卡片已經完整通過跑者：該吃的沒吃到 = 漏吃（暈眩中通過的不算） */
-        o.passed[p.i] = true;
-        if (!avoid && p.stun <= 0) miss(p, o);
-        continue;
-      }
-      if (oL >= pR) continue;
       const playerBottom = p.py;                                 /* 0 = 站在地面 */
       const playerTop    = p.py - sz * 0.85;
       const obsTop       = -sz * 0.85;
-      if (playerBottom <= obsTop || playerTop >= 0) continue;
-      if (avoid){
-        if (p.inv > 0 || p.stun > 0) continue;
-        hit(p, o);
-        if (state !== "play") return;                            /* 單人停格或愛心用完 */
-      } else if (p.stun <= 0){
-        eat(p, o);
+      if (oL < pR && sweptR > pL && playerBottom > obsTop && playerTop < 0){
+        if (avoid){
+          if (p.inv <= 0 && p.stun <= 0){
+            hit(p, o);
+            if (state !== "play") return;                        /* 單人停格或愛心用完 */
+          }
+        } else if (p.stun <= 0){
+          eat(p, o);
+          continue;
+        }
+      }
+      if (oR < pL){
+        /* 卡片已經完整通過跑者：該吃的沒吃到 = 漏吃（暈眩中通過的不算） */
+        o.passed[p.i] = true;
+        if (!avoid && p.stun <= 0){
+          miss(p, o);
+          if (state !== "play") return;                          /* 單人連續漏吃扣愛心：停格或愛心用完 */
+        }
       }
     }
   }
@@ -716,13 +730,20 @@ function step(dt){
   else if (elapsed >= DUEL_SEC) endDuel();
 }
 
-function banner(p, text, dur){ p.banner = { text, t:0, dur: dur || 1.3 }; }
+function banner(p, text, dur){
+  /* 「再漏吃 1 個就扣 ♥」是扣愛心前唯一的提醒：顯示期間不讓加速／換區／破紀錄橫幅蓋掉
+     （吃到東西時 eat() 會先把它收掉，扣愛心時 loseHeart() 也會） */
+  if (p.banner && p.banner.missWarn) return;
+  p.banner = { text, t:0, dur: dur || 1.3 };
+}
 
 /* 吃對了 */
 function eat(p, o){
   o.taken[p.i] = true;
   p.got++;
   p.combo++;
+  p.missRun = 0;
+  if (p.banner && p.banner.missWarn) p.banner = null;       /* 吃到就歸零了，「再漏吃 1 個」的警告要跟著收掉 */
   p.bestCombo = Math.max(p.bestCombo, p.combo);
   const add = p.combo >= COMBO_AT ? 20 : 10;
   p.bonus += add;
@@ -745,37 +766,61 @@ function eat(p, o){
   }
 }
 
-/* 該吃的被跳過去了 */
+/* 該吃的被跳過去了。單人連續漏吃 MISS_LIMIT 個（中間沒吃到任何一個）就扣一顆愛心 */
 function miss(p, o){
   p.misses.push(o.item);
   p.combo = 0;
+  p.missRun++;
   const sz = sizeFrac();
   pops.push({ kind:"txt", lane:p.i, x:PLAYER_X + sz * (LH / LW) * 0.5, y:-sz - 0.06, t:0, life:0.9, text:"漏吃！", color:"#7C878D" });
+  if (mode !== 1){ Sound.miss(); return; }
+  if (p.missRun >= MISS_LIMIT){
+    p.missHearts++;
+    loseHeart(p, { kind:"miss", items:p.misses.slice(-MISS_LIMIT), t:0 });
+    return;
+  }
+  if (p.missRun === MISS_LIMIT - 1){
+    banner(p, "⚠️ 再漏吃 1 個就扣 ♥", 1.6);
+    p.banner.missWarn = true;
+    Sound.warn();
+    return;
+  }
   Sound.miss();
+}
+
+/* 單人扣一顆愛心：停格說明為什麼（撞錯或連續漏吃），用完就結束。
+   扣完把連續漏吃歸零——剛撞錯停格回來，別馬上又因為之前的漏吃再扣一次。 */
+function loseHeart(p, why){
+  p.combo = 0;
+  p.missRun = 0;
+  p.shake = SHAKE_SEC;
+  p.why = why;
+  p.banner = null;
+  Sound.hit();
+  p.hearts--;
+  updateHud();
+  if (p.hearts <= 0){ die(); return; }
+  state = "freeze"; freezeT = FREEZE_SEC;
 }
 
 /* 撞到要躲的 */
 function hit(p, o){
-  p.combo = 0;
   p.mistakes.push(o.item);
+  const why = { kind:"hit", item:o.item, t:0 };
+  if (mode === 1){ loseHeart(p, why); return; }
+  p.combo = 0;
   p.shake = SHAKE_SEC;
-  p.why = { item:o.item, t:0 };
+  p.why = why;
   p.banner = null;
   Sound.hit();
-  if (mode === 1){
-    p.hearts--;
-    updateHud();
-    if (p.hearts <= 0){ die(); return; }
-    state = "freeze"; freezeT = FREEZE_SEC;
-  } else {
-    p.stun = STUN_SEC;
-    const cost = Math.min(p.bonus, STUN_COST);
-    p.bonus -= cost;
-    p.lost += cost;
-    if (cost){
-      const sz = sizeFrac();
-      pops.push({ kind:"txt", lane:p.i, x:PLAYER_X + sz * (LH / LW) * 0.5, y:-sz - 0.06, t:0, life:0.9, text:"−" + cost, color:"#7C878D" });
-    }
+  /* 雙人：暈眩＋扣分，世界照跑 */
+  p.stun = STUN_SEC;
+  const cost = Math.min(p.bonus, STUN_COST);
+  p.bonus -= cost;
+  p.lost += cost;
+  if (cost){
+    const sz = sizeFrac();
+    pops.push({ kind:"txt", lane:p.i, x:PLAYER_X + sz * (LH / LW) * 0.5, y:-sz - 0.06, t:0, life:0.9, text:"−" + cost, color:"#7C878D" });
   }
 }
 
@@ -824,6 +869,7 @@ const Sound = {
   combo(){   [660, 830, 990, 1320].forEach((f, i) => this.tone(f, i * 0.06, 0.14, "triangle", 0.12)); },
   heal(){    [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => this.tone(f, i * 0.08, 0.22)); },
   miss(){    this.tone(392, 0, 0.09, "sine", 0.07); this.tone(294, 0.08, 0.14, "sine", 0.07); },
+  warn(){    this.tone(880, 0, 0.1, "square", 0.06); this.tone(880, 0.15, 0.12, "square", 0.06); },   // 再漏吃 1 個就扣 ♥：嗶嗶
   hit(){     this.tone(196, 0, 0.25, "sawtooth", 0.10); this.tone(131, 0.12, 0.3, "sawtooth", 0.09); },
   speedup(){ this.tone(523.25, 0, 0.09, "square", 0.05); this.tone(783.99, 0.09, 0.15, "square", 0.05); },
   record(){  [523.25, 659.25, 783.99].forEach((f, i) => this.tone(f, i * 0.1, 0.16, "triangle", 0.13));
@@ -1060,18 +1106,19 @@ function drawLaneHud(i){
   const comboY = mode === 1 ? pad + f * 0.9 : pad + f * 3.1;
   if (p.combo >= 2) pill(LW - pad, comboY, "🔥 " + p.combo + " 連吃", f * 0.9, "#1E1E1E", "#fff", "right");
 
-  /* 撞錯的說明：單人停格時、雙人暈眩後 WHY_SEC 秒內 */
+  /* 扣愛心／暈眩的說明：單人停格時、雙人暈眩後 WHY_SEC 秒內 */
   const showWhy = p.why && (mode === 2 || state === "freeze" || state === "over");
   if (showWhy){
-    const it = p.why.item;
-    const tail = mode === 1
-      ? (p.hearts > 0 ? "這一局要躲開" + avoidCat + "器官　剩 " + "♥".repeat(p.hearts) : "愛心用完了！")
-      : "這一局要躲開" + avoidCat + "器官";
-    textBlock(cx, LH * (mode === 1 ? 0.42 : 0.47), [
-      ["💥 撞到 " + (it.kind === "emo" ? it.face + " " : "") + it.name, big],
-      ["是" + it.organ + " → " + it.cat + "器官", big * 0.8],
-      [tail, big * 0.55]
-    ], "#1E1E1E");
+    const left = mode === 1 ? (p.hearts > 0 ? "　剩 " + "♥".repeat(p.hearts) : "　愛心用完了！") : "";
+    const label = it => (it.kind === "emo" ? it.face + " " : "") + it.name;
+    const lines = p.why.kind === "miss"
+      ? [["😋 連續漏吃 " + MISS_LIMIT + " 個！", big],
+         [p.why.items.map(label).join("、"), big * 0.7],
+         ["都是" + otherCat(avoidCat) + "器官，要撞上去吃掉" + left, big * 0.55]]
+      : [["💥 撞到 " + label(p.why.item), big],
+         ["是" + p.why.item.organ + " → " + p.why.item.cat + "器官", big * 0.8],
+         ["這一局要躲開" + avoidCat + "器官" + left, big * 0.55]];
+    textBlock(cx, LH * (mode === 1 ? 0.42 : 0.47), lines, "#1E1E1E");
   } else if (p.banner){
     const s = Math.min(1, p.banner.t / 0.15);                 /* 彈出來 */
     pill(cx, mode === 1 ? LH * 0.26 : pad + f * 5.3, p.banner.text, f * (1.05 + 0.25 * s), "#1E1E1E", "#fff", "center");
@@ -1288,11 +1335,13 @@ function die(){
   const id = matchId;
   updateHud();
   Sound.over();
-  /* 停一下再出結算：讓全班看清楚最後一撞 */
+  /* 停一下再出結算：讓全班看清楚最後扣掉的那顆愛心是怎麼回事 */
   setTimeout(() => { if (id === matchId) showOver(); }, 900);
 }
 function showOver(){
   const p = players[0], score = pts(p);
+  /* 標題跟停格說明框一致：最後一顆愛心是連續漏吃扣的就用 😋，撞錯扣的用 💥 */
+  $("overTitle").textContent = (p.why && p.why.kind === "miss" ? "😋" : "💥") + " 愛心用完了！";
   $("finalScore").textContent = score;
   $("scoreBreak").textContent = "（吃到 " + p.got + " 個 +" + p.bonus + "・存活 " + Math.floor(p.aliveT) + " 秒・最多 " + p.bestCombo + " 連吃）";
 
@@ -1316,10 +1365,15 @@ function showOver(){
   const misses = groupItems(p.misses).map(([it, n]) =>
     '<span class="chip">' + (it.kind === "emo" ? it.face + ' ' : '') + it.name + (n > 1 ? ' ×' + n : '') +
     ' <small>' + (it.kind === "emo" ? it.organ + '・' : '') + it.cat + '</small></span>').join("");
-  $("review").innerHTML =
-    '<div class="rv"><div class="rv-h">💥 撞到的（這一局要躲開' + avoidCat + '器官）</div><ul>' + hits + '</ul></div>' +
-    '<div class="rv"><div class="rv-h">😋 漏吃的' + otherCat(avoidCat) + '器官（' + p.misses.length + ' 個）</div>' +
+  /* 沒撞到但靠「全部都跳」把愛心漏光的，不能給讚——那正是這條規則要改掉的玩法 */
+  const hitBlock = '<div class="rv"><div class="rv-h">💥 撞到的（這一局要躲開' + avoidCat + '器官）</div>' +
+    (hits ? '<ul>' + hits + '</ul>'
+          : '<div class="none">' + (p.missHearts ? '沒有撞到要躲開的，但該吃的也要撞上去吃掉喔！' : '一次都沒撞到要躲開的！👍') + '</div>') + '</div>';
+  const missBlock = '<div class="rv"><div class="rv-h">😋 漏吃的' + otherCat(avoidCat) + '器官（' + p.misses.length + ' 個' +
+    (p.missHearts ? '，連續漏吃扣了 ' + p.missHearts + ' 顆 ♥' : '') + '）</div>' +
     (misses ? '<div class="chips">' + misses + '</div>' : '<div class="none">一個都沒漏吃，太厲害了！👍</div>') + '</div>';
+  /* 愛心主要是漏吃扣掉的，就把漏吃放前面 */
+  $("review").innerHTML = p.missHearts > p.mistakes.length ? missBlock + hitBlock : hitBlock + missBlock;
 
   let lastName = "";
   try{ lastName = localStorage.getItem(LAST_NAME) || ""; }catch(_){}
