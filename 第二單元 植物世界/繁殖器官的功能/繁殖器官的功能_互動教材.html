@@ -1,0 +1,1607 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>繁殖器官的功能｜花、果實、種子</title>
+<link rel="icon" href="../../image/icon.svg" type="image/svg+xml">
+<style>
+/* ==========================================================
+   繁殖器官的功能 — 樣式表
+   使用情境：教室 75 吋觸控螢幕，全班共用、學生輪流上台操作。
+   沿用〈植物身體的組成〉的調色盤與元件；植物一律是真實照片，
+   構造名稱是疊在照片上的 HTML 標籤（位置用百分比）。
+   白色字只放在深綠 #2E7D4F 上；顏色不用來暗示答案。
+   ========================================================== */
+:root{
+  --bg:#FDF6EC;         /* 奶油底色 */
+  --ink:#1E1E1E;        /* 描邊近黑 */
+  --green:#58B159;      /* 主葉綠 */
+  --green-dark:#2E7D4F; /* 深綠（唯一可以放白字的底色） */
+  --water:#4FB0E5;      /* 水滴藍 */
+  --water-dark:#2E86C1;
+  --sun:#FFC93C;        /* 陽光黃 */
+  --coral:#FF7F66;      /* 珊瑚（繁殖器官色） */
+  --coral-dark:#E4574C;
+  --wrong:#E4574C;
+  --card:#FFFFFF;
+  --muted:#6B7A82;
+  --shadow:0 6px 18px rgba(46,86,110,.16);
+  --hs:clamp(44px,4.4vw,60px);  /* 照片熱點直徑（觸控至少 44px） */
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  min-height:100vh;color:var(--ink);background:var(--bg);
+  font-family:-apple-system,"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif;
+  font-size:clamp(17px,1.9vw,22px);line-height:1.6;
+}
+figure{margin:0}
+#app{max-width:1240px;margin:0 auto;padding:12px 16px 40px}
+
+/* ---------- 頁首與站別導覽（老師可自由跳段） ---------- */
+.sitehead{margin-bottom:12px}
+.headrow{display:flex;align-items:center;gap:6px 16px;flex-wrap:wrap}
+.back{
+  display:inline-flex;align-items:center;min-height:44px;padding:4px 16px;
+  border:3px solid var(--ink);border-radius:999px;background:var(--card);color:var(--ink);
+  font-weight:800;text-decoration:none;box-shadow:0 3px 0 var(--ink);font-size:clamp(15px,1.4vw,18px);
+}
+.back:active{transform:translateY(2px);box-shadow:0 1px 0 var(--ink)}
+.sitehead h1{margin:0;font-size:clamp(22px,2.6vw,32px);font-weight:900;letter-spacing:.5px;line-height:1.25}
+.sitehead .sub{color:var(--muted);font-size:clamp(13px,1.35vw,17px);font-weight:700}
+.stations{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.station-btn{
+  border:3px solid var(--ink);border-radius:999px;background:var(--card);color:var(--ink);
+  padding:8px 16px;font:inherit;font-size:clamp(15px,1.4vw,19px);font-weight:800;cursor:pointer;
+  box-shadow:0 3px 0 var(--ink);min-height:56px;line-height:1.25;
+}
+.station-btn.on{background:var(--green-dark);color:#fff}
+.station-btn:active{transform:translateY(2px);box-shadow:0 1px 0 var(--ink)}
+
+/* ---------- 畫面切換 ---------- */
+.screen{display:none;animation:fadeIn .4s ease}
+.screen.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.hidden{display:none !important}
+
+/* ---------- 通用卡片、按鈕 ---------- */
+.panel{
+  background:var(--card);border:3px solid var(--ink);border-radius:20px;
+  padding:16px 18px;box-shadow:var(--shadow);margin-bottom:14px;
+}
+.ptitle{font-weight:900;font-size:clamp(19px,2.2vw,27px);margin:0 0 10px}
+.btn{
+  border:3px solid var(--ink);border-radius:999px;background:var(--sun);color:var(--ink);
+  padding:12px 26px;font:inherit;font-weight:900;cursor:pointer;
+  box-shadow:0 4px 0 var(--ink);min-height:60px;
+}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--ink)}
+.btn.green{background:var(--green-dark);color:#fff}
+.btn.plain{background:var(--card)}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+/* 深綠按鈕停用時不可以變淡（白字會看不清）：改成米色底＋深灰字 */
+.btn.green[disabled]{opacity:1;background:#E6E1D6;color:#5B666C;box-shadow:0 4px 0 #9A9486}
+.btn[aria-pressed="true"]{box-shadow:0 0 0 5px var(--ink),0 4px 0 var(--ink)}
+.btnrow{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-top:14px}
+.btnrow.center{justify-content:center}
+.navrow{display:flex;justify-content:flex-end;gap:12px;flex-wrap:wrap;margin:0 0 12px}
+.ask{
+  background:#FFF6D8;border:3px dashed var(--sun);border-radius:16px;
+  padding:12px 16px;font-weight:800;font-size:clamp(18px,2.1vw,25px);text-align:center;
+}
+.ask.big{font-size:clamp(22px,2.6vw,40px);padding:16px}
+.lead{color:var(--muted);font-weight:700;margin:10px 0;font-size:clamp(15px,1.6vw,19px)}
+.cap{font-weight:800;margin-top:6px;font-size:clamp(14px,1.55vw,19px);line-height:1.45}
+.note{color:var(--muted);font-weight:700;font-size:clamp(13px,1.4vw,17px);line-height:1.45}
+.center{text-align:center}
+/* 給老師看的操作提示（放在舞台面板外面，學生不必讀） */
+.teacher-tip{
+  margin:0 0 18px;font-size:clamp(13px,1.4vw,16px);color:var(--muted);
+  border-left:5px solid var(--sun);padding:6px 12px;background:#FFFCF2;border-radius:0 10px 10px 0;
+}
+.teacher-tip b.time{color:#7A5B00}
+.teacher-tip p{margin:4px 0}
+/* 照片載入失敗：中性的灰框，不用 emoji 冒充植物 */
+.img-fallback{
+  display:flex !important;align-items:center;justify-content:center;text-align:center;line-height:1.35;
+  background:#F2EEE4;color:var(--muted);font-weight:800;font-size:clamp(12px,1.3vw,17px);
+  padding:8px;border:2px dashed #C9C2B4;overflow:hidden;overflow-wrap:anywhere;
+}
+
+/* 並排版面：橫向 ≥1024 時照片在左、任務在右 */
+.duo{display:grid;grid-template-columns:minmax(0,1fr);gap:16px;align-items:start}
+@media (min-width:1024px) and (orientation:landscape){
+  .duo{grid-template-columns:minmax(0,1.15fr) minmax(0,1fr)}
+  .duo.mid{align-items:center}
+}
+
+/* ---------- 照片框：比例＝照片原比例，所以百分比熱點不會跑位 ---------- */
+.fig{
+  position:relative;width:min(100%, calc(var(--mh,60vh) * var(--ar,4/3)));aspect-ratio:var(--ar,4/3);
+  margin:0 auto;border-radius:14px;background:#F2EEE4;box-shadow:0 0 0 3px var(--ink);
+}
+.fig > img,.fig > .img-fallback{
+  position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:14px;display:block;
+  -webkit-user-drag:none;user-select:none;
+}
+.figbox{padding:3px}
+/* 可點的數字熱點：中間透明的圈圈（看得到底下的構造），號碼放在圈圈上方的小牌子 */
+.hs{
+  position:absolute;z-index:3;transform:translate(-50%,-50%);
+  width:var(--hs);height:var(--hs);border-radius:50%;padding:0;
+  border:4px solid #fff;background:transparent;color:transparent;
+  font:inherit;font-weight:900;line-height:1;cursor:pointer;
+  box-shadow:0 0 0 3px var(--ink),inset 0 0 0 3px var(--ink);
+}
+.hs .n{
+  position:absolute;left:50%;bottom:100%;transform:translate(-50%,-2px);
+  min-width:1.5em;padding:0 .3em;border-radius:999px;background:#fff;border:3px solid var(--ink);
+  color:var(--ink);font-size:calc(var(--hs) * .42);line-height:1.3;text-align:center;
+  box-shadow:0 2px 6px rgba(0,0,0,.3);
+}
+.hs.found .n{background:var(--green-dark);color:#fff}
+.hs:focus-visible{outline:4px solid var(--water-dark);outline-offset:4px}
+.hs.shake{animation:shake .4s}
+@keyframes shake{0%,100%{margin-left:0}25%{margin-left:-7px}75%{margin-left:7px}}
+/* 疊在照片上的名稱標籤 */
+.tag{
+  position:absolute;z-index:4;width:max-content;pointer-events:none;
+  background:rgba(255,255,255,.96);border:3px solid var(--ink);border-radius:12px;
+  padding:3px 10px;font-size:clamp(13px,1.35vw,19px);line-height:1.3;
+  box-shadow:0 3px 8px rgba(0,0,0,.28);animation:tagIn .35s ease;
+}
+.tag b{display:block;font-size:1.12em;font-weight:900}
+.tag small{display:block;font-size:1em;font-weight:700;color:#34444C}
+@keyframes tagIn{from{opacity:0;scale:.85}to{opacity:1;scale:1}}
+.pin{
+  position:absolute;z-index:3;width:18px;height:18px;border-radius:50%;
+  background:var(--sun);border:3px solid var(--ink);box-shadow:0 0 0 3px #fff;transform:translate(-50%,-50%);
+}
+.ring{
+  position:absolute;z-index:3;width:24%;aspect-ratio:1;border-radius:50%;transform:translate(-50%,-50%);
+  border:5px solid var(--ink);box-shadow:0 0 0 4px #fff,inset 0 0 0 4px #fff;pointer-events:none;
+}
+.ring span{
+  position:absolute;left:50%;bottom:100%;transform:translate(-50%,-4px);white-space:nowrap;
+  background:#fff;border:3px solid var(--ink);border-radius:10px;padding:0 10px;font-weight:900;
+}
+.badge{
+  position:absolute;left:8px;top:8px;z-index:3;width:clamp(44px,4.6vw,64px);aspect-ratio:1;border-radius:50%;
+  background:#fff;border:3px solid var(--ink);font-weight:900;font-size:clamp(22px,2.6vw,34px);
+  display:flex;align-items:center;justify-content:center;line-height:1;
+}
+
+/* ---------- 選項、回饋、判準 ---------- */
+.opts{display:flex;flex-wrap:wrap;gap:12px}
+.opts.col{flex-direction:column;align-items:stretch}
+.opts.col .opt{text-align:left}
+.opt{
+  border:3px solid var(--ink);border-radius:16px;background:var(--card);color:var(--ink);
+  padding:12px 24px;font:inherit;font-weight:900;cursor:pointer;
+  box-shadow:0 4px 0 var(--ink);min-height:62px;font-size:clamp(18px,2vw,25px);line-height:1.35;
+}
+.opt:active{transform:translateY(3px);box-shadow:0 1px 0 var(--ink)}
+.opt.ok{background:var(--green-dark);color:#fff}
+.opt.no{background:#FBE3E1;border-color:var(--wrong);color:#B03A30;text-decoration:line-through}
+.opt[disabled]{cursor:not-allowed}
+.opt.picked,.opt[aria-pressed="true"]{background:#FFF3C4;box-shadow:0 0 0 5px var(--sun),0 4px 0 var(--ink)}
+.steptag{
+  display:inline-block;background:#DDF0FA;color:var(--ink);border:3px solid var(--ink);
+  border-radius:999px;padding:2px 14px;font-weight:900;margin-bottom:8px;font-size:clamp(14px,1.5vw,19px);
+}
+.qtitle{font-weight:900;font-size:clamp(19px,2.2vw,27px);margin:0 0 12px}
+.feedback{margin-top:12px;font-weight:800;border-radius:14px}
+.feedback:empty{display:none}
+.feedback.hint{background:#FFF6D8;border:3px dashed var(--sun);padding:10px 14px}
+.feedback.good{background:#EAF7EE;border:3px solid var(--green-dark);color:var(--green-dark);padding:10px 14px}
+/* 判準卡 —— 課堂追問「你怎麼知道？」的素材，答對後一定要出現 */
+.criterion{
+  background:#EAF7EE;border:3px solid var(--green-dark);border-radius:18px;padding:12px 16px;margin-top:14px;
+}
+.criterion .k{font-weight:900;color:var(--green-dark);font-size:clamp(18px,2.1vw,25px)}
+.criterion .askagain{
+  margin-top:8px;font-size:clamp(13px,1.5vw,17px);color:var(--muted);font-weight:800;
+  border-top:2px dashed #B9D8C4;padding-top:8px;
+}
+.bigpoint{
+  background:#EAF7EE;border:3px solid var(--green-dark);border-radius:18px;
+  padding:14px 18px;font-weight:900;font-size:clamp(19px,2.3vw,28px);text-align:center;color:var(--green-dark);
+}
+.bigpoint b{text-decoration:underline;text-decoration-thickness:3px;text-underline-offset:5px}
+
+/* ==========================================================
+   開場
+   ========================================================== */
+.pair{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px;align-items:start}
+.guessbox{margin-top:16px;text-align:center;background:#FFFDF8;border:3px solid var(--ink);border-radius:16px;padding:12px}
+.guessbox .g{font-size:clamp(19px,2.2vw,28px);font-weight:900}
+.guessbox .later{font-size:clamp(22px,2.8vw,36px);font-weight:900;color:var(--green-dark)}
+
+/* ==========================================================
+   ① 解剖一朵花
+   ========================================================== */
+/* 直式/窄螢幕：功能卡在最上面，點照片時看得到提示；橫式：照片在左、花苞與功能卡在右 */
+.flowerlay{display:grid;grid-template-columns:minmax(0,1fr);gap:14px;grid-template-areas:"card" "main" "buds";align-items:start}
+.flowerlay .mainbox{grid-area:main}
+.flowerlay .budrow{grid-area:buds}
+.flowerlay .cardarea{grid-area:card}
+/* 花苞照片要夠大，花萼（花苞底下綠綠的一小圈）才看得清楚 */
+.budrow{--budh:36vh}
+@media (min-width:1024px) and (orientation:landscape){
+  .flowerlay{grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);grid-template-rows:auto 1fr;grid-template-areas:"main buds" "main card";gap:12px 16px}
+  .budrow{--budh:clamp(26vh, calc(100vh - 420px), 40vh)}
+}
+#figBuds{--mh:var(--budh)}
+.budrow{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.budrow .figbox{flex:0 0 auto;width:min(100%, calc(var(--budh) * 896 / 912 + 6px))}
+.budrow .note{flex:1 1 140px}
+.cardhead{display:flex;align-items:center;gap:4px 12px;flex-wrap:wrap;margin-bottom:6px}
+.cardhead .steptag,.cardhead .qtitle{margin:0}
+.fnq{font-weight:900;font-size:clamp(21px,2.5vw,32px);line-height:1.4;margin:0 0 6px}
+.how{font-weight:800;color:var(--muted);margin:4px 0 0}
+.obs{margin-top:12px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-weight:800}
+.chip{background:#FFF6D8;border:2px solid var(--sun);border-radius:999px;padding:4px 14px}
+#zoomView{margin-top:14px}
+
+/* ==========================================================
+   ② 花粉怎麼搬家
+   ========================================================== */
+.tabs{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.tab{
+  border:3px solid var(--ink);border-radius:16px 16px 6px 6px;background:var(--card);color:var(--ink);
+  padding:10px 22px;font:inherit;font-weight:900;cursor:pointer;min-height:60px;box-shadow:0 3px 0 var(--ink);
+}
+.tab.on{background:var(--green-dark);color:#fff}
+.recap{margin:10px 0 0;padding-left:0;list-style:none}
+.recap li{margin:6px 0;font-weight:800;color:var(--green-dark)}
+
+/* ==========================================================
+   ③ 雄花？雌花？　放大層次＋分類白板
+   ========================================================== */
+.levels{display:grid;grid-template-columns:minmax(0,1fr);gap:16px;margin-top:14px}
+@media (min-width:1024px) and (orientation:landscape){
+  .levels{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+.level{animation:fadeIn .5s ease}
+.level-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px}
+.level-tag{
+  border:3px solid var(--ink);border-radius:999px;padding:4px 18px;font-weight:900;font-size:clamp(18px,2.1vw,26px);
+}
+.level-tag.t1{background:var(--green-dark);color:#fff}
+.level-tag.t2{background:var(--sun);color:var(--ink)}
+.level-tag.t3{background:#CFEAF8;color:var(--ink)}
+.level-step{font-weight:900;color:var(--muted)}
+#lvPoint{margin-top:14px}
+
+.cardtray{
+  display:flex;flex-wrap:wrap;gap:12px;justify-content:center;
+  min-height:150px;padding:12px;border:3px dashed #C9C2B4;border-radius:18px;background:#FFFDF8;margin-top:12px;
+}
+.fcard{
+  width:clamp(118px,11vw,170px);background:var(--card);
+  border:3px solid var(--ink);border-radius:16px;padding:7px;text-align:center;
+  cursor:pointer;box-shadow:0 4px 0 rgba(30,30,30,.25);touch-action:none;user-select:none;
+  transition:transform .12s ease,box-shadow .12s ease;
+}
+.fcard img,.fcard .img-fallback{
+  width:100%;aspect-ratio:5/4;object-fit:cover;border-radius:10px;display:block;background:#F2EEE4;pointer-events:none;
+}
+.fcard .label{font-weight:900;font-size:clamp(14px,1.35vw,19px);line-height:1.3;margin-top:5px}
+.fcard.picked{transform:translateY(-6px) scale(1.04);box-shadow:0 10px 0 var(--sun),0 0 0 5px var(--sun)}
+.fcard.dragging{position:fixed;z-index:999;pointer-events:none;opacity:.92;box-shadow:0 14px 26px rgba(0,0,0,.35)}
+.fcard:focus-visible{outline:4px solid var(--water-dark);outline-offset:3px}
+.fcard .mark{display:none;font-weight:900;font-size:clamp(14px,1.4vw,19px);line-height:1.3;margin-top:4px}
+.fcard.judged .mark{display:block}
+.fcard.judged.ok .mark{color:var(--green-dark)}
+.fcard.judged.no .mark{color:#B03A30}
+.fcard.judged.no{border-color:var(--wrong)}
+
+.baskets{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:14px}
+@media(max-width:720px){.baskets{grid-template-columns:minmax(0,1fr)}}
+.basket{border:4px solid var(--ink);border-radius:20px;padding:10px;min-height:220px;background:#FFFDF8;cursor:pointer}
+.basket.hot{background:#FFF3C4;border-style:dashed}
+/* 鍵盤用的「放進這一籃」按鈕：平常藏起來（觸控直接點籃子），用 Tab 移到它時才出現 */
+.bdrop{
+  position:absolute;width:1px;height:1px;margin:-1px;padding:0;border:0;overflow:hidden;
+  clip:rect(0 0 0 0);white-space:nowrap;
+}
+.bdrop:focus{
+  position:static;width:auto;height:auto;margin:0;overflow:visible;clip:auto;
+  border:3px solid var(--ink);border-radius:999px;background:var(--card);color:var(--ink);
+  padding:6px 16px;min-height:48px;font:inherit;font-weight:900;cursor:pointer;
+  outline:4px solid var(--water-dark);outline-offset:3px;
+}
+.bhead{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap}
+.bletter{
+  width:clamp(38px,3.6vw,52px);aspect-ratio:1;border-radius:50%;border:3px solid var(--ink);background:#fff;
+  display:flex;align-items:center;justify-content:center;font-weight:900;font-size:clamp(20px,2.2vw,28px);flex:none;
+}
+.bname{font-size:clamp(20px,2.3vw,30px);font-weight:900;text-align:center;letter-spacing:1px;line-height:1.3}
+.bhint{text-align:center;font-weight:800;color:var(--muted);margin:4px 0 8px;font-size:clamp(15px,1.6vw,20px)}
+.drop{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;min-height:120px}
+.litnote{display:none;text-align:center;font-weight:900;color:var(--green-dark)}
+.basket.lit{border-color:var(--green-dark);background:#EAF7EE;box-shadow:0 0 0 5px #B9E3C6}
+.basket.lit .litnote{display:block}
+.scorebar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:14px}
+#sortMsg{font-weight:800}
+.derive{margin-top:18px;border-top:3px dashed #C9C2B4;padding-top:16px}
+.evidence{display:grid;grid-template-columns:minmax(0,1fr);gap:12px;align-items:center;margin-top:12px}
+@media(min-width:720px){.evidence{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}}
+.evidence .cap{color:var(--ink);font-size:clamp(18px,2vw,24px)}
+
+/* ==========================================================
+   ④ 花變果實
+   ========================================================== */
+.frames{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}
+.frame-btn{
+  display:flex;align-items:center;gap:10px;border:3px solid var(--ink);border-radius:14px;background:var(--card);color:var(--ink);
+  padding:5px 10px 5px 5px;font:inherit;font-weight:800;cursor:pointer;min-height:64px;text-align:left;
+  box-shadow:0 3px 0 var(--ink);font-size:clamp(14px,1.45vw,19px);line-height:1.3;
+}
+.frame-btn img,.frame-btn .img-fallback{width:clamp(56px,5vw,84px);aspect-ratio:4/3;object-fit:cover;border-radius:8px;flex:none;font-size:9px;padding:2px}
+.frame-btn img{padding:0}
+.frame-btn.on{background:var(--green-dark);color:#fff}
+.saybox{
+  margin-top:14px;background:#FFFDF8;border:3px solid var(--ink);border-radius:16px;padding:12px 16px;
+  font-weight:900;font-size:clamp(20px,2.3vw,30px);line-height:1.45;
+}
+.saybox .no{display:inline-block;background:var(--sun);border:3px solid var(--ink);border-radius:999px;padding:0 12px;margin-right:8px;font-size:.8em}
+.mrow{display:grid;grid-template-columns:minmax(0,1fr);gap:10px;padding:12px 0;border-bottom:2px dashed #E3DACB}
+.mrow:last-child{border-bottom:0}
+@media(min-width:820px){.mrow{grid-template-columns:auto minmax(0,1fr);align-items:center;column-gap:18px}}
+.mfrom{font-weight:900;font-size:clamp(22px,2.6vw,34px);white-space:nowrap}
+.mto{display:inline-block;min-width:3.2em;text-align:center;border-bottom:4px solid var(--ink)}
+.mrow .criterion,.mrow .feedback{grid-column:1/-1;margin-top:0}
+#recallAns{margin-top:12px}
+
+/* ==========================================================
+   ⑤ 闖關驗收
+   ========================================================== */
+.quizbar{display:flex;align-items:center;gap:8px 14px;flex-wrap:wrap;
+  background:var(--card);border:3px solid var(--ink);border-radius:26px;padding:8px 18px;
+  box-shadow:var(--shadow);margin-bottom:14px;font-weight:900}
+.dots{display:flex;gap:8px}
+.dot{width:16px;height:16px;border-radius:50%;border:3px solid var(--ink);background:#fff}
+.dot.done{background:var(--green-dark)}
+.dot.now{background:var(--sun)}
+.qscore{margin-left:auto}
+.quizwrap{display:grid;grid-template-columns:minmax(0,1fr);gap:18px;align-items:start}
+@media (min-width:1024px) and (orientation:landscape){
+  .quizwrap{grid-template-columns:minmax(0,1fr) minmax(0,1.1fr)}
+}
+.quizwrap.nophoto{grid-template-columns:minmax(0,1fr)}
+.quizwrap.nophoto .qphoto{display:none}
+.qpair{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}
+.result{text-align:center;padding:16px}
+.result .big{font-size:clamp(30px,5vw,58px);font-weight:900;color:var(--green-dark)}
+.rankline{font-weight:900;font-size:clamp(22px,2.8vw,36px);margin:6px 0}
+.ticket{
+  margin:14px auto;max-width:900px;background:#FFF6D8;border:3px dashed var(--sun);border-radius:16px;
+  padding:12px 16px;font-weight:800;font-size:clamp(18px,2.1vw,26px);text-align:left;line-height:1.8;
+}
+
+/* ---------- 頁尾：照片來源 ---------- */
+.credits{
+  font-size:clamp(12px,1.2vw,15px);color:var(--muted);margin-top:20px;line-height:1.55;
+  border-top:2px dashed #D9CFBE;padding-top:12px;
+}
+.credits ul{margin:6px 0 10px;padding-left:1.2em;columns:2 340px;column-gap:28px}
+.credits li{break-inside:avoid;overflow-wrap:anywhere}
+.credits a{color:var(--muted)}
+.credits p{margin:4px 0}
+
+/* 單欄版面（直式或窄螢幕）：照片不要高到把題目擠出畫面 */
+@media (max-width:1023px),(orientation:portrait){
+  #pFig{--mh:36vh !important}
+  #qFig{--mh:34vh !important}
+  #qFigA,#qFigB{--mh:28vh !important}
+}
+
+@media (prefers-reduced-motion:reduce){
+  .screen,.level,.tag,.hs.shake{animation:none}
+}
+
+  /* ===== RWD：手機 / 平板 / 筆電 / 75 吋觸控螢幕 ===== */
+  @media (max-width:1100px){
+    .station-btn{ padding:8px 10px; }
+  }
+  @media (max-width:640px){
+    #app{ padding:10px 10px 28px; }
+    .panel{ border-radius:14px; padding:12px 12px; }
+    .stations{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:6px; }
+    .station-btn{ padding:4px 4px; font-size:14px; min-height:52px; border-radius:16px; }
+    .btn{ padding:10px 18px; min-height:52px; }
+    .opt{ min-height:52px; padding:10px 14px; }
+    .tab{ padding:8px 14px; min-height:52px; }
+    .basket{ min-height:160px; }
+    .quizbar{ border-radius:18px; }
+  }
+  @media (min-width:1800px){
+    /* 按鈕與選項都是 font:inherit，放大 body 字級它們就跟著長大 */
+    :root{ --hs:76px; }
+    body{ font-size:26px; }
+    #app{ max-width:1680px; padding:20px 30px 60px; }
+    .sitehead h1{ font-size:38px; }
+    .back{ min-height:64px; font-size:22px; padding:6px 24px; }
+    .station-btn{ min-height:72px; font-size:23px; padding:10px 26px; }
+    .btn{ min-height:80px; padding:16px 40px; }
+    .opt{ min-height:84px; }
+    .tab{ min-height:80px; }
+    .frame-btn{ min-height:88px; font-size:22px; }
+    .fcard{ width:clamp(170px,11vw,230px); }
+    .basket{ min-height:300px; }
+    .tag{ font-size:22px; }
+    .bdrop:focus{ min-height:64px; }
+    .cap{ font-size:22px; }
+    .ask{ font-size:30px; }
+    .steptag{ font-size:23px; }
+    .sitehead .sub{ font-size:21px; }
+    .ask.big{ font-size:46px; }
+    .qtitle,.ptitle{ font-size:32px; }
+    .fnq{ font-size:38px; }
+    .saybox{ font-size:34px; }
+    .bigpoint{ font-size:33px; }
+    .criterion .k{ font-size:30px; }
+    .opt{ font-size:28px; }
+    .bname{ font-size:34px; }
+    .bhint,.fcard .label,.fcard .mark{ font-size:22px; }
+    .note,.lead{ font-size:20px; }
+    .evidence .cap{ font-size:26px; }
+    .pin{ width:24px; height:24px; }
+    .teacher-tip{ font-size:19px; }
+    .credits{ font-size:16px; }
+  }
+  @media (min-width:2600px){
+    :root{ --hs:100px; }
+    body{ font-size:34px; }
+    #app{ max-width:2280px; padding:30px 40px 80px; }
+    .sitehead h1{ font-size:50px; }
+    .back{ min-height:84px; font-size:30px; }
+    .station-btn{ min-height:96px; font-size:30px; padding:14px 34px; }
+    .btn{ min-height:104px; padding:22px 52px; }
+    .opt{ min-height:112px; }
+    .tab{ min-height:104px; }
+    .frame-btn{ min-height:112px; font-size:29px; }
+    .fcard{ width:clamp(230px,10vw,310px); }
+    .basket{ min-height:390px; }
+    .tag{ font-size:30px; }
+    .cap{ font-size:29px; }
+    .ask{ font-size:39px; }
+    .steptag{ font-size:30px; }
+    .sitehead .sub{ font-size:27px; }
+    .ask.big{ font-size:60px; }
+    .qtitle,.ptitle{ font-size:42px; }
+    .fnq{ font-size:50px; }
+    .saybox{ font-size:44px; }
+    .bigpoint{ font-size:43px; }
+    .criterion .k{ font-size:39px; }
+    .opt{ font-size:36px; }
+    .bname{ font-size:44px; }
+    .bhint,.fcard .label,.fcard .mark{ font-size:29px; }
+    .note,.lead{ font-size:26px; }
+    .evidence .cap{ font-size:34px; }
+    .pin{ width:32px; height:32px; }
+    .teacher-tip{ font-size:25px; }
+    .credits{ font-size:21px; }
+  }
+</style>
+<script>
+/* 放在 head：圖片一出錯就能呼叫（不論主程式跑到哪裡） */
+function imgFallback(img){
+  const span=document.createElement("span");
+  span.className="img-fallback "+(img.className||"");
+  span.setAttribute("role","img");
+  const name=img.getAttribute("data-name")||img.getAttribute("alt")||"照片";
+  span.setAttribute("aria-label","照片載入失敗："+name);
+  span.textContent="📷 照片載入失敗："+name;
+  img.replaceWith(span);
+}
+</script>
+</head>
+<body>
+<div id="app">
+
+  <header class="sitehead">
+    <div class="headrow">
+      <a class="back" href="../../index.html">← 回教材首頁</a>
+      <h1>繁殖器官的功能</h1>
+      <span class="sub">五年級自然｜第二單元 植物世界　課本 46–47 頁</span>
+    </div>
+    <nav class="stations" aria-label="站別">
+      <button class="station-btn on" data-go="open">開場</button>
+      <button class="station-btn" data-go="flower">① 解剖一朵花</button>
+      <button class="station-btn" data-go="pollen">② 花粉怎麼搬家</button>
+      <button class="station-btn" data-go="sex">③ 雄花？雌花？</button>
+      <button class="station-btn" data-go="fruit">④ 花變果實</button>
+      <button class="station-btn" data-go="quiz">⑤ 闖關驗收</button>
+    </nav>
+  </header>
+
+  <!-- ==================== 開場　橘子從哪裡來？ ==================== -->
+  <section id="screen-open" class="screen active">
+    <div class="panel">
+      <div class="duo">
+        <div class="pair">
+          <figure class="figbox">
+            <div class="fig" id="openFig1" style="--mh:52vh"></div>
+            <figcaption class="cap center">柑橘類的花</figcaption>
+          </figure>
+          <figure class="figbox">
+            <div class="fig" id="openFig2" style="--mh:52vh"></div>
+            <figcaption class="cap center">剖開的小橘子，看得到種子</figcaption>
+          </figure>
+        </div>
+        <div>
+          <div class="ask big">橘子是花的哪一部分變成的？</div>
+          <p class="lead">全班先舉手表決，再請一位同學上台按。</p>
+          <div class="opts" id="guessOpts"></div>
+          <div class="guessbox hidden" id="guessBox" aria-live="polite">
+            <div class="g">全班猜的是：「<span id="guessText"></span>」</div>
+            <div class="later">第 ④ 站揭曉！</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="navrow"><button class="btn green" data-next="flower">出發：① 解剖一朵花 →</button></div>
+    <div class="teacher-tip">
+      <p><b class="time">給老師｜開場 3 分鐘</b></p>
+      <p>先別說答案。讓學生說理由，第 ④ 站再回來對。按下選項只會記下「全班猜的是：○○」，不會公布對錯；重新整理頁面會清掉。</p>
+    </div>
+  </section>
+
+  <!-- ==================== ① 解剖一朵花 ==================== -->
+  <section id="screen-flower" class="screen">
+    <div class="panel">
+      <div class="flowerlay">
+        <figure class="figbox mainbox">
+          <div class="fig" id="figMain" style="--mh:calc(100vh - 210px)"></div>
+          <figcaption class="cap center">盛開的柑橘花</figcaption>
+        </figure>
+        <div class="budrow">
+          <figure class="figbox"><div class="fig" id="figBuds"></div></figure>
+          <div class="note">另一枝柑橘上<b>還沒開的花苞</b></div>
+        </div>
+        <div class="cardarea">
+          <div id="fcCard">
+            <div class="cardhead"><span class="steptag" id="fcStep">功能卡 1 / 4</span><span class="qtitle">哪個部位負責：</span></div>
+            <p class="fnq" id="fcText"></p>
+            <p class="how">👆 點照片上的號碼作答</p>
+            <div class="feedback" id="fcFeed" aria-live="polite"></div>
+            <div class="btnrow"><button class="btn green hidden" id="fcNext">下一張 →</button></div>
+          </div>
+
+          <div id="fcDone" class="hidden">
+            <div class="feedback good">🎉 四個部位都找到了！</div>
+            <div class="obs"><span>課本裡的同學觀察到：</span><span class="chip">雄蕊上面有很多花粉</span><span class="chip">雌蕊下面比較膨大</span></div>
+            <div class="btnrow">
+              <button class="btn" id="zStamen" aria-pressed="false">🔍 放大雄蕊</button>
+              <button class="btn" id="zPistil" aria-pressed="false">🔍 剖開雌蕊</button>
+              <button class="btn plain" id="fcReset">↺ 重新找一次</button>
+            </div>
+            <div id="zoomView" class="hidden">
+              <figure class="figbox">
+                <div class="fig" id="zoomFig" style="--mh:50vh"></div>
+                <figcaption class="cap" id="zoomCap"></figcaption>
+              </figure>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="navrow"><button class="btn green" data-next="pollen">下一站：② 花粉怎麼搬家 →</button></div>
+    <div class="teacher-tip">
+      <p><b class="time">給老師｜① 解剖一朵花 10 分鐘</b></p>
+      <p>先請學生描述顏色、位置、形狀，再說名稱。剖開雌蕊時強調「子房包著胚珠」，第 ④ 站會用到。</p>
+      <p>照片上的號碼是隨意編的，和功能卡的順序無關。點錯不扣分，可以請台下同學給提示。</p>
+    </div>
+  </section>
+
+  <!-- ==================== ② 花粉怎麼搬家 ==================== -->
+  <section id="screen-pollen" class="screen">
+    <div class="panel">
+      <div class="tabs" role="tablist">
+        <button class="tab on" data-scene="bee" role="tab" aria-selected="true">🐝 蜜蜂來幫忙</button>
+        <button class="tab" data-scene="wind" role="tab" aria-selected="false">🌬️ 風來幫忙</button>
+      </div>
+      <div class="duo">
+        <figure class="figbox">
+          <div class="fig" id="pFig" style="--mh:62vh"></div>
+          <figcaption class="cap center" id="pCap"></figcaption>
+        </figure>
+        <div id="pQ" aria-live="polite"></div>
+      </div>
+      <div class="bigpoint hidden" id="pollenPoint" style="margin-top:16px">
+        雄蕊的花粉傳到雌蕊的柱頭上，叫做<b>授粉</b>。
+      </div>
+    </div>
+    <div class="navrow">
+      <button class="btn plain" id="pReset">↺ 重新作答</button>
+      <button class="btn green" data-next="sex">下一站：③ 雄花？雌花？ →</button>
+    </div>
+    <div class="teacher-tip">
+      <p><b class="time">給老師｜② 花粉怎麼搬家 7 分鐘</b></p>
+      <p>帶班追問：「停在花瓣上算授粉嗎？」「是不是每種花都靠蜜蜂？」</p>
+      <p>靠動物傳粉的花「常」有鮮豔花瓣、香味或花蜜；玉米靠風，花不鮮豔、花粉多又輕。請用「常」「通常」，不要講成每一種花都一樣。</p>
+      <p>照片裡是野玫瑰：野玫瑰花蜜很少，蜜蜂主要來採花粉。</p>
+    </div>
+  </section>
+
+  <!-- ==================== ③ 雄花？雌花？ ==================== -->
+  <section id="screen-sex" class="screen">
+    <div class="panel">
+      <div class="ask">剛剛說花粉在雄蕊、柱頭在雌蕊。那玉米的「雄花」「雌花」又是什麼？</div>
+      <div class="levels">
+        <div class="level" id="lv1">
+          <div class="level-head"><span class="level-step">1</span><span class="level-tag t1">一整株植物</span></div>
+          <figure class="figbox">
+            <div class="fig" id="lvFig1" style="--mh:42vh"></div>
+            <figcaption class="cap">一片玉米。<b>頂端</b>一串一串的是玉米的雄花；雌花長在<b>莖的側邊</b>，外面包著葉片，這張照片看不太到。</figcaption>
+          </figure>
+        </div>
+        <div class="level hidden" id="lv2">
+          <div class="level-head"><span class="level-step">2</span><span class="level-tag t2">一朵朵的花</span></div>
+          <figure class="figbox">
+            <div class="fig" id="lvFig2" style="--mh:42vh"></div>
+            <figcaption class="cap">另一株玉米<b>頂端</b>的特寫：很多小小的花聚在一起。這些小花開的時候，會垂出花藥、放出花粉（照片裡的小花還沒打開）——<b>只找得到雄蕊</b>。</figcaption>
+          </figure>
+        </div>
+        <div class="level hidden" id="lv3">
+          <div class="level-head"><span class="level-step">3</span><span class="level-tag t3">花裡的蕊</span></div>
+          <figure class="figbox">
+            <div class="fig" id="lvFig3" style="--mh:42vh"></div>
+            <figcaption class="cap">另一株玉米的<b>側邊</b>：伸出來的玉米鬚是雌蕊的柱頭和花柱，用來接收花粉——<b>只找得到雌蕊</b>。</figcaption>
+          </figure>
+        </div>
+      </div>
+      <div class="bigpoint hidden" id="lvPoint">「雄」「雌」可能說的是<b>一根蕊</b>，也可能說的是<b>一整朵花</b>。</div>
+      <div class="btnrow center"><button class="btn" id="lvBtn">🔍 放大玉米頂端 →</button></div>
+    </div>
+
+    <div class="panel" id="boardPanel">
+      <p class="ptitle">🧺 分類白板</p>
+      <div class="ask">這朵花裡，找得到哪一種蕊？</div>
+      <p class="lead">點一張卡片，再點一個籃子放進去（也可以直接拖曳）。按「揭曉」之前都可以換位置。</p>
+      <div class="cardtray" id="tray" aria-label="還沒分的卡片"></div>
+      <div class="baskets">
+        <div class="basket" data-basket="A" role="group" aria-labelledby="let-A name-A">
+          <div class="bhead"><span class="bletter" id="let-A">A</span><span class="bname" id="name-A">？？？</span><button type="button" class="bdrop">放進 A 籃</button></div>
+          <div class="bhint">雄蕊、雌蕊都找得到</div>
+          <div class="litnote">以後可能長成果實</div>
+          <div class="drop" id="drop-A"></div>
+        </div>
+        <div class="basket" data-basket="B" role="group" aria-labelledby="let-B name-B">
+          <div class="bhead"><span class="bletter" id="let-B">B</span><span class="bname" id="name-B">？？？</span><button type="button" class="bdrop">放進 B 籃</button></div>
+          <div class="bhint">只找得到雄蕊</div>
+          <div class="litnote">以後可能長成果實</div>
+          <div class="drop" id="drop-B"></div>
+        </div>
+        <div class="basket" data-basket="C" role="group" aria-labelledby="let-C name-C">
+          <div class="bhead"><span class="bletter" id="let-C">C</span><span class="bname" id="name-C">？？？</span><button type="button" class="bdrop">放進 C 籃</button></div>
+          <div class="bhint">只找得到雌蕊</div>
+          <div class="litnote">以後可能長成果實</div>
+          <div class="drop" id="drop-C"></div>
+        </div>
+      </div>
+      <div class="scorebar">
+        <button class="btn green" id="revealBtn" disabled>🔍 揭曉</button>
+        <button class="btn plain" id="resetSort">↺ 重新分一次</button>
+        <span id="sortMsg" aria-live="polite"></span>
+      </div>
+
+      <div class="derive hidden" id="derive">
+        <div class="ask">哪幾籃的花，以後<b>可能</b>長成果實？（可以選不只一籃）</div>
+        <div class="opts" id="deriveOpts" style="margin-top:12px"></div>
+        <div class="btnrow"><button class="btn green" id="deriveOk">確認</button></div>
+        <div class="feedback" id="deriveFeed" aria-live="polite"></div>
+        <div class="criterion hidden" id="deriveCrit">
+          <div class="k">💡 果實是<b>子房</b>長成的，子房在雌蕊裡。雄花沒有雌蕊，所以不會長成果實。</div>
+          <div class="evidence">
+            <figure class="figbox"><div class="fig" id="evFig" style="--mh:42vh"></div></figure>
+            <p class="cap">看！絲瓜雌花的花瓣下面，已經有一條小小的絲瓜。<br>
+              <span class="note">（就是白板上「絲瓜花（花瓣下面有小絲瓜）」那一張照片。）</span></p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="navrow"><button class="btn green" data-next="fruit">下一站：④ 花變果實 →</button></div>
+    <div class="teacher-tip">
+      <p><b class="time">給老師｜③ 雄花？雌花？ 9 分鐘</b>（本課重點「橋」）</p>
+      <p>課本 47 頁直接出現雄花、雌花，但沒說它們跟雄蕊雌蕊的關係，這一站專門補這個斷層。</p>
+      <p>分類白板揭曉前不顯示對錯：先問「你為什麼放這一籃？」，討論完再按揭曉。</p>
+      <p>國中才會學的名詞（國小不必教）：一朵花兩種蕊都有＝兩性花；只有一種＝單性花；玉米的雄花雌花長在同一株＝雌雄同株。描述植物時，不要借用動物的用語。</p>
+      <p>課本 47 頁蜜蜂停的那朵白花是菊科，花心是很多小花，不適合拿來找雄蕊雌蕊。</p>
+      <p>白板上「絲瓜花（花瓣下面沒有小絲瓜）」、⑤ 第 3 題的乙，是同一張雄花照片：花瓣下面那一團綠綠尖尖的，是一串還沒開的雄花花苞，不是小絲瓜。</p>
+    </div>
+  </section>
+
+  <!-- ==================== ④ 花變果實 ==================== -->
+  <section id="screen-fruit" class="screen">
+    <div class="panel">
+      <div class="ask">花授粉以後，哪一個部分會慢慢長成果實？</div>
+      <div class="duo" style="margin-top:14px">
+        <figure class="figbox">
+          <div class="fig" id="tlFig" style="--mh:55vh"></div>
+          <figcaption class="note center" id="tlNote" style="margin-top:6px"></figcaption>
+        </figure>
+        <div>
+          <div class="frames" id="frames"></div>
+          <div class="saybox" id="tlText" aria-live="polite"></div>
+          <div class="btnrow">
+            <button class="btn plain" id="tlPrev">← 上一格</button>
+            <button class="btn" id="tlNext">下一格 →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <p class="ptitle">🔗 配對：它們後來長成什麼？</p>
+      <div id="matchRows"></div>
+    </div>
+
+    <div class="panel">
+      <p class="ptitle">🔁 回到開場：橘子是花的哪一部分變成的？</p>
+      <p id="recallGuess" style="margin:0 0 10px;font-weight:800"></p>
+      <button class="btn green" id="recallBtn">🔍 揭曉答案</button>
+      <div class="bigpoint hidden" id="recallAns" aria-live="polite"></div>
+    </div>
+
+    <div class="panel">
+      <div class="duo mid">
+        <div class="bigpoint">種子種下去，會長成新的植物——果實和種子幫植物<b>繁衍下一代</b>。</div>
+        <figure class="figbox">
+          <div class="fig" id="sproutFig" style="--mh:40vh"></div>
+          <figcaption class="cap center">檸檬裡的種子已經發芽</figcaption>
+        </figure>
+      </div>
+    </div>
+    <div class="navrow"><button class="btn green" data-next="quiz">下一站：⑤ 闖關驗收 →</button></div>
+    <div class="teacher-tip">
+      <p><b class="time">給老師｜④ 花變果實 7 分鐘</b></p>
+      <p>每換一格，先請學生指著照片說「哪裡變了？」。授粉後，花粉和胚珠結合，胚珠發育成種子、子房發育成果實；雄蕊和花瓣逐漸凋謝。強調「授粉不等於立刻結果，需要一段時間」。</p>
+      <p>四張照片不是同一朵花：前三張是四季橘，第四張是另一種小橘子，排在一起是表示變化的順序。</p>
+    </div>
+  </section>
+
+  <!-- ==================== ⑤ 闖關驗收 ==================== -->
+  <section id="screen-quiz" class="screen">
+    <div class="quizbar">
+      <span id="qprog">第 1 / 4 題</span>
+      <span class="dots" id="dots"></span>
+      <span class="qscore">⭐ <span id="score">0</span> / 8 分</span>
+      <span id="rank">🌱 發芽中</span>
+    </div>
+
+    <div class="panel" id="quizPanel">
+      <div class="quizwrap" id="quizwrap">
+        <div class="qphoto" id="qphoto"></div>
+        <div>
+          <div id="step1">
+            <span class="steptag">第 1 層｜選答案</span>
+            <p class="qtitle" id="q1title"></p>
+            <div id="q1opts"></div>
+            <div class="feedback" id="q1feed" aria-live="polite"></div>
+          </div>
+          <div id="step2" class="hidden" style="margin-top:16px">
+            <span class="steptag">第 2 層｜你怎麼知道？</span>
+            <p class="qtitle">選一個最好的理由：</p>
+            <div id="q2opts"></div>
+            <div class="feedback" id="q2feed" aria-live="polite"></div>
+          </div>
+          <div id="criterion" class="criterion hidden">
+            <div class="k" id="criterionText"></div>
+            <div class="askagain">👩‍🏫 老師追問：<b>你怎麼知道？</b>（請一位同學用上面這句話說說看）</div>
+          </div>
+          <div class="btnrow"><button class="btn green hidden" id="nextBtn">下一題 →</button></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel hidden" id="quizResult">
+      <div class="result">
+        <div class="big" id="finalScore"></div>
+        <p class="rankline" id="finalRank"></p>
+        <div class="ticket"><b>出場單：</b>我原本以為＿＿＿＿，現在知道＿＿＿＿，因為我觀察到＿＿＿＿。</div>
+        <button class="btn" id="againBtn">↺ 再挑戰一次</button>
+      </div>
+    </div>
+    <div class="teacher-tip">
+      <p><b class="time">給老師｜⑤ 闖關驗收 4 分鐘</b></p>
+      <p>每題先給 15 秒想，再請一位同學上台按。第 2 層「你怎麼知道？」請不同的同學說理由。答錯的選項會停用，可以再試，分數減半。</p>
+      <p>結算後用出場單句型，請 2–3 位同學口頭說說看。</p>
+    </div>
+  </section>
+
+  <!-- ==================== 頁尾：照片來源 ==================== -->
+  <footer class="credits" id="credits">
+    <p><b>照片來源</b>（皆來自 Wikimedia Commons）</p>
+    <ul>
+      <li>柑橘花：照片：<a href="https://commons.wikimedia.org/wiki/File:Orange_Blossom.JPG" target="_blank" rel="noopener">Alexander Hardin</a>，<a href="https://creativecommons.org/licenses/by/3.0" target="_blank" rel="noopener">CC BY 3.0</a></li>
+      <li>柑橘花中間特寫：照片：<a href="https://commons.wikimedia.org/wiki/File:Orange_Blossom.JPG" target="_blank" rel="noopener">Alexander Hardin</a>，<a href="https://creativecommons.org/licenses/by/3.0" target="_blank" rel="noopener">CC BY 3.0</a>（已裁切）</li>
+      <li>柑橘花苞：照片：<a href="https://commons.wikimedia.org/wiki/File:Boutons_de_Fleurs_d%27Oranger_ViaOuest.jpg" target="_blank" rel="noopener">Viaouest</a>，<a href="https://creativecommons.org/licenses/by-sa/4.0" target="_blank" rel="noopener">CC BY-SA 4.0</a>（已裁切）</li>
+      <li>雪花蓮剖開的子房：照片：<a href="https://commons.wikimedia.org/wiki/File:Galanthus_nivalis_01_ies.jpg" target="_blank" rel="noopener">Frank Vincentz</a>，<a href="http://creativecommons.org/licenses/by-sa/3.0/" target="_blank" rel="noopener">CC BY-SA 3.0</a>（已裁切）</li>
+      <li>蜜蜂與野玫瑰：照片：<a href="https://commons.wikimedia.org/wiki/File:Honey_bee_on_pink_wild_rose.jpg" target="_blank" rel="noopener">AdvaitaMakaranda</a>，<a href="http://creativecommons.org/publicdomain/zero/1.0/deed.en" target="_blank" rel="noopener">CC0</a>（已裁切）</li>
+      <li>玉米植株：照片：<a href="https://commons.wikimedia.org/wiki/File:Maize_plants_at_tasseling_g_silking_stage.jpg" target="_blank" rel="noopener">Mothusi Sekhomba</a>，<a href="https://creativecommons.org/licenses/by-sa/4.0" target="_blank" rel="noopener">CC BY-SA 4.0</a>（已裁切）</li>
+      <li>玉米頂端的花：照片：<a href="https://commons.wikimedia.org/wiki/File:Tassels_of_maize_2.jpg" target="_blank" rel="noopener">Knowledge and philosophy</a>，<a href="https://creativecommons.org/licenses/by-sa/4.0" target="_blank" rel="noopener">CC BY-SA 4.0</a>（已裁切）</li>
+      <li>玉米鬚：照片：<a href="https://commons.wikimedia.org/wiki/File:Maize_silks.jpg" target="_blank" rel="noopener">Abdul Fatawu352</a>，<a href="http://creativecommons.org/publicdomain/zero/1.0/deed.en" target="_blank" rel="noopener">CC0</a>（已裁切）</li>
+      <li>絲瓜花（花瓣下面有小絲瓜）：照片：<a href="https://commons.wikimedia.org/wiki/File:Luffa_acutangula_Chinese_okra_female_flower_2.jpg" target="_blank" rel="noopener">Nayan j Nath</a>，<a href="https://creativecommons.org/licenses/by-sa/4.0" target="_blank" rel="noopener">CC BY-SA 4.0</a>（已裁切）</li>
+      <li>絲瓜花（花瓣下面沒有小絲瓜）：照片：<a href="https://commons.wikimedia.org/wiki/File:Luffa_acutangula_Chinese_okra_male_flower.jpg" target="_blank" rel="noopener">Nayan j Nath</a>，<a href="https://creativecommons.org/licenses/by-sa/4.0" target="_blank" rel="noopener">CC BY-SA 4.0</a>（已裁切）</li>
+      <li>百合：照片：<a href="https://commons.wikimedia.org/wiki/File:Flower_of_Lilium_longiflorum_20180527.jpg" target="_blank" rel="noopener">そらみみ</a>，<a href="https://creativecommons.org/licenses/by-sa/4.0" target="_blank" rel="noopener">CC BY-SA 4.0</a>（已裁切）</li>
+      <li>四季橘的花：照片：<a href="https://commons.wikimedia.org/wiki/File:0735Taal,_Pulilan,_Bulacan_22.jpg" target="_blank" rel="noopener">Judgefloro</a>，<a href="http://creativecommons.org/publicdomain/zero/1.0/deed.en" target="_blank" rel="noopener">CC0</a>（已裁切）</li>
+      <li>四季橘膨大的子房：照片：<a href="https://commons.wikimedia.org/wiki/File:0735Taal,_Pulilan,_Bulacan_25.jpg" target="_blank" rel="noopener">Judgefloro</a>，<a href="http://creativecommons.org/publicdomain/zero/1.0/deed.en" target="_blank" rel="noopener">CC0</a>（已裁切）</li>
+      <li>四季橘的小果實：照片：<a href="https://commons.wikimedia.org/wiki/File:9247Calamansi_fruit,_seeds_and_leaves_16.jpg" target="_blank" rel="noopener">Judgefloro</a>，<a href="http://creativecommons.org/publicdomain/zero/1.0/deed.en" target="_blank" rel="noopener">CC0</a>（已裁切）</li>
+      <li>剖開的小橘子：照片：<a href="https://commons.wikimedia.org/wiki/File:Sakurajima_komikan_1.jpg" target="_blank" rel="noopener">Jpbrigand2</a>，<a href="https://creativecommons.org/licenses/by-sa/4.0" target="_blank" rel="noopener">CC BY-SA 4.0</a>（已裁切）</li>
+      <li>檸檬裡發芽的種子：照片：<a href="https://commons.wikimedia.org/wiki/File:Lemon_with_sprout_inside.jpg" target="_blank" rel="noopener">Elke Wetzig (Elya)</a>，<a href="https://creativecommons.org/licenses/by-sa/3.0" target="_blank" rel="noopener">CC BY-SA 3.0</a>（已裁切）</li>
+    </ul>
+    <p>課本內容：南一版自然五上第 46–47 頁</p>
+  </footer>
+
+</div>
+
+<script>
+/* ==========================================================
+   繁殖器官的功能 — 程式
+   科學內容（照課本簡化，但不可講錯）：
+   授粉＝雄蕊的花粉傳到雌蕊的柱頭上；子房長成果實、胚珠長成種子。
+   雄花＝只有雄蕊的花；雌花＝只有雌蕊的花；雄花沒有子房，不會長成果實。
+   ========================================================== */
+const $=id=>document.getElementById(id);
+
+/* ---------- 照片清單：尺寸是處理後的檔案，熱點百分比量在這個尺寸上 ---------- */
+const PHOTO_DIR="photos/";
+const PHOTOS={
+  "citrus-flower": [1400,1050,"柑橘花"],
+  "citrus-stamens":[1400,1249,"柑橘花中間特寫"],
+  "citrus-buds":   [896, 912, "柑橘花苞"],
+  "ovary-section": [1050,1400,"雪花蓮剖開的子房"],
+  "bee-flower":    [1400,1400,"蜜蜂停在花上"],
+  "corn-plant":    [1400,1225,"玉米植株"],
+  "corn-tassel":   [1400,1130,"玉米頂端的花"],
+  "corn-silk":     [1400,1369,"玉米鬚"],
+  "luffa-female":  [1400,1162,"絲瓜花（花瓣下面有小絲瓜）"],
+  "luffa-male":    [1400,1224,"絲瓜花（花瓣下面沒有小絲瓜）"],
+  "lily-flower":   [1400,1123,"百合"],
+  "fruit-1-flower":[1400,1185,"四季橘的花"],
+  "fruit-2-ovary": [1400,1113,"四季橘膨大的子房"],
+  "fruit-3-green": [1400,1127,"四季橘的小果實"],
+  "fruit-4-cut":   [1230,790, "剖開的小橘子"],
+  "seed-sprout":   [1400,1307,"檸檬裡發芽的種子"]
+};
+function imgTag(id,name){
+  const n=name||PHOTOS[id][2];
+  /* lazy：還沒切到的站別不載入照片（全部 21 張一次解碼約 130MB，教室電腦記憶體吃緊時會卡） */
+  return `<img src="${PHOTO_DIR}${id}.jpg" alt="${n}" data-name="${n}" draggable="false" loading="lazy" decoding="async" onerror="imgFallback(this)">`;
+}
+/* 照片框：設定原比例後放進照片（同時清掉舊的熱點與標籤） */
+function renderFig(el,id,name){
+  const p=PHOTOS[id];
+  el.style.setProperty("--ar",`${p[0]} / ${p[1]}`);
+  el.innerHTML=imgTag(id,name);
+  return el;
+}
+/* 疊在照片上的標籤。place：r 右、l 左、b 下、t 上、br/bl/tr/tl 斜角。
+   opt.hs＝旁邊是可點熱點（距離大一點）；否則自動加一個小圓點標出位置。 */
+function addTag(fig,x,y,html,place,opt){
+  opt=opt||{};
+  /* 熱點上方有號碼小牌子：往上放的標籤要多讓出牌子的高度，才不會蓋住號碼 */
+  const up=place==="t"||place==="tr"||place==="tl";
+  const off=opt.hs?(up?"(var(--hs) / 2 + var(--hs) * .55 + 12px)":"(var(--hs) / 2 + 6px)"):"14px";
+  const t=document.createElement("div");
+  t.className="tag"; t.innerHTML=html;
+  const s=t.style, m=Math.min(x,100-x);
+  switch(place){
+    case "r": s.left=`calc(${x}% + ${off})`; s.top=y+"%"; s.transform="translateY(-50%)"; s.maxWidth=`calc(${100-x}% - ${off} - 4px)`; break;
+    case "l": s.right=`calc(${100-x}% + ${off})`; s.top=y+"%"; s.transform="translateY(-50%)"; s.maxWidth=`calc(${x}% - ${off} - 4px)`; break;
+    case "t": s.left=x+"%"; s.bottom=`calc(${100-y}% + ${off})`; s.transform="translateX(-50%)"; s.maxWidth=`calc(${2*m}% - 8px)`; break;
+    case "br": s.left=`calc(${x}% - 14px)`; s.top=`calc(${y}% + ${off})`; s.maxWidth=`calc(${100-x}% + 10px)`; break;
+    case "bl": s.right=`calc(${100-x}% - 14px)`; s.top=`calc(${y}% + ${off})`; s.maxWidth=`calc(${x}% + 10px)`; break;
+    case "tr": s.left=`calc(${x}% - 14px)`; s.bottom=`calc(${100-y}% + ${off})`; s.maxWidth=`calc(${100-x}% + 10px)`; break;
+    case "tl": s.right=`calc(${100-x}% - 14px)`; s.bottom=`calc(${100-y}% + ${off})`; s.maxWidth=`calc(${x}% + 10px)`; break;
+    default:   s.left=x+"%"; s.top=`calc(${y}% + ${off})`; s.transform="translateX(-50%)"; s.maxWidth=`calc(${2*m}% - 8px)`;
+  }
+  if(opt.mw) s.maxWidth=opt.mw+"%";
+  if(!opt.hs){
+    const d=document.createElement("span");
+    d.className="pin"; d.style.left=x+"%"; d.style.top=y+"%";
+    fig.appendChild(d);
+  }
+  fig.appendChild(t);
+  return t;
+}
+/* 通用選擇題：答錯的選項標示並停用、可再試；答對就全部停用 */
+function choiceQ(host,opts,ans,onRight,onWrong,cls){
+  const box=document.createElement("div");
+  box.className="opts"+(cls?" "+cls:"");
+  opts.forEach(o=>{
+    const b=document.createElement("button");
+    b.type="button"; b.className="opt"; b.textContent=o;
+    b.addEventListener("click",()=>{
+      if(o===ans){
+        b.classList.add("ok");
+        box.querySelectorAll(".opt").forEach(x=>x.disabled=true);
+        if(onRight) onRight();
+      }else{
+        b.classList.add("no"); b.disabled=true;
+        if(onWrong) onWrong(o);
+      }
+    });
+    box.appendChild(b);
+  });
+  host.appendChild(box);
+  return box;
+}
+
+/* ---------- 站別切換（可自由跳；網址加 #flower 之類可直接開到某一站） ---------- */
+const STATIONS=["open","flower","pollen","sex","fruit","quiz"];
+window.addEventListener("hashchange",()=>{
+  const h=location.hash.slice(1);
+  if(STATIONS.includes(h) && !$("screen-"+h).classList.contains("active")) go(h,false);
+});
+function go(name,smooth){
+  if(STATIONS.indexOf(name)<0) name="open";
+  document.querySelectorAll(".station-btn").forEach(b=>{
+    const on=b.dataset.go===name;
+    b.classList.toggle("on",on);
+    if(on) b.setAttribute("aria-current","step"); else b.removeAttribute("aria-current");
+  });
+  document.querySelectorAll(".screen").forEach(s=>s.classList.toggle("active",s.id==="screen-"+name));
+  try{ history.replaceState(null,"","#"+name); }catch(_){}
+  if(name==="fruit") updateRecall();
+  window.scrollTo({top:0,behavior:smooth?"smooth":"auto"});
+}
+document.querySelectorAll(".station-btn").forEach(b=>b.addEventListener("click",()=>go(b.dataset.go,true)));
+document.querySelectorAll("[data-next]").forEach(b=>b.addEventListener("click",()=>go(b.dataset.next,true)));
+
+/* ==========================================================
+   開場　橘子從哪裡來？（只記在記憶體，重新整理就清掉）
+   ========================================================== */
+renderFig($("openFig1"),"citrus-flower","柑橘類的花");
+renderFig($("openFig2"),"fruit-4-cut");
+const GUESSES=["花瓣","雄蕊","雌蕊下面膨大的地方","花萼"];
+const GUESS_RIGHT="雌蕊下面膨大的地方";
+let classGuess=null;
+GUESSES.forEach(g=>{
+  const b=document.createElement("button");
+  b.type="button"; b.className="opt"; b.textContent=g;
+  b.addEventListener("click",()=>{
+    classGuess=g;
+    $("guessOpts").querySelectorAll(".opt").forEach(x=>x.classList.toggle("picked",x===b));
+    $("guessText").textContent=g;
+    $("guessBox").classList.remove("hidden");
+    updateRecall();
+  });
+  $("guessOpts").appendChild(b);
+});
+
+/* ==========================================================
+   ① 解剖一朵花
+   熱點號碼刻意和功能卡順序錯開，號碼不會洩漏答案。
+   ========================================================== */
+const PARTS={
+  "雄蕊":{fig:"main",x:64,  y:41,  num:1,place:"tr",line:"產生花粉"},
+  "雌蕊":{fig:"main",x:50,  y:44,  num:2,place:"br",line:"接收花粉，下面藏著胚珠",mw:44},
+  "花瓣":{fig:"main",x:20,  y:52,  num:3,place:"br",line:"保護雄蕊和雌蕊、吸引動物",mw:29},
+  "花萼":{fig:"buds",x:50.9,y:32.8,num:4,place:"b", line:"保護花苞"}
+};
+const FCARDS=[
+  {ans:"花萼",q:"包在花苞外面，保護還沒開的花",
+   hint:"看看「還沒開的花苞」那張照片：花苞最下面、綠綠的、把花苞包住托住的地方。"},
+  {ans:"花瓣",q:"大大一片、很顯眼，能吸引動物；也保護雄蕊和雌蕊",
+   hint:"柑橘花的花瓣是白色的，但又大又顯眼，遠遠就看得到。找找一片一片、大大的部分。"},
+  {ans:"雄蕊",q:"會產生花粉",
+   hint:"花粉是黃色粉末，找找頂端沾滿黃色粉的細長構造。"},
+  {ans:"雌蕊",q:"接收花粉，下面還藏著胚珠",
+   hint:"找找花的正中央：只有一根、被雄蕊圍住，頂端圓圓一大顆的構造（它下面還藏著膨大的地方）。"}
+];
+let fcIdx=0, fcWaiting=false;
+const fcFound=new Set();
+function buildFlower(){
+  renderFig($("figMain"),"citrus-flower","盛開的柑橘花");
+  renderFig($("figBuds"),"citrus-buds","柑橘花苞");
+  fcIdx=0; fcWaiting=false; fcFound.clear();
+  Object.keys(PARTS).forEach(name=>{
+    const p=PARTS[name];
+    const fig=p.fig==="main"?$("figMain"):$("figBuds");
+    const b=document.createElement("button");
+    b.type="button"; b.className="hs"; b.innerHTML=`<span class="n">${p.num}</span>`;
+    b.style.left=p.x+"%"; b.style.top=p.y+"%";
+    b.setAttribute("aria-label","照片上的 "+p.num+" 號");
+    b.addEventListener("click",()=>tapPart(name,b));
+    fig.appendChild(b);
+  });
+  $("fcCard").classList.remove("hidden");
+  $("fcDone").classList.add("hidden");
+  $("zoomView").classList.add("hidden");
+  ["zStamen","zPistil"].forEach(id=>$(id).setAttribute("aria-pressed","false"));
+  showFcard();
+}
+function showFcard(){
+  const c=FCARDS[fcIdx];
+  $("fcStep").textContent=`功能卡 ${fcIdx+1} / ${FCARDS.length}`;
+  $("fcText").textContent=`「${c.q}」`;
+  $("fcFeed").className="feedback"; $("fcFeed").textContent="";
+  $("fcNext").classList.add("hidden");
+  fcWaiting=false;
+}
+function tapPart(name,btn){
+  if(fcIdx>=FCARDS.length) return;
+  const fb=$("fcFeed");
+  if(fcWaiting){
+    fb.className="feedback good";
+    fb.textContent="👍 這張答對了，按「下一張 →」繼續。";
+    return;
+  }
+  const c=FCARDS[fcIdx];
+  if(name===c.ans){
+    const p=PARTS[name];
+    btn.classList.add("found");
+    btn.setAttribute("aria-label",`${p.num} 號：${name}`);
+    fcFound.add(name);
+    addTag(btn.parentNode,p.x,p.y,`<b>${name}</b><small>${p.line}</small>`,p.place,{hs:true,mw:p.mw});
+    fb.className="feedback good";
+    fb.textContent=`✅ 對了！${p.num} 號是「${name}」——${p.line}。`;
+    $("fcNext").textContent= fcIdx+1<FCARDS.length ? "下一張 →" : "四張都完成 ✓";
+    $("fcNext").classList.remove("hidden");
+    fcWaiting=true;
+  }else{
+    btn.classList.remove("shake"); void btn.offsetWidth; btn.classList.add("shake");
+    fb.className="feedback hint";
+    fb.textContent = fcFound.has(name)
+      ? `這個號碼已經找到了（${name}），再找找別的地方！`
+      : `🤔 不是這一個喔（不扣分）。提示：${c.hint}`;
+  }
+}
+$("fcNext").addEventListener("click",()=>{
+  fcIdx++;
+  if(fcIdx>=FCARDS.length){
+    $("fcCard").classList.add("hidden");
+    $("fcDone").classList.remove("hidden");
+  }else showFcard();
+});
+function showZoom(kind){
+  const fig=$("zoomFig");
+  if(kind==="stamen"){
+    /* 同一張照片（citrus-stamens 是 citrus-flower 裁切放大） */
+    renderFig(fig,"citrus-stamens");
+    addTag(fig,80.5,58,"<b>花藥</b><small>裡面有花粉</small>","tl");
+    addTag(fig,66.7,76,"<b>花絲</b><small>撐起花藥</small>","br");
+    addTag(fig,46,70,"<b>柱頭</b><small>雌蕊的頂端，接收花粉</small>","bl");
+    $("zoomCap").innerHTML="這是<b>同一朵柑橘花</b>（同一張照片），把花的中間放大來看。";
+  }else{
+    /* 不是同一朵花：誠實寫出是雪花蓮 */
+    renderFig(fig,"ovary-section");
+    /* 雪花蓮的花倒掛：照片上方彎彎的是花柄；花柱和柱頭原本長在下面切平的那一端 */
+    addTag(fig,47,13,"<b>花柄</b><small>不是花柱</small>","r");
+    addTag(fig,30,68,"<b>子房</b><small>膨大的地方，裡面有胚珠</small>","br");
+    addTag(fig,40,52,"<b>胚珠</b><small>藏在子房裡</small>","tl");
+    $("zoomCap").innerHTML="⚠️ 這<b>不是</b>剛剛那朵柑橘花：這是<b>另一朵花（雪花蓮）</b>剖開後的雌蕊，看起來像這樣——膨大的子房裡，藏著一顆一顆的胚珠。"
+      +"<br><span class=\"note\">（雪花蓮的花是倒掛的：上面彎彎的是花柄；花柱和柱頭原本長在下面切平的那一端，這張照片沒有拍到。）</span>";
+  }
+  $("zStamen").setAttribute("aria-pressed",String(kind==="stamen"));
+  $("zPistil").setAttribute("aria-pressed",String(kind!=="stamen"));
+  $("zoomView").classList.remove("hidden");
+  $("zoomView").scrollIntoView({behavior:"smooth",block:"nearest"});
+}
+$("zStamen").addEventListener("click",()=>showZoom("stamen"));
+$("zPistil").addEventListener("click",()=>showZoom("pistil"));
+$("fcReset").addEventListener("click",buildFlower);
+buildFlower();
+
+/* ==========================================================
+   ② 花粉怎麼搬家
+   ========================================================== */
+const SCENES={
+  bee:{label:"🐝 蜜蜂來幫忙",photo:"bee-flower",cap:"一隻蜜蜂停在花上（野玫瑰）",qs:[
+    {q:"誰把花粉帶走？",opts:["雨水","蜜蜂","螞蟻搬到根"],ans:"蜜蜂",
+     hint:"看看照片：誰停在花上？",
+     why:"蜜蜂來採花粉或吸花蜜時，身上沾到花粉，飛到別朵花就把花粉帶過去。"},
+    {q:"這朵花用什麼吸引蜜蜂？",opts:["粗粗的莖","鮮豔的花瓣和香味","土裡的根"],ans:"鮮豔的花瓣和香味",
+     hint:"蜜蜂從遠遠的地方看得到、靠近時聞得到的是什麼？",
+     why:"靠動物傳粉的花，常有鮮豔的花瓣、香味或花蜜，吸引動物飛過來。"},
+    {q:"花粉要送到哪裡，才算授粉？",opts:["花瓣上","直接掉進子房","雌蕊的柱頭"],ans:"雌蕊的柱頭",
+     hint:"授粉要把花粉送到雌蕊「接收花粉」的地方。",
+     why:"停在花瓣上還不算，一定要到柱頭。"}
+  ]},
+  wind:{label:"🌬️ 風來幫忙",photo:"corn-plant",cap:"正在開花的玉米",qs:[
+    {q:"玉米的花粉靠什麼傳播？",opts:["蝴蝶","根吸水","風"],ans:"風",
+     hint:"玉米的花不鮮豔、沒有香味，花粉又多又輕。什麼東西吹得動輕輕的花粉？",
+     why:"玉米的花不鮮豔、沒有香味，花粉又多又輕，隨風飄。"},
+    {q:"風把花粉帶到玉米的哪裡？",opts:["寬大的葉子","伸出來的玉米鬚","地下的根"],ans:"伸出來的玉米鬚",
+     hint:"花粉要到「接收花粉」的地方。玉米身上哪裡細細長長、伸到外面？",
+     why:"玉米鬚是雌花的柱頭和花柱，專門接收花粉，第 ③ 站會放大看。"}
+  ]}
+};
+const pState={bee:0,wind:0};
+const pAnswered={bee:-1,wind:-1};   /* 這一題已經答對（判準顯示中）：切換分頁再回來不要重答 */
+let curScene="bee", shownScene=null;
+function sceneDone(k){ return pState[k]>=SCENES[k].qs.length; }
+function renderScene(){
+  document.querySelectorAll(".tab").forEach(t=>{
+    const k=t.dataset.scene, on=k===curScene;
+    t.classList.toggle("on",on); t.setAttribute("aria-selected",String(on));
+    t.textContent=SCENES[k].label+(sceneDone(k)?" ✓":"");
+  });
+  const S=SCENES[curScene];
+  if(shownScene!==curScene){
+    renderFig($("pFig"),S.photo); $("pCap").textContent=S.cap; shownScene=curScene;
+  }
+  const host=$("pQ"); host.innerHTML="";
+  const i=pState[curScene];
+  if(i>=S.qs.length){
+    host.innerHTML=`<div class="feedback good">✅「${S.label}」完成！</div>
+      <ul class="recap">${S.qs.map(q=>`<li>💡 ${q.why}</li>`).join("")}</ul>`;
+    const other=curScene==="bee"?"wind":"bee";
+    if(!sceneDone(other)){
+      const b=document.createElement("button");
+      b.className="btn"; b.style.marginTop="12px"; b.textContent=`換下一幕：${SCENES[other].label} →`;
+      b.addEventListener("click",()=>{ curScene=other; renderScene(); });
+      host.appendChild(b);
+    }
+    return;
+  }
+  const q=S.qs[i];
+  host.insertAdjacentHTML("beforeend",
+    `<span class="steptag">${S.label}　第 ${i+1} / ${S.qs.length} 題</span><p class="qtitle">${q.q}</p>`);
+  const fb=document.createElement("div"); fb.className="feedback";
+  const crit=document.createElement("div"); crit.className="criterion hidden";
+  crit.innerHTML=`<div class="k">💡 ${q.why}</div>`;
+  const next=document.createElement("button");
+  next.className="btn green hidden"; next.style.marginTop="14px";
+  next.textContent= i+1<S.qs.length ? "下一題 →" : "完成這一幕 ✓";
+  const scene=curScene;
+  const showRight=()=>{ fb.className="feedback good"; fb.textContent="✅ 答對了！"; crit.classList.remove("hidden"); next.classList.remove("hidden"); };
+  choiceQ(host,q.opts,q.ans,
+    ()=>{ pAnswered[scene]=i; showRight(); next.scrollIntoView({behavior:"smooth",block:"nearest"}); },
+    ()=>{ fb.className="feedback hint"; fb.textContent="🤔 再想想看（不扣分）："+q.hint; });
+  host.append(fb,crit,next);
+  if(pAnswered[scene]===i){
+    host.querySelectorAll(".opt").forEach(x=>{ x.disabled=true; if(x.textContent===q.ans) x.classList.add("ok"); });
+    showRight();
+  }
+  next.addEventListener("click",()=>{
+    pState[curScene]++;
+    renderScene();
+    $("pollenPoint").classList.toggle("hidden",!(sceneDone("bee")&&sceneDone("wind")));
+  });
+}
+document.querySelectorAll(".tab").forEach(t=>t.addEventListener("click",()=>{
+  if(t.dataset.scene===curScene) return;
+  curScene=t.dataset.scene; renderScene();
+}));
+$("pReset").addEventListener("click",()=>{
+  pState.bee=0; pState.wind=0; pAnswered.bee=-1; pAnswered.wind=-1; curScene="bee";
+  $("pollenPoint").classList.add("hidden"); renderScene();
+});
+renderScene();
+
+/* ==========================================================
+   ③ 雄花？雌花？　放大層次
+   ========================================================== */
+renderFig($("lvFig1"),"corn-plant");
+addTag($("lvFig1"),64,21,"<b>頂端的雄花</b>","l");
+renderFig($("lvFig2"),"corn-tassel");
+renderFig($("lvFig3"),"corn-silk");
+addTag($("lvFig3"),75,50,"<b>玉米鬚</b>","b");
+let lvStep=1;
+$("lvBtn").addEventListener("click",()=>{
+  lvStep++;
+  if(lvStep===2){
+    $("lv2").classList.remove("hidden");
+    $("lvBtn").textContent="🔍 看看莖的側邊 →";
+  }else if(lvStep===3){
+    $("lv3").classList.remove("hidden");
+    $("lvPoint").classList.remove("hidden");
+    $("lvBtn").textContent="↺ 從頭再看一次";
+  }else{
+    lvStep=1;
+    ["lv2","lv3","lvPoint"].forEach(id=>$(id).classList.add("hidden"));
+    $("lvBtn").textContent="🔍 放大玉米頂端 →";
+  }
+});
+
+/* ==========================================================
+   ③ 分類白板（揭曉前不顯示任何對錯；卡片一律中性）
+   ========================================================== */
+const SORT_CARDS=[
+  {id:"citrus-flower",name:"柑橘花",cat:"A"},
+  {id:"lily-flower",  name:"百合",cat:"A"},
+  {id:"corn-tassel",  name:"玉米頂端的花",cat:"B"},
+  {id:"corn-silk",    name:"伸出玉米鬚的花",cat:"C"},
+  {id:"luffa-male",   name:"絲瓜花（花瓣下面沒有小絲瓜）",cat:"B"},
+  {id:"luffa-female", name:"絲瓜花（花瓣下面有小絲瓜）",cat:"C"}
+];
+const BASKET_NAMES={
+  A:"一朵花裡兩種都有",
+  B:"<b>雄花</b>＝只有雄蕊的花",
+  C:"<b>雌花</b>＝只有雌蕊的花"
+};
+const tray=$("tray"), revealBtn=$("revealBtn"), sortMsg=$("sortMsg");
+const cardCat=new WeakMap();   /* 正確籃子只存在程式裡，不寫進畫面 */
+let picked=null, sortRevealed=false;
+
+function buildSort(){
+  tray.innerHTML="";
+  ["A","B","C"].forEach(k=>{ $("drop-"+k).innerHTML=""; $("name-"+k).textContent="？？？"; });
+  document.querySelectorAll(".basket").forEach(b=>b.classList.remove("lit","hot"));
+  picked=null; sortRevealed=false;
+  revealBtn.disabled=true;
+  $("derive").classList.add("hidden");
+  buildDerive();
+  SORT_CARDS.slice().sort(()=>Math.random()-0.5).forEach(o=>tray.appendChild(makeCard(o)));
+  checkReady();
+}
+function makeCard(o){
+  const el=document.createElement("div");
+  el.className="fcard"; el.tabIndex=0; el.setAttribute("role","button");
+  el.setAttribute("aria-label",o.name);
+  cardCat.set(el,o.cat);
+  el.innerHTML=`${imgTag(o.id,o.name)}<div class="label">${o.name}</div><div class="mark"></div>`;
+  attachDrag(el);
+  el.addEventListener("keydown",e=>{
+    if(e.key==="Enter"||e.key===" "){ e.preventDefault(); if(!sortRevealed){ togglePick(el); checkReady(); } }
+  });
+  return el;
+}
+function togglePick(el){
+  if(picked===el){ el.classList.remove("picked"); picked=null; }
+  else{
+    if(picked) picked.classList.remove("picked");
+    picked=el; el.classList.add("picked");
+  }
+}
+/* 兩種操作都支援：①點卡片再點籃子　②直接拖曳（Pointer Events，滑鼠與觸控通用） */
+function attachDrag(el){
+  let sx=0, sy=0, ox=0, oy=0, moved=false, down=false;
+  el.addEventListener("pointerdown",e=>{
+    if(sortRevealed || (e.pointerType==="mouse" && e.button!==0)) return;
+    down=true; moved=false; sx=e.clientX; sy=e.clientY;
+    const r=el.getBoundingClientRect(); ox=e.clientX-r.left; oy=e.clientY-r.top;
+    try{ el.setPointerCapture(e.pointerId); }catch(_){}
+  });
+  el.addEventListener("pointermove",e=>{
+    if(sortRevealed || !down) return;
+    if(!moved && Math.hypot(e.clientX-sx,e.clientY-sy)>12){
+      moved=true;
+      const r=el.getBoundingClientRect();
+      el.style.width=r.width+"px";
+      el.classList.add("dragging");
+      setPos(e);
+    }else if(moved){ setPos(e); }
+  });
+  el.addEventListener("pointerup",e=>{
+    if(!down) return;
+    down=false;
+    if(sortRevealed) return;
+    if(moved){
+      const under=document.elementFromPoint(e.clientX,e.clientY);
+      endDrag();
+      const basket=under && under.closest(".basket");
+      const back=under && under.closest(".cardtray");
+      if(basket) place(el,basket.dataset.basket);
+      else if(back){ tray.appendChild(el); if(picked===el){ el.classList.remove("picked"); picked=null; } }
+    }else{
+      /* 純點擊 → 選取／取消選取。卡片已經在籃子裡也一樣可以選起來，再點別的籃子就能換位置。 */
+      togglePick(el);
+    }
+    checkReady();
+  });
+  el.addEventListener("pointercancel",()=>{ down=false; if(moved) endDrag(); });
+  function endDrag(){
+    el.classList.remove("dragging"); el.style.cssText=""; clearHot(); moved=false;
+  }
+  function setPos(e){
+    el.style.left=(e.clientX-ox)+"px"; el.style.top=(e.clientY-oy)+"px";
+    const under=document.elementFromPoint(e.clientX,e.clientY);
+    clearHot();
+    const b=under && under.closest(".basket"); if(b) b.classList.add("hot");
+  }
+}
+function clearHot(){ document.querySelectorAll(".basket").forEach(b=>b.classList.remove("hot")); }
+function place(el,k){
+  $("drop-"+k).appendChild(el);
+  el.classList.remove("picked");
+  if(picked===el) picked=null;
+}
+/* 點籃子 → 把選起來的卡片放進去。
+   修正舊版 bug：點「籃子裡的卡片」時，pointerup 已經把它選起來，
+   接著冒泡上來的 click 不可以再把它放回同一個籃子（否則永遠搬不走）。 */
+document.querySelectorAll(".basket").forEach(b=>{
+  b.addEventListener("click",e=>{
+    if(sortRevealed || !picked) return;
+    if(e.target.closest(".fcard")) return;
+    place(picked,b.dataset.basket);
+    checkReady();
+  });
+  b.addEventListener("keydown",e=>{
+    if((e.key==="Enter"||e.key===" ") && e.target===b){
+      e.preventDefault();
+      if(sortRevealed || !picked) return;
+      place(picked,b.dataset.basket); checkReady();
+    }
+  });
+});
+/* 點卡片區的空白處 → 把選起來的卡片收回來 */
+tray.addEventListener("click",e=>{
+  if(sortRevealed || !picked || e.target.closest(".fcard")) return;
+  tray.appendChild(picked); picked.classList.remove("picked"); picked=null;
+  checkReady();
+});
+function checkReady(){
+  if(sortRevealed) return;
+  const left=tray.querySelectorAll(".fcard").length;
+  revealBtn.disabled=(left>0);
+  if(picked){
+    sortMsg.textContent=`已選「${picked.querySelector(".label").textContent}」→ 點一個籃子放進去`;
+  }else{
+    sortMsg.textContent= left>0 ? `還有 ${left} 張沒分` : "六張都分好了，討論完可以按揭曉";
+  }
+}
+/* 揭曉：籃子命名 ＋ 逐張判 ○ ✗ */
+revealBtn.addEventListener("click",()=>{
+  if(picked){ picked.classList.remove("picked"); picked=null; }
+  sortRevealed=true;
+  let right=0;
+  ["A","B","C"].forEach(k=>{
+    $("name-"+k).innerHTML=BASKET_NAMES[k];
+    $("drop-"+k).querySelectorAll(".fcard").forEach(el=>{
+      const ok=cardCat.get(el)===k;
+      el.classList.add("judged",ok?"ok":"no");
+      el.querySelector(".mark").textContent= ok ? "○ 放對了" : `✗ 應該放 ${cardCat.get(el)} 籃`;
+      right+=ok?1:0;
+    });
+  });
+  sortMsg.textContent=`六張裡放對 ${right} 張`;
+  revealBtn.disabled=true;
+  $("derive").classList.remove("hidden");
+});
+$("resetSort").addEventListener("click",buildSort);
+
+/* ---------- 推導題：哪幾籃以後可能長成果實？（正解 A＋C） ---------- */
+function buildDerive(){
+  const box=$("deriveOpts"); box.innerHTML="";
+  ["A","B","C"].forEach(k=>{
+    const b=document.createElement("button");
+    b.type="button"; b.className="opt"; b.textContent=k+" 籃"; b.dataset.k=k;
+    b.setAttribute("aria-pressed","false");
+    b.addEventListener("click",()=>{
+      b.setAttribute("aria-pressed", b.getAttribute("aria-pressed")==="true" ? "false" : "true");
+      $("deriveFeed").className="feedback"; $("deriveFeed").textContent="";
+    });
+    box.appendChild(b);
+  });
+  $("deriveOk").disabled=false;
+  $("deriveFeed").className="feedback"; $("deriveFeed").textContent="";
+  $("deriveCrit").classList.add("hidden");
+}
+$("deriveOk").addEventListener("click",()=>{
+  const sel=[...$("deriveOpts").querySelectorAll('.opt[aria-pressed="true"]')].map(b=>b.dataset.k).sort().join("");
+  const fb=$("deriveFeed");
+  if(sel==="AC"){
+    fb.className="feedback good"; fb.textContent="✅ 答對了！A 籃和 C 籃的花都有雌蕊。";
+    $("deriveOpts").querySelectorAll(".opt").forEach(b=>b.disabled=true);
+    $("deriveOk").disabled=true;
+    document.querySelectorAll('.basket[data-basket="A"],.basket[data-basket="C"]').forEach(b=>b.classList.add("lit"));
+    const ev=$("evFig");
+    renderFig(ev,"luffa-female");
+    addTag(ev,32.9,55.4,"<b>小絲瓜（子房）</b>","b");
+    $("deriveCrit").classList.remove("hidden");
+  }else if(sel===""){
+    fb.className="feedback hint"; fb.textContent="先點選籃子（可以選不只一籃），再按確認。";
+  }else{
+    fb.className="feedback hint";
+    fb.textContent = sel.indexOf("B")>=0
+      ? "🤔 再想想（不扣分）：果實是花的哪個部分長成的？B 籃的花只有雄蕊，找得到那個部分嗎？"
+      : "🤔 還少了一籃（不扣分）：果實是子房長成的，子房在雌蕊裡。哪些籃子的花找得到雌蕊？";
+  }
+});
+buildSort();
+
+/* ==========================================================
+   ④ 花變果實　照片時間軸（前三張是四季橘，第四張是另一種小橘子）
+   ========================================================== */
+const FRAMES=[
+  {id:"fruit-1-flower",step:"花盛開",text:"授粉了——但還不會立刻變成果實。",
+   note:"照片：四季橘的花"},
+  {id:"fruit-2-ovary",step:"花瓣凋謝、子房膨大",text:"花瓣和雄蕊慢慢凋謝，雌蕊下面的子房開始膨大。",
+   note:"照片：另一朵四季橘的花，花瓣快掉光了",tag:["膨大的子房",50,54.3]},
+  {id:"fruit-3-green",step:"小果實",text:"子房長成小小的果實。",
+   note:"照片：另一棵四季橘上的小果實"},
+  {id:"fruit-4-cut",step:"成熟果實",text:"剖開成熟的果實，裡面有種子——種子是胚珠長成的。",
+   note:"照片：另一種小橘子剖開（不是四季橘）",tag:["種子",52,69]}
+];
+let tl=0;
+FRAMES.forEach((f,i)=>{
+  const b=document.createElement("button");
+  b.type="button"; b.className="frame-btn";
+  b.innerHTML=`${imgTag(f.id)}<span>${i+1}　${f.step}</span>`;
+  b.addEventListener("click",()=>showFrame(i));
+  $("frames").appendChild(b);
+});
+function showFrame(i){
+  tl=Math.max(0,Math.min(FRAMES.length-1,i));
+  const f=FRAMES[tl], fig=$("tlFig");
+  renderFig(fig,f.id);
+  if(f.tag) addTag(fig,f.tag[1],f.tag[2],`<b>${f.tag[0]}</b>`,"b");
+  $("tlNote").textContent=f.note;
+  $("tlText").innerHTML=`<span class="no">第 ${tl+1} 格</span>${f.text}`;
+  $("frames").querySelectorAll(".frame-btn").forEach((b,j)=>{
+    b.classList.toggle("on",j===tl); b.setAttribute("aria-pressed",String(j===tl));
+  });
+  $("tlPrev").disabled=(tl===0);
+  $("tlNext").disabled=(tl===FRAMES.length-1);
+}
+$("tlPrev").addEventListener("click",()=>showFrame(tl-1));
+$("tlNext").addEventListener("click",()=>showFrame(tl+1));
+document.addEventListener("keydown",e=>{
+  if(!$("screen-fruit").classList.contains("active")) return;
+  if(e.key==="ArrowLeft") showFrame(tl-1);
+  if(e.key==="ArrowRight") showFrame(tl+1);
+});
+showFrame(0);
+
+/* ---------- 配對：子房 → ？　胚珠 → ？ ---------- */
+const MATCH=[
+  {from:"子房",ans:"果實",
+   hint:"看看時間軸第 2 格到第 3 格：膨大的子房後來變成什麼？",
+   why:"子房會慢慢膨大，長成果實。"},
+  {from:"胚珠",ans:"種子",
+   hint:"剖開成熟的果實，裡面一顆一顆的是什麼？胚珠本來就藏在子房裡。",
+   why:"胚珠藏在子房裡，長成種子，所以種子在果實裡面。"}
+];
+function buildMatch(){
+  const host=$("matchRows"); host.innerHTML="";
+  MATCH.forEach(m=>{
+    const row=document.createElement("div"); row.className="mrow";
+    row.innerHTML=`<div class="mfrom">${m.from} → <span class="mto">？</span></div>`;
+    const fb=document.createElement("div"); fb.className="feedback";
+    const crit=document.createElement("div"); crit.className="criterion hidden";
+    crit.innerHTML=`<div class="k">💡 ${m.why}</div>`;
+    choiceQ(row,["果實","種子","花瓣"],m.ans,
+      ()=>{ row.querySelector(".mto").textContent=m.ans; fb.className="feedback"; fb.textContent=""; crit.classList.remove("hidden"); },
+      ()=>{ fb.className="feedback hint"; fb.textContent="🤔 再想想（不扣分）："+m.hint; });
+    row.append(fb,crit);
+    host.appendChild(row);
+  });
+}
+buildMatch();
+
+/* ---------- 回收開場的猜測 ---------- */
+let recallShown=false;
+function updateRecall(){
+  $("recallGuess").textContent = classGuess
+    ? `開場時全班猜的是：「${classGuess}」`
+    : "開場時還沒有投票，直接來看答案。";
+  $("recallGuess").classList.toggle("hidden",recallShown);
+  if(recallShown){
+    $("recallAns").innerHTML = classGuess
+      ? `開場時全班猜：${classGuess}。答案是：<b>雌蕊下面膨大的子房</b>，它長成了果實。`
+        + (classGuess===GUESS_RIGHT ? "<br>🎉 全班猜對了！" : "<br>現在我們有證據了！")
+      : "答案：<b>雌蕊下面膨大的子房</b>，它長成了果實。";
+  }
+}
+$("recallBtn").addEventListener("click",()=>{
+  recallShown=true;
+  $("recallAns").classList.remove("hidden");
+  $("recallBtn").classList.add("hidden");
+  updateRecall();
+});
+renderFig($("sproutFig"),"seed-sprout");
+addTag($("sproutFig"),52,38,"<b>發芽的種子</b>","l");
+updateRecall();
+
+/* ==========================================================
+   ⑤ 闖關驗收　兩層：先選答案，再選「你怎麼知道？」
+   ★ 答對後一定要顯示「判準」，那是老師追問的素材。
+   ========================================================== */
+const QUIZ=[
+  {photo:"stamen",q:"圈起來的「這裡」，產生的是什麼？",opts:["胚珠","花粉","花蜜"],ans:"花粉",
+   r:["它在花的最外面，負責保護花苞","它是雄蕊頂端的花藥，上面有黃黃的粉末","它在花的正中央，下面膨大鼓起來"],
+   rAns:"它是雄蕊頂端的花藥，上面有黃黃的粉末",
+   why:"雄蕊的花藥會產生花粉。"},
+  {photo:null,q:"花粉傳到哪裡，才算授粉？",opts:["子房裡","雌蕊的柱頭","花瓣上"],ans:"雌蕊的柱頭",
+   r:["花瓣最大片，最容易接到花粉","花粉一定要直接掉進子房裡","柱頭是雌蕊專門接收花粉的地方"],
+   rAns:"柱頭是雌蕊專門接收花粉的地方",
+   why:"授粉＝雄蕊的花粉傳到雌蕊的柱頭上。"},
+  {photo:"luffa",q:"甲、乙兩朵絲瓜花，哪一朵以後會長成絲瓜？",opts:["甲","乙","兩朵都會"],ans:"甲",
+   r:["每一朵花都會長成果實","甲的花瓣下面連著一條小絲瓜，那是子房","乙的花看起來比較大朵"],
+   rAns:"甲的花瓣下面連著一條小絲瓜，那是子房",
+   why:"有子房的花才可能長成果實；絲瓜的雌花有子房，雄花沒有子房。"},
+  {photo:null,q:"種子是花的哪一部分長成的？",opts:["子房","花粉","胚珠"],ans:"胚珠",
+   r:["花粉掉到土裡，就長成種子","胚珠藏在子房裡；子房長成果實時，胚珠長成裡面的種子","花瓣掉下來以後，變成種子"],
+   rAns:"胚珠藏在子房裡；子房長成果實時，胚珠長成裡面的種子",
+   why:"胚珠長成種子，子房長成果實。"}
+];
+const RANKS=[{s:0,t:"🌱 發芽中"},{s:4,t:"🌼 開花囉"},{s:7,t:"🍊 結果實了！"}];
+let qi=0, score=0, tries=0;
+function fmt(n){ return Number.isInteger(n)?String(n):n.toFixed(1); }
+function rankOf(s){ let r=RANKS[0]; RANKS.forEach(x=>{ if(s>=x.s) r=x; }); return r.t; }
+function renderDots(){
+  $("dots").innerHTML="";
+  QUIZ.forEach((_,i)=>{
+    const d=document.createElement("span");
+    d.className="dot"+(i<qi?" done":i===qi?" now":"");
+    $("dots").appendChild(d);
+  });
+}
+function renderQPhoto(q){
+  const box=$("qphoto"); box.innerHTML="";
+  $("quizwrap").classList.toggle("nophoto",!q.photo);
+  if(q.photo==="stamen"){
+    box.innerHTML=`<figure class="figbox"><div class="fig" id="qFig" style="--mh:58vh"></div><figcaption class="cap center">柑橘花中間的特寫</figcaption></figure>`;
+    const fig=renderFig($("qFig"),"citrus-stamens");
+    fig.insertAdjacentHTML("beforeend",`<span class="ring" style="left:80.5%;top:58%"><span>這裡</span></span>`);
+  }else if(q.photo==="luffa"){
+    box.innerHTML=`<div class="qpair">
+      <figure class="figbox"><div class="fig" id="qFigA" style="--mh:48vh"></div></figure>
+      <figure class="figbox"><div class="fig" id="qFigB" style="--mh:48vh"></div></figure></div>
+      <p class="cap center">兩朵絲瓜花（甲、乙）</p>`;
+    renderFig($("qFigA"),"luffa-female","絲瓜花 甲").insertAdjacentHTML("beforeend",`<span class="badge">甲</span>`);
+    renderFig($("qFigB"),"luffa-male","絲瓜花 乙").insertAdjacentHTML("beforeend",`<span class="badge">乙</span>`);
+  }
+}
+function renderQ(){
+  const q=QUIZ[qi]; tries=0;
+  $("qprog").textContent=`第 ${qi+1} / ${QUIZ.length} 題`;
+  renderDots();
+  renderQPhoto(q);
+  $("q1title").textContent=q.q;
+  ["q1opts","q2opts"].forEach(id=>$(id).innerHTML="");
+  ["q1feed","q2feed"].forEach(id=>{ $(id).className="feedback"; $(id).textContent=""; });
+  $("step2").classList.add("hidden");
+  $("criterion").classList.add("hidden");
+  $("nextBtn").classList.add("hidden");
+  choiceQ($("q1opts"),q.opts,q.ans,
+    ()=>{ addScore(); $("q1feed").className="feedback good"; $("q1feed").textContent="✅ 答對了！再說說你怎麼知道。"; $("step2").classList.remove("hidden");
+          $("step2").scrollIntoView({behavior:"smooth",block:"nearest"}); },
+    ()=>{ tries++; $("q1feed").className="feedback hint"; $("q1feed").textContent="🤔 再想想看，還可以再試。"; });
+  choiceQ($("q2opts"),q.r,q.rAns,
+    ()=>{
+      addScore();
+      $("q2feed").className="feedback"; $("q2feed").textContent="";
+      $("criterionText").textContent="💡 "+q.why;
+      $("criterion").classList.remove("hidden");
+      $("nextBtn").textContent= qi+1<QUIZ.length ? "下一題 →" : "看結果 →";
+      $("nextBtn").classList.remove("hidden");
+      $("nextBtn").scrollIntoView({behavior:"smooth",block:"nearest"});   /* 判準卡在按鈕正上方，一起帶進畫面 */
+    },
+    ()=>{ tries++; $("q2feed").className="feedback hint"; $("q2feed").textContent="🤔 這個理由說不通，再選一次。"; },
+    "col");
+}
+function addScore(){
+  score += tries===0 ? 1 : 0.5;   /* 答錯再試，分數減半 */
+  tries=0;
+  $("score").textContent=fmt(score);
+  $("rank").textContent=rankOf(score);
+}
+$("nextBtn").addEventListener("click",()=>{
+  qi++;
+  if(qi>=QUIZ.length) showResult();
+  else{ renderQ(); $("quizPanel").scrollIntoView({behavior:"smooth",block:"nearest"}); }
+});
+function showResult(){
+  renderDots();
+  $("qprog").textContent="完成！";
+  $("quizPanel").classList.add("hidden");
+  $("quizResult").classList.remove("hidden");
+  $("finalScore").textContent=`總分 ${fmt(score)} / 8`;
+  $("finalRank").textContent=rankOf(score);
+  $("quizResult").scrollIntoView({behavior:"smooth",block:"start"});
+}
+$("againBtn").addEventListener("click",()=>{
+  qi=0; score=0; $("score").textContent="0"; $("rank").textContent=RANKS[0].t;
+  $("quizResult").classList.add("hidden");
+  $("quizPanel").classList.remove("hidden");
+  renderQ();
+  $("quizPanel").scrollIntoView({block:"start"});
+});
+renderQ();
+
+/* ---------- 開頁：網址有 #站名 就直接跳過去 ---------- */
+(function(){
+  const h=(location.hash||"").replace("#","");
+  if(STATIONS.indexOf(h)>0) go(h,false);
+})();
+</script>
+</body>
+</html>
