@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>種子飛行大賽｜果實和種子的傳播方式</title>
+<link rel="icon" href="../../image/icon.svg" type="image/svg+xml">
+<style>
+/* ==========================================================
+   種子飛行大賽 — 樣式表
+   使用情境：教室 75 吋觸控螢幕、學生的手機都要能玩。
+   沿用〈器官大跑酷〉的調色盤、HUD 與 overlay 結構。
+   單鍵操作：點畫面或按空白鍵＝「搭上眼前的傳播方式」。
+   ========================================================== */
+:root{
+  --bg:#FDF6EC; --ink:#1E1E1E;
+  --green:#58B159; --green-dark:#2E7D4F;
+  --water:#4FB0E5; --water-dark:#2E86C1;
+  --sun:#FFC93C; --coral:#FF7F66; --coral-dark:#E4574C;
+  --card:#FFFFFF; --muted:#6B7A82;
+  --shadow:0 6px 18px rgba(46,86,110,.16);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  min-height:100vh;color:var(--ink);background:var(--bg);
+  font-family:-apple-system,"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif;
+  font-size:clamp(16px,1.7vw,21px);line-height:1.6;
+}
+#app{max-width:1240px;margin:0 auto;padding:10px 14px 34px}
+
+/* ---------- 頁首 ---------- */
+.sitehead{margin-bottom:10px}
+.headrow{display:flex;align-items:center;gap:6px 14px;flex-wrap:wrap}
+.back{
+  display:inline-flex;align-items:center;min-height:44px;padding:4px 16px;
+  border:3px solid var(--ink);border-radius:999px;background:var(--card);color:var(--ink);
+  font-weight:800;text-decoration:none;box-shadow:0 3px 0 var(--ink);font-size:clamp(14px,1.3vw,17px);
+}
+.back:active{transform:translateY(2px);box-shadow:0 1px 0 var(--ink)}
+.sitehead h1{margin:0;font-size:clamp(21px,2.5vw,31px);font-weight:900;letter-spacing:.5px}
+.sitehead .sub{color:var(--muted);font-size:clamp(13px,1.3vw,17px);font-weight:700}
+
+/* ---------- HUD ---------- */
+#hud{
+  display:flex;align-items:center;gap:8px 14px;flex-wrap:wrap;
+  background:var(--card);border:3px solid var(--ink);border-radius:22px;padding:6px 16px;
+  box-shadow:var(--shadow);margin-bottom:10px;font-weight:900;min-height:56px;
+}
+#hud .pill{background:#FFF6D8;border:2px solid var(--sun);border-radius:999px;padding:2px 12px;font-size:.88em}
+#hud .grow{margin-left:auto;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+#usedChain{display:flex;gap:4px;font-size:.9em;letter-spacing:1px;min-height:1.4em}
+#usedChain .u{border:2px solid var(--ink);border-radius:8px;padding:0 6px;background:#fff}
+#sndBtn{
+  border:3px solid var(--ink);border-radius:999px;background:var(--card);
+  font:inherit;font-weight:900;cursor:pointer;padding:2px 12px;min-height:40px;
+}
+
+/* ---------- 舞台 ---------- */
+#stage{position:relative;border:3px solid var(--ink);border-radius:20px;overflow:hidden;box-shadow:var(--shadow);background:#BFE3F5}
+#cv{display:block;width:100%;height:clamp(280px,50vh,470px);touch-action:manipulation}
+.overlay{
+  position:absolute;inset:0;display:none;background:rgba(253,246,236,.94);
+  padding:14px;overflow:auto;
+}
+.overlay.on{display:flex}
+.sheet{margin:auto;width:min(100%,860px);text-align:center}
+/* 開始畫面在筆電舞台上排成一欄會把「出發」擠到捲軸下面：橫的螢幕改左右兩欄 */
+@media (min-width:900px) and (orientation:landscape){
+  #scrTitle .cols{display:grid;grid-template-columns:minmax(0,.92fr) minmax(0,1.08fr);gap:16px;align-items:start;text-align:left}
+  #scrTitle .cols h2{text-align:center}
+  #scrTitle .seeds{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+  #scrTitle .seed{padding:5px}
+  #scrTitle .seed canvas{width:46px;height:40px}
+  #scrTitle .howto{font-size:clamp(13px,1.25vw,16px);line-height:1.5;padding:8px 12px}
+  #scrTitle .howto p{margin:3px 0}
+}
+.sheet h2{margin:0 0 6px;font-size:clamp(22px,2.7vw,36px)}
+.sheet p{margin:6px 0}
+.howto{
+  background:#FFF6D8;border:3px dashed var(--sun);border-radius:14px;padding:10px 14px;
+  text-align:left;font-weight:800;font-size:clamp(14px,1.45vw,18px);line-height:1.65;
+}
+.howto b{color:#7A5B00}
+.btn{
+  border:3px solid var(--ink);border-radius:999px;background:var(--sun);color:var(--ink);
+  padding:10px 24px;font:inherit;font-weight:900;cursor:pointer;
+  box-shadow:0 4px 0 var(--ink);min-height:56px;
+}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--ink)}
+.btn.green{background:var(--green-dark);color:#fff}
+.btn.ghost{background:var(--card)}
+.btn.sm{min-height:44px;padding:6px 16px;font-size:.88em}
+.pickrow{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:12px}
+
+/* 選種子 */
+.seeds{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:10px 0}
+.seed{
+  border:3px solid var(--ink);border-radius:16px;background:var(--card);padding:8px;
+  font:inherit;font-weight:800;cursor:pointer;box-shadow:0 4px 0 var(--ink);text-align:center;
+}
+.seed:active{transform:translateY(3px);box-shadow:0 1px 0 var(--ink)}
+.seed.on{background:var(--green-dark);color:#fff}
+.seed[disabled]{opacity:1;background:#EDE8DE;color:#8A8578;cursor:not-allowed;box-shadow:0 4px 0 #B6AF9F}
+.seed canvas{display:block;margin:0 auto;width:62px;height:52px}
+.seed .nm{font-size:clamp(15px,1.5vw,19px);font-weight:900;margin-top:2px}
+.seed .ab{font-size:clamp(12px,1.2vw,15px);font-weight:700;line-height:1.45;margin-top:3px}
+.seed.on .ab{color:#E6F6EA}
+.seed .lock{font-size:clamp(12px,1.2vw,15px);font-weight:800}
+
+/* 結算 */
+.final{font-size:clamp(20px,2.3vw,30px);font-weight:900;margin:6px 0}
+.final .big{font-size:1.5em;color:var(--green-dark)}
+.landing{border:3px solid var(--ink);border-radius:14px;padding:8px 14px;display:inline-block;background:#fff;font-weight:900}
+.review{
+  background:#fff;border:3px solid var(--ink);border-radius:14px;padding:8px 12px;margin:10px 0;
+  text-align:left;font-size:clamp(13px,1.35vw,17px);font-weight:700;line-height:1.6;
+}
+.unlock{font-weight:900;color:var(--green-dark)}
+.namerow{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:10px}
+.namerow input{
+  border:3px solid var(--ink);border-radius:12px;padding:6px 12px;font:inherit;font-weight:800;
+  width:9em;min-height:44px;
+}
+table.lb{border-collapse:collapse;margin:10px auto 0;font-size:clamp(13px,1.35vw,17px);min-width:min(100%,380px)}
+table.lb td,table.lb th{border:2px solid var(--ink);padding:3px 10px;font-weight:800}
+table.lb th{background:#FFF6D8}
+
+/* 給老師 */
+.tip{
+  margin:14px 0 0;font-size:clamp(13px,1.35vw,16px);color:var(--muted);
+  border-left:5px solid var(--sun);padding:6px 12px;background:#FFFCF2;border-radius:0 10px 10px 0;
+}
+.tip p{margin:4px 0}
+.tip b{color:#7A5B00}
+
+/* ---------- RWD：手機 / 平板 / 筆電 / 75 吋觸控螢幕 ---------- */
+@media (max-width:640px){
+  #app{padding:8px 8px 24px}
+  #cv{height:clamp(300px,54vh,430px)}
+  #hud{border-radius:16px;padding:6px 10px;font-size:.92em}
+  .seeds{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .seed canvas{width:52px;height:44px}
+}
+@media (min-width:1800px){
+  body{font-size:25px}
+  #app{max-width:1680px;padding:18px 26px 52px}
+  .sitehead h1{font-size:37px}
+  .back{min-height:62px;font-size:21px}
+  #cv{height:clamp(360px,54vh,660px)}
+  #hud{min-height:74px;border-radius:30px}
+  .btn{min-height:76px;padding:14px 36px}
+  .btn.sm{min-height:56px}
+  .seed canvas{width:86px;height:72px}
+  .namerow input{min-height:62px}
+  .tip{font-size:19px}
+}
+@media (min-width:2600px){
+  body{font-size:33px}
+  #app{max-width:2280px;padding:26px 36px 70px}
+  .sitehead h1{font-size:49px}
+  .back{min-height:80px;font-size:29px}
+  #cv{height:clamp(480px,58vh,900px)}
+  .btn{min-height:100px;padding:20px 48px}
+  .seed canvas{width:118px;height:98px}
+  .tip{font-size:25px}
+}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <header class="sitehead">
+    <div class="headrow">
+      <a class="back" href="../../index.html">← 回教材首頁</a>
+      <a class="back" href="../果實和種子的傳播方式/果實和種子的傳播方式_互動教材.html">← 回這一課</a>
+      <h1>🪂 種子飛行大賽</h1>
+      <span class="sub">五年級自然｜第二單元 植物世界　果實和種子的傳播方式</span>
+    </div>
+  </header>
+
+  <div id="hud">
+    <span class="pill">點畫面／空白鍵＝搭上去</span>
+    <span>📏 <span id="dist">0</span> m</span>
+    <span>🔥 <span id="combo">0</span> 連搭</span>
+    <div class="grow">
+      <span id="usedChain" aria-label="用過的傳播方式"></span>
+      <span class="pill">🏅 最遠 <span id="best">0</span> m</span>
+      <button id="sndBtn" type="button" aria-pressed="true">🔊</button>
+    </div>
+  </div>
+
+  <div id="stage">
+    <canvas id="cv"></canvas>
+
+    <!-- 開始畫面 -->
+    <div class="overlay on" id="scrTitle">
+      <div class="sheet">
+        <h2>🪂 種子飛行大賽</h2>
+        <div class="cols">
+          <div>
+            <p>選一顆果實或種子出發，沿路<b>在對的時機點一下</b>，搭上風、動物或水流，看你可以傳到多遠。</p>
+            <div class="howto">
+              <p>🌀 <b>上升氣流</b>（風力）：要飛得<b>夠高</b>才搭得到。</p>
+              <p>🐕 <b>經過的動物</b>（動物力）：要飛得<b>夠低</b>，而且身上要有<b>倒鉤</b>。</p>
+              <p>🌊 <b>小溪</b>（水力）：要飛得<b>夠低</b>，而且要<b>浮得起來</b>。</p>
+              <p>⚠️ 每顆種子的外形不一樣，<b>能搭的方式也不一樣</b>。搭錯會停下來告訴你為什麼。</p>
+              <p>🏁 掉到地上就結束。<b>飛得越遠，落點越好，分數越高。</b></p>
+            </div>
+          </div>
+          <div>
+            <p style="font-weight:900">選一顆種子：</p>
+            <div class="seeds" id="seedPick"></div>
+            <div class="pickrow"><button class="btn green" id="startBtn">🚀 出發！</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 結算畫面 -->
+    <div class="overlay" id="scrOver">
+      <div class="sheet">
+        <h2 id="overTitle">🏁 落地了！</h2>
+        <p class="final">飛行距離 <span class="big" id="finalDist">0</span> m</p>
+        <p><span class="landing" id="landingLine"></span></p>
+        <p class="final">總分 <span class="big" id="finalScore">0</span> 分</p>
+        <div class="review" id="review"></div>
+        <p class="unlock" id="unlockLine" hidden></p>
+        <div class="pickrow">
+          <button class="btn" id="againBtn">↺ 再玩一次</button>
+          <button class="btn ghost" id="pickBtn">🌱 換一顆種子</button>
+        </div>
+        <div class="namerow">
+          <input id="nameIn" maxlength="6" placeholder="你的名字" aria-label="你的名字">
+          <button class="btn sm" id="saveBtn">存進排行榜</button>
+        </div>
+        <table class="lb" id="lbTable"></table>
+        <div class="pickrow"><button class="btn ghost sm" id="clearBtn">清除排行榜</button></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tip">
+    <p><b>給老師：</b>這是〈果實和種子的傳播方式〉的補充遊戲，課後或下課玩。</p>
+    <p>遊戲規則就是本課的重點：<b>果實或種子的外形特徵，決定它能搭上哪一種傳播方式</b>。蒲公英沒有倒鉤，鉤不住動物；椰子太重，風吹不動——搭錯時畫面會停下來說明原因，這一停就是教學點。</p>
+    <p>結算的<b>落點倍率</b>（母株樹蔭 ×0.5／草叢 ×1／陽光空地 ×1.5）是在說課本沒有明講的那件事：<b>傳得遠，才比較不會和母株搶陽光、水分和養分</b>。可以請學生說說看為什麼樹蔭下的倍率最低。</p>
+    <p>排行榜與解鎖存在這台裝置的瀏覽器裡，換一台電腦就會重新開始。</p>
+  </div>
+
+</div>
+
+<script>
+/* ==========================================================
+   種子飛行大賽 — 程式
+   科學內容（照課本簡化，但不可講錯）：
+   果實／種子的外形特徵決定它可以用哪一種傳播方式。
+   細毛、薄翅 → 風力；倒鉤 → 附在動物身上；富含纖維質、能儲藏空氣 → 水力；
+   果皮捲曲的彈力 → 只幫它離開母株，之後還是要靠別的方式。
+   遊戲是「示意」，不是真實的飛行模擬；速度與距離都是為了好玩而設計的。
+   ========================================================== */
+const $=id=>document.getElementById(id);
+const cv=$("cv"), ctx=cv.getContext("2d");
+
+/* ---------- 種子設定 ----------
+   fall：每秒掉下的高度（高度用 0〜1 的比例，1＝畫面最上面）
+   wind/animal/water：0＝搭不上（會停格解釋），>0＝可以搭，數字是加成
+   need：搭那一種方式需要的高度條件，寫在說明裡給學生看 */
+const SEEDS=[
+  {key:"dandelion", nm:"蒲公英", feat:"果實上有蓬鬆的細毛",
+   fall:0.150, v0:9, y0:0.70, wind:1.25, animal:0, water:0, need:0,
+   no:{animal:"蒲公英的果實上只有細毛，<b>沒有倒鉤</b>，鉤不住動物。",
+       water:"蒲公英的果實又小又軟，<b>沒有儲藏空氣的構造</b>，浮不起來。"}},
+  {key:"maple", nm:"青楓", feat:"果實有薄翅，會旋轉滑翔",
+   fall:0.152, v0:11, y0:0.72, wind:1.15, animal:0, water:0, need:55,
+   no:{animal:"青楓的果實只有薄翅，<b>沒有倒鉤</b>，鉤不住動物。",
+       water:"青楓的果實薄薄一片，<b>沒有儲藏空氣的構造</b>，會被水泡爛。"}},
+  {key:"bidens", nm:"大花咸豐草", feat:"果實帶有倒鉤",
+   fall:0.185, v0:8.5, y0:0.55, wind:0.45, animal:1.35, water:0, need:100,
+   no:{water:"大花咸豐草的果實細細小小，<b>沒有儲藏空氣的構造</b>，浮不起來。"}},
+  {key:"coconut", nm:"椰子", feat:"富含纖維質、能儲藏空氣",
+   fall:0.100, v0:7, y0:0.30, wind:0, animal:0, water:1.5, need:160,
+   no:{wind:"椰子又大又重，<b>風吹不動</b>它。",
+       animal:"椰子太重了，<b>動物鉤不住也帶不走</b>。"}},
+  {key:"impatiens", nm:"非洲鳳仙", feat:"果皮捲曲，一開始彈得很遠",
+   fall:0.125, v0:20, y0:0.66, wind:0.95, animal:0, water:0, need:230,
+   no:{animal:"非洲鳳仙的種子很光滑，<b>沒有倒鉤</b>，鉤不住動物。",
+       water:"非洲鳳仙的種子小小一顆，<b>沒有儲藏空氣的構造</b>，浮不起來。"}}
+];
+const WAYS={
+  wind:  {nm:"風力",   ic:"🌀", band:[0.34,1.00], bandTxt:"要飛得夠高"},
+  animal:{nm:"動物力", ic:"🐕", band:[0.00,0.34], bandTxt:"要飛得夠低"},
+  water: {nm:"水力",   ic:"🌊", band:[0.00,0.34], bandTxt:"要飛得夠低"}
+};
+
+/* ---------- 存檔 ---------- */
+const K_BEST="seed-flight-best", K_SND="seed-flight-sound", K_LB="seed-flight-scores-v1";
+function lsGet(k,d){ try{ const v=localStorage.getItem(k); return v===null?d:v; }catch(_){ return d; } }
+function lsSet(k,v){ try{ localStorage.setItem(k,v); }catch(_){} }
+let best=parseInt(lsGet(K_BEST,"0"),10)||0;
+$("best").textContent=best;
+
+/* ---------- 音效（Web Audio 即時合成，不用音檔；沿用〈器官大跑酷〉的 Sound 模組） ---------- */
+const Sound={
+  ctx:null, on:lsGet(K_SND,"1")!=="0",
+  /* 瀏覽器規定：必須在使用者互動後才能建立 AudioContext */
+  ensure(){
+    if(!this.on) return;
+    if(!this.ctx){ const AC=window.AudioContext||window.webkitAudioContext; if(AC) this.ctx=new AC(); }
+    if(this.ctx && this.ctx.state==="suspended") this.ctx.resume();
+  },
+  tone(freq,delay,dur,type,vol){
+    if(!this.on||!this.ctx) return;
+    const t=this.ctx.currentTime+delay;
+    const osc=this.ctx.createOscillator(), g=this.ctx.createGain();
+    osc.type=type||"sine"; osc.frequency.value=freq;
+    g.gain.setValueAtTime(0.0001,t);
+    g.gain.linearRampToValueAtTime(vol||0.14,t+0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+    osc.connect(g).connect(this.ctx.destination);
+    osc.start(t); osc.stop(t+dur+0.05);
+  },
+  ride(){ [660,880,1100].forEach((f,i)=>this.tone(f,i*0.05,0.13,"triangle",0.11)); },
+  combo(){ [660,830,990,1320].forEach((f,i)=>this.tone(f,i*0.05,0.13,"triangle",0.12)); },
+  miss(){ this.tone(300,0,0.09,"triangle",0.05); },
+  wrong(){ this.tone(196,0,0.24,"sawtooth",0.10); this.tone(131,0.11,0.28,"sawtooth",0.09); },
+  land(){ [392,330,262].forEach((f,i)=>this.tone(f,i*0.11,0.26,"sine",0.11)); }
+};
+function setSound(on){
+  Sound.on=on; lsSet(K_SND,on?"1":"0");
+  $("sndBtn").textContent=on?"🔊":"🔇";
+  $("sndBtn").setAttribute("aria-pressed",String(on));
+}
+setSound(Sound.on);
+$("sndBtn").addEventListener("click",e=>{
+  setSound(!Sound.on); Sound.ensure();
+  e.currentTarget.blur();          /* 不然按空白鍵飛行時會順便切換音效 */
+});
+
+/* ---------- 畫布尺寸（DPR 對應，所有物件都用比例算） ---------- */
+let W=0,H=0;
+function resize(){
+  const r=cv.getBoundingClientRect();
+  W=r.width; H=r.height;
+  const dpr=Math.min(window.devicePixelRatio||1,2);
+  cv.width=Math.round(W*dpr); cv.height=Math.round(H*dpr);
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+}
+addEventListener("resize",()=>{ resize(); fitStage(); });
+resize();
+
+/* 開始／結算畫面比畫布高時，把舞台撐高（不然「出發」會被擠到捲軸下面看不到） */
+function fitStage(){
+  const on=document.querySelector(".overlay.on");
+  const st=$("stage");
+  if(!on){ st.style.minHeight=""; return; }
+  const sheet=on.querySelector(".sheet");
+  st.style.minHeight="";
+  const want=sheet.scrollHeight+30;
+  if(want>cv.getBoundingClientRect().height) st.style.minHeight=want+"px";
+}
+function showOverlay(id){
+  document.querySelectorAll(".overlay").forEach(o=>o.classList.toggle("on",o.id===id));
+  fitStage();
+}
+function hideOverlays(){
+  document.querySelectorAll(".overlay").forEach(o=>o.classList.remove("on"));
+  fitStage();
+}
+
+/* --- 版面比例（不用像素寫死，手機與 75 吋才會一樣好玩） ---
+   畫面寬度固定顯示 VIEW_M 公尺，所以「機會從右邊飛到種子」的時間與螢幕寬度無關。 */
+const VIEW_M=42;                 /* 一個畫面看得到幾公尺 */
+const PLAYER_X=0.24;             /* 種子固定在畫面這個位置（寬度比例） */
+const SKY_TOP=0.10, GROUND=0.86; /* 高度 1 對應畫面 SKY_TOP，高度 0 對應 GROUND */
+const CATCH_M=3.2;               /* 距離幾公尺以內算「搭得到」 */
+const V_MIN=6.5;                 /* 沒搭東西時的滑翔速度下限（每顆種子共用） */
+const FREEZE_SEC=1.35;           /* 搭錯時停格幾秒，讓全班看清楚為什麼 */
+function mToPx(m){ return m*(W/VIEW_M); }
+function yToPx(y){ return H*(GROUND-(GROUND-SKY_TOP)*y); }
+
+/* ---------- 遊戲狀態 ---------- */
+let state="title";               /* title | play | freeze | over */
+let seed=SEEDS[0];
+let dist=0, y=0, vx=0, combo=0, bestCombo=0;
+let rideT=0, rideKind=null, rideTargetY=0, rideFromY=0, rideDur=0;
+let opps=[], nextOppM=0, animT=0, freezeT=0, freezeMsg=null;
+let used=[], pops=[], landing=null, finalScore=0;
+
+function unlocked(s){ return best>=s.need; }
+
+/* ---------- 選種子 ---------- */
+function buildPick(){
+  const host=$("seedPick"); host.innerHTML="";
+  SEEDS.forEach(s=>{
+    const b=document.createElement("button");
+    b.type="button"; b.className="seed"+(s.key===seed.key?" on":"");
+    const ok=unlocked(s);
+    b.disabled=!ok;
+    const can=["wind","animal","water"].filter(k=>s[k]>0).map(k=>WAYS[k].ic+WAYS[k].nm).join("、");
+    b.innerHTML=`<canvas width="124" height="104" aria-hidden="true"></canvas>
+      <div class="nm">${s.nm}</div>
+      <div class="ab">${s.feat}<br>可搭：${can||"—"}</div>
+      ${ok?"":`<div class="lock">🔒 飛到 ${s.need} m 解鎖</div>`}`;
+    const c=b.querySelector("canvas");
+    drawSeedIcon(c.getContext("2d"),s.key,124,104,ok);
+    if(ok) b.addEventListener("click",()=>{ seed=s; buildPick(); });
+    host.appendChild(b);
+  });
+}
+function drawSeedIcon(g,key,w,h,ok){
+  g.clearRect(0,0,w,h);
+  g.save(); g.translate(w/2,h/2); g.scale(w/124,h/104);
+  if(!ok) g.globalAlpha=.35;
+  drawSeedShape(g,key,26,0);
+  g.restore();
+}
+
+/* ---------- 種子圖形（純程式繪製，不用圖檔也不用 emoji） ---------- */
+function drawSeedShape(g,key,r,rot){
+  g.save(); g.rotate(rot||0);
+  g.lineWidth=Math.max(2,r*0.10); g.lineJoin="round"; g.lineCap="round";
+  if(key==="dandelion"){
+    g.strokeStyle="#FFFFFF";
+    for(let i=0;i<14;i++){ const a=-Math.PI/2+(i-6.5)*0.19;
+      g.beginPath(); g.moveTo(0,-r*0.25); g.lineTo(Math.cos(a)*r*0.95,-r*0.25+Math.sin(a)*r*0.95); g.stroke(); }
+    g.strokeStyle="#EFEFEF"; g.beginPath(); g.moveTo(0,-r*0.25); g.lineTo(0,r*0.62); g.stroke();
+    g.fillStyle="#9A6A3A"; g.beginPath(); g.ellipse(0,r*0.72,r*0.13,r*0.26,0,0,7); g.fill();
+  }else if(key==="maple"){
+    g.fillStyle="#E7CFA6"; g.strokeStyle="#9A7B4F";
+    [-1,1].forEach(s=>{ g.save(); g.scale(s,1);
+      g.beginPath(); g.moveTo(0,0); g.quadraticCurveTo(r*0.55,-r*0.75,r*1.05,-r*0.12);
+      g.quadraticCurveTo(r*0.6,r*0.18,0,0); g.fill(); g.stroke(); g.restore(); });
+    g.fillStyle="#8A6233"; g.beginPath(); g.ellipse(0,r*0.12,r*0.27,r*0.2,0,0,7); g.fill();
+  }else if(key==="bidens"){
+    g.strokeStyle="#4A3B2A";
+    for(let i=0;i<9;i++){ const a=(i/9)*Math.PI*2;
+      const x=Math.cos(a)*r, yy=Math.sin(a)*r;
+      g.beginPath(); g.moveTo(0,0); g.lineTo(x,yy); g.stroke();
+      g.beginPath(); g.moveTo(x,yy); g.lineTo(x+Math.cos(a-2.2)*r*0.28,yy+Math.sin(a-2.2)*r*0.28); g.stroke();
+      g.beginPath(); g.moveTo(x,yy); g.lineTo(x+Math.cos(a+2.2)*r*0.28,yy+Math.sin(a+2.2)*r*0.28); g.stroke();
+    }
+    g.fillStyle="#5C4A33"; g.beginPath(); g.arc(0,0,r*0.22,0,7); g.fill();
+  }else if(key==="coconut"){
+    g.fillStyle="#8B5E34"; g.strokeStyle="#5B3D22";
+    g.beginPath(); g.ellipse(0,r*0.1,r*0.95,r*0.8,0,0,7); g.fill(); g.stroke();
+    g.strokeStyle="#6E4A29"; g.lineWidth=Math.max(1,r*0.06);
+    for(let i=-2;i<=2;i++){ g.beginPath(); g.moveTo(i*r*0.3,-r*0.6); g.quadraticCurveTo(i*r*0.36,r*0.1,i*r*0.3,r*0.8); g.stroke(); }
+    g.fillStyle="#7CC46A"; g.beginPath(); g.moveTo(0,-r*0.7); g.quadraticCurveTo(r*0.2,-r*1.3,-r*0.05,-r*1.55);
+    g.quadraticCurveTo(-r*0.3,-r*1.1,0,-r*0.7); g.fill();
+  }else{ /* impatiens */
+    g.fillStyle="#8FC96B"; g.strokeStyle="#4E7C39";
+    g.beginPath(); g.arc(0,0,r*0.62,0.5,5.0); g.stroke();
+    g.beginPath(); g.arc(0,0,r*0.9,0.7,4.7); g.stroke();
+    g.fillStyle="#A05A2C";
+    [[r*0.75,r*0.62],[-r*0.2,r*0.95],[r*0.15,-r*0.9]].forEach(p=>{ g.beginPath(); g.ellipse(p[0],p[1],r*0.16,r*0.12,0.5,0,7); g.fill(); });
+  }
+  g.restore();
+}
+
+/* ---------- 機會（上升氣流 / 動物 / 小溪） ---------- */
+function spawnOpp(){
+  /* 距離越遠，機會之間的間隔略微變大（難度慢慢上升），但一定搭得到 */
+  const gap=9.5+Math.random()*7+Math.min(16,dist/45);
+  nextOppM+=gap;
+  const roll=Math.random();
+  const kind = roll<0.38 ? "wind" : (roll<0.70 ? "animal" : "water");
+  opps.push({kind:kind, m:nextOppM, used:false, missed:false, ph:Math.random()*6});
+}
+function resetOpps(){
+  opps=[]; nextOppM=0;
+  /* 第一個機會一定是這顆種子最擅長的那一種：開局不會還沒反應就掉下來 */
+  const main=["water","animal","wind"].find(k=>seed[k]>0)||"wind";
+  opps.push({kind:main, m:13, used:false, missed:false, ph:Math.random()*6});
+  nextOppM=13;
+  for(let i=0;i<6;i++){ spawnOpp(); }
+}
+
+/* ---------- 開始 / 結束 ---------- */
+function start(){
+  Sound.ensure();
+  dist=0; y=seed.y0; vx=seed.v0; combo=0; bestCombo=0;
+  rideT=0; rideKind=null; used=[]; pops=[]; freezeT=0; freezeMsg=null;
+  landing=null; finalScore=0;
+  resetOpps();
+  hideOverlays();
+  updateHud();
+  state="play";
+}
+function landingOf(d){
+  if(d<45)  return {nm:"🌳 母株的樹蔭下",  mul:0.5, why:"擠在媽媽腳邊，會和母株搶陽光、水分和養分。"};
+  if(d<130) return {nm:"🌿 旁邊的草叢",    mul:1.0, why:"離開母株了，但旁邊的草也會跟它搶陽光。"};
+  return         {nm:"☀️ 遠方的陽光空地", mul:1.5, why:"傳到遠方，找到適合的環境，可以好好長大。"};
+}
+function gameOver(){
+  state="over";
+  Sound.land();
+  landing=landingOf(dist);
+  finalScore=Math.round(dist*landing.mul)+bestCombo*5;
+  $("finalDist").textContent=Math.round(dist);
+  $("landingLine").innerHTML=`落點：${landing.nm}　×${landing.mul}<br><span style="font-weight:700;font-size:.86em">${landing.why}</span>`;
+  $("finalScore").textContent=finalScore;
+  const chain=used.length ? used.map(k=>WAYS[k].ic+WAYS[k].nm).join(" → ") : "一次都沒搭到";
+  $("review").innerHTML=`<b>這一趟：</b>${seed.nm}（${seed.feat}）<br>
+    <b>用過的傳播方式：</b>${chain}<br>
+    <b>最長連搭：</b>${bestCombo} 次（每次 +5 分）<br>
+    <b>分數＝</b>距離 ${Math.round(dist)} × 落點 ${landing.mul} ＋ 連搭 ${bestCombo*5}`;
+  const old=best;
+  if(Math.round(dist)>best){ best=Math.round(dist); lsSet(K_BEST,String(best)); $("best").textContent=best; }
+  const nu=SEEDS.filter(s=>s.need>old && s.need<=best);
+  $("unlockLine").hidden=!nu.length;
+  if(nu.length) $("unlockLine").textContent="🎁 解鎖新種子："+nu.map(s=>s.nm).join("、")+"！回開始畫面換換看";
+  renderLb();
+  showOverlay("scrOver");
+}
+$("startBtn").addEventListener("click",start);
+$("againBtn").addEventListener("click",start);
+$("pickBtn").addEventListener("click",()=>{
+  state="title"; buildPick();
+  showOverlay("scrTitle");
+});
+
+/* ---------- 操作：點畫面／空白鍵＝搭上眼前的傳播方式 ---------- */
+function press(){
+  if(state==="title"){ start(); return; }
+  if(state!=="play") return;
+  Sound.ensure();
+  if(rideT>0) return;                       /* 已經在搭了 */
+  /* 找最近、還沒用過、在 x 範圍內的機會 */
+  let target=null, bestD=1e9;
+  for(const o of opps){
+    if(o.used) continue;
+    const d=Math.abs(o.m-dist);
+    if(d<=CATCH_M && d<bestD){ bestD=d; target=o; }
+  }
+  if(!target){ Sound.miss(); pop("撲空了","#6B7A82"); return; }
+  const kind=target.kind, w=WAYS[kind];
+  if(seed[kind]<=0){                        /* 這顆種子搭不上這一種 —— 停格教學 */
+    target.used=true; combo=0;
+    Sound.wrong();
+    freezeMsg={ic:w.ic, t:`${seed.nm} 搭不上${w.nm}`, d:seed.no[kind]||""};
+    freezeT=FREEZE_SEC; state="freeze";
+    /* 停格時世界是停住的。把這段時間本來會掉的高度先扣掉，再多扣一點當作代價，
+       不然「亂按」會變成免費暫停下墜（實測亂按可以飛 526m，比好好玩還遠）。 */
+    y=Math.max(0, y-(seed.fall*FREEZE_SEC+0.05));
+    vx=V_MIN;
+    updateHud();
+    return;
+  }
+  if(y<w.band[0]||y>w.band[1]){             /* 高度不對，只給提示不停格 */
+    Sound.miss();
+    pop(y<w.band[0]?"飛太低了":"飛太高了","#E4574C");
+    return;
+  }
+  target.used=true;
+  ride(kind);
+}
+function ride(kind){
+  const s=seed[kind];
+  rideKind=kind; rideFromY=y;
+  if(kind==="wind"){ rideDur=1.15; rideTargetY=Math.min(0.94,y+0.46*s*(1-y*0.45)); vx=12*s; }
+  if(kind==="animal"){ rideDur=3.0; rideTargetY=0.24; vx=19*s; }
+  if(kind==="water"){ rideDur=4.2; rideTargetY=0.14; vx=12*s; }
+  rideT=rideDur;
+  combo++; bestCombo=Math.max(bestCombo,combo);
+  if(used[used.length-1]!==kind) used.push(kind);
+  if(combo>=3 && combo%3===0){ Sound.combo(); pop("🔥 "+combo+" 連搭！","#2E7D4F"); }
+  else { Sound.ride(); pop(WAYS[kind].ic+" "+WAYS[kind].nm,"#2E7D4F"); }
+  updateHud();
+}
+function pop(txt,col){ pops.push({t:txt,c:col,life:1.1}); }
+
+cv.addEventListener("pointerdown",e=>{ e.preventDefault(); press(); });
+cv.addEventListener("contextmenu",e=>e.preventDefault());   /* 觸控螢幕長按不要跳出右鍵選單 */
+addEventListener("keydown",e=>{
+  if(e.target.tagName==="INPUT") return;                    /* 在排行榜打名字時，空白鍵要能打字 */
+  if(e.code==="Space"||e.code==="ArrowUp"||e.code==="KeyW"){
+    e.preventDefault();
+    if(!e.repeat) press();                                   /* 按住不放不會連搭 */
+  }
+});
+
+/* ---------- 每一格 ---------- */
+function step(dt){
+  if(state==="freeze"){
+    freezeT-=dt;
+    if(freezeT<=0){ freezeT=0; freezeMsg=null; state="play"; }
+    return;
+  }
+  if(state!=="play") return;
+
+  if(rideT>0){
+    rideT-=dt;
+    const p=Math.min(1,1-rideT/rideDur);
+    y=rideFromY+(rideTargetY-rideFromY)*(1-Math.pow(1-p,2));
+    if(rideT<=0){ rideT=0; rideKind=null; vx=Math.max(V_MIN,vx*0.72); }
+  }else{
+    y-=seed.fall*dt;
+    vx=Math.max(V_MIN, vx-2.2*dt);                           /* 沒搭東西就慢慢變慢 */
+  }
+  dist+=vx*dt;
+
+  while(opps.length && opps[opps.length-1].m-dist<VIEW_M*2) spawnOpp();
+  opps=opps.filter(o=>o.m-dist>-VIEW_M*0.6);
+
+  for(let i=pops.length-1;i>=0;i--){ pops[i].life-=dt; if(pops[i].life<=0) pops.splice(i,1); }
+
+  if(y<=0 && rideT<=0){ y=0; gameOver(); return; }
+  updateHud();
+}
+function updateHud(){
+  $("dist").textContent=Math.round(dist);
+  $("combo").textContent=combo;
+  const c=$("usedChain");
+  const want=used.map(k=>WAYS[k].ic).join("|");
+  if(c.dataset.v!==want){
+    c.dataset.v=want;
+    c.innerHTML=used.map(k=>`<span class="u" title="${WAYS[k].nm}">${WAYS[k].ic}</span>`).join("");
+  }
+}
+
+/* ---------- 畫面 ---------- */
+function draw(){
+  const gy=H*GROUND;
+  /* 天空 */
+  const sk=ctx.createLinearGradient(0,0,0,gy);
+  sk.addColorStop(0,"#9FD8F2"); sk.addColorStop(1,"#DCF1FB");
+  ctx.fillStyle=sk; ctx.fillRect(0,0,W,gy);
+  /* 遠景：只用中性灰藍，不畫植物，免得跟「機會」混淆 */
+  drawHills(gy);
+  /* 地面 */
+  ctx.fillStyle="#C9A86A"; ctx.fillRect(0,gy,W,H-gy);
+  ctx.fillStyle="#7BBE6A"; ctx.fillRect(0,gy,W,Math.max(4,H*0.022));
+  ctx.strokeStyle="rgba(255,255,255,.55)"; ctx.lineWidth=3;
+  ctx.setLineDash([24,30]); ctx.lineDashOffset=-(mToPx(dist)%54);
+  ctx.beginPath(); ctx.moveTo(0,gy+ (H-gy)*0.45); ctx.lineTo(W,gy+(H-gy)*0.45); ctx.stroke();
+  ctx.setLineDash([]);
+
+  /* 起點的母株（只在一開始看得到） */
+  const mx=PLAYER_X*W-mToPx(dist);
+  if(mx>-W*0.3) drawMother(mx,gy);
+
+  /* 機會 */
+  opps.forEach(o=>{
+    const x=PLAYER_X*W+mToPx(o.m-dist);
+    if(x<-W*0.25||x>W*1.25) return;
+    drawOpp(o,x,gy);
+  });
+
+  /* 種子 */
+  const px=PLAYER_X*W, py=yToPx(y);
+  ctx.save(); ctx.translate(px,py);
+  const r=Math.max(13,Math.min(W,H)*0.045);
+  const rot = seed.key==="maple" ? animT*4 : (seed.key==="impatiens" ? animT*2.2 : Math.sin(animT*2)*0.25);
+  drawSeedShape(ctx,seed.key,r,rot);
+  ctx.restore();
+
+  /* 搭乘中的光暈 */
+  if(rideT>0){
+    ctx.strokeStyle="rgba(46,125,79,.75)"; ctx.lineWidth=4;
+    ctx.beginPath(); ctx.arc(px,py,r*1.7+Math.sin(animT*10)*3,0,7); ctx.stroke();
+  }
+
+  /* 飄字 */
+  pops.forEach((p,i)=>{
+    ctx.save();
+    ctx.globalAlpha=Math.max(0,Math.min(1,p.life));
+    ctx.fillStyle=p.c; ctx.font="900 "+Math.round(Math.max(16,H*0.055))+"px system-ui,sans-serif";
+    ctx.textAlign="center";
+    ctx.fillText(p.t,px,py-r*2.2-(1.1-p.life)*40-i*4);
+    ctx.restore();
+  });
+
+  /* 高度提示條（哪個高度可以搭什麼） */
+  drawBandGuide(gy);
+
+  /* 停格教學 */
+  if(state==="freeze"&&freezeMsg) drawFreeze();
+}
+function drawHills(gy){
+  const layers=[{c:"#A9C4D6",s:0.18,a:0.13,f:1.2},{c:"#BBD2E0",s:0.34,a:0.09,f:2.1}];
+  layers.forEach(L=>{
+    ctx.fillStyle=L.c; ctx.beginPath(); ctx.moveTo(0,gy);
+    const off=mToPx(dist)*L.s;
+    for(let x=0;x<=W+8;x+=8){
+      const u=(x+off)/W*Math.PI;
+      ctx.lineTo(x,gy-gy*(0.06+L.a*(0.5+0.5*Math.sin(u*L.f))));
+    }
+    ctx.lineTo(W,gy); ctx.closePath(); ctx.fill();
+  });
+}
+function drawMother(x,gy){
+  ctx.fillStyle="#6B4A2B"; ctx.fillRect(x-6,gy-H*0.16,12,H*0.16);
+  ctx.fillStyle="#4E9A52";
+  ctx.beginPath(); ctx.ellipse(x,gy-H*0.19,W*0.05,H*0.075,0,0,7); ctx.fill();
+  ctx.fillStyle="rgba(30,30,30,.55)";
+  ctx.font="900 "+Math.round(Math.max(12,H*0.038))+"px system-ui,sans-serif";
+  ctx.textAlign="center"; ctx.fillText("母株",x,gy+H*0.075);
+}
+function drawOpp(o,x,gy){
+  const w=WAYS[o.kind];
+  const near=Math.abs(o.m-dist)<=CATCH_M;
+  const bandOk=y>=w.band[0]&&y<=w.band[1];
+  const canUse=seed[o.kind]>0;
+  ctx.save();
+  if(o.used) ctx.globalAlpha=0.28;
+  if(o.kind==="wind"){
+    const y0=yToPx(1), y1=yToPx(0.34);
+    ctx.strokeStyle=near?(bandOk?"#2E86C1":"#9BB3C0"):"#B8D6E6";
+    ctx.lineWidth=near?5:3;
+    for(let k=0;k<3;k++){
+      ctx.beginPath();
+      for(let t=0;t<=1;t+=0.05){
+        const yy=y1+(y0-y1)*t;
+        ctx.lineTo(x+Math.sin(t*7+animT*3+k*2)*W*0.018,yy);
+      }
+      ctx.stroke();
+    }
+    /* 往上的箭頭 */
+    ctx.fillStyle=ctx.strokeStyle;
+    for(let k=0;k<3;k++){
+      const yy=y0-((animT*70+k*60)%(y0-y1));
+      ctx.beginPath(); ctx.moveTo(x,yy-10); ctx.lineTo(x-8,yy+4); ctx.lineTo(x+8,yy+4); ctx.closePath(); ctx.fill();
+    }
+  }else if(o.kind==="animal"){
+    const by=gy-H*0.03, s=Math.max(16,H*0.075);
+    ctx.fillStyle=near?(bandOk?"#8A5A32":"#A99178"):"#B6A38D";
+    ctx.beginPath(); ctx.ellipse(x,by-s*0.55,s*0.62,s*0.36,0,0,7); ctx.fill();          /* 身體 */
+    ctx.beginPath(); ctx.arc(x+s*0.6,by-s*0.85,s*0.3,0,7); ctx.fill();                   /* 頭 */
+    ctx.beginPath(); ctx.moveTo(x+s*0.45,by-s*1.12); ctx.lineTo(x+s*0.62,by-s*1.4); ctx.lineTo(x+s*0.7,by-s*1.05); ctx.fill(); /* 耳 */
+    ctx.strokeStyle=ctx.fillStyle; ctx.lineWidth=Math.max(3,s*0.12); ctx.lineCap="round";
+    for(let k=0;k<4;k++){
+      const lx=x-s*0.42+k*s*0.32, sw=Math.sin(animT*7+k*1.6)*s*0.16;
+      ctx.beginPath(); ctx.moveTo(lx,by-s*0.28); ctx.lineTo(lx+sw,by); ctx.stroke();
+    }
+    ctx.beginPath(); ctx.moveTo(x-s*0.6,by-s*0.7); ctx.lineTo(x-s*0.95,by-s*1.05+Math.sin(animT*8)*s*0.1); ctx.stroke();
+  }else{
+    /* 小溪：水面從地面線「往上」一點開始畫，才會蓋住草地那一條綠色
+       （不然波峰之間會露出綠色，看起來像三顆綠球） */
+    const ww=W*0.145, top=gy-H*0.02;
+    ctx.fillStyle=near?(bandOk?"#4FB0E5":"#9FC4D6"):"#AFD3E4";
+    ctx.beginPath(); ctx.moveTo(x-ww,top);
+    for(let t=-ww;t<=ww;t+=6) ctx.lineTo(x+t,top-Math.sin(t*0.055+animT*5)*H*0.011);
+    ctx.lineTo(x+ww,H); ctx.lineTo(x-ww,H); ctx.closePath(); ctx.fill();
+    /* 水面的反光 */
+    ctx.strokeStyle="rgba(255,255,255,.6)"; ctx.lineWidth=2;
+    for(let k=0;k<3;k++){
+      const lx=x-ww*0.5+k*ww*0.5, ly=gy+H*0.03+k*H*0.018;
+      ctx.beginPath(); ctx.moveTo(lx-ww*0.16,ly); ctx.lineTo(lx+ww*0.16,ly); ctx.stroke();
+    }
+  }
+  ctx.restore();
+
+  /* 名牌：在範圍內時放大，搭不上的畫上斜線 */
+  if(!o.used && Math.abs(o.m-dist)<VIEW_M*0.55){
+    const ty=o.kind==="wind"?yToPx(0.98):(o.kind==="animal"?gy-H*0.22:gy-H*0.04);
+    const fs=Math.round(Math.max(13,H*(near?0.055:0.042)));
+    ctx.save();
+    ctx.font="900 "+fs+"px system-ui,sans-serif"; ctx.textAlign="center";
+    const label=w.nm;
+    const tw=ctx.measureText(label).width+16;
+    ctx.fillStyle=near?(canUse?(bandOk?"#FFFFFF":"#F1E9DA"):"#FBE3E1"):"rgba(255,255,255,.8)";
+    ctx.strokeStyle="#1E1E1E"; ctx.lineWidth=near?3:2;
+    roundRect(ctx,x-tw/2,ty-fs-6,tw,fs+10,8); ctx.fill(); ctx.stroke();
+    ctx.fillStyle=canUse?"#1E1E1E":"#B03A30";
+    ctx.fillText(label,x,ty-4);
+    if(!canUse){
+      ctx.strokeStyle="#E4574C"; ctx.lineWidth=3;
+      ctx.beginPath(); ctx.moveTo(x-tw/2+4,ty-2); ctx.lineTo(x+tw/2-4,ty-fs-2); ctx.stroke();
+    }
+    ctx.restore();
+  }
+}
+function drawBandGuide(gy){
+  const x=W-Math.max(46,W*0.045);
+  const yTop=yToPx(1), yWind=yToPx(WAYS.wind.band[0]), yLow=yToPx(WAYS.animal.band[1]);
+  ctx.save(); ctx.globalAlpha=.55;
+  ctx.fillStyle="#2E86C1"; ctx.fillRect(x,yTop,8,yWind-yTop);
+  ctx.fillStyle="#8A5A32"; ctx.fillRect(x,yLow,8,gy-yLow);
+  ctx.restore();
+  ctx.save();
+  ctx.font="900 "+Math.round(Math.max(10,H*0.032))+"px system-ui,sans-serif";
+  ctx.textAlign="right"; ctx.fillStyle="rgba(30,30,30,.65)";
+  ctx.fillText("高：風",x-6,yTop+H*0.05);
+  ctx.fillText("低：動物・水",x-6,gy-H*0.02);
+  ctx.restore();
+}
+function roundRect(g,x,y,w,h,r){
+  g.beginPath();
+  g.moveTo(x+r,y); g.arcTo(x+w,y,x+w,y+h,r); g.arcTo(x+w,y+h,x,y+h,r);
+  g.arcTo(x,y+h,x,y,r); g.arcTo(x,y,x+w,y,r); g.closePath();
+}
+function drawFreeze(){
+  ctx.fillStyle="rgba(253,246,236,.92)"; ctx.fillRect(0,0,W,H);
+  const cx=W/2;
+  ctx.textAlign="center";
+  ctx.font="900 "+Math.round(Math.max(30,H*0.13))+"px system-ui,sans-serif";
+  ctx.fillStyle="#E4574C"; ctx.fillText("✕",cx,H*0.3);
+  ctx.font="900 "+Math.round(Math.max(17,H*0.068))+"px system-ui,sans-serif";
+  ctx.fillStyle="#1E1E1E"; ctx.fillText(freezeMsg.t,cx,H*0.48);
+  ctx.font="800 "+Math.round(Math.max(13,H*0.05))+"px system-ui,sans-serif";
+  ctx.fillStyle="#6B7A82";
+  wrapText(freezeMsg.d.replace(/<\/?b>/g,""),cx,H*0.62,W*0.86,Math.max(17,H*0.062));
+}
+function wrapText(txt,x,y,maxW,lh){
+  let line="", yy=y;
+  for(const ch of txt){
+    if(ctx.measureText(line+ch).width>maxW){ ctx.fillText(line,x,yy); line=ch; yy+=lh; }
+    else line+=ch;
+  }
+  ctx.fillText(line,x,yy);
+}
+
+/* ---------- 迴圈 ---------- */
+let last=0;
+function loop(ts){
+  requestAnimationFrame(loop);
+  const dt=Math.min(0.05,(ts-last)/1000||0);   /* 切到別的分頁再回來不會爆衝 */
+  last=ts; animT+=dt;
+  step(dt); draw();
+}
+requestAnimationFrame(ts=>{ last=ts; requestAnimationFrame(loop); });
+
+/* ---------- 排行榜（存在這台裝置的瀏覽器裡） ---------- */
+function esc(s){ return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+function lbGet(){ try{ return JSON.parse(lsGet(K_LB,"[]"))||[]; }catch(_){ return []; } }
+function lbSet(a){ lsSet(K_LB,JSON.stringify(a.slice(0,10))); }
+function renderLb(){
+  const a=lbGet();
+  $("lbTable").innerHTML = a.length
+    ? "<tr><th>#</th><th>名字</th><th>種子</th><th>距離</th><th>分數</th></tr>"
+      + a.map((r,i)=>`<tr><td>${i+1}</td><td>${esc(r.n)}</td><td>${esc(r.s)}</td><td>${r.d} m</td><td>${r.p}</td></tr>`).join("")
+    : "<tr><th>排行榜還是空的，存一筆試試看</th></tr>";
+}
+$("saveBtn").addEventListener("click",()=>{
+  const n=($("nameIn").value||"").trim().slice(0,6)||"無名氏";
+  const a=lbGet();
+  a.push({n:n,s:seed.nm,d:Math.round(dist),p:finalScore});
+  a.sort((x,z)=>z.p-x.p);
+  lbSet(a); renderLb();
+  $("nameIn").value="";
+});
+$("clearBtn").addEventListener("click",()=>{ lbSet([]); renderLb(); });
+
+/* ---------- 開場 ---------- */
+buildPick();
+renderLb();
+updateHud();
+fitStage();
+</script>
+</body>
+</html>

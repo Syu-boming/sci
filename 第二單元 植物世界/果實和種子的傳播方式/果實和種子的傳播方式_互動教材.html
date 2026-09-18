@@ -1,0 +1,1542 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>果實和種子的傳播方式｜風力、彈力、動物力、水力</title>
+<link rel="icon" href="../../image/icon.svg" type="image/svg+xml">
+<style>
+/* ==========================================================
+   果實和種子的傳播方式 — 樣式表
+   使用情境：教室 75 吋觸控螢幕，全班共用、學生輪流上台操作。
+   沿用〈繁殖器官的功能〉的調色盤與元件；植物一律是真實照片，
+   構造名稱是疊在照片上的 HTML 標籤（位置用百分比）。
+   白色字只放在深綠 #2E7D4F 上；顏色不用來暗示答案。
+   ========================================================== */
+:root{
+  --bg:#FDF6EC;         /* 奶油底色 */
+  --ink:#1E1E1E;        /* 描邊近黑 */
+  --green:#58B159;      /* 主葉綠 */
+  --green-dark:#2E7D4F; /* 深綠（唯一可以放白字的底色） */
+  --water:#4FB0E5;      /* 水滴藍 */
+  --water-dark:#2E86C1;
+  --sun:#FFC93C;        /* 陽光黃 */
+  --coral:#FF7F66;      /* 珊瑚（繁殖器官色） */
+  --coral-dark:#E4574C;
+  --wrong:#E4574C;
+  --card:#FFFFFF;
+  --muted:#6B7A82;
+  --shadow:0 6px 18px rgba(46,86,110,.16);
+  --hs:clamp(44px,4.4vw,60px);  /* 照片熱點直徑（觸控至少 44px） */
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  min-height:100vh;color:var(--ink);background:var(--bg);
+  font-family:-apple-system,"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif;
+  font-size:clamp(17px,1.9vw,22px);line-height:1.6;
+}
+figure{margin:0}
+#app{max-width:1240px;margin:0 auto;padding:12px 16px 40px}
+
+/* ---------- 頁首與站別導覽（老師可自由跳段） ---------- */
+.sitehead{margin-bottom:12px}
+.headrow{display:flex;align-items:center;gap:6px 16px;flex-wrap:wrap}
+.back{
+  display:inline-flex;align-items:center;min-height:44px;padding:4px 16px;
+  border:3px solid var(--ink);border-radius:999px;background:var(--card);color:var(--ink);
+  font-weight:800;text-decoration:none;box-shadow:0 3px 0 var(--ink);font-size:clamp(15px,1.4vw,18px);
+}
+.back:active{transform:translateY(2px);box-shadow:0 1px 0 var(--ink)}
+.sitehead h1{margin:0;font-size:clamp(22px,2.6vw,32px);font-weight:900;letter-spacing:.5px;line-height:1.25}
+.sitehead .sub{color:var(--muted);font-size:clamp(13px,1.35vw,17px);font-weight:700}
+.stations{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.station-btn{
+  border:3px solid var(--ink);border-radius:999px;background:var(--card);color:var(--ink);
+  padding:8px 16px;font:inherit;font-size:clamp(15px,1.4vw,19px);font-weight:800;cursor:pointer;
+  box-shadow:0 3px 0 var(--ink);min-height:56px;line-height:1.25;
+}
+.station-btn.on{background:var(--green-dark);color:#fff}
+.station-btn:active{transform:translateY(2px);box-shadow:0 1px 0 var(--ink)}
+
+/* ---------- 畫面切換 ---------- */
+.screen{display:none;animation:fadeIn .4s ease}
+.screen.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.hidden{display:none !important}
+
+/* ---------- 通用卡片、按鈕 ---------- */
+.panel{
+  background:var(--card);border:3px solid var(--ink);border-radius:20px;
+  padding:16px 18px;box-shadow:var(--shadow);margin-bottom:14px;
+}
+.ptitle{font-weight:900;font-size:clamp(19px,2.2vw,27px);margin:0 0 10px}
+.btn{
+  border:3px solid var(--ink);border-radius:999px;background:var(--sun);color:var(--ink);
+  padding:12px 26px;font:inherit;font-weight:900;cursor:pointer;
+  box-shadow:0 4px 0 var(--ink);min-height:60px;
+}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--ink)}
+.btn.green{background:var(--green-dark);color:#fff}
+.btn.plain{background:var(--card)}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+/* 深綠按鈕停用時不可以變淡（白字會看不清）：改成米色底＋深灰字 */
+.btn.green[disabled]{opacity:1;background:#E6E1D6;color:#5B666C;box-shadow:0 4px 0 #9A9486}
+.btn[aria-pressed="true"]{box-shadow:0 0 0 5px var(--ink),0 4px 0 var(--ink)}
+.btnrow{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-top:14px}
+.btnrow.center{justify-content:center}
+.navrow{display:flex;justify-content:flex-end;gap:12px;flex-wrap:wrap;margin:0 0 12px}
+.ask{
+  background:#FFF6D8;border:3px dashed var(--sun);border-radius:16px;
+  padding:12px 16px;font-weight:800;font-size:clamp(18px,2.1vw,25px);text-align:center;
+}
+.ask.big{font-size:clamp(22px,2.6vw,40px);padding:16px}
+.lead{color:var(--muted);font-weight:700;margin:10px 0;font-size:clamp(15px,1.6vw,19px)}
+.cap{font-weight:800;margin-top:6px;font-size:clamp(14px,1.55vw,19px);line-height:1.45}
+.note{color:var(--muted);font-weight:700;font-size:clamp(13px,1.4vw,17px);line-height:1.45}
+.center{text-align:center}
+/* 給老師看的操作提示（放在舞台面板外面，學生不必讀） */
+.teacher-tip{
+  margin:0 0 18px;font-size:clamp(13px,1.4vw,16px);color:var(--muted);
+  border-left:5px solid var(--sun);padding:6px 12px;background:#FFFCF2;border-radius:0 10px 10px 0;
+}
+.teacher-tip b.time{color:#7A5B00}
+.teacher-tip p{margin:4px 0}
+/* 照片載入失敗：中性的灰框，不用 emoji 冒充植物 */
+.img-fallback{
+  display:flex !important;align-items:center;justify-content:center;text-align:center;line-height:1.35;
+  background:#F2EEE4;color:var(--muted);font-weight:800;font-size:clamp(12px,1.3vw,17px);
+  padding:8px;border:2px dashed #C9C2B4;overflow:hidden;overflow-wrap:anywhere;
+}
+
+/* 並排版面：橫向 ≥1024 時照片在左、任務在右 */
+.duo{display:grid;grid-template-columns:minmax(0,1fr);gap:16px;align-items:start}
+@media (min-width:1024px) and (orientation:landscape){
+  .duo{grid-template-columns:minmax(0,1.15fr) minmax(0,1fr)}
+  .duo.mid{align-items:center}
+}
+.pair{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px;align-items:start}
+
+/* ---------- 照片框：比例＝照片原比例，所以百分比熱點不會跑位 ---------- */
+.fig{
+  position:relative;width:min(100%, calc(var(--mh,60vh) * var(--ar,4/3)));aspect-ratio:var(--ar,4/3);
+  margin:0 auto;border-radius:14px;background:#F2EEE4;box-shadow:0 0 0 3px var(--ink);
+}
+.fig > img,.fig > .img-fallback{
+  position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:14px;display:block;
+  -webkit-user-drag:none;user-select:none;
+}
+.figbox{padding:3px}
+/* 可點的數字熱點：中間透明的圈圈（看得到底下的構造），號碼放在圈圈上方的小牌子 */
+.hs{
+  position:absolute;z-index:3;transform:translate(-50%,-50%);
+  width:var(--hs);height:var(--hs);border-radius:50%;padding:0;
+  border:4px solid #fff;background:transparent;color:transparent;
+  font:inherit;font-weight:900;line-height:1;cursor:pointer;
+  box-shadow:0 0 0 3px var(--ink),inset 0 0 0 3px var(--ink);
+}
+.hs .n{
+  position:absolute;left:50%;bottom:100%;transform:translate(-50%,-2px);
+  min-width:1.5em;padding:0 .3em;border-radius:999px;background:#fff;border:3px solid var(--ink);
+  color:var(--ink);font-size:calc(var(--hs) * .42);line-height:1.3;text-align:center;
+  box-shadow:0 2px 6px rgba(0,0,0,.3);
+}
+.hs.found .n{background:var(--green-dark);color:#fff}
+.hs:focus-visible{outline:4px solid var(--water-dark);outline-offset:4px}
+.hs.shake{animation:shake .4s}
+@keyframes shake{0%,100%{margin-left:0}25%{margin-left:-7px}75%{margin-left:7px}}
+/* 疊在照片上的名稱標籤 */
+.tag{
+  position:absolute;z-index:4;width:max-content;pointer-events:none;
+  background:rgba(255,255,255,.96);border:3px solid var(--ink);border-radius:12px;
+  padding:3px 10px;font-size:clamp(13px,1.35vw,19px);line-height:1.3;
+  box-shadow:0 3px 8px rgba(0,0,0,.28);animation:tagIn .35s ease;
+}
+.tag b{display:block;font-size:1.12em;font-weight:900}
+.tag small{display:block;font-size:1em;font-weight:700;color:#34444C}
+@keyframes tagIn{from{opacity:0;scale:.85}to{opacity:1;scale:1}}
+.pin{
+  position:absolute;z-index:3;width:18px;height:18px;border-radius:50%;
+  background:var(--sun);border:3px solid var(--ink);box-shadow:0 0 0 3px #fff;transform:translate(-50%,-50%);
+}
+.badge{
+  position:absolute;left:8px;top:8px;z-index:3;width:clamp(44px,4.6vw,64px);aspect-ratio:1;border-radius:50%;
+  background:#fff;border:3px solid var(--ink);font-weight:900;font-size:clamp(22px,2.6vw,34px);
+  display:flex;align-items:center;justify-content:center;line-height:1;
+}
+
+/* ---------- 選項、回饋、判準 ---------- */
+.opts{display:flex;flex-wrap:wrap;gap:12px}
+.opts.col{flex-direction:column;align-items:stretch}
+.opts.col .opt{text-align:left}
+.opt{
+  border:3px solid var(--ink);border-radius:16px;background:var(--card);color:var(--ink);
+  padding:12px 24px;font:inherit;font-weight:900;cursor:pointer;
+  box-shadow:0 4px 0 var(--ink);min-height:62px;font-size:clamp(18px,2vw,25px);line-height:1.35;
+}
+.opt:active{transform:translateY(3px);box-shadow:0 1px 0 var(--ink)}
+.opt.ok{background:var(--green-dark);color:#fff}
+.opt.no{background:#FBE3E1;border-color:var(--wrong);color:#B03A30;text-decoration:line-through}
+.opt[disabled]{cursor:not-allowed}
+.opt.picked,.opt[aria-pressed="true"]{background:#FFF3C4;box-shadow:0 0 0 5px var(--sun),0 4px 0 var(--ink)}
+.steptag{
+  display:inline-block;background:#DDF0FA;color:var(--ink);border:3px solid var(--ink);
+  border-radius:999px;padding:2px 14px;font-weight:900;margin-bottom:8px;font-size:clamp(14px,1.5vw,19px);
+}
+.qtitle{font-weight:900;font-size:clamp(19px,2.2vw,27px);margin:0 0 12px}
+.feedback{margin-top:12px;font-weight:800;border-radius:14px}
+.feedback:empty{display:none}
+.feedback.hint{background:#FFF6D8;border:3px dashed var(--sun);padding:10px 14px}
+.feedback.good{background:#EAF7EE;border:3px solid var(--green-dark);color:var(--green-dark);padding:10px 14px}
+/* 判準卡 —— 課堂追問「你怎麼知道？」的素材，答對後一定要出現 */
+.criterion{
+  background:#EAF7EE;border:3px solid var(--green-dark);border-radius:18px;padding:12px 16px;margin-top:14px;
+}
+.criterion .k{font-weight:900;color:var(--green-dark);font-size:clamp(18px,2.1vw,25px)}
+.criterion .askagain{
+  margin-top:8px;font-size:clamp(13px,1.5vw,17px);color:var(--muted);font-weight:800;
+  border-top:2px dashed #B9D8C4;padding-top:8px;
+}
+.bigpoint{
+  background:#EAF7EE;border:3px solid var(--green-dark);border-radius:18px;
+  padding:14px 18px;font-weight:900;font-size:clamp(19px,2.3vw,28px);text-align:center;color:var(--green-dark);
+}
+.bigpoint b{text-decoration:underline;text-decoration-thickness:3px;text-underline-offset:5px}
+
+/* ==========================================================
+   開場
+   ========================================================== */
+.guessbox{margin-top:16px;text-align:center;background:#FFFDF8;border:3px solid var(--ink);border-radius:16px;padding:12px}
+.guessbox .g{font-size:clamp(19px,2.2vw,28px);font-weight:900}
+.guessbox .later{font-size:clamp(22px,2.8vw,36px);font-weight:900;color:var(--green-dark)}
+
+/* ==========================================================
+   ① 風力傳播　照片熱點＋特徵卡
+   ========================================================== */
+/* 直式/窄螢幕：特徵卡在最上面，點照片時看得到提示；橫式：照片在左、卡片在右 */
+.windlay{display:grid;grid-template-columns:minmax(0,1fr);gap:14px;grid-template-areas:"card" "main" "thumbs";align-items:start}
+.windlay .mainbox{grid-area:main}
+.windlay .thumbrow{grid-area:thumbs}
+.windlay .cardarea{grid-area:card}
+@media (min-width:1024px) and (orientation:landscape){
+  .windlay{grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);grid-template-rows:auto 1fr;
+           grid-template-areas:"main card" "main thumbs";gap:12px 16px}
+}
+.cardhead{display:flex;align-items:center;gap:4px 12px;flex-wrap:wrap;margin-bottom:6px}
+.cardhead .steptag,.cardhead .qtitle{margin:0}
+.fnq{font-weight:900;font-size:clamp(21px,2.5vw,32px);line-height:1.4;margin:0 0 6px}
+.how{font-weight:800;color:var(--muted);margin:4px 0 0}
+.obs{margin-top:12px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-weight:800}
+.chip{background:#FFF6D8;border:2px solid var(--sun);border-radius:999px;padding:4px 14px}
+
+/* 縮圖列（① 的四張、② 的兩格） */
+.frames{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.frame-btn{
+  display:flex;align-items:center;gap:10px;border:3px solid var(--ink);border-radius:14px;background:var(--card);color:var(--ink);
+  padding:5px 10px 5px 5px;font:inherit;font-weight:800;cursor:pointer;min-height:64px;text-align:left;
+  box-shadow:0 3px 0 var(--ink);font-size:clamp(14px,1.45vw,19px);line-height:1.3;
+}
+.frame-btn img,.frame-btn .img-fallback{width:clamp(56px,5vw,84px);aspect-ratio:4/3;object-fit:cover;border-radius:8px;flex:none;font-size:9px;padding:2px}
+.frame-btn img{padding:0}
+.frame-btn.on{background:var(--green-dark);color:#fff}
+.frame-btn.done .tick{color:var(--green-dark);font-weight:900}
+.frame-btn.on .tick{color:#fff}
+
+/* ==========================================================
+   ② 自身彈力
+   ========================================================== */
+.tabs{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.tab{
+  border:3px solid var(--ink);border-radius:16px 16px 6px 6px;background:var(--card);color:var(--ink);
+  padding:10px 22px;font:inherit;font-weight:900;cursor:pointer;min-height:60px;box-shadow:0 3px 0 var(--ink);
+}
+.tab.on{background:var(--green-dark);color:#fff}
+.saybox{
+  margin-top:14px;background:#FFFDF8;border:3px solid var(--ink);border-radius:16px;padding:12px 16px;
+  font-weight:900;font-size:clamp(20px,2.3vw,30px);line-height:1.45;
+}
+.saybox .no{display:inline-block;background:var(--sun);border:3px solid var(--ink);border-radius:999px;padding:0 12px;margin-right:8px;font-size:.8em}
+
+/* ==========================================================
+   ③ 動物力傳播　分類白板
+   ========================================================== */
+.cardtray{
+  display:flex;flex-wrap:wrap;gap:12px;justify-content:center;
+  min-height:150px;padding:12px;border:3px dashed #C9C2B4;border-radius:18px;background:#FFFDF8;margin-top:12px;
+}
+.fcard{
+  width:clamp(118px,11vw,170px);background:var(--card);
+  border:3px solid var(--ink);border-radius:16px;padding:7px;text-align:center;
+  cursor:pointer;box-shadow:0 4px 0 rgba(30,30,30,.25);touch-action:none;user-select:none;
+  transition:transform .12s ease,box-shadow .12s ease;
+}
+.fcard img,.fcard .img-fallback{
+  width:100%;aspect-ratio:5/4;object-fit:cover;border-radius:10px;display:block;background:#F2EEE4;pointer-events:none;
+}
+.fcard .label{font-weight:900;font-size:clamp(14px,1.35vw,19px);line-height:1.3;margin-top:5px}
+.fcard.picked{transform:translateY(-6px) scale(1.04);box-shadow:0 10px 0 var(--sun),0 0 0 5px var(--sun)}
+.fcard.dragging{position:fixed;z-index:999;pointer-events:none;opacity:.92;box-shadow:0 14px 26px rgba(0,0,0,.35)}
+.fcard:focus-visible{outline:4px solid var(--water-dark);outline-offset:3px}
+.fcard .mark{display:none;font-weight:900;font-size:clamp(14px,1.4vw,19px);line-height:1.3;margin-top:4px}
+.fcard.judged .mark{display:block}
+.fcard.judged.ok .mark{color:var(--green-dark)}
+.fcard.judged.no .mark{color:#B03A30}
+.fcard.judged.no{border-color:var(--wrong)}
+
+.baskets{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:14px}
+@media(max-width:720px){.baskets{grid-template-columns:minmax(0,1fr)}}
+.basket{border:4px solid var(--ink);border-radius:20px;padding:10px;min-height:220px;background:#FFFDF8;cursor:pointer}
+.basket.hot{background:#FFF3C4;border-style:dashed}
+/* 鍵盤用的「放進這一籃」按鈕：平常藏起來（觸控直接點籃子），用 Tab 移到它時才出現 */
+.bdrop{
+  position:absolute;width:1px;height:1px;margin:-1px;padding:0;border:0;overflow:hidden;
+  clip:rect(0 0 0 0);white-space:nowrap;
+}
+.bdrop:focus{
+  position:static;width:auto;height:auto;margin:0;overflow:visible;clip:auto;
+  border:3px solid var(--ink);border-radius:999px;background:var(--card);color:var(--ink);
+  padding:6px 16px;min-height:48px;font:inherit;font-weight:900;cursor:pointer;
+  outline:4px solid var(--water-dark);outline-offset:3px;
+}
+.bhead{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap}
+.bletter{
+  width:clamp(38px,3.6vw,52px);aspect-ratio:1;border-radius:50%;border:3px solid var(--ink);background:#fff;
+  display:flex;align-items:center;justify-content:center;font-weight:900;font-size:clamp(20px,2.2vw,28px);flex:none;
+}
+.bname{font-size:clamp(20px,2.3vw,30px);font-weight:900;text-align:center;letter-spacing:1px;line-height:1.3}
+.bhint{text-align:center;font-weight:800;color:var(--muted);margin:4px 0 8px;font-size:clamp(15px,1.6vw,20px)}
+.drop{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;min-height:120px}
+.litnote{display:none;text-align:center;font-weight:900;color:var(--green-dark)}
+.basket.lit{border-color:var(--green-dark);background:#EAF7EE;box-shadow:0 0 0 5px #B9E3C6}
+.basket.lit .litnote{display:block}
+.scorebar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:14px}
+#sortMsg{font-weight:800}
+.derive{margin-top:18px;border-top:3px dashed #C9C2B4;padding-top:16px}
+.evidence{display:grid;grid-template-columns:minmax(0,1fr);gap:12px;align-items:center;margin-top:12px}
+@media(min-width:720px){.evidence{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}}
+.evidence .cap{color:var(--ink);font-size:clamp(18px,2vw,24px)}
+
+/* ==========================================================
+   ⑤ 為什麼要傳到遠方　兩張對照卡（不用照片，純 CSS）
+   ========================================================== */
+.whycmp{display:grid;grid-template-columns:minmax(0,1fr);gap:14px;margin:14px 0}
+@media(min-width:720px){.whycmp{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}}
+.wc{border:3px solid var(--ink);border-radius:18px;padding:12px 14px;background:#FFFDF8;text-align:center}
+.wc .pic{font-size:clamp(34px,5vw,58px);line-height:1.25;letter-spacing:2px}
+.wc .nm{font-weight:900;font-size:clamp(18px,2vw,25px);margin-top:4px}
+.wc .ds{color:var(--muted);font-weight:700;font-size:clamp(14px,1.5vw,18px);line-height:1.5}
+.wc.far{background:#EAF7EE;border-color:var(--green-dark)}
+.chips{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin:14px 0}
+.chips .chip{font-weight:900;font-size:clamp(16px,1.8vw,22px)}
+
+/* ==========================================================
+   ⑥ 闖關驗收
+   ========================================================== */
+.quizbar{display:flex;align-items:center;gap:8px 14px;flex-wrap:wrap;
+  background:var(--card);border:3px solid var(--ink);border-radius:26px;padding:8px 18px;
+  box-shadow:var(--shadow);margin-bottom:14px;font-weight:900}
+.dots{display:flex;gap:8px}
+.dot{width:16px;height:16px;border-radius:50%;border:3px solid var(--ink);background:#fff}
+.dot.done{background:var(--green-dark)}
+.dot.now{background:var(--sun)}
+.qscore{margin-left:auto}
+.quizwrap{display:grid;grid-template-columns:minmax(0,1fr);gap:18px;align-items:start}
+@media (min-width:1024px) and (orientation:landscape){
+  .quizwrap{grid-template-columns:minmax(0,1fr) minmax(0,1.1fr)}
+}
+.quizwrap.nophoto{grid-template-columns:minmax(0,1fr)}
+.quizwrap.nophoto .qphoto{display:none}
+.result{text-align:center;padding:16px}
+.result .big{font-size:clamp(30px,5vw,58px);font-weight:900;color:var(--green-dark)}
+.rankline{font-weight:900;font-size:clamp(22px,2.8vw,36px);margin:6px 0}
+.ticket{
+  margin:14px auto;max-width:900px;background:#FFF6D8;border:3px dashed var(--sun);border-radius:16px;
+  padding:12px 16px;font-weight:800;font-size:clamp(18px,2.1vw,26px);text-align:left;line-height:1.8;
+}
+
+/* ---------- 頁尾：照片來源 ---------- */
+.credits{
+  font-size:clamp(12px,1.2vw,15px);color:var(--muted);margin-top:20px;line-height:1.55;
+  border-top:2px dashed #D9CFBE;padding-top:12px;
+}
+.credits a{color:var(--muted)}
+.credits p{margin:4px 0}
+
+/* 單欄版面（直式或窄螢幕）：照片不要高到把題目擠出畫面 */
+@media (max-width:1023px),(orientation:portrait){
+  #windFig{--mh:36vh !important}
+  #popFig{--mh:34vh !important}
+  #qFig{--mh:34vh !important}
+}
+
+@media (prefers-reduced-motion:reduce){
+  .screen,.tag,.hs.shake{animation:none}
+}
+
+  /* ===== RWD：手機 / 平板 / 筆電 / 75 吋觸控螢幕 ===== */
+  @media (max-width:1100px){
+    .station-btn{ padding:8px 10px; }
+  }
+  @media (max-width:640px){
+    #app{ padding:10px 10px 28px; }
+    .panel{ border-radius:14px; padding:12px 12px; }
+    .stations{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:6px; }
+    .station-btn{ padding:4px 4px; font-size:14px; min-height:52px; border-radius:16px; }
+    .btn{ padding:10px 18px; min-height:52px; }
+    .opt{ min-height:52px; padding:10px 14px; }
+    .tab{ padding:8px 14px; min-height:52px; }
+    .basket{ min-height:160px; }
+    .quizbar{ border-radius:18px; }
+    .frames{ grid-template-columns:minmax(0,1fr); }
+  }
+  @media (min-width:1800px){
+    /* 按鈕與選項都是 font:inherit，放大 body 字級它們就跟著長大 */
+    :root{ --hs:76px; }
+    body{ font-size:26px; }
+    #app{ max-width:1680px; padding:20px 30px 60px; }
+    .sitehead h1{ font-size:38px; }
+    .back{ min-height:64px; font-size:22px; padding:6px 24px; }
+    .station-btn{ min-height:72px; font-size:23px; padding:10px 26px; }
+    .btn{ min-height:80px; padding:16px 40px; }
+    .opt{ min-height:84px; font-size:28px; }
+    .tab{ min-height:80px; }
+    .frame-btn{ min-height:88px; font-size:22px; }
+    .fcard{ width:clamp(170px,11vw,230px); }
+    .basket{ min-height:300px; }
+    .tag{ font-size:22px; }
+    .bdrop:focus{ min-height:64px; }
+    .cap{ font-size:22px; }
+    .ask{ font-size:30px; }
+    .steptag{ font-size:23px; }
+    .sitehead .sub{ font-size:21px; }
+    .ask.big{ font-size:46px; }
+    .qtitle,.ptitle{ font-size:32px; }
+    .fnq{ font-size:38px; }
+    .saybox{ font-size:34px; }
+    .bigpoint{ font-size:33px; }
+    .criterion .k{ font-size:30px; }
+    .bname{ font-size:34px; }
+    .bhint,.fcard .label,.fcard .mark{ font-size:22px; }
+    .note,.lead{ font-size:20px; }
+    .evidence .cap{ font-size:26px; }
+    .pin{ width:24px; height:24px; }
+    .teacher-tip{ font-size:19px; }
+    .credits{ font-size:16px; }
+  }
+  @media (min-width:2600px){
+    :root{ --hs:100px; }
+    body{ font-size:34px; }
+    #app{ max-width:2280px; padding:30px 40px 80px; }
+    .sitehead h1{ font-size:50px; }
+    .back{ min-height:84px; font-size:30px; }
+    .station-btn{ min-height:96px; font-size:30px; padding:14px 34px; }
+    .btn{ min-height:104px; padding:22px 52px; }
+    .opt{ min-height:112px; font-size:36px; }
+    .tab{ min-height:104px; }
+    .frame-btn{ min-height:112px; font-size:29px; }
+    .fcard{ width:clamp(230px,10vw,310px); }
+    .basket{ min-height:390px; }
+    .tag{ font-size:30px; }
+    .cap{ font-size:29px; }
+    .ask{ font-size:39px; }
+    .steptag{ font-size:30px; }
+    .sitehead .sub{ font-size:27px; }
+    .ask.big{ font-size:60px; }
+    .qtitle,.ptitle{ font-size:42px; }
+    .fnq{ font-size:50px; }
+    .saybox{ font-size:44px; }
+    .bigpoint{ font-size:43px; }
+    .criterion .k{ font-size:39px; }
+    .bname{ font-size:44px; }
+    .bhint,.fcard .label,.fcard .mark{ font-size:29px; }
+    .note,.lead{ font-size:26px; }
+    .evidence .cap{ font-size:34px; }
+    .pin{ width:32px; height:32px; }
+    .teacher-tip{ font-size:25px; }
+    .credits{ font-size:21px; }
+  }
+</style>
+<script>
+/* 放在 head：圖片一出錯就能呼叫（不論主程式跑到哪裡） */
+function imgFallback(img){
+  const span=document.createElement("span");
+  span.className="img-fallback "+(img.className||"");
+  span.setAttribute("role","img");
+  const name=img.getAttribute("data-name")||img.getAttribute("alt")||"照片";
+  span.setAttribute("aria-label","照片載入失敗："+name);
+  span.textContent="📷 照片載入失敗："+name;
+  img.replaceWith(span);
+}
+</script>
+</head>
+<body>
+<div id="app">
+
+  <header class="sitehead">
+    <div class="headrow">
+      <a class="back" href="../../index.html">← 回教材首頁</a>
+      <h1>果實和種子的傳播方式</h1>
+      <span class="sub">五年級自然｜第二單元 植物世界　課本 48–51 頁</span>
+    </div>
+    <nav class="stations" aria-label="站別">
+      <button class="station-btn on" data-go="open">開場</button>
+      <button class="station-btn" data-go="wind">① 風力傳播</button>
+      <button class="station-btn" data-go="pop">② 自身彈力</button>
+      <button class="station-btn" data-go="animal">③ 動物力傳播</button>
+      <button class="station-btn" data-go="water">④ 水力傳播</button>
+      <button class="station-btn" data-go="why">⑤ 為什麼要傳到遠方</button>
+      <button class="station-btn" data-go="quiz">⑥ 闖關驗收</button>
+    </nav>
+  </header>
+
+  <!-- ==================== 開場　椰子怎麼跑到小島上？ ==================== -->
+  <section id="screen-open" class="screen active">
+    <div class="panel">
+      <p class="lead">上一課我們知道：子房長成<b>果實</b>、胚珠長成<b>種子</b>。那果實和種子長好以後，要去哪裡呢？</p>
+      <div class="duo mid">
+        <figure class="figbox">
+          <div class="fig" id="openFig" style="--mh:52vh"></div>
+          <figcaption class="cap center">一顆椰子漂在水面上，上面已經發芽了</figcaption>
+        </figure>
+        <div>
+          <div class="ask big">椰子這麼大、這麼重，<br>怎麼跑到很遠的小島上？</div>
+          <p class="lead">全班先舉手表決，再請一位同學上台按。</p>
+          <div class="opts col" id="guessOpts"></div>
+          <div class="guessbox hidden" id="guessBox" aria-live="polite">
+            <div class="g">全班猜的是：「<span id="guessText"></span>」</div>
+            <div class="later">第 ④ 站揭曉！</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="navrow"><button class="btn green" data-next="wind">出發：① 風力傳播 →</button></div>
+    <div class="teacher-tip">
+      <p><b class="time">給老師｜開場 3 分鐘</b></p>
+      <p>先別說答案。重點不是猜對，是讓學生講出「我是<b>看到什麼</b>才這樣猜」。按下選項只會記下「全班猜的是：○○」，不會公布對錯；重新整理頁面會清掉。</p>
+      <p>可以追問：「猜漂過去的人，是看到椰子的哪裡才這樣想？」「有人猜風，椰子那麼重，風吹得動嗎？」</p>
+      <p>第 ④ 站會拿課本的證據回來對答案。</p>
+    </div>
+  </section>
+
+  <!-- ==================== ① 風力傳播 ==================== -->
+  <section id="screen-wind" class="screen">
+    <div class="panel">
+      <div class="windlay">
+        <figure class="figbox mainbox">
+          <div class="fig" id="windFig" style="--mh:calc(100vh - 260px)"></div>
+          <figcaption class="cap center" id="windCap"></figcaption>
+        </figure>
+        <div class="cardarea">
+          <div id="wcCard">
+            <div class="cardhead"><span class="steptag" id="wcStep">特徵卡 1 / 4</span></div>
+            <p class="fnq" id="wcText"></p>
+            <p class="how">👆 點照片上的號碼作答</p>
+            <div class="feedback" id="wcFeed" aria-live="polite"></div>
+            <div class="btnrow"><button class="btn green hidden" id="wcNext">下一張 →</button></div>
+          </div>
+          <div id="wcDone" class="hidden">
+            <div class="ask">四張都看完了。剛剛四個裡面，隨風飄走的是「<b>種子</b>」的是哪一個？</div>
+            <div id="wcQ" style="margin-top:12px"></div>
+            <div class="feedback" id="wcQFeed" aria-live="polite"></div>
+            <div class="criterion hidden" id="wcCrit">
+              <div class="k">💡 蒲公英、青楓、昭和草隨風飄的是<b>果實</b>；桃花心木隨風飄的是<b>種子</b>。</div>
+              <div class="askagain">👩‍🏫 老師追問：<b>你怎麼知道？</b>（那顆飄走的東西，外面還包著果實嗎？）</div>
+            </div>
+          </div>
+        </div>
+        <div class="thumbrow">
+          <div class="frames" id="wcFrames"></div>
+        </div>
+      </div>
+      <div class="bigpoint hidden" id="windPoint">輕巧、又有<b>細毛</b>或<b>薄翅</b>的果實或種子，通常可以隨風飄到遠方。</div>
+    </div>
+    <div class="navrow"><button class="btn green" data-next="pop">下一站：② 自身彈力 →</button></div>
+    <div class="teacher-tip">
+      <p><b class="time">給老師｜① 風力傳播 7 分鐘</b></p>
+      <p>先請學生用自己的話描述「輕輕的、薄薄的、毛茸茸的」，再說出名稱。點錯不扣分，可以請台下同學給提示。</p>
+      <p>照片上的號碼是隨意編的，和特徵卡的順序無關。</p>
+      <p>第 4 張（桃花心木）要停久一點：課本和習作在這裡<b>刻意分開用詞</b>——蒲公英、青楓、昭和草飄走的是<b>果實</b>，桃花心木飄走的是<b>種子</b>。照片裡大大的木質果實和薄薄的帶翅種子同時看得到。</p>
+      <p>請用「通常」「可能」，不要講成「有細毛就一定靠風」。</p>
+    </div>
+  </section>
+
+  <!-- ==================== ② 自身彈力 ==================== -->
+  <section id="screen-pop" class="screen">
+    <div class="panel">
+      <div class="tabs" id="popTabs"></div>
+      <div class="duo">
+        <figure class="figbox">
+          <div class="fig" id="popFig" style="--mh:46vh"></div>
+          <figcaption class="cap center" id="popCap"></figcaption>
+        </figure>
+        <div>
+          <div class="frames" id="popFrames"></div>
+          <div class="saybox" id="popSay"></div>
+          <p class="note" style="margin-top:8px">⚠️ 「成熟彈開前」和「成熟彈開後」不是同一顆果實，也不是同一時間拍的。</p>
+        </div>
+      </div>
+
+      <div style="margin-top:18px;border-top:3px dashed #C9C2B4;padding-top:16px">
+        <div class="ask">種子是怎麼離開果實的？</div>
+        <div id="popQ" style="margin-top:12px"></div>
+        <div class="feedback" id="popFeed" aria-live="polite"></div>
+        <div class="criterion hidden" id="popCrit">
+          <div class="k">💡 種子<b>不會自己移動</b>。是<b>果實</b>成熟後，果皮捲曲，用<b>自身的力量</b>把種子彈出去。</div>
+          <div class="askagain">👩‍🏫 老師追問：<b>你怎麼知道不是風？</b>（照片裡的果皮變成什麼形狀？）</div>
+        </div>
+      </div>
+      <div class="bigpoint hidden" id="popPoint">有些果實成熟後會裂開、果皮捲曲，用<b>自身彈力</b>把種子彈出去。</div>
+    </div>
+    <div class="navrow"><button class="btn green" data-next="animal">下一站：③ 動物力傳播 →</button></div>
+    <div class="teacher-tip">
+      <p><b class="time">給老師｜② 自身彈力 5 分鐘</b></p>
+      <p>先問「彈開前和彈開後，<b>哪裡不一樣？</b>」，讓學生描述完再給名稱。</p>
+      <p>習作代號 B 寫「具有果莢，成熟後會裂開」，課本寫「果皮會捲曲」，兩種說法都對；上課統一用課本的講法。</p>
+      <p>常有學生問「是不是被太陽曬爆的」——回到照片：果皮捲成一圈一圈，是果實自己的力量。</p>
+    </div>
+  </section>
+
+  <!-- ==================== ③ 動物力傳播（本課重點「橋」） ==================== -->
+  <section id="screen-animal" class="screen">
+    <div class="panel">
+      <p class="ptitle">🐾 先看看：這兩種果實，動物幫忙的方法一樣嗎？</p>
+      <div class="pair">
+        <figure class="figbox">
+          <div class="fig" id="anFig1" style="--mh:40vh"></div>
+          <figcaption class="cap center">雀榕的果實：顏色鮮豔、氣味芳香甜美</figcaption>
+        </figure>
+        <figure class="figbox">
+          <div class="fig" id="anFig2" style="--mh:40vh"></div>
+          <figcaption class="cap center">大花咸豐草的果實：帶有倒鉤</figcaption>
+        </figure>
+      </div>
+      <div class="ask" style="margin-top:14px">兩種都靠動物，但動物做的事一樣嗎？先說說看，不用按按鈕。</div>
+    </div>
+
+    <div class="panel" id="boardPanel">
+      <p class="ptitle">🧺 分類白板</p>
+      <div class="ask">看果實身上的樣子，它會被怎麼帶走？</div>
+      <p class="lead">點一張卡片，再點一個籃子放進去（也可以直接拖曳）。按「揭曉」之前都可以換位置。</p>
+      <div class="cardtray" id="tray" aria-label="還沒分的卡片"></div>
+      <div class="baskets">
+        <div class="basket" data-basket="A" role="group" aria-labelledby="let-A name-A">
+          <div class="bhead"><span class="bletter" id="let-A">A</span><span class="bname" id="name-A">？？？</span><button type="button" class="bdrop">放進 A 籃</button></div>
+          <div class="bhint">果實上有<b>倒鉤</b></div>
+          <div class="litnote">靠動物力傳播</div>
+          <div class="drop" id="drop-A"></div>
+        </div>
+        <div class="basket" data-basket="B" role="group" aria-labelledby="let-B name-B">
+          <div class="bhead"><span class="bletter" id="let-B">B</span><span class="bname" id="name-B">？？？</span><button type="button" class="bdrop">放進 B 籃</button></div>
+          <div class="bhint">顏色<b>鮮豔</b>、氣味芳香<b>甜美</b></div>
+          <div class="litnote">靠動物力傳播</div>
+          <div class="drop" id="drop-B"></div>
+        </div>
+        <div class="basket" data-basket="C" role="group" aria-labelledby="let-C name-C">
+          <div class="bhead"><span class="bletter" id="let-C">C</span><span class="bname" id="name-C">？？？</span><button type="button" class="bdrop">放進 C 籃</button></div>
+          <div class="bhint">找不到倒鉤，也不鮮豔甜美</div>
+          <div class="litnote">靠動物力傳播</div>
+          <div class="drop" id="drop-C"></div>
+        </div>
+      </div>
+      <div class="scorebar">
+        <button class="btn green" id="revealBtn" disabled>🔍 揭曉</button>
+        <button class="btn plain" id="resetSort">↺ 重新分一次</button>
+        <span id="sortMsg" aria-live="polite"></span>
+      </div>
+
+      <div class="derive hidden" id="derive">
+        <div class="ask">哪幾籃的果實，是靠<b>動物力</b>傳播的？（可以選不只一籃）</div>
+        <div class="opts" id="deriveOpts" style="margin-top:12px"></div>
+        <div class="btnrow"><button class="btn green" id="deriveOk">確認</button></div>
+        <div class="feedback" id="deriveFeed" aria-live="polite"></div>
+        <div class="criterion hidden" id="deriveCrit">
+          <div class="k">💡 同樣是<b>動物力傳播</b>，有兩種方法：<br>
+            ① 果實帶有<b>倒鉤</b>，<b>附在動物身上</b>被帶到遠方；<br>
+            ② 果實<b>顏色鮮豔、氣味芳香甜美</b>，<b>吸引動物採食</b>。</div>
+          <div class="evidence">
+            <figure class="figbox"><div class="fig" id="evFig1" style="--mh:34vh"></div><figcaption class="cap center">A：倒鉤鉤住經過的動物</figcaption></figure>
+            <figure class="figbox"><div class="fig" id="evFig2" style="--mh:34vh"></div><figcaption class="cap center">B：鮮豔甜美的果肉吸引動物採食</figcaption></figure>
+          </div>
+          <div class="askagain">👩‍🏫 老師追問：<b>你怎麼知道是哪一種？</b>（你是看果實的什麼地方判斷的？）</div>
+        </div>
+      </div>
+    </div>
+    <div class="navrow"><button class="btn green" data-next="water">下一站：④ 水力傳播 →</button></div>
+    <div class="teacher-tip">
+      <p><b class="time">給老師｜③ 動物力傳播 10 分鐘</b>（本課重點「橋」）</p>
+      <p>課本 50 頁只說「動物力傳播」，習作 P.20 卻拆成代號 <b>丁 附在動物身上</b>和 <b>戊 吸引動物採食</b>，這一站專門補這個斷層。</p>
+      <p>分類白板揭曉前不顯示對錯：先問「你<b>為什麼</b>放這一籃？」，討論完再按揭曉。</p>
+      <p>籃子上的提示是<b>看得到的外形</b>，籃子的名字是<b>傳播方式</b>——這正是習作 P.20 要學生做的配對。</p>
+      <p>木瓜是習作第 4 題的例子，課本 48–51 頁沒有；C 籃三張把風力、自身彈力、水力都放進來，等一下的④站會用到。</p>
+      <p>若學生問「被吃掉種子不就死了嗎」，可以口頭說：有些種子會隨著動物排出的糞便掉到別的地方（課本沒寫，不考）。</p>
+      <p>這一站最容易超時。若超過 12 分鐘，直接跳到 ⑥ 闖關驗收，⑤ 站的內容重點整理裡也有。</p>
+    </div>
+  </section>
+
+  <!-- ==================== ④ 水力傳播 ==================== -->
+  <section id="screen-water" class="screen">
+    <div class="panel">
+      <p class="ptitle">🌊 它們為什麼不會沉下去？</p>
+      <div class="pair">
+        <figure class="figbox">
+          <div class="fig" id="waFig1" style="--mh:38vh"></div>
+          <figcaption class="cap center">林投的果實</figcaption>
+        </figure>
+        <figure class="figbox">
+          <div class="fig" id="waFig2" style="--mh:38vh"></div>
+          <figcaption class="cap center">林投的果實漂在水面上，隨水流傳播</figcaption>
+        </figure>
+      </div>
+      <div style="margin-top:18px">
+        <div class="ask">椰子為什麼可以浮在海面上？</div>
+        <div id="waQ" style="margin-top:12px"></div>
+        <div class="feedback" id="waFeed" aria-live="polite"></div>
+        <div class="criterion hidden" id="waCrit">
+          <div class="k">💡 有些果實富含<b>纖維質</b>及<b>儲藏空氣</b>的構造，可以浮在水面，隨水流傳播到遠處。</div>
+          <div class="askagain">👩‍🏫 老師追問：<b>你怎麼知道？</b>（課本 51 頁那句話，是在講椰子的什麼？）</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <p class="ptitle">🔁 回到開場：椰子怎麼跑到很遠的小島上？</p>
+      <div class="duo mid">
+        <figure class="figbox">
+          <div class="fig" id="recallFig" style="--mh:40vh"></div>
+          <figcaption class="cap center">漂到岸邊、已經發芽的椰子</figcaption>
+        </figure>
+        <div>
+          <div class="ask" id="recallGuess"></div>
+          <div class="btnrow"><button class="btn" id="recallBtn">🔍 揭曉答案</button></div>
+          <div class="bigpoint hidden" id="recallAns"></div>
+        </div>
+      </div>
+    </div>
+    <div class="navrow"><button class="btn green" data-next="why">下一站：⑤ 為什麼要傳到遠方 →</button></div>
+    <div class="teacher-tip">
+      <p><b class="time">給老師｜④ 水力傳播 6 分鐘</b></p>
+      <p>先讓學生說「它為什麼浮得起來」，再揭曉開場的猜測。</p>
+      <p>習作代號 C 寫「體積大而輕，具有浮力」，和課本的「富含纖維質及儲藏空氣的構造」說的是同一件事。</p>
+      <p>林投和椰子的照片不是同一個海邊、同一時間拍的。</p>
+    </div>
+  </section>
+
+  <!-- ==================== ⑤ 為什麼要傳到遠方 ==================== -->
+  <section id="screen-why" class="screen">
+    <div class="panel">
+      <div class="ask big">如果果實和種子全部掉在媽媽的腳邊，會怎麼樣？</div>
+      <div class="whycmp">
+        <div class="wc">
+          <div class="pic">🌳<br>🌱🌱🌱🌱🌱</div>
+          <div class="nm">全部掉在母株腳邊</div>
+          <div class="ds">小苗擠在一起，<br>上面又被大樹遮住</div>
+        </div>
+        <div class="wc far">
+          <div class="pic">🌳　💨　🌱<br>☀️</div>
+          <div class="nm">傳到遠方</div>
+          <div class="ds">離開母株，<br>找到適合的環境</div>
+        </div>
+      </div>
+      <div id="whyQ" style="margin-top:12px"></div>
+      <div class="feedback" id="whyFeed" aria-live="polite"></div>
+      <div class="criterion hidden" id="whyCrit">
+        <div class="k">💡 傳播到遠方，種子才能<b>離開母株</b>，找到<b>適合的環境</b>，繁殖下一代。</div>
+        <div class="askagain">👩‍🏫 老師追問：<b>你怎麼知道？</b>（擠在一起的小苗，會缺什麼？）</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <p class="ptitle">📗 今天學到的四種傳播方式</p>
+      <div class="chips">
+        <span class="chip">自身彈力</span><span class="chip">風力</span><span class="chip">水力</span><span class="chip">動物力</span>
+      </div>
+      <div class="bigpoint">植物的果實可以<b>保護種子</b>，讓種子順利長大，有些果實也可以幫助種子藉由<b>自身彈力、風力、水力或動物力</b>等方式傳播出去，在<b>適合的環境繁殖下一代</b>。</div>
+    </div>
+    <div class="navrow"><button class="btn green" data-next="quiz">最後一站：⑥ 闖關驗收 →</button></div>
+    <div class="teacher-tip">
+      <p><b class="time">給老師｜⑤ 為什麼要傳到遠方 4 分鐘</b></p>
+      <p>課本只寫到「在適合的環境繁殖下一代」，「和母株搶陽光、水分和養分」是我們幫學生補的推論，說的時候用「<b>比較不會</b>」「<b>可能</b>」。</p>
+      <p>這一站不考。時間不夠可以只念最後那句歸納（課本 51 頁原句）就跳到驗收。</p>
+    </div>
+  </section>
+
+  <!-- ==================== ⑥ 闖關驗收 ==================== -->
+  <section id="screen-quiz" class="screen">
+    <div class="quizbar">
+      <span id="qprog">第 1 / 5 題</span>
+      <span class="dots" id="dots"></span>
+      <span class="qscore">⭐ <span id="score">0</span> / 10 分</span>
+      <span id="rank">🌱 剛落地</span>
+    </div>
+
+    <div class="panel" id="quizPanel">
+      <div class="quizwrap" id="quizwrap">
+        <div class="qphoto" id="qphoto"></div>
+        <div>
+          <div id="step1">
+            <span class="steptag">第 1 層｜選答案</span>
+            <p class="qtitle" id="q1title"></p>
+            <div id="q1opts"></div>
+            <div class="feedback" id="q1feed" aria-live="polite"></div>
+          </div>
+          <div id="step2" class="hidden" style="margin-top:16px">
+            <span class="steptag">第 2 層｜你怎麼知道？</span>
+            <p class="qtitle">選一個最好的理由：</p>
+            <div id="q2opts"></div>
+            <div class="feedback" id="q2feed" aria-live="polite"></div>
+          </div>
+          <div id="criterion" class="criterion hidden">
+            <div class="k" id="criterionText"></div>
+            <div class="askagain">👩‍🏫 老師追問：<b>你怎麼知道？</b>（請一位同學用上面這句話說說看）</div>
+          </div>
+          <div class="btnrow"><button class="btn green hidden" id="nextBtn">下一題 →</button></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel hidden" id="quizResult">
+      <div class="result">
+        <div class="big" id="finalScore"></div>
+        <p class="rankline" id="finalRank"></p>
+        <div class="ticket"><b>出場單：</b>我原本以為＿＿＿＿，現在知道＿＿＿＿，因為我看到這個果實有＿＿＿＿。</div>
+        <button class="btn" id="againBtn">↺ 再挑戰一次</button>
+      </div>
+    </div>
+    <div class="teacher-tip">
+      <p><b class="time">給老師｜⑥ 闖關驗收 5 分鐘</b></p>
+      <p>每題先給 15 秒想，再請一位同學上台按。第 2 層「你怎麼知道？」請不同的同學說理由。</p>
+      <p>答錯的選項會停用，可以再試，分數減半。</p>
+      <p>第 5 題的誘答就是隨堂演練 P.31 小試身手那一句「只有風和水可以協助植物傳播種子到遠方」。</p>
+      <p>結算後用出場單句型，請 2–3 位同學口頭說說看。</p>
+    </div>
+  </section>
+
+  <!-- ==================== 頁尾：照片來源 ==================== -->
+  <footer class="credits" id="credits">
+    <p><b>教學依據：</b><a href="https://reader.nani.com.tw/9200a013cbef8e66" target="_blank" rel="noopener noreferrer">南一自然課本，第 48–51 頁</a>（閱讀器可能需要登入）。</p>
+    <p>本頁植物照片取自南一版自然五上<b>課本第 48–51 頁</b>與<b>習作第 20 頁</b>（昭和草、桃花心木、木瓜），經南一書局授權使用。</p>
+    <p>照片之間不是同一株植物、也不是同一時間拍攝；「成熟彈開前／後」是兩顆不同的果實。觀察真實植物時，請避免反覆觸碰或傷害植株。</p>
+  </footer>
+
+</div>
+
+<script>
+/* ==========================================================
+   果實和種子的傳播方式 — 程式
+   科學內容（照課本簡化，但不可講錯）：
+   四種傳播方式＝風力、自身彈力、動物力、水力。
+   動物力再分兩種：附在動物身上（倒鉤）、吸引動物採食（鮮豔甜美）。
+   蒲公英、青楓、昭和草飄走的是「果實」；桃花心木飄走的是「種子」。
+   由外形只能「推測」傳播方式，要說「通常、可能」。
+   ========================================================== */
+const $=id=>document.getElementById(id);
+
+/* ---------- 照片清單：尺寸是處理後的檔案，熱點百分比量在這個尺寸上 ---------- */
+const PHOTO_DIR="photos/";
+const PHOTOS={
+  "maple-samara":        [700, 430, "青楓的果實"],
+  "maple-branch":        [776, 370, "青楓的枝條"],
+  "dandelion-single":    [800, 460, "蒲公英的一顆果實"],
+  "dandelion-seedhead":  [765, 545, "蒲公英的果實"],
+  "crassocephalum":      [1000,549, "昭和草的果實"],
+  "mahogany-seed":       [1000,547, "桃花心木的果實和種子"],
+  "oxalis-pod-closed":   [690, 410, "黃花酢漿草成熟彈開前"],
+  "oxalis-pod-open":     [590, 420, "黃花酢漿草成熟彈開後"],
+  "impatiens-pod-closed":[710, 410, "非洲鳳仙成熟彈開前"],
+  "impatiens-pod-open":  [610, 450, "非洲鳳仙成熟彈開後"],
+  "impatiens-plant":     [932, 550, "非洲鳳仙"],
+  "ficus-superba":       [845, 590, "雀榕的果實"],
+  "bidens-fruit":        [870, 390, "大花咸豐草的果實"],
+  "bidens-plant":        [885, 590, "大花咸豐草"],
+  "papaya-fruit":        [1000,538, "木瓜"],
+  "pandanus-fruit":      [1000,525, "林投的果實"],
+  "pandanus-float":      [920, 530, "林投的果實漂在水面上"],
+  "coconut-beach":       [860, 520, "漂在水面上的椰子"]
+};
+function imgTag(id,name){
+  const n=name||PHOTOS[id][2];
+  /* lazy：還沒切到的站別不載入照片（教室電腦記憶體吃緊時會卡） */
+  return `<img src="${PHOTO_DIR}${id}.jpg" alt="${n}" data-name="${n}" draggable="false" loading="lazy" decoding="async" onerror="imgFallback(this)">`;
+}
+/* 照片框：設定原比例後放進照片（同時清掉舊的熱點與標籤） */
+function renderFig(el,id,name){
+  const p=PHOTOS[id];
+  el.style.setProperty("--ar",`${p[0]} / ${p[1]}`);
+  el.innerHTML=imgTag(id,name);
+  return el;
+}
+/* 疊在照片上的標籤。place：r 右、l 左、b 下、t 上、br/bl/tr/tl 斜角。
+   opt.hs＝旁邊是可點熱點（距離大一點）；否則自動加一個小圓點標出位置。 */
+function addTag(fig,x,y,html,place,opt){
+  opt=opt||{};
+  /* 熱點上方有號碼小牌子：往上放的標籤要多讓出牌子的高度，才不會蓋住號碼 */
+  const up=place==="t"||place==="tr"||place==="tl";
+  const off=opt.hs?(up?"(var(--hs) / 2 + var(--hs) * .55 + 12px)":"(var(--hs) / 2 + 6px)"):"14px";
+  const t=document.createElement("div");
+  t.className="tag"; t.innerHTML=html;
+  const s=t.style, m=Math.min(x,100-x);
+  switch(place){
+    case "r": s.left=`calc(${x}% + ${off})`; s.top=y+"%"; s.transform="translateY(-50%)"; s.maxWidth=`calc(${100-x}% - ${off} - 4px)`; break;
+    case "l": s.right=`calc(${100-x}% + ${off})`; s.top=y+"%"; s.transform="translateY(-50%)"; s.maxWidth=`calc(${x}% - ${off} - 4px)`; break;
+    case "t": s.left=x+"%"; s.bottom=`calc(${100-y}% + ${off})`; s.transform="translateX(-50%)"; s.maxWidth=`calc(${2*m}% - 8px)`; break;
+    case "br": s.left=`calc(${x}% - 14px)`; s.top=`calc(${y}% + ${off})`; s.maxWidth=`calc(${100-x}% + 10px)`; break;
+    case "bl": s.right=`calc(${100-x}% - 14px)`; s.top=`calc(${y}% + ${off})`; s.maxWidth=`calc(${x}% + 10px)`; break;
+    case "tr": s.left=`calc(${x}% - 14px)`; s.bottom=`calc(${100-y}% + ${off})`; s.maxWidth=`calc(${100-x}% + 10px)`; break;
+    case "tl": s.right=`calc(${100-x}% - 14px)`; s.bottom=`calc(${100-y}% + ${off})`; s.maxWidth=`calc(${x}% + 10px)`; break;
+    default:   s.left=x+"%"; s.top=`calc(${y}% + ${off})`; s.transform="translateX(-50%)"; s.maxWidth=`calc(${2*m}% - 8px)`;
+  }
+  if(opt.mw) s.maxWidth=opt.mw+"%";
+  if(!opt.hs){
+    const d=document.createElement("span");
+    d.className="pin"; d.style.left=x+"%"; d.style.top=y+"%";
+    fig.appendChild(d);
+  }
+  fig.appendChild(t);
+  return t;
+}
+/* 通用選擇題：答錯的選項標示並停用、可再試；答對就全部停用 */
+function choiceQ(host,opts,ans,onRight,onWrong,cls){
+  const box=document.createElement("div");
+  box.className="opts"+(cls?" "+cls:"");
+  opts.forEach(o=>{
+    const b=document.createElement("button");
+    b.type="button"; b.className="opt"; b.textContent=o;
+    b.addEventListener("click",()=>{
+      if(o===ans){
+        b.classList.add("ok");
+        box.querySelectorAll(".opt").forEach(x=>x.disabled=true);
+        if(onRight) onRight();
+      }else{
+        b.classList.add("no"); b.disabled=true;
+        if(onWrong) onWrong(o);
+      }
+    });
+    box.appendChild(b);
+  });
+  host.appendChild(box);
+  return box;
+}
+
+/* ---------- 站別切換（可自由跳；網址加 #animal 之類可直接開到某一站） ---------- */
+const STATIONS=["open","wind","pop","animal","water","why","quiz"];
+window.addEventListener("hashchange",()=>{
+  const h=location.hash.slice(1);
+  if(STATIONS.includes(h) && !$("screen-"+h).classList.contains("active")) go(h,false);
+});
+function go(name,smooth){
+  if(STATIONS.indexOf(name)<0) name="open";
+  document.querySelectorAll(".station-btn").forEach(b=>{
+    const on=b.dataset.go===name;
+    b.classList.toggle("on",on);
+    if(on) b.setAttribute("aria-current","step"); else b.removeAttribute("aria-current");
+  });
+  document.querySelectorAll(".screen").forEach(s=>s.classList.toggle("active",s.id==="screen-"+name));
+  try{ history.replaceState(null,"","#"+name); }catch(_){}
+  if(name==="water") updateRecall();
+  window.scrollTo({top:0,behavior:smooth?"smooth":"auto"});
+}
+document.querySelectorAll(".station-btn").forEach(b=>b.addEventListener("click",()=>go(b.dataset.go,true)));
+document.querySelectorAll("[data-next]").forEach(b=>b.addEventListener("click",()=>go(b.dataset.next,true)));
+
+/* ==========================================================
+   開場　椰子怎麼跑到小島上？（只記在記憶體，重新整理就清掉）
+   ========================================================== */
+renderFig($("openFig"),"coconut-beach");
+const GUESSES=["被風吹過去","隨著海水漂過去","被動物搬過去","自己彈過去"];
+const GUESS_RIGHT="隨著海水漂過去";
+let classGuess=null;
+GUESSES.forEach(g=>{
+  const b=document.createElement("button");
+  b.type="button"; b.className="opt"; b.textContent=g;
+  b.addEventListener("click",()=>{
+    classGuess=g;
+    $("guessOpts").querySelectorAll(".opt").forEach(x=>x.classList.toggle("picked",x===b));
+    $("guessText").textContent=g;
+    $("guessBox").classList.remove("hidden");
+    updateRecall();
+  });
+  $("guessOpts").appendChild(b);
+});
+
+/* ==========================================================
+   ① 風力傳播
+   每張照片有兩個熱點：一個是「幫它隨風飄的構造」，一個是果實／種子本體。
+   熱點號碼刻意錯開，號碼不會洩漏答案。
+   ========================================================== */
+const WCARDS=[
+  {id:"maple-samara", cap:"青楓的果實", q:"青楓的果實，哪裡讓它可以隨風飄？",
+   thumb:"青楓的果實",
+   spots:[
+     {num:2,x:33,y:62,ok:true, nm:"薄翅",   sub:"長在果實上", place:"bl"},
+     {num:4,x:63,y:22,ok:false,nm:"果實鼓起來的地方", sub:"裡面是種子", place:"r",
+      hint:"這裡鼓鼓的、比較重，不是幫它飄的構造。再找找那一片<b>薄薄的、像翅膀</b>的地方。"}
+   ]},
+  {id:"dandelion-single", cap:"蒲公英的一顆果實", q:"蒲公英的果實，哪裡讓它可以飄到遠方？",
+   thumb:"蒲公英的果實",
+   spots:[
+     {num:3,x:27,y:33,ok:true, nm:"蓬鬆的白色細毛", sub:"長在果實上", place:"r"},
+     {num:1,x:20,y:80,ok:false,nm:"果實本體", sub:"細細長長、褐色的", place:"r",
+      hint:"褐色這一小根就是<b>果實</b>本身。再找找上面那一叢<b>白白、蓬蓬的</b>構造。"}
+   ]},
+  {id:"crassocephalum", cap:"昭和草的果實", q:"昭和草的果實，哪裡讓它可以隨風飄？",
+   thumb:"昭和草的果實",
+   spots:[
+     {num:4,x:45,y:30,ok:true, nm:"細毛", sub:"長在果實上", place:"r"},
+     {num:2,x:71,y:80,ok:false,nm:"還沒成熟的果實", sub:"細毛還沒打開", place:"l",
+      hint:"這一顆還沒成熟，細毛還沒打開。再找找那一球<b>已經散開、白白蓬蓬</b>的地方。"}
+   ]},
+  {id:"mahogany-seed", cap:"桃花心木的果實和種子", q:"桃花心木，哪裡讓它可以隨風飄散？",
+   thumb:"桃花心木",
+   spots:[
+     {num:1,x:30,y:82,ok:true, nm:"薄翅", sub:"長在<u>種子</u>上", place:"tr"},
+     {num:3,x:72,y:48,ok:false,nm:"木質的果實", sub:"又大又重，裂開後種子才飛走", place:"l",
+      hint:"這個又大又重的是<b>果實</b>，它不會飄。再找找旁邊那些<b>薄薄一片、帶著翅膀</b>的種子。"}
+   ]}
+];
+let wcIdx=0, wcWaiting=false;
+const wcDoneSet=new Set();
+
+function buildWind(){
+  $("wcFrames").innerHTML="";
+  WCARDS.forEach((c,i)=>{
+    const b=document.createElement("button");
+    b.type="button"; b.className="frame-btn";
+    b.innerHTML=`${imgTag(c.id,c.thumb)}<span>${i+1}　${c.thumb}<span class="tick"></span></span>`;
+    b.addEventListener("click",()=>showWcard(i));
+    $("wcFrames").appendChild(b);
+  });
+  showWcard(0);
+}
+function showWcard(i){
+  wcIdx=Math.max(0,Math.min(WCARDS.length-1,i));
+  const c=WCARDS[wcIdx], fig=renderFig($("windFig"),c.id,c.cap);
+  $("windCap").textContent=c.cap;
+  c.spots.forEach(sp=>{
+    const b=document.createElement("button");
+    b.type="button"; b.className="hs"; b.innerHTML=`<span class="n">${sp.num}</span>`;
+    b.style.left=sp.x+"%"; b.style.top=sp.y+"%";
+    b.setAttribute("aria-label","照片上的 "+sp.num+" 號");
+    b.addEventListener("click",()=>tapSpot(sp,b,fig));
+    fig.appendChild(b);
+  });
+  $("wcStep").textContent=`特徵卡 ${wcIdx+1} / ${WCARDS.length}`;
+  $("wcText").textContent=`「${c.q}」`;
+  $("wcFeed").className="feedback"; $("wcFeed").textContent="";
+  $("wcNext").classList.add("hidden");
+  wcWaiting=wcDoneSet.has(c.id);
+  if(wcWaiting){ revealSpot(c, fig); }
+  $("wcFrames").querySelectorAll(".frame-btn").forEach((b,j)=>{
+    b.classList.toggle("on",j===wcIdx);
+    b.classList.toggle("done",wcDoneSet.has(WCARDS[j].id));
+    b.querySelector(".tick").textContent = wcDoneSet.has(WCARDS[j].id) ? "　✓" : "";
+    b.setAttribute("aria-pressed",String(j===wcIdx));
+  });
+}
+function revealSpot(c,fig){
+  c.spots.filter(s=>s.ok).forEach(sp=>{
+    const btn=[...fig.querySelectorAll(".hs")].find(b=>b.querySelector(".n").textContent===String(sp.num));
+    if(btn && !btn.classList.contains("found")){
+      btn.classList.add("found");
+      addTag(fig,sp.x,sp.y,`<b>${sp.nm}</b><small>${sp.sub}</small>`,sp.place,{hs:true});
+    }
+  });
+}
+function tapSpot(sp,btn,fig){
+  const fb=$("wcFeed");
+  if(wcWaiting){
+    fb.className="feedback good";
+    fb.textContent="👍 這張答對了，按「下一張 →」繼續。";
+    return;
+  }
+  if(sp.ok){
+    btn.classList.add("found");
+    btn.setAttribute("aria-label",`${sp.num} 號：${sp.nm}`);
+    addTag(fig,sp.x,sp.y,`<b>${sp.nm}</b><small>${sp.sub}</small>`,sp.place,{hs:true});
+    fb.className="feedback good";
+    fb.innerHTML=`✅ 對了！${sp.num} 號是「<b>${sp.nm}</b>」——${sp.sub.replace(/<\/?u>/g,"")}。`;
+    wcDoneSet.add(WCARDS[wcIdx].id);
+    wcWaiting=true;
+    $("wcNext").textContent = wcDoneSet.size<WCARDS.length ? "下一張 →" : "四張都完成 ✓";
+    $("wcNext").classList.remove("hidden");
+    $("wcFrames").querySelectorAll(".frame-btn")[wcIdx].classList.add("done");
+    $("wcFrames").querySelectorAll(".frame-btn")[wcIdx].querySelector(".tick").textContent="　✓";
+    if(wcDoneSet.size===WCARDS.length) openWcQuestion();
+  }else{
+    btn.classList.remove("shake"); void btn.offsetWidth; btn.classList.add("shake");
+    fb.className="feedback hint";
+    fb.innerHTML="🤔 再想想（不扣分）："+sp.hint;
+  }
+}
+$("wcNext").addEventListener("click",()=>{
+  if(wcDoneSet.size===WCARDS.length){ openWcQuestion(); return; }
+  /* 跳到下一張還沒完成的卡片 */
+  let j=wcIdx;
+  for(let k=1;k<=WCARDS.length;k++){
+    const t=(wcIdx+k)%WCARDS.length;
+    if(!wcDoneSet.has(WCARDS[t].id)){ j=t; break; }
+  }
+  showWcard(j);
+});
+let wcQBuilt=false;
+function openWcQuestion(){
+  $("wcDone").classList.remove("hidden");
+  if(wcQBuilt) return;
+  wcQBuilt=true;
+  choiceQ($("wcQ"),["青楓","蒲公英","昭和草","桃花心木"],"桃花心木",
+    ()=>{
+      $("wcQFeed").className="feedback good";
+      $("wcQFeed").textContent="✅ 答對了！";
+      $("wcCrit").classList.remove("hidden");
+      $("windPoint").classList.remove("hidden");
+      $("wcCrit").scrollIntoView({behavior:"smooth",block:"nearest"});
+    },
+    ()=>{
+      $("wcQFeed").className="feedback hint";
+      $("wcQFeed").innerHTML="🤔 再想想（不扣分）：回頭看看照片上的標籤，寫的是「長在<b>果實</b>上」還是「長在<b>種子</b>上」？";
+    });
+}
+buildWind();
+
+/* ==========================================================
+   ② 自身彈力　兩種植物 × 成熟彈開前／後
+   ========================================================== */
+const POPS=[
+  {name:"🌼 黃花酢漿草",
+   frames:[
+     {id:"oxalis-pod-closed",step:"成熟彈開前",text:"果實還鼓鼓的、立在那裡，種子都還在裡面。"},
+     {id:"oxalis-pod-open", step:"成熟彈開後",text:"果實已經把種子彈出去了。"}
+   ]},
+  {name:"🌺 非洲鳳仙",
+   frames:[
+     {id:"impatiens-pod-closed",step:"成熟彈開前",text:"果實飽滿，還沒裂開。"},
+     {id:"impatiens-pod-open", step:"成熟彈開後",text:"果皮捲曲起來，種子已經被彈出去了。"}
+   ]}
+];
+let popI=0, popJ=0;
+function buildPop(){
+  $("popTabs").innerHTML="";
+  POPS.forEach((p,i)=>{
+    const b=document.createElement("button");
+    b.type="button"; b.className="tab"; b.textContent=p.name;
+    b.addEventListener("click",()=>{ popI=i; popJ=0; renderPop(); });
+    $("popTabs").appendChild(b);
+  });
+  renderPop();
+}
+function renderPop(){
+  const p=POPS[popI];
+  $("popTabs").querySelectorAll(".tab").forEach((b,i)=>{
+    b.classList.toggle("on",i===popI); b.setAttribute("aria-pressed",String(i===popI));
+  });
+  $("popFrames").innerHTML="";
+  p.frames.forEach((f,j)=>{
+    const b=document.createElement("button");
+    b.type="button"; b.className="frame-btn"+(j===popJ?" on":"");
+    b.innerHTML=`${imgTag(f.id)}<span>${j+1}　${f.step}</span>`;
+    b.setAttribute("aria-pressed",String(j===popJ));
+    b.addEventListener("click",()=>{ popJ=j; renderPop(); });
+    $("popFrames").appendChild(b);
+  });
+  const f=p.frames[popJ];
+  renderFig($("popFig"),f.id);
+  $("popCap").textContent=p.name.replace(/^\S+\s/,"")+"　"+f.step;
+  $("popSay").innerHTML=`<span class="no">${f.step}</span>${f.text}`;
+}
+buildPop();
+choiceQ($("popQ"),
+  ["種子自己跳出去的","果實成熟後，果皮捲曲，用自身的力量把種子彈出去","一定是風把種子吹出來的"],
+  "果實成熟後，果皮捲曲，用自身的力量把種子彈出去",
+  ()=>{
+    $("popFeed").className="feedback good"; $("popFeed").textContent="✅ 答對了！";
+    $("popCrit").classList.remove("hidden");
+    $("popPoint").classList.remove("hidden");
+  },
+  o=>{
+    $("popFeed").className="feedback hint";
+    $("popFeed").textContent = o==="種子自己跳出去的"
+      ? "🤔 再想想（不扣分）：種子沒有腳也沒有肌肉，它自己動得了嗎？是誰在出力？"
+      : "🤔 再想想（不扣分）：如果是風吹的，果皮為什麼會捲成一圈一圈？再看看「成熟彈開後」那張照片。";
+  },
+  "col");
+
+/* ==========================================================
+   ③ 動物力傳播　比較 ＋ 分類白板（揭曉前不顯示任何對錯）
+   ========================================================== */
+renderFig($("anFig1"),"ficus-superba");
+renderFig($("anFig2"),"bidens-fruit");
+
+const SORT_CARDS=[
+  {id:"bidens-fruit",       name:"大花咸豐草的果實", cat:"A"},
+  {id:"ficus-superba",      name:"雀榕的果實",       cat:"B"},
+  {id:"papaya-fruit",       name:"木瓜",             cat:"B"},
+  {id:"dandelion-seedhead", name:"蒲公英的果實",     cat:"C"},
+  {id:"impatiens-pod-open", name:"非洲鳳仙彈開的果實",cat:"C"},
+  {id:"coconut-beach",      name:"椰子",             cat:"C"}
+];
+const BASKET_NAMES={
+  A:"<b>附在動物身上</b>傳播",
+  B:"<b>吸引動物採食</b>傳播",
+  C:"不是靠動物力"
+};
+const tray=$("tray"), revealBtn=$("revealBtn"), sortMsg=$("sortMsg");
+const cardCat=new WeakMap();   /* 正確籃子只存在程式裡，不寫進畫面 */
+let picked=null, sortRevealed=false;
+
+function buildSort(){
+  tray.innerHTML="";
+  ["A","B","C"].forEach(k=>{ $("drop-"+k).innerHTML=""; $("name-"+k).textContent="？？？"; });
+  document.querySelectorAll(".basket").forEach(b=>b.classList.remove("lit","hot"));
+  picked=null; sortRevealed=false;
+  revealBtn.disabled=true;
+  $("derive").classList.add("hidden");
+  buildDerive();
+  SORT_CARDS.slice().sort(()=>Math.random()-0.5).forEach(o=>tray.appendChild(makeCard(o)));
+  checkReady();
+}
+function makeCard(o){
+  const el=document.createElement("div");
+  el.className="fcard"; el.tabIndex=0; el.setAttribute("role","button");
+  el.setAttribute("aria-label",o.name);
+  cardCat.set(el,o.cat);
+  el.innerHTML=`${imgTag(o.id,o.name)}<div class="label">${o.name}</div><div class="mark"></div>`;
+  attachDrag(el);
+  el.addEventListener("keydown",e=>{
+    if(e.key==="Enter"||e.key===" "){ e.preventDefault(); if(!sortRevealed){ togglePick(el); checkReady(); } }
+  });
+  return el;
+}
+function togglePick(el){
+  if(picked===el){ el.classList.remove("picked"); picked=null; }
+  else{
+    if(picked) picked.classList.remove("picked");
+    picked=el; el.classList.add("picked");
+  }
+}
+/* 兩種操作都支援：①點卡片再點籃子　②直接拖曳（Pointer Events，滑鼠與觸控通用） */
+function attachDrag(el){
+  let sx=0, sy=0, ox=0, oy=0, moved=false, down=false;
+  el.addEventListener("pointerdown",e=>{
+    if(sortRevealed || (e.pointerType==="mouse" && e.button!==0)) return;
+    down=true; moved=false; sx=e.clientX; sy=e.clientY;
+    const r=el.getBoundingClientRect(); ox=e.clientX-r.left; oy=e.clientY-r.top;
+    try{ el.setPointerCapture(e.pointerId); }catch(_){}
+  });
+  el.addEventListener("pointermove",e=>{
+    if(sortRevealed || !down) return;
+    if(!moved && Math.hypot(e.clientX-sx,e.clientY-sy)>12){
+      moved=true;
+      const r=el.getBoundingClientRect();
+      el.style.width=r.width+"px";
+      el.classList.add("dragging");
+      setPos(e);
+    }else if(moved){ setPos(e); }
+  });
+  el.addEventListener("pointerup",e=>{
+    if(!down) return;
+    down=false;
+    if(sortRevealed) return;
+    if(moved){
+      const under=document.elementFromPoint(e.clientX,e.clientY);
+      endDrag();
+      const basket=under && under.closest(".basket");
+      const back=under && under.closest(".cardtray");
+      if(basket) place(el,basket.dataset.basket);
+      else if(back){ tray.appendChild(el); if(picked===el){ el.classList.remove("picked"); picked=null; } }
+    }else{
+      /* 純點擊 → 選取／取消選取。卡片已經在籃子裡也一樣可以選起來，再點別的籃子就能換位置。 */
+      togglePick(el);
+    }
+    checkReady();
+  });
+  el.addEventListener("pointercancel",()=>{ down=false; if(moved) endDrag(); });
+  function endDrag(){
+    el.classList.remove("dragging"); el.style.cssText=""; clearHot(); moved=false;
+  }
+  function setPos(e){
+    el.style.left=(e.clientX-ox)+"px"; el.style.top=(e.clientY-oy)+"px";
+    const under=document.elementFromPoint(e.clientX,e.clientY);
+    clearHot();
+    const b=under && under.closest(".basket"); if(b) b.classList.add("hot");
+  }
+}
+function clearHot(){ document.querySelectorAll(".basket").forEach(b=>b.classList.remove("hot")); }
+function place(el,k){
+  $("drop-"+k).appendChild(el);
+  el.classList.remove("picked");
+  if(picked===el) picked=null;
+}
+/* 點籃子 → 把選起來的卡片放進去。
+   修正舊版 bug：點「籃子裡的卡片」時，pointerup 已經把它選起來，
+   接著冒泡上來的 click 不可以再把它放回同一個籃子（否則永遠搬不走）。 */
+document.querySelectorAll(".basket").forEach(b=>{
+  b.addEventListener("click",e=>{
+    if(sortRevealed || !picked) return;
+    if(e.target.closest(".fcard")) return;
+    place(picked,b.dataset.basket);
+    checkReady();
+  });
+  b.addEventListener("keydown",e=>{
+    if((e.key==="Enter"||e.key===" ") && e.target===b){
+      e.preventDefault();
+      if(sortRevealed || !picked) return;
+      place(picked,b.dataset.basket); checkReady();
+    }
+  });
+});
+/* 點卡片區的空白處 → 把選起來的卡片收回來 */
+tray.addEventListener("click",e=>{
+  if(sortRevealed || !picked || e.target.closest(".fcard")) return;
+  tray.appendChild(picked); picked.classList.remove("picked"); picked=null;
+  checkReady();
+});
+function checkReady(){
+  if(sortRevealed) return;
+  const left=tray.querySelectorAll(".fcard").length;
+  revealBtn.disabled=(left>0);
+  if(picked){
+    sortMsg.textContent=`已選「${picked.querySelector(".label").textContent}」→ 點一個籃子放進去`;
+  }else{
+    sortMsg.textContent= left>0 ? `還有 ${left} 張沒分` : "六張都分好了，討論完可以按揭曉";
+  }
+}
+/* 揭曉：籃子命名 ＋ 逐張判 ○ ✗ */
+revealBtn.addEventListener("click",()=>{
+  if(picked){ picked.classList.remove("picked"); picked=null; }
+  sortRevealed=true;
+  let right=0;
+  ["A","B","C"].forEach(k=>{
+    $("name-"+k).innerHTML=BASKET_NAMES[k];
+    $("drop-"+k).querySelectorAll(".fcard").forEach(el=>{
+      const ok=cardCat.get(el)===k;
+      el.classList.add("judged",ok?"ok":"no");
+      el.querySelector(".mark").textContent= ok ? "○ 放對了" : `✗ 應該放 ${cardCat.get(el)} 籃`;
+      right+=ok?1:0;
+    });
+  });
+  sortMsg.textContent=`六張裡放對 ${right} 張`;
+  revealBtn.disabled=true;
+  $("derive").classList.remove("hidden");
+});
+$("resetSort").addEventListener("click",buildSort);
+
+/* ---------- 推導題：哪幾籃是靠動物力傳播？（正解 A＋B） ---------- */
+function buildDerive(){
+  const box=$("deriveOpts"); box.innerHTML="";
+  ["A","B","C"].forEach(k=>{
+    const b=document.createElement("button");
+    b.type="button"; b.className="opt"; b.textContent=k+" 籃"; b.dataset.k=k;
+    b.setAttribute("aria-pressed","false");
+    b.addEventListener("click",()=>{
+      b.setAttribute("aria-pressed", b.getAttribute("aria-pressed")==="true" ? "false" : "true");
+      $("deriveFeed").className="feedback"; $("deriveFeed").textContent="";
+    });
+    box.appendChild(b);
+  });
+  $("deriveOk").disabled=false;
+  $("deriveFeed").className="feedback"; $("deriveFeed").textContent="";
+  $("deriveCrit").classList.add("hidden");
+}
+$("deriveOk").addEventListener("click",()=>{
+  const sel=[...$("deriveOpts").querySelectorAll('.opt[aria-pressed="true"]')].map(b=>b.dataset.k).sort().join("");
+  const fb=$("deriveFeed");
+  if(sel==="AB"){
+    fb.className="feedback good"; fb.textContent="✅ 答對了！A 籃和 B 籃都是靠動物力傳播，只是方法不一樣。";
+    $("deriveOpts").querySelectorAll(".opt").forEach(b=>b.disabled=true);
+    $("deriveOk").disabled=true;
+    document.querySelectorAll('.basket[data-basket="A"],.basket[data-basket="B"]').forEach(b=>b.classList.add("lit"));
+    const e1=renderFig($("evFig1"),"bidens-fruit");
+    addTag(e1,52,34,"<b>倒鉤</b>","b");
+    const e2=renderFig($("evFig2"),"papaya-fruit");
+    addTag(e2,40,42,"<b>鮮豔甜美的果肉</b><small>裡面有種子</small>","b");
+    $("deriveCrit").classList.remove("hidden");
+  }else if(sel===""){
+    fb.className="feedback hint"; fb.textContent="先點選籃子（可以選不只一籃），再按確認。";
+  }else{
+    fb.className="feedback hint";
+    fb.innerHTML = sel.indexOf("C")>=0
+      ? "🤔 再想想（不扣分）：C 籃的果實身上，找得到<b>吸引動物</b>、或<b>鉤住動物</b>的構造嗎？"
+      : "🤔 還少了一籃（不扣分）：除了鉤在動物身上，還有一種是<b>被動物吃下去</b>。";
+  }
+});
+buildSort();
+
+/* ==========================================================
+   ④ 水力傳播
+   ========================================================== */
+renderFig($("waFig1"),"pandanus-fruit");
+renderFig($("waFig2"),"pandanus-float");
+renderFig($("recallFig"),"coconut-beach");
+choiceQ($("waQ"),
+  ["因為它很大、很重","因為它富含纖維質，還有儲藏空氣的構造，體積大而輕","因為海水的力氣很大，會一直把它推上來"],
+  "因為它富含纖維質，還有儲藏空氣的構造，體積大而輕",
+  ()=>{
+    $("waFeed").className="feedback good"; $("waFeed").textContent="✅ 答對了！";
+    $("waCrit").classList.remove("hidden");
+  },
+  o=>{
+    $("waFeed").className="feedback hint";
+    $("waFeed").textContent = o==="因為它很大、很重"
+      ? "🤔 再想想（不扣分）：很重的東西會浮起來嗎？石頭也很大，它浮得起來嗎？"
+      : "🤔 再想想（不扣分）：如果只是海水推，那石頭丟進海裡也會浮起來了。是果實本身有什麼構造？";
+  },
+  "col");
+
+/* ---------- 回收開場的猜測 ---------- */
+let recallShown=false;
+function updateRecall(){
+  $("recallGuess").textContent = classGuess
+    ? `開場時全班猜的是：「${classGuess}」`
+    : "開場時還沒有投票，直接來看答案。";
+  $("recallGuess").classList.toggle("hidden",recallShown);
+  if(recallShown){
+    $("recallAns").innerHTML = classGuess
+      ? `答案是：<b>隨著海水漂過去</b>（水力傳播）。`
+        + (classGuess===GUESS_RIGHT ? "<br>🎉 全班猜對了！現在我們有證據了——它富含纖維質、又能儲藏空氣，所以浮得起來。"
+                                    : `<br>開場時全班猜「${classGuess}」。現在我們有證據了——它富含纖維質、又能儲藏空氣，所以浮得起來。`)
+      : "答案是：<b>隨著海水漂過去</b>（水力傳播）。它富含纖維質、又能儲藏空氣，所以浮得起來。";
+  }
+}
+$("recallBtn").addEventListener("click",()=>{
+  recallShown=true;
+  $("recallAns").classList.remove("hidden");
+  $("recallBtn").classList.add("hidden");
+  updateRecall();
+});
+updateRecall();
+
+/* ==========================================================
+   ⑤ 為什麼要傳到遠方
+   ========================================================== */
+choiceQ($("whyQ"),
+  ["小苗擠在一起，會長得更好","小苗會和母株、和彼此搶陽光、水分和養分，長不好","完全沒有影響"],
+  "小苗會和母株、和彼此搶陽光、水分和養分，長不好",
+  ()=>{
+    $("whyFeed").className="feedback good"; $("whyFeed").textContent="✅ 答對了！";
+    $("whyCrit").classList.remove("hidden");
+  },
+  ()=>{
+    $("whyFeed").className="feedback hint";
+    $("whyFeed").textContent="🤔 再想想（不扣分）：一小塊地方擠了那麼多棵，陽光、水分和養分夠分嗎？";
+  },
+  "col");
+
+/* ==========================================================
+   ⑥ 闖關驗收　兩層：先選答案，再選「你怎麼知道？」
+   ★ 答對後一定要顯示「判準」，那是老師追問的素材。
+   ========================================================== */
+const QUIZ=[
+  {photo:"bidens-fruit",q:"這個果實身上的倒鉤，可以幫它怎麼傳播？",
+   opts:["附在動物身上傳播","吸引動物採食傳播","風力傳播"],ans:"附在動物身上傳播",
+   r:["果實顏色鮮豔又甜美，動物會把它吃掉","倒鉤可以鉤在動物的身上，被帶到遠方","倒鉤很輕，可以隨風飄走"],
+   rAns:"倒鉤可以鉤在動物的身上，被帶到遠方",
+   why:"果實帶有倒鉤，可以鉤在動物的身上，把種子傳到遠方。"},
+  {photo:"mahogany-seed",q:"桃花心木隨風飄走的，是它的果實還是種子？",
+   opts:["果實","種子","兩個一起飄走"],ans:"種子",
+   r:["照片裡又大又重的木質果實會整顆飄走","照片裡帶著薄翅、薄薄一片會飄走的是一顆種子","果實和種子一樣輕，會一起飄"],
+   rAns:"照片裡帶著薄翅、薄薄一片會飄走的是一顆種子",
+   why:"蒲公英、青楓、昭和草飄走的是果實；桃花心木飄走的是種子。"},
+  {photo:"coconut-beach",q:"椰子是靠什麼力量傳播？",
+   opts:["水力傳播","風力傳播","動物力傳播"],ans:"水力傳播",
+   r:["椰子很輕，風一吹就飛走了","椰子富含纖維質、有儲藏空氣的構造，體積大而輕，可以浮在水面","椰子顏色鮮豔又甜美，會吸引動物搬走"],
+   rAns:"椰子富含纖維質、有儲藏空氣的構造，體積大而輕，可以浮在水面",
+   why:"有些果實富含纖維質及儲藏空氣的構造，可以浮在水面，隨水流傳播到遠處。"},
+  {photo:"impatiens-pod-open",q:"非洲鳳仙的種子是怎麼離開果實的？",
+   opts:["種子自己跳出去","果皮捲曲，用自身的力量把種子彈出去","一定是風把種子吹出來"],
+   ans:"果皮捲曲，用自身的力量把種子彈出去",
+   r:["種子有腳，可以自己跳","照片裡的果皮捲成一圈一圈，種子已經不見了","那天剛好風很大"],
+   rAns:"照片裡的果皮捲成一圈一圈，種子已經不見了",
+   why:"種子不會自己移動，是果實成熟後用自身彈力把種子彈出去。"},
+  {photo:null,q:"下面哪一句說得對？",
+   opts:["果實和種子可以靠風力、水力、動物力或自身彈力傳播","只有風和水可以協助植物傳播種子到遠方","種子會自己走到遠方"],
+   ans:"果實和種子可以靠風力、水力、動物力或自身彈力傳播",
+   r:["今天只看到風和水兩種方式","大花咸豐草靠動物、非洲鳳仙靠自身彈力，都不是風和水","種子有腳，可以自己走"],
+   rAns:"大花咸豐草靠動物、非洲鳳仙靠自身彈力，都不是風和水",
+   why:"除了風力和水力，還有動物力和自身彈力，一共四種。"}
+];
+const RANKS=[{s:0,t:"🌱 剛落地"},{s:5,t:"🍃 飄起來了"},{s:9,t:"🌏 傳到遠方了！"}];
+let qi=0, score=0, tries=0;
+function fmt(n){ return Number.isInteger(n)?String(n):n.toFixed(1); }
+function rankOf(s){ let r=RANKS[0]; RANKS.forEach(x=>{ if(s>=x.s) r=x; }); return r.t; }
+function renderDots(){
+  $("dots").innerHTML="";
+  QUIZ.forEach((_,i)=>{
+    const d=document.createElement("span");
+    d.className="dot"+(i<qi?" done":i===qi?" now":"");
+    $("dots").appendChild(d);
+  });
+}
+function renderQPhoto(q){
+  const box=$("qphoto"); box.innerHTML="";
+  $("quizwrap").classList.toggle("nophoto",!q.photo);
+  if(q.photo){
+    box.innerHTML=`<figure class="figbox"><div class="fig" id="qFig" style="--mh:50vh"></div>
+      <figcaption class="cap center">${PHOTOS[q.photo][2]}</figcaption></figure>`;
+    renderFig($("qFig"),q.photo);
+  }
+}
+function renderQ(){
+  const q=QUIZ[qi]; tries=0;
+  $("qprog").textContent=`第 ${qi+1} / ${QUIZ.length} 題`;
+  renderDots();
+  renderQPhoto(q);
+  $("q1title").textContent=q.q;
+  ["q1opts","q2opts"].forEach(id=>$(id).innerHTML="");
+  ["q1feed","q2feed"].forEach(id=>{ $(id).className="feedback"; $(id).textContent=""; });
+  $("step2").classList.add("hidden");
+  $("criterion").classList.add("hidden");
+  $("nextBtn").classList.add("hidden");
+  choiceQ($("q1opts"),q.opts,q.ans,
+    ()=>{ addScore(); $("q1feed").className="feedback good"; $("q1feed").textContent="✅ 答對了！再說說你怎麼知道。"; $("step2").classList.remove("hidden");
+          $("step2").scrollIntoView({behavior:"smooth",block:"nearest"}); },
+    ()=>{ tries++; $("q1feed").className="feedback hint"; $("q1feed").textContent="🤔 再想想看，還可以再試。"; },
+    "col");
+  choiceQ($("q2opts"),q.r,q.rAns,
+    ()=>{
+      addScore();
+      $("q2feed").className="feedback"; $("q2feed").textContent="";
+      $("criterionText").textContent="💡 "+q.why;
+      $("criterion").classList.remove("hidden");
+      $("nextBtn").textContent= qi+1<QUIZ.length ? "下一題 →" : "看結果 →";
+      $("nextBtn").classList.remove("hidden");
+      $("nextBtn").scrollIntoView({behavior:"smooth",block:"nearest"});   /* 判準卡在按鈕正上方，一起帶進畫面 */
+    },
+    ()=>{ tries++; $("q2feed").className="feedback hint"; $("q2feed").textContent="🤔 這個理由說不通，再選一次。"; },
+    "col");
+}
+function addScore(){
+  score += tries===0 ? 1 : 0.5;   /* 答錯再試，分數減半 */
+  tries=0;
+  $("score").textContent=fmt(score);
+  $("rank").textContent=rankOf(score);
+}
+$("nextBtn").addEventListener("click",()=>{
+  qi++;
+  if(qi>=QUIZ.length) showResult();
+  else{ renderQ(); $("quizPanel").scrollIntoView({behavior:"smooth",block:"nearest"}); }
+});
+function showResult(){
+  renderDots();
+  $("qprog").textContent="完成！";
+  $("quizPanel").classList.add("hidden");
+  $("quizResult").classList.remove("hidden");
+  $("finalScore").textContent=`總分 ${fmt(score)} / 10`;
+  $("finalRank").textContent=rankOf(score);
+  $("quizResult").scrollIntoView({behavior:"smooth",block:"start"});
+}
+$("againBtn").addEventListener("click",()=>{
+  qi=0; score=0; $("score").textContent="0"; $("rank").textContent=RANKS[0].t;
+  $("quizResult").classList.add("hidden");
+  $("quizPanel").classList.remove("hidden");
+  renderQ();
+  $("quizPanel").scrollIntoView({block:"start"});
+});
+renderQ();
+
+/* ---------- 開頁：網址有 #站名 就直接跳過去 ---------- */
+(function(){
+  const h=(location.hash||"").replace("#","");
+  if(STATIONS.indexOf(h)>0) go(h,false);
+})();
+</script>
+</body>
+</html>
