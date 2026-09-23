@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>植物與人類生活　重點整理</title>
+  <link rel="icon" href="../../image/icon.svg">
+  <style>
+    :root{--c-ink:#2c2f31;--c-soft:#55606a;--c-bg:#fff9f0;--c-brand:#f5a623;--c-brandS:#e8890b;--c-brandSoft:#fff2d9;--c-no:#e5484d;--c-noSoft:#fdeaea;--radius:16px;
+      --font:"Noto Sans TC","PingFang TC","Microsoft JhengHei","微軟正黑體",system-ui,-apple-system,sans-serif;}
+    *{box-sizing:border-box;}
+    body{margin:0;font-family:var(--font);color:var(--c-ink);background:var(--c-bg);line-height:1.75;font-size:18px;}
+    .wrap{width:min(880px,92vw);margin:0 auto;}
+    .site-header{background:linear-gradient(135deg,var(--c-brand),var(--c-brandS));color:#fff;padding:24px 0;}
+    .site-header .wrap{display:flex;align-items:center;gap:14px;}
+    .site-header img{width:50px;height:50px;}
+    .site-header h1{margin:0;font-size:1.5rem;}
+    .site-header p{margin:2px 0 0;opacity:.92;font-size:.95rem;}
+    .breadcrumb{padding:14px 0;font-size:.95rem;}
+    .breadcrumb a{color:var(--c-brandS);text-decoration:none;margin-right:14px;}
+    .breadcrumb a:hover{text-decoration:underline;}
+    .keypoint{background:#fff;border:1px solid #ece3d6;border-left:5px solid var(--c-brand);border-radius:12px;
+      padding:14px 16px;margin:12px 0;box-shadow:0 6px 20px rgba(90,70,30,.08);}
+    .keypoint.danger{border-left-color:var(--c-no);background:var(--c-noSoft);}
+    .keypoint b{color:var(--c-brandS);}
+    .keypoint.danger b{color:var(--c-no);}
+    .keytab{width:100%;border-collapse:collapse;margin:14px 0;background:#fff;border-radius:12px;overflow:hidden;
+      box-shadow:0 6px 20px rgba(90,70,30,.08);}
+    .keytab th,.keytab td{border:1px solid #ece3d6;padding:10px 12px;text-align:center;}
+    .keytab th{background:var(--c-brandSoft);color:var(--c-brandS);}
+    .keytab td.l{text-align:left;}
+    h2{font-size:1.3rem;}
+    .toolbar{margin:18px 0;}
+    .btn{cursor:pointer;border:none;border-radius:999px;padding:10px 20px;font-family:inherit;font-size:1rem;font-weight:700;background:var(--c-brand);color:#fff;}
+    .btn:hover{background:var(--c-brandS);}
+    .site-footer{margin:40px 0 26px;text-align:center;color:var(--c-soft);font-size:.9rem;}
+    .site-footer a{color:var(--c-brandS);}
+    .print-title{display:none;}
+    /* 主表：第一欄是植物名 */
+    .keytab td.grp{font-weight:800;color:var(--c-brandS);background:#fffaf1;}
+    .keytab td.nw{white-space:nowrap;}
+    .nobr{white-space:nowrap;}
+    /* 三格階梯圖 */
+    .ladder{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;
+      background:#fff;border:1px solid #ece3d6;border-radius:12px;padding:16px;margin:14px 0;
+      box-shadow:0 6px 20px rgba(90,70,30,.08);}
+    .step{text-align:center;min-width:120px;}
+    .step .box{font-size:2rem;line-height:1.2;}
+    .step .nm{font-weight:800;color:var(--c-brandS);}
+    .step .ds{font-size:.85em;color:var(--c-soft);}
+    .step .ds b{color:var(--c-ink);font-size:1.15em;}
+    .arrow{font-size:1.6rem;color:var(--c-soft);}
+    /* 三格都放一段話：平均分寬、不換行成兩列 */
+    .ladder.wide{flex-wrap:nowrap;align-items:stretch;}
+    .ladder.wide .step{flex:1 1 0;min-width:0;}
+    .ladder.wide .arrow{flex:none;align-self:center;}
+    .nest-ttl{font-weight:700;margin:4px 0 6px;}
+    .nest{display:flex;gap:10px;flex-wrap:wrap;}
+    .fl{flex:1 1 0;min-width:0;background:#fff;border:2px solid var(--c-ink);border-radius:14px;padding:8px 10px;text-align:center;}
+    .fl-nm{font-weight:800;}
+    .pts{display:flex;justify-content:center;flex-wrap:wrap;gap:6px;margin:6px 0 4px;}
+    .pt{border:2px dashed var(--c-brandS);background:var(--c-brandSoft);color:#8a4f00;border-radius:8px;padding:0 8px;font-weight:800;white-space:nowrap;}
+    .fl-ds{font-size:.85em;color:var(--c-soft);line-height:1.5;}
+    .so{margin:10px 0 0;}
+    /* 兩招對照卡：維持＝實線、改良＝虛線（黑白印也分得出來） */
+    .fl.keep{border-color:var(--c-brandS);}
+    .fl.new{border-style:dashed;border-color:#2f7d4f;}
+    .fl.keep .fl-nm{color:var(--c-brandS);}
+    .fl.new .fl-nm{color:#2f7d4f;}
+    .fl .fl-ds{color:var(--c-ink);margin:2px 0 6px;}
+    .fl .fl-ds b{color:inherit;}
+    .fl .list{text-align:left;font-size:.9em;line-height:1.55;border-top:1px dashed #d9cdbb;padding-top:6px;}
+    /* 迷思清單、一般清單：開頭符號凸出來，第二行對齊文字 */
+    .nope,.list{margin:0;padding:0;list-style:none;}
+    .nope li,.list li{padding-left:1.6em;text-indent:-1.6em;margin:2px 0;}
+    .keypoint .lead{font-weight:700;margin-bottom:2px;}
+    .note{font-size:.88em;color:var(--c-soft);margin:4px 0 0;}
+    /* 課本以外的延伸段落：標題旁的小標籤 */
+    .tag{display:inline-block;font-size:.62em;font-weight:700;color:var(--c-soft);border:1px solid #cfc3b1;border-radius:999px;
+      padding:0 10px;margin-left:8px;vertical-align:middle;white-space:nowrap;}
+    .keypoint.soft{border-left-color:#b9ad9b;box-shadow:none;}
+    .keypoint.soft b{color:var(--c-ink);}
+    /* 給高能力學生的延伸小知識（次要） */
+    .extra{background:#f4f7ff;border:1px dashed #9db4e0;border-radius:12px;padding:12px 16px;margin:28px 0 14px;
+      font-size:.9em;color:#3f5488;}
+    .extra b{color:#2f4680;}
+    .extra .ttl{display:flex;flex-wrap:wrap;align-items:baseline;gap:0 10px;}
+    .extra .ttl small{font-size:.88em;color:#52679a;}
+    .extra ul{margin:4px 0 0;padding-left:1.2em;}
+    @media print{
+      @page{size:A4;margin:14mm;}
+      body{background:#fff;color:#000;font-size:11pt;line-height:1.5;}
+      .site-header,.breadcrumb,.toolbar,.site-footer{display:none!important;}
+      .keypoint,.keytab,.ladder,.extra{box-shadow:none;break-inside:avoid;}
+      /* 保留分類底色，黑白印也看得出虛線／實線 */
+      .keypoint.danger,.keytab th,.keytab td.grp,.pt,.extra{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+      .print-title{display:block;margin:0 0 4px;font-size:15pt;font-weight:800;}
+      .print-title small{font-size:9.5pt;font-weight:400;color:#555;margin-left:10px;}
+      /* 每個段落整段不跨頁 */
+      .sec{break-inside:avoid;}
+      h2{break-after:avoid;font-size:13pt;margin:.5em 0 .2em;}
+      p{margin:.3em 0;}
+      .keypoint{padding:5px 10px;margin:5px 0;}
+      .keytab{margin:5px 0;}
+      .keytab th,.keytab td{padding:2px 8px;}
+      .ladder{padding:4px 6px;margin:5px 0;}
+      .nope li,.list li{margin:0;}
+      .step .box{font-size:1.3rem;}
+      .step .ds{line-height:1.45;}
+      .nest-ttl{margin:2px 0 4px;}
+      .fl{padding:4px 8px;}
+      .pts{margin:4px 0 2px;}
+      .so{margin-top:6px;}
+      .note{margin:2px 0 0;}
+      .fl .fl-ds{margin:0 0 3px;}
+      .fl .list{padding-top:3px;line-height:1.45;}
+      .extra{padding:5px 14px;margin:6px 0 0;font-size:10pt;line-height:1.45;}
+    }
+
+    /* ===== RWD：手機 / 平板 / 筆電 / 75 吋觸控螢幕 ===== */
+    @media (max-width:640px){
+      body{font-size:16px;line-height:1.65;}
+      .wrap{width:94vw;}
+      .site-header{padding:16px 0;}
+      .site-header img{width:38px;height:38px;}
+      .site-header h1{font-size:1.22rem;}
+      .site-header p{font-size:.82rem;}
+      h2{font-size:1.1rem;}
+      .keypoint{padding:11px 12px;border-radius:10px;margin:9px 0;}
+      .keytab{font-size:.88em;}
+      .keytab th,.keytab td{padding:7px 5px;}
+      .keytab td.nw{white-space:normal;}
+      .btn{padding:12px 20px;}
+      .ladder{gap:6px;padding:12px;}
+      .ladder .step{min-width:96px;}
+      .arrow{font-size:1.2rem;}
+      /* 手機：三格改成直向，箭頭朝下 */
+      .ladder.v3{flex-direction:column;gap:2px;}
+      .ladder.v3 .arrow{transform:rotate(90deg);line-height:1;}
+      .ladder.wide{align-items:center;}
+      .ladder.wide .step{flex:0 0 auto;width:100%;max-width:26em;}
+      .nest{flex-direction:column;gap:8px;}
+      .fl{display:flex;flex-wrap:wrap;align-items:center;gap:2px 10px;text-align:left;padding:7px 10px;}
+      .pts{margin:0;justify-content:flex-start;}
+      .fl-ds{flex-basis:100%;}
+      .fl .list{flex-basis:100%;}
+      .tag{white-space:normal;}
+    }
+    @media (min-width:641px) and (max-width:1024px){ .wrap{width:94vw;} }
+    @media (min-width:1800px){
+      body{font-size:23px;}
+      .wrap{width:min(1250px,90vw);}
+      .site-header{padding:34px 0;}
+      .site-header img{width:70px;height:70px;}
+      .site-header h1{font-size:2rem;}
+      h2{font-size:1.6rem;}
+      .keypoint{padding:20px 24px;border-radius:16px;}
+      .keytab th,.keytab td{padding:15px 18px;}
+      .btn{font-size:1.15rem;padding:14px 28px;}
+      .ladder .step{min-width:180px;}
+      .ladder.wide .step{min-width:0;}
+      .ladder .step .box{font-size:3rem;}
+      .pt,.fl{border-width:3px;}
+      .nest{gap:18px;}
+      .fl{padding:14px 16px;}
+      .extra{padding:18px 24px;}
+    }
+    @media (min-width:2600px){
+      body{font-size:30px;}
+      .wrap{width:min(1750px,88vw);}
+      .site-header img{width:94px;height:94px;}
+      .site-header h1{font-size:2.6rem;}
+      h2{font-size:2.1rem;}
+      .keytab th,.keytab td{padding:20px 24px;}
+      .ladder .step{min-width:240px;}
+      .ladder.wide .step{min-width:0;}
+      .ladder .step .box{font-size:4rem;}
+      .pt,.fl{border-width:4px;}
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap">
+      <img src="../../image/icon.svg" alt="站標">
+      <div>
+        <h1>植物與人類生活</h1>
+        <p>單元重點整理 · 第二單元 植物世界</p>
+      </div>
+    </div>
+  </header>
+
+  <nav class="breadcrumb wrap">
+    <a href="../../index.html">← 回首頁</a><a href="植物與人類生活_互動教材.html">← 回互動教材</a>
+  </nav>
+
+  <main class="wrap">
+    <div class="toolbar"><button class="btn" onclick="window.print()">🖨️ 列印重點</button></div>
+    <div class="print-title">植物與人類生活　重點整理<small>五年級自然｜第二單元 植物世界　課本 54–57 頁</small></div>
+
+    <section class="sec">
+      <h2>💰 什麼是經濟植物</h2>
+      <div class="keypoint">課本 54 頁：植物藉由繁殖，讓生命一代一代延續；人類會把具有經濟價值的植物<b>大量繁殖</b>，並拿來販售。</div>
+      <div class="keypoint">💡 <b>經濟植物</b>：人類<b>大量栽培、販售</b>，可以<b>增加收入</b>的植物。</div>
+      <table class="keytab">
+        <tr><th style="width:17%">植物</th><th style="width:17%">利用哪一部分</th><th style="width:20%">用途</th><th>課本的說法</th></tr>
+        <tr><td class="grp nw">🌸 蘭花</td><td>花</td><td>觀賞</td>
+            <td class="l">臺灣<b>最具國際競爭力</b>的經濟植物，外銷美國、日本、歐洲</td></tr>
+        <tr><td class="grp nw">🍵 茶樹</td><td>葉</td><td>加工做成各種茶</td>
+            <td class="l">外銷到世界各地</td></tr>
+        <tr><td class="grp nw">🥭 芒果</td><td>果實</td><td>吃</td>
+            <td class="l">品種改良後會更好吃</td></tr>
+        <tr><td class="grp nw">🍈 鳳梨釋迦</td><td>果實</td><td>吃</td>
+            <td class="l">品種改良讓果實更好吃</td></tr>
+      </table>
+      <div class="keypoint">🍵 能吃的、能喝的、能觀賞的，都可以是經濟植物——<b>不只能吃的才是經濟植物</b>。</div>
+    </section>
+
+    <section class="sec">
+      <h2>🌱 讓好品種更多、更好</h2>
+      <div class="keypoint">📰 課本 54 頁的報導：花農為了保持蘭花的<b>優良品質</b>，運用技術更快速繁殖蘭花，讓每一株繁殖出來的花都一樣美；也透過<b>品種改良</b>，培育出更多新品種。<span class="note">（📘 南一補充：每年大約有 1000 種以上新品種的蘭花被發表。）</span></div>
+      <div class="nest-ttl">這兩件事，用的繁殖方法不一樣（想想前兩課學過的）：</div>
+      <div class="nest">
+        <div class="fl keep">
+          <div class="fl-nm">🔁 維持優良品質</div>
+          <div class="fl-ds">用<b>營養器官</b>或<b>技術</b>繁殖 → 新植株<b>通常</b>和原來那一株一樣</div>
+          <ul class="list">
+            <li>🌸 挑一株開得特別美的蘭花，用技術快速繁殖出很多株</li>
+            <li>🍈 把鳳梨釋迦的樹枝，接到一般釋迦的樹上</li>
+            <li>🍠 用番薯（地瓜）的塊根長出新芽，再拿去種</li>
+          </ul>
+        </div>
+        <div class="fl new">
+          <div class="fl-nm">✨ 改良品種</div>
+          <div class="fl-ds">讓兩種植物<b>授粉</b>，長出的後代<b>可能</b>不太一樣 → 從裡面挑出新的、更好的</div>
+          <ul class="list">
+            <li>🍈 鳳梨釋迦＝冷子番荔枝 × 釋迦</li>
+            <li>🥭 玉文芒果＝金煌芒果 × 愛文芒果</li>
+            <li>🌸 花農讓不同的蘭花授粉，每年培育出很多新品種</li>
+          </ul>
+        </div>
+      </div>
+      <div class="keypoint">📘 課本的歸納（55 頁）：「人類會選擇<b>栽培容易、生長快速</b>，且能進行<b>大量繁殖</b>的植物，視情況運用各種栽培方法<b>維持優良品質</b>和<b>改良品種</b>，創造更大的經濟價值。」</div>
+      <p class="note">🍈 鳳梨釋迦<b>兩招都用到</b>：先靠品種改良誕生，再把樹枝接到一般釋迦的樹上大量繁殖，維持優良品質。它和鳳梨沒有關係，只是吃起來有點像鳳梨的酸味。</p>
+    </section>
+
+    <section class="sec">
+      <h2>🔍 向植物學習：仿生學</h2>
+      <div class="keypoint">課本 56 頁：人類從植物身上獲取<b>靈感</b>，發展出新奇的創意點子。</div>
+      <div class="ladder v3 wide">
+        <div class="step"><div class="box">🌼</div><div class="nm">植物的特徵</div><div class="ds">大花咸豐草的果實上有許多微小的<b>倒鉤</b>刺，能鉤住動物的毛和衣服，幫忙傳播種子</div></div>
+        <div class="arrow">→</div>
+        <div class="step"><div class="box">🔗</div><div class="nm">科學原理</div><div class="ds">許多小<b>鉤子</b>卡住毛或圈圈，就連在一起；用力拉又能拆開</div></div>
+        <div class="arrow">→</div>
+        <div class="step"><div class="box">👟</div><div class="nm">發明：魔鬼氈</div><div class="ds">一面是許多<b>小鉤子</b>，另一面是柔軟的<b>圈圈</b>；兩面一壓就黏住，牢固又可以拆開</div></div>
+      </div>
+      <p class="note">📘 南一補充：魔鬼氈的發明者是一位瑞士工程師。他打獵回來，發現褲子上黏著很多帶倒鉤的小果實，用顯微鏡一看，小刺上還有小鉤子，因此想到這個點子。</p>
+      <div class="keypoint">💧 <b>生活中的科學：蓮葉效應</b>（課本 57 頁）<br>
+        蓮葉表面有許多眼睛看不見的細小凸起，凸起上還有更細小、<b>奈米尺度</b>的纖毛構造 → 葉子<b>不吸水、防水</b>，水珠保持圓球狀滾來滾去，把灰塵帶走（<b>自我清潔</b>）→ 人們模仿它，做出<b>防水、防塵</b>的產品。</div>
+      <div class="keypoint">🌱 課本的歸納：從大自然植物的特徵學習<b>科學原理</b>，能思考<b>解決生活問題</b>的方法——這就是<b>仿生學</b>。</div>
+    </section>
+
+    <section class="sec">
+      <h2>⚠️ 容易搞混的地方</h2>
+      <div class="keypoint danger">
+        <div class="lead">① 經濟植物</div>
+        <ul class="nope">
+          <li>❌「只有能吃的植物，才是經濟植物」→ 不對！蘭花拿來觀賞、茶樹的葉做成茶來喝，也都是經濟植物。</li>
+          <li>❌「臺灣最具國際競爭力的經濟植物是小麥」→ 不對！課本說的是<b>蘭花</b>。</li>
+          <li>❌「經濟植物通常不容易繁殖，所以生活中很少看到」→ 不對！人類挑的是<b>栽培容易、生長快速、能大量繁殖</b>的植物。</li>
+        </ul>
+      </div>
+      <div class="keypoint danger">
+        <div class="lead">② 品種</div>
+        <ul class="nope">
+          <li>❌「用種子種，長出來的一定和原來那一株一樣」→ 不對！用種子種的後代<b>可能不太一樣</b>。</li>
+          <li>❌「鳳梨釋迦是鳳梨和釋迦生出來的」→ 不對！它是<b>冷子番荔枝</b>和<b>釋迦</b>培育出來的，和鳳梨沒有關係。</li>
+        </ul>
+      </div>
+      <div class="keypoint danger">
+        <div class="lead">③ 仿生學</div>
+        <ul class="nope">
+          <li>❌「魔鬼氈是參考桃花心木種子的薄翅設計的」→ 不對！是參考<b>大花咸豐草果實上的倒鉤</b>。</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="sec">
+      <h2>💡 生活中的仿生小例子<span class="tag">課本以外・看看就好，不考</span></h2>
+      <div class="keypoint soft">
+        <ul class="list">
+          <li>💧 模仿<b>蓮葉</b>的表面：有些外牆塗料、防水布料，讓雨水變成一顆顆水珠滾走，順便把灰塵帶走，比較不容易髒。</li>
+          <li>🌼 想想看：<b>蒲公英</b>的果實有蓬鬆的細毛，可以隨風慢慢飄——像不像<b>降落傘</b>？</li>
+        </ul>
+        <p class="note">✏️ 用這句話說說你的點子：「學習＿＿的＿＿，做出＿＿，解決＿＿的問題。」</p>
+      </div>
+    </section>
+
+    <aside class="extra">
+      <div class="ttl">🔎 <b>想多知道一點（國中才會學）</b><small>看看就好，不用背</small></div>
+      <ul>
+        <li><b>嫁接</b>：把一棵植物的樹枝，接到另一棵植物上（像把鳳梨釋迦的樹枝接到一般釋迦的樹上）。</li>
+        <li><b>組織培養</b>：在實驗室裡，用植物的一小塊快速繁殖出很多小苗，蘭花常用這個方法（課本 54 頁圖裡一瓶一瓶的小苗）。</li>
+        <li><b>雜交</b>：讓兩種植物授粉，培育出新品種（像玉文芒果、鳳梨釋迦）。</li>
+      </ul>
+    </aside>
+
+  </main>
+
+  <footer class="site-footer"><div class="wrap"><a href="../../index.html">← 回首頁</a> · 豬豬的自然探索 · 課本內容：南一版自然五上第 54–57 頁</div></footer>
+</body>
+</html>
