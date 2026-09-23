@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>營養器官的繁殖　重點整理</title>
+  <link rel="icon" href="../../image/icon.svg">
+  <style>
+    :root{--c-ink:#2c2f31;--c-soft:#55606a;--c-bg:#fff9f0;--c-brand:#f5a623;--c-brandS:#e8890b;--c-brandSoft:#fff2d9;--c-no:#e5484d;--c-noSoft:#fdeaea;--radius:16px;
+      --font:"Noto Sans TC","PingFang TC","Microsoft JhengHei","微軟正黑體",system-ui,-apple-system,sans-serif;}
+    *{box-sizing:border-box;}
+    body{margin:0;font-family:var(--font);color:var(--c-ink);background:var(--c-bg);line-height:1.75;font-size:18px;}
+    .wrap{width:min(880px,92vw);margin:0 auto;}
+    .site-header{background:linear-gradient(135deg,var(--c-brand),var(--c-brandS));color:#fff;padding:24px 0;}
+    .site-header .wrap{display:flex;align-items:center;gap:14px;}
+    .site-header img{width:50px;height:50px;}
+    .site-header h1{margin:0;font-size:1.5rem;}
+    .site-header p{margin:2px 0 0;opacity:.92;font-size:.95rem;}
+    .breadcrumb{padding:14px 0;font-size:.95rem;}
+    .breadcrumb a{color:var(--c-brandS);text-decoration:none;margin-right:14px;}
+    .breadcrumb a:hover{text-decoration:underline;}
+    .keypoint{background:#fff;border:1px solid #ece3d6;border-left:5px solid var(--c-brand);border-radius:12px;
+      padding:14px 16px;margin:12px 0;box-shadow:0 6px 20px rgba(90,70,30,.08);}
+    .keypoint.danger{border-left-color:var(--c-no);background:var(--c-noSoft);}
+    .keypoint b{color:var(--c-brandS);}
+    .keypoint.danger b{color:var(--c-no);}
+    .keytab{width:100%;border-collapse:collapse;margin:14px 0;background:#fff;border-radius:12px;overflow:hidden;
+      box-shadow:0 6px 20px rgba(90,70,30,.08);}
+    .keytab th,.keytab td{border:1px solid #ece3d6;padding:10px 12px;text-align:center;}
+    .keytab th{background:var(--c-brandSoft);color:var(--c-brandS);}
+    .keytab td.l{text-align:left;}
+    h2{font-size:1.3rem;}
+    .toolbar{margin:18px 0;}
+    .btn{cursor:pointer;border:none;border-radius:999px;padding:10px 20px;font-family:inherit;font-size:1rem;font-weight:700;background:var(--c-brand);color:#fff;}
+    .btn:hover{background:var(--c-brandS);}
+    .site-footer{margin:40px 0 26px;text-align:center;color:var(--c-soft);font-size:.9rem;}
+    .site-footer a{color:var(--c-brandS);}
+    .print-title{display:none;}
+    /* 主表：部位那一欄跨列（莖有四種、葉有兩種） */
+    .keytab td.grp{font-weight:800;color:var(--c-brandS);background:#fffaf1;}
+    .keytab td.nw{white-space:nowrap;}
+    .nobr{white-space:nowrap;}
+    /* 三格階梯圖 */
+    .ladder{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;
+      background:#fff;border:1px solid #ece3d6;border-radius:12px;padding:16px;margin:14px 0;
+      box-shadow:0 6px 20px rgba(90,70,30,.08);}
+    .step{text-align:center;min-width:120px;}
+    .step .box{font-size:2rem;line-height:1.2;}
+    .step .nm{font-weight:800;color:var(--c-brandS);}
+    .step .ds{font-size:.85em;color:var(--c-soft);}
+    .step .ds b{color:var(--c-ink);font-size:1.15em;}
+    .arrow{font-size:1.6rem;color:var(--c-soft);}
+    .nest-ttl{font-weight:700;margin:4px 0 6px;}
+    .nest{display:flex;gap:10px;flex-wrap:wrap;}
+    .fl{flex:1 1 0;min-width:0;background:#fff;border:2px solid var(--c-ink);border-radius:14px;padding:8px 10px;text-align:center;}
+    .fl-nm{font-weight:800;}
+    .pts{display:flex;justify-content:center;flex-wrap:wrap;gap:6px;margin:6px 0 4px;}
+    .pt{border:2px dashed var(--c-brandS);background:var(--c-brandSoft);color:#8a4f00;border-radius:8px;padding:0 8px;font-weight:800;white-space:nowrap;}
+    .fl-ds{font-size:.85em;color:var(--c-soft);line-height:1.5;}
+    .so{margin:10px 0 0;}
+    /* 迷思清單、一般清單：開頭符號凸出來，第二行對齊文字 */
+    .nope,.list{margin:0;padding:0;list-style:none;}
+    .nope li,.list li{padding-left:1.6em;text-indent:-1.6em;margin:2px 0;}
+    .keypoint .lead{font-weight:700;margin-bottom:2px;}
+    .note{font-size:.88em;color:var(--c-soft);margin:4px 0 0;}
+    /* 給高能力學生的延伸小知識（次要） */
+    .extra{background:#f4f7ff;border:1px dashed #9db4e0;border-radius:12px;padding:12px 16px;margin:28px 0 14px;
+      font-size:.9em;color:#3f5488;}
+    .extra b{color:#2f4680;}
+    .extra .ttl{display:flex;flex-wrap:wrap;align-items:baseline;gap:0 10px;}
+    .extra .ttl small{font-size:.88em;color:#52679a;}
+    .extra ul{margin:4px 0 0;padding-left:1.2em;}
+    @media print{
+      @page{size:A4;margin:14mm;}
+      body{background:#fff;color:#000;font-size:11pt;line-height:1.5;}
+      .site-header,.breadcrumb,.toolbar,.site-footer{display:none!important;}
+      .keypoint,.keytab,.ladder,.extra{box-shadow:none;break-inside:avoid;}
+      /* 保留分類底色，黑白印也看得出虛線／實線 */
+      .keypoint.danger,.keytab th,.keytab td.grp,.pt,.extra{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+      .print-title{display:block;margin:0 0 4px;font-size:15pt;font-weight:800;}
+      .print-title small{font-size:9.5pt;font-weight:400;color:#555;margin-left:10px;}
+      /* 每個段落整段不跨頁 */
+      .sec{break-inside:avoid;}
+      h2{break-after:avoid;font-size:13pt;margin:.5em 0 .2em;}
+      p{margin:.3em 0;}
+      .keypoint{padding:5px 10px;margin:5px 0;}
+      .keytab{margin:5px 0;}
+      .keytab th,.keytab td{padding:2px 8px;}
+      .ladder{padding:4px 6px;margin:5px 0;}
+      .nope li,.list li{margin:0;}
+      .step .box{font-size:1.3rem;}
+      .step .ds{line-height:1.45;}
+      .nest-ttl{margin:2px 0 4px;}
+      .fl{padding:4px 8px;}
+      .pts{margin:4px 0 2px;}
+      .so{margin-top:6px;}
+      .note{margin:2px 0 0;}
+      .extra{padding:5px 14px;margin:6px 0 0;font-size:10pt;line-height:1.45;}
+    }
+
+    /* ===== RWD：手機 / 平板 / 筆電 / 75 吋觸控螢幕 ===== */
+    @media (max-width:640px){
+      body{font-size:16px;line-height:1.65;}
+      .wrap{width:94vw;}
+      .site-header{padding:16px 0;}
+      .site-header img{width:38px;height:38px;}
+      .site-header h1{font-size:1.22rem;}
+      .site-header p{font-size:.82rem;}
+      h2{font-size:1.1rem;}
+      .keypoint{padding:11px 12px;border-radius:10px;margin:9px 0;}
+      .keytab{font-size:.88em;}
+      .keytab th,.keytab td{padding:7px 5px;}
+      .keytab td.nw{white-space:normal;}
+      .btn{padding:12px 20px;}
+      .ladder{gap:6px;padding:12px;}
+      .ladder .step{min-width:96px;}
+      .arrow{font-size:1.2rem;}
+      /* 手機：三格改成直向，箭頭朝下 */
+      .ladder.v3{flex-direction:column;gap:2px;}
+      .ladder.v3 .arrow{transform:rotate(90deg);line-height:1;}
+      .nest{flex-direction:column;gap:8px;}
+      .fl{display:flex;flex-wrap:wrap;align-items:center;gap:2px 10px;text-align:left;padding:7px 10px;}
+      .pts{margin:0;justify-content:flex-start;}
+      .fl-ds{flex-basis:100%;}
+    }
+    @media (min-width:641px) and (max-width:1024px){ .wrap{width:94vw;} }
+    @media (min-width:1800px){
+      body{font-size:23px;}
+      .wrap{width:min(1250px,90vw);}
+      .site-header{padding:34px 0;}
+      .site-header img{width:70px;height:70px;}
+      .site-header h1{font-size:2rem;}
+      h2{font-size:1.6rem;}
+      .keypoint{padding:20px 24px;border-radius:16px;}
+      .keytab th,.keytab td{padding:15px 18px;}
+      .btn{font-size:1.15rem;padding:14px 28px;}
+      .ladder .step{min-width:180px;}
+      .ladder .step .box{font-size:3rem;}
+      .pt,.fl{border-width:3px;}
+      .nest{gap:18px;}
+      .fl{padding:14px 16px;}
+      .extra{padding:18px 24px;}
+    }
+    @media (min-width:2600px){
+      body{font-size:30px;}
+      .wrap{width:min(1750px,88vw);}
+      .site-header img{width:94px;height:94px;}
+      .site-header h1{font-size:2.6rem;}
+      h2{font-size:2.1rem;}
+      .keytab th,.keytab td{padding:20px 24px;}
+      .ladder .step{min-width:240px;}
+      .ladder .step .box{font-size:4rem;}
+      .pt,.fl{border-width:4px;}
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap">
+      <img src="../../image/icon.svg" alt="站標">
+      <div>
+        <h1>營養器官的繁殖</h1>
+        <p>單元重點整理 · 第二單元 植物世界</p>
+      </div>
+    </div>
+  </header>
+
+  <nav class="breadcrumb wrap">
+    <a href="../../index.html">← 回首頁</a><a href="營養器官的繁殖_互動教材.html">← 回互動教材</a>
+  </nav>
+
+  <main class="wrap">
+    <div class="toolbar"><button class="btn" onclick="window.print()">🖨️ 列印重點</button></div>
+    <div class="print-title">營養器官的繁殖　重點整理<small>五年級自然｜第二單元 植物世界　課本 52–53 頁</small></div>
+
+    <section class="sec">
+      <h2>🌱 根、莖、葉也能長出新植物</h2>
+      <div class="keypoint">課本 52 頁：植物的根、莖和葉，<b>主要</b>是幫助植物生長，提供所需的養分和水分。除此之外，<b>有些</b>植物的根、莖、葉還有<b>繁殖</b>的功能。</div>
+      <div class="keypoint">🌱 課本的歸納：「有些植物除了利用<b>種子</b>繁殖，還可以利用<b>根、莖、葉</b>等營養器官來繁衍下一代。」</div>
+      <div class="keypoint">🔁 長出新植株以後，它們<b>仍然是營養器官</b>（根、莖、葉），不是繁殖器官；只是除了幫植物活下去，也能參與繁殖。而且只有<b>有些</b>植物可以這樣做。</div>
+    </section>
+
+    <section class="sec">
+      <h2>📋 課本的例子</h2>
+      <table class="keytab">
+        <tr><th style="width:8%">部位</th><th style="width:24%">植物</th><th style="width:34%">新芽（根）從哪裡長出來</th><th>怎麼種</th></tr>
+        <tr><td class="grp">根</td><td class="l">番薯（地瓜）的<b>塊根</b> 📘</td>
+            <td class="l">塊根身上</td>
+            <td class="l">把塊根放在水中</td></tr>
+        <tr><td class="grp" rowspan="4">莖</td><td class="l">萬年青 📘</td>
+            <td class="l">莖上的<b>節</b></td>
+            <td class="l">把莖放在水中</td></tr>
+        <tr><td class="l">黃金葛</td>
+            <td class="l">莖上的<b>節</b>（常已長出氣生根）</td>
+            <td class="l">剪一段有節的莖插在水中</td></tr>
+        <tr><td class="l">吊蘭</td>
+            <td class="l"><b>走莖</b>上的節（常常在末端）</td>
+            <td class="l">把小植株剪下種到土裡</td></tr>
+        <tr><td class="l">馬鈴薯</td>
+            <td class="l"><b>芽眼</b>（就是莖上的節）</td>
+            <td class="l">切成有芽眼的小塊種下</td></tr>
+        <tr><td class="grp" rowspan="2">葉</td><td class="l">石蓮</td>
+            <td class="l">葉子<b>基部</b></td>
+            <td class="l">整片葉子放在土上</td></tr>
+        <tr><td class="l">落地生根 📘</td>
+            <td class="l">葉子<b>邊緣</b></td>
+            <td class="l">把葉子放在土壤上（或溼棉花上）</td></tr>
+      </table>
+      <p class="note">📘＝課本 53 頁的實驗。「怎麼種」有些是課本補充資料的做法。</p>
+    </section>
+
+    <section class="sec">
+      <h2>🔎 怎麼判斷是根、莖還是葉？</h2>
+      <div class="nest-ttl">找出新芽是從哪一塊長出來的，照順序問（不是就往下一格）：</div>
+      <div class="ladder v3">
+        <div class="step"><div class="box">🍃</div><div class="nm">是一片葉子嗎？</div><div class="ds">是 → <b>葉</b><br>（石蓮、落地生根）</div></div>
+        <div class="arrow">→</div>
+        <div class="step"><div class="box">🔍</div><div class="nm">身上有節或芽眼嗎？</div><div class="ds">有 → <b>莖</b><br>（萬年青、黃金葛、<br>吊蘭、馬鈴薯）</div></div>
+        <div class="arrow">→</div>
+        <div class="step"><div class="box">🍠</div><div class="nm">都沒有</div><div class="ds">→ <b>根</b><br>（番薯的塊根）</div></div>
+      </div>
+      <div class="keypoint">👀 看新芽「<b>從哪一塊長出來</b>」，不是看新芽本身：番薯新長的藤上有節，但藤是從番薯（<b>根</b>）長出來的；吊蘭的小植株是從走莖（<b>莖</b>）的節長出來的。<b>會發芽的不一定是莖！</b></div>
+      <div class="keypoint">🍠 番薯的塊根可以繁殖（<b>根</b>繁殖）；農夫也常剪一段番薯藤來種，藤上有節、葉長在節上，是<b>莖</b>（莖繁殖）。<b>同一種植物，可以用不只一種部位繁殖。</b></div>
+    </section>
+
+    <section class="sec">
+      <h2>👍 有什麼好處？</h2>
+      <div class="keypoint">
+        <div class="lead">💭 課本想想看：植物利用營養器官繁殖有什麼好處？</div>
+        <ul class="list">
+          <li>① <b>通常比較快</b>：不用等開花、授粉、結種子。</li>
+          <li>② <b>品質比較穩定</b>：長出來的新植株，通常和原來那一株一樣。</li>
+          <li>③ <b>養分比較多</b>：塊莖、塊根的養分通常比一顆種子多很多，新芽可能長得比較壯。</li>
+        </ul>
+        <p class="so">📘 南一補充：馬鈴薯其實<b>會開花、結果、結種子</b>，但為了讓品質穩定，通常用<b>塊莖</b>繁殖。</p>
+      </div>
+      <div class="keypoint">🤔 <b>那植物為什麼還要開花結種子？</b>種子可能靠風力、水力、動物力或自身彈力傳到<b>遠方</b>（上一課學過），找到適合的環境；走莖、塊莖長出的新植株，通常就在<b>母株旁邊</b>。</div>
+    </section>
+
+    <section class="sec">
+      <h2>⚠️ 容易搞混的地方</h2>
+      <div class="keypoint danger">
+        <div class="lead">① 哪些植物可以？</div>
+        <ul class="nope">
+          <li>❌「植物只能用種子繁殖」→ 不對！<b>有些</b>植物也能用<b>根、莖、葉</b>繁殖。</li>
+          <li>❌「每一種植物的葉子都能長成新植物」→ 不對！大部分植物的一片葉子放在土上，<b>不會</b>長成新植物；只有像石蓮、落地生根這些植物可以。</li>
+          <li>❌「用根莖葉繁殖的植物都不會開花」→ 不對！馬鈴薯、石蓮、吊蘭都<b>會開花</b>。</li>
+        </ul>
+      </div>
+      <div class="keypoint danger">
+        <div class="lead">② 是根、莖還是葉？</div>
+        <ul class="nope">
+          <li>❌「會發芽的一定是莖」→ 不對！番薯是<b>根</b>，也會發芽；要找有沒有<b>節</b>或<b>芽眼</b>。</li>
+          <li>❌「泡在水裡長出根的就是根」→ 不對！萬年青、黃金葛泡在水裡會長根，但它們有節，是<b>莖</b>。</li>
+        </ul>
+      </div>
+      <div class="keypoint danger">
+        <div class="lead">③ 還是營養器官嗎？</div>
+        <ul class="nope">
+          <li>❌「能長出新植株，就變成繁殖器官了」→ 不對！它們<b>仍然是營養器官</b>，只是也能用來繁殖。</li>
+          <li>❌「種下去能長出新植物的就是種子」→ 不對！塊莖、塊根、葉也可以。</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="sec">
+      <h2>🏠 在家試試看</h2>
+      <div class="keypoint">
+        <ul class="list">
+          <li>🍠 <b>番薯</b>：把塊根放在水中，水量不用太多。大約 3–5 天長出新芽和根。</li>
+          <li>🌿 <b>萬年青</b>：把莖泡在水裡（自來水先靜置一晚）。大約 10 天下部突起，大約 15 天長根。</li>
+          <li>🍃 <b>落地生根</b>：把葉子取下晾 2–3 天，傷口癒合後平放在土上，保持溼潤。大約一星期，葉子邊緣長出小芽。</li>
+          <li>🌿 <b>黃金葛</b>：剪下一段長有氣生根、有節的莖，插在水裡；泡在水中的部分不要帶葉子。</li>
+          <li>🌱 <b>吊蘭</b>：把走莖上的小植株剪下來，種到土裡。</li>
+        </ul>
+        <p class="note">⏱️ 天數都是「大約」，天氣冷會慢一點。</p>
+      </div>
+      <div class="keypoint danger">
+        <div class="lead">🧤 安全提醒</div>
+        <ul class="list">
+          <li>⚠️ 發芽或變綠的馬鈴薯<b>不要吃</b>；落地生根也<b>不要吃</b>。</li>
+          <li>⚠️ 黃金葛的汁液可能讓皮膚癢，碰完要<b>洗手</b>。</li>
+          <li>⚠️ 水變臭就<b>換水</b>。</li>
+        </ul>
+      </div>
+    </section>
+
+    <aside class="extra">
+      <div class="ttl">🔎 <b>想多知道一點（國中才會學）</b><small>看看就好，不用背</small></div>
+      <ul>
+        <li>用根、莖、葉來繁殖，國中叫「<b>營養繁殖</b>」；不經過受精（精細胞和卵細胞結合）的生殖叫「<b>無性生殖</b>」。</li>
+        <li>常見的方法有<b>扦插</b>（像剪一段黃金葛、番薯藤插下去）、<b>分株</b>、<b>壓條</b>、<b>嫁接</b>。</li>
+        <li>種子帶著花粉和胚珠兩邊的特性，花粉常來自另一株，所以新植株可能和母株不太一樣。</li>
+      </ul>
+    </aside>
+
+  </main>
+
+  <footer class="site-footer"><div class="wrap"><a href="../../index.html">← 回首頁</a> · 豬豬的自然探索 · 課本內容：南一版自然五上第 52–53 頁</div></footer>
+</body>
+</html>

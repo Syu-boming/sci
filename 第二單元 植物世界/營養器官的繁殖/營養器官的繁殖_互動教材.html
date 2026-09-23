@@ -1,0 +1,1645 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>營養器官的繁殖｜根、莖、葉也能長出新植物</title>
+<link rel="icon" href="../../image/icon.svg" type="image/svg+xml">
+<style>
+/* ==========================================================
+   營養器官的繁殖 — 樣式表
+   使用情境：教室 75 吋觸控螢幕，全班共用、學生輪流上台操作。
+   沿用〈果實和種子的傳播方式〉的調色盤與元件；植物一律是真實照片，
+   構造名稱是疊在照片上的 HTML 標籤（位置用百分比）。
+   白色字只放在深綠 #2E7D4F 上；顏色不用來暗示答案。
+   ========================================================== */
+:root{
+  --bg:#FDF6EC;         /* 奶油底色 */
+  --ink:#1E1E1E;        /* 描邊近黑 */
+  --green:#58B159;      /* 主葉綠 */
+  --green-dark:#2E7D4F; /* 深綠（唯一可以放白字的底色） */
+  --water:#4FB0E5;      /* 水滴藍 */
+  --water-dark:#2E86C1;
+  --sun:#FFC93C;        /* 陽光黃 */
+  --coral:#FF7F66;      /* 珊瑚（繁殖器官色） */
+  --coral-dark:#E4574C;
+  --wrong:#E4574C;
+  --card:#FFFFFF;
+  --muted:#6B7A82;
+  --shadow:0 6px 18px rgba(46,86,110,.16);
+  --hs:clamp(44px,4.4vw,60px);  /* 照片熱點直徑（觸控至少 44px） */
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  min-height:100vh;color:var(--ink);background:var(--bg);
+  font-family:-apple-system,"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif;
+  font-size:clamp(17px,1.9vw,22px);line-height:1.6;
+}
+figure{margin:0}
+#app{max-width:1240px;margin:0 auto;padding:12px 16px 40px}
+
+/* ---------- 頁首與站別導覽（老師可自由跳段） ---------- */
+.sitehead{margin-bottom:12px}
+.headrow{display:flex;align-items:center;gap:6px 16px;flex-wrap:wrap}
+.back{
+  display:inline-flex;align-items:center;min-height:44px;padding:4px 16px;
+  border:3px solid var(--ink);border-radius:999px;background:var(--card);color:var(--ink);
+  font-weight:800;text-decoration:none;box-shadow:0 3px 0 var(--ink);font-size:clamp(15px,1.4vw,18px);
+}
+.back:active{transform:translateY(2px);box-shadow:0 1px 0 var(--ink)}
+.sitehead h1{margin:0;font-size:clamp(22px,2.6vw,32px);font-weight:900;letter-spacing:.5px;line-height:1.25}
+.sitehead .sub{color:var(--muted);font-size:clamp(13px,1.35vw,17px);font-weight:700}
+.stations{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.station-btn{
+  border:3px solid var(--ink);border-radius:999px;background:var(--card);color:var(--ink);
+  padding:8px 16px;font:inherit;font-size:clamp(15px,1.4vw,19px);font-weight:800;cursor:pointer;
+  box-shadow:0 3px 0 var(--ink);min-height:56px;line-height:1.25;
+}
+.station-btn.on{background:var(--green-dark);color:#fff}
+.station-btn:active{transform:translateY(2px);box-shadow:0 1px 0 var(--ink)}
+
+/* ---------- 畫面切換 ---------- */
+.screen{display:none;animation:fadeIn .4s ease}
+.screen.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.hidden{display:none !important}
+
+/* ---------- 通用卡片、按鈕 ---------- */
+.panel{
+  background:var(--card);border:3px solid var(--ink);border-radius:20px;
+  padding:16px 18px;box-shadow:var(--shadow);margin-bottom:14px;
+}
+.ptitle{font-weight:900;font-size:clamp(19px,2.2vw,27px);margin:0 0 10px}
+.btn{
+  border:3px solid var(--ink);border-radius:999px;background:var(--sun);color:var(--ink);
+  padding:12px 26px;font:inherit;font-weight:900;cursor:pointer;
+  box-shadow:0 4px 0 var(--ink);min-height:60px;
+}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--ink)}
+.btn.green{background:var(--green-dark);color:#fff}
+.btn.plain{background:var(--card)}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+/* 深綠按鈕停用時不可以變淡（白字會看不清）：改成米色底＋深灰字 */
+.btn.green[disabled]{opacity:1;background:#E6E1D6;color:#5B666C;box-shadow:0 4px 0 #9A9486}
+.btn[aria-pressed="true"]{box-shadow:0 0 0 5px var(--ink),0 4px 0 var(--ink)}
+.btnrow{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-top:14px}
+.btnrow.center{justify-content:center}
+.navrow{display:flex;justify-content:flex-end;gap:12px;flex-wrap:wrap;margin:0 0 12px}
+.ask{
+  background:#FFF6D8;border:3px dashed var(--sun);border-radius:16px;
+  padding:12px 16px;font-weight:800;font-size:clamp(18px,2.1vw,25px);text-align:center;
+}
+.ask.big{font-size:clamp(22px,2.6vw,40px);padding:16px}
+.lead{color:var(--muted);font-weight:700;margin:10px 0;font-size:clamp(15px,1.6vw,19px)}
+.cap{font-weight:800;margin-top:6px;font-size:clamp(14px,1.55vw,19px);line-height:1.45}
+.note{color:var(--muted);font-weight:700;font-size:clamp(13px,1.4vw,17px);line-height:1.45}
+.center{text-align:center}
+/* 給老師看的操作提示（放在舞台面板外面，學生不必讀） */
+.teacher-tip{
+  margin:0 0 18px;font-size:clamp(13px,1.4vw,16px);color:var(--muted);
+  border-left:5px solid var(--sun);padding:6px 12px;background:#FFFCF2;border-radius:0 10px 10px 0;
+}
+.teacher-tip b.time{color:#7A5B00}
+.teacher-tip p{margin:4px 0}
+/* 照片載入失敗：中性的灰框，不用 emoji 冒充植物 */
+.img-fallback{
+  display:flex !important;align-items:center;justify-content:center;text-align:center;line-height:1.35;
+  background:#F2EEE4;color:var(--muted);font-weight:800;font-size:clamp(12px,1.3vw,17px);
+  padding:8px;border:2px dashed #C9C2B4;overflow:hidden;overflow-wrap:anywhere;
+}
+
+/* 並排版面：橫向 ≥1024 時照片在左、任務在右 */
+.duo{display:grid;grid-template-columns:minmax(0,1fr);gap:16px;align-items:start}
+@media (min-width:1024px) and (orientation:landscape){
+  .duo{grid-template-columns:minmax(0,1.15fr) minmax(0,1fr)}
+  .duo.mid{align-items:center}
+}
+.pair{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px;align-items:start}
+
+/* ---------- 照片框：比例＝照片原比例，所以百分比熱點不會跑位 ---------- */
+.fig{
+  position:relative;width:min(100%, calc(var(--mh,60vh) * var(--ar,4/3)));aspect-ratio:var(--ar,4/3);
+  margin:0 auto;border-radius:14px;background:#F2EEE4;box-shadow:0 0 0 3px var(--ink);
+}
+.fig > img,.fig > .img-fallback{
+  position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:14px;display:block;
+  -webkit-user-drag:none;user-select:none;
+}
+.figbox{padding:3px}
+/* 可點的數字熱點：中間透明的圈圈（看得到底下的構造），號碼放在圈圈上方的小牌子 */
+.hs{
+  position:absolute;z-index:3;transform:translate(-50%,-50%);
+  width:var(--hs);height:var(--hs);border-radius:50%;padding:0;
+  border:4px solid #fff;background:transparent;color:transparent;
+  font:inherit;font-weight:900;line-height:1;cursor:pointer;
+  box-shadow:0 0 0 3px var(--ink),inset 0 0 0 3px var(--ink);
+}
+.hs .n{
+  position:absolute;left:50%;bottom:100%;transform:translate(-50%,-2px);
+  min-width:1.5em;padding:0 .3em;border-radius:999px;background:#fff;border:3px solid var(--ink);
+  color:var(--ink);font-size:calc(var(--hs) * .42);line-height:1.3;text-align:center;
+  box-shadow:0 2px 6px rgba(0,0,0,.3);
+}
+.hs.found .n{background:var(--green-dark);color:#fff}
+.hs:focus-visible{outline:4px solid var(--water-dark);outline-offset:4px}
+.hs.shake{animation:shake .4s}
+@keyframes shake{0%,100%{margin-left:0}25%{margin-left:-7px}75%{margin-left:7px}}
+/* 疊在照片上的名稱標籤 */
+.tag{
+  position:absolute;z-index:4;width:max-content;pointer-events:none;
+  background:rgba(255,255,255,.96);border:3px solid var(--ink);border-radius:12px;
+  padding:3px 10px;font-size:clamp(13px,1.35vw,19px);line-height:1.3;
+  box-shadow:0 3px 8px rgba(0,0,0,.28);animation:tagIn .35s ease;
+}
+.tag b{display:block;font-size:1.12em;font-weight:900}
+.tag small{display:block;font-size:1em;font-weight:700;color:#34444C}
+@keyframes tagIn{from{opacity:0;scale:.85}to{opacity:1;scale:1}}
+.pin{
+  position:absolute;z-index:3;width:18px;height:18px;border-radius:50%;
+  background:var(--sun);border:3px solid var(--ink);box-shadow:0 0 0 3px #fff;transform:translate(-50%,-50%);
+}
+.badge{
+  position:absolute;left:8px;top:8px;z-index:3;width:clamp(44px,4.6vw,64px);aspect-ratio:1;border-radius:50%;
+  background:#fff;border:3px solid var(--ink);font-weight:900;font-size:clamp(22px,2.6vw,34px);
+  display:flex;align-items:center;justify-content:center;line-height:1;
+}
+
+/* ---------- 選項、回饋、判準 ---------- */
+.opts{display:flex;flex-wrap:wrap;gap:12px}
+.opts.col{flex-direction:column;align-items:stretch}
+.opts.col .opt{text-align:left}
+.opt{
+  border:3px solid var(--ink);border-radius:16px;background:var(--card);color:var(--ink);
+  padding:12px 24px;font:inherit;font-weight:900;cursor:pointer;
+  box-shadow:0 4px 0 var(--ink);min-height:62px;font-size:clamp(18px,2vw,25px);line-height:1.35;
+}
+.opt:active{transform:translateY(3px);box-shadow:0 1px 0 var(--ink)}
+.opt.ok{background:var(--green-dark);color:#fff}
+.opt.no{background:#FBE3E1;border-color:var(--wrong);color:#B03A30;text-decoration:line-through}
+.opt[disabled]{cursor:not-allowed}
+.opt.picked,.opt[aria-pressed="true"]{background:#FFF3C4;box-shadow:0 0 0 5px var(--sun),0 4px 0 var(--ink)}
+.steptag{
+  display:inline-block;background:#DDF0FA;color:var(--ink);border:3px solid var(--ink);
+  border-radius:999px;padding:2px 14px;font-weight:900;margin-bottom:8px;font-size:clamp(14px,1.5vw,19px);
+}
+.qtitle{font-weight:900;font-size:clamp(19px,2.2vw,27px);margin:0 0 12px}
+.feedback{margin-top:12px;font-weight:800;border-radius:14px}
+.feedback:empty{display:none}
+.feedback.hint{background:#FFF6D8;border:3px dashed var(--sun);padding:10px 14px}
+.feedback.good{background:#EAF7EE;border:3px solid var(--green-dark);color:var(--green-dark);padding:10px 14px}
+/* 判準卡 —— 課堂追問「你怎麼知道？」的素材，答對後一定要出現 */
+.criterion{
+  background:#EAF7EE;border:3px solid var(--green-dark);border-radius:18px;padding:12px 16px;margin-top:14px;
+}
+.criterion .k{font-weight:900;color:var(--green-dark);font-size:clamp(18px,2.1vw,25px)}
+.criterion .askagain{
+  margin-top:8px;font-size:clamp(13px,1.5vw,17px);color:var(--muted);font-weight:800;
+  border-top:2px dashed #B9D8C4;padding-top:8px;
+}
+.bigpoint{
+  background:#EAF7EE;border:3px solid var(--green-dark);border-radius:18px;
+  padding:14px 18px;font-weight:900;font-size:clamp(19px,2.3vw,28px);text-align:center;color:var(--green-dark);
+}
+.bigpoint b{text-decoration:underline;text-decoration-thickness:3px;text-underline-offset:5px}
+
+/* ==========================================================
+   開場
+   ========================================================== */
+.guessbox{margin-top:16px;text-align:center;background:#FFFDF8;border:3px solid var(--ink);border-radius:16px;padding:12px}
+.guessbox .g{font-size:clamp(19px,2.2vw,28px);font-weight:900}
+.guessbox .later{font-size:clamp(22px,2.8vw,36px);font-weight:900;color:var(--green-dark)}
+
+/* ==========================================================
+   ① 新芽從哪裡來　照片熱點＋觀察卡
+   ========================================================== */
+/* 直式/窄螢幕：特徵卡在最上面，點照片時看得到提示；橫式：照片在左、卡片在右 */
+.looklay{display:grid;grid-template-columns:minmax(0,1fr);gap:14px;grid-template-areas:"card" "main" "thumbs";align-items:start}
+.looklay .mainbox{grid-area:main}
+.looklay .thumbrow{grid-area:thumbs}
+.looklay .cardarea{grid-area:card}
+@media (min-width:1024px) and (orientation:landscape){
+  .looklay{grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);grid-template-rows:auto 1fr;
+           grid-template-areas:"main card" "main thumbs";gap:12px 16px}
+}
+.cardhead{display:flex;align-items:center;gap:4px 12px;flex-wrap:wrap;margin-bottom:6px}
+.cardhead .steptag,.cardhead .qtitle{margin:0}
+.fnq{font-weight:900;font-size:clamp(21px,2.5vw,32px);line-height:1.4;margin:0 0 6px}
+.how{font-weight:800;color:var(--muted);margin:4px 0 0}
+.obs{margin-top:12px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-weight:800}
+.chip{background:#FFF6D8;border:2px solid var(--sun);border-radius:999px;padding:4px 14px}
+
+/* 縮圖列（① 的四張） */
+.frames{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.frame-btn{
+  display:flex;align-items:center;gap:10px;border:3px solid var(--ink);border-radius:14px;background:var(--card);color:var(--ink);
+  padding:5px 10px 5px 5px;font:inherit;font-weight:800;cursor:pointer;min-height:64px;text-align:left;
+  box-shadow:0 3px 0 var(--ink);font-size:clamp(14px,1.45vw,19px);line-height:1.3;
+}
+.frame-btn img,.frame-btn .img-fallback{width:clamp(56px,5vw,84px);aspect-ratio:4/3;object-fit:cover;border-radius:8px;flex:none;font-size:9px;padding:2px}
+.frame-btn img{padding:0}
+.frame-btn.on{background:var(--green-dark);color:#fff}
+.frame-btn.done .tick{color:var(--green-dark);font-weight:900}
+.frame-btn.on .tick{color:#fff}
+
+/* ==========================================================
+   ② 繁殖小實驗　分頁
+   ========================================================== */
+.tabs{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.tab{
+  border:3px solid var(--ink);border-radius:16px 16px 6px 6px;background:var(--card);color:var(--ink);
+  padding:10px 22px;font:inherit;font-weight:900;cursor:pointer;min-height:60px;box-shadow:0 3px 0 var(--ink);
+}
+.tab.on{background:var(--green-dark);color:#fff}
+.saybox{
+  margin-top:14px;background:#FFFDF8;border:3px solid var(--ink);border-radius:16px;padding:12px 16px;
+  font-weight:900;font-size:clamp(20px,2.3vw,30px);line-height:1.45;
+}
+.saybox .no{display:inline-block;background:var(--sun);border:3px solid var(--ink);border-radius:999px;padding:0 12px;margin-right:8px;font-size:.8em}
+
+/* ==========================================================
+   ③ 分類白板
+   ========================================================== */
+.cardtray{
+  display:flex;flex-wrap:wrap;gap:12px;justify-content:center;
+  min-height:150px;padding:12px;border:3px dashed #C9C2B4;border-radius:18px;background:#FFFDF8;margin-top:12px;
+}
+.fcard{
+  width:clamp(118px,11vw,170px);background:var(--card);
+  border:3px solid var(--ink);border-radius:16px;padding:7px;text-align:center;
+  cursor:pointer;box-shadow:0 4px 0 rgba(30,30,30,.25);touch-action:none;user-select:none;
+  transition:transform .12s ease,box-shadow .12s ease;
+}
+.fcard img,.fcard .img-fallback{
+  width:100%;aspect-ratio:5/4;object-fit:cover;border-radius:10px;display:block;background:#F2EEE4;pointer-events:none;
+}
+.fcard .label{font-weight:900;font-size:clamp(14px,1.35vw,19px);line-height:1.3;margin-top:5px}
+.fcard.picked{transform:translateY(-6px) scale(1.04);box-shadow:0 10px 0 var(--sun),0 0 0 5px var(--sun)}
+.fcard.dragging{position:fixed;z-index:999;pointer-events:none;opacity:.92;box-shadow:0 14px 26px rgba(0,0,0,.35)}
+.fcard:focus-visible{outline:4px solid var(--water-dark);outline-offset:3px}
+.fcard .mark{display:none;font-weight:900;font-size:clamp(14px,1.4vw,19px);line-height:1.3;margin-top:4px}
+.fcard.judged .mark{display:block}
+.fcard.judged.ok .mark{color:var(--green-dark)}
+.fcard.judged.no .mark{color:#B03A30}
+.fcard.judged.no{border-color:var(--wrong)}
+
+.baskets{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:14px}
+@media(max-width:720px){.baskets{grid-template-columns:minmax(0,1fr)}}
+.basket{border:4px solid var(--ink);border-radius:20px;padding:10px;min-height:220px;background:#FFFDF8;cursor:pointer}
+.basket.hot{background:#FFF3C4;border-style:dashed}
+/* 鍵盤用的「放進這一籃」按鈕：平常藏起來（觸控直接點籃子），用 Tab 移到它時才出現 */
+.bdrop{
+  position:absolute;width:1px;height:1px;margin:-1px;padding:0;border:0;overflow:hidden;
+  clip:rect(0 0 0 0);white-space:nowrap;
+}
+.bdrop:focus{
+  position:static;width:auto;height:auto;margin:0;overflow:visible;clip:auto;
+  border:3px solid var(--ink);border-radius:999px;background:var(--card);color:var(--ink);
+  padding:6px 16px;min-height:48px;font:inherit;font-weight:900;cursor:pointer;
+  outline:4px solid var(--water-dark);outline-offset:3px;
+}
+.bhead{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap}
+.bletter{
+  width:clamp(38px,3.6vw,52px);aspect-ratio:1;border-radius:50%;border:3px solid var(--ink);background:#fff;
+  display:flex;align-items:center;justify-content:center;font-weight:900;font-size:clamp(20px,2.2vw,28px);flex:none;
+}
+.bname{font-size:clamp(20px,2.3vw,30px);font-weight:900;text-align:center;letter-spacing:1px;line-height:1.3}
+.bhint{text-align:center;font-weight:800;color:var(--muted);margin:4px 0 8px;font-size:clamp(15px,1.6vw,20px)}
+.drop{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;min-height:120px}
+.litnote{display:none;text-align:center;font-weight:900;color:var(--green-dark)}
+.basket.lit{border-color:var(--green-dark);background:#EAF7EE;box-shadow:0 0 0 5px #B9E3C6}
+.basket.lit .litnote{display:block}
+.scorebar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:14px}
+#sortMsg{font-weight:800}
+.derive{margin-top:18px;border-top:3px dashed #C9C2B4;padding-top:16px}
+.evidence{display:grid;grid-template-columns:minmax(0,1fr);gap:12px;align-items:center;margin-top:12px}
+@media(min-width:720px){.evidence{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}}
+.evidence .cap{color:var(--ink);font-size:clamp(18px,2vw,24px)}
+
+.chips{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin:14px 0}
+.chips .chip{font-weight:900;font-size:clamp(16px,1.8vw,22px)}
+
+/* ==========================================================
+   ⑤ 闖關驗收
+   ========================================================== */
+.quizbar{display:flex;align-items:center;gap:8px 14px;flex-wrap:wrap;
+  background:var(--card);border:3px solid var(--ink);border-radius:26px;padding:8px 18px;
+  box-shadow:var(--shadow);margin-bottom:14px;font-weight:900}
+.dots{display:flex;gap:8px}
+.dot{width:16px;height:16px;border-radius:50%;border:3px solid var(--ink);background:#fff}
+.dot.done{background:var(--green-dark)}
+.dot.now{background:var(--sun)}
+.qscore{margin-left:auto}
+.quizwrap{display:grid;grid-template-columns:minmax(0,1fr);gap:18px;align-items:start}
+@media (min-width:1024px) and (orientation:landscape){
+  .quizwrap{grid-template-columns:minmax(0,1fr) minmax(0,1.1fr)}
+}
+.quizwrap.nophoto{grid-template-columns:minmax(0,1fr)}
+.quizwrap.nophoto .qphoto{display:none}
+.result{text-align:center;padding:16px}
+.result .big{font-size:clamp(30px,5vw,58px);font-weight:900;color:var(--green-dark)}
+.rankline{font-weight:900;font-size:clamp(22px,2.8vw,36px);margin:6px 0}
+.ticket{
+  margin:14px auto;max-width:900px;background:#FFF6D8;border:3px dashed var(--sun);border-radius:16px;
+  padding:12px 16px;font-weight:800;font-size:clamp(18px,2.1vw,26px);text-align:left;line-height:1.8;
+}
+
+/* ---------- 頁尾：照片來源 ---------- */
+.credits{
+  font-size:clamp(12px,1.2vw,15px);color:var(--muted);margin-top:20px;line-height:1.55;
+  border-top:2px dashed #D9CFBE;padding-top:12px;
+}
+.credits a{color:var(--muted)}
+.credits p{margin:4px 0}
+
+
+@media (prefers-reduced-motion:reduce){
+  .screen,.tag,.hs.shake{animation:none}
+}
+
+  /* ===== RWD：手機 / 平板 / 筆電 / 75 吋觸控螢幕 ===== */
+  @media (max-width:1100px){
+    .station-btn{ padding:8px 10px; }
+  }
+  @media (max-width:640px){
+    #app{ padding:10px 10px 28px; }
+    .panel{ border-radius:14px; padding:12px 12px; }
+    .stations{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:6px; }
+    .station-btn{ padding:4px 4px; font-size:14px; min-height:52px; border-radius:16px; }
+    .btn{ padding:10px 18px; min-height:52px; }
+    .opt{ min-height:52px; padding:10px 14px; }
+    .tab{ padding:8px 14px; min-height:52px; }
+    .basket{ min-height:160px; }
+    .quizbar{ border-radius:18px; }
+    .frames{ grid-template-columns:minmax(0,1fr); }
+  }
+  @media (min-width:1800px){
+    /* 按鈕與選項都是 font:inherit，放大 body 字級它們就跟著長大 */
+    :root{ --hs:76px; }
+    body{ font-size:26px; }
+    #app{ max-width:1680px; padding:20px 30px 60px; }
+    .sitehead h1{ font-size:38px; }
+    .back{ min-height:64px; font-size:22px; padding:6px 24px; }
+    .station-btn{ min-height:72px; font-size:23px; padding:10px 26px; }
+    .btn{ min-height:80px; padding:16px 40px; }
+    .opt{ min-height:84px; font-size:28px; }
+    .tab{ min-height:80px; }
+    .frame-btn{ min-height:88px; font-size:22px; }
+    .fcard{ width:clamp(170px,11vw,230px); }
+    .basket{ min-height:300px; }
+    .tag{ font-size:22px; }
+    .bdrop:focus{ min-height:64px; }
+    .cap{ font-size:22px; }
+    .ask{ font-size:30px; }
+    .steptag{ font-size:23px; }
+    .sitehead .sub{ font-size:21px; }
+    .ask.big{ font-size:46px; }
+    .qtitle,.ptitle{ font-size:32px; }
+    .fnq{ font-size:38px; }
+    .saybox{ font-size:34px; }
+    .bigpoint{ font-size:33px; }
+    .criterion .k{ font-size:30px; }
+    .bname{ font-size:34px; }
+    .bhint,.fcard .label,.fcard .mark{ font-size:22px; }
+    .note,.lead{ font-size:20px; }
+    .evidence .cap{ font-size:26px; }
+    .pin{ width:24px; height:24px; }
+    .teacher-tip{ font-size:19px; }
+    .credits{ font-size:16px; }
+  }
+  @media (min-width:2600px){
+    :root{ --hs:100px; }
+    body{ font-size:34px; }
+    #app{ max-width:2280px; padding:30px 40px 80px; }
+    .sitehead h1{ font-size:50px; }
+    .back{ min-height:84px; font-size:30px; }
+    .station-btn{ min-height:96px; font-size:30px; padding:14px 34px; }
+    .btn{ min-height:104px; padding:22px 52px; }
+    .opt{ min-height:112px; font-size:36px; }
+    .tab{ min-height:104px; }
+    .frame-btn{ min-height:112px; font-size:29px; }
+    .fcard{ width:clamp(230px,10vw,310px); }
+    .basket{ min-height:390px; }
+    .tag{ font-size:30px; }
+    .cap{ font-size:29px; }
+    .ask{ font-size:39px; }
+    .steptag{ font-size:30px; }
+    .sitehead .sub{ font-size:27px; }
+    .ask.big{ font-size:60px; }
+    .qtitle,.ptitle{ font-size:42px; }
+    .fnq{ font-size:50px; }
+    .saybox{ font-size:44px; }
+    .bigpoint{ font-size:43px; }
+    .criterion .k{ font-size:39px; }
+    .bname{ font-size:44px; }
+    .bhint,.fcard .label,.fcard .mark{ font-size:29px; }
+    .note,.lead{ font-size:26px; }
+    .evidence .cap{ font-size:34px; }
+    .pin{ width:32px; height:32px; }
+    .teacher-tip{ font-size:25px; }
+    .credits{ font-size:21px; }
+  }
+
+/* ==========================================================
+   營養器官的繁殖 — 本課新增的元件
+   ========================================================== */
+/* 課本裡小朋友說的話（引用原句） */
+.kidsay{
+  margin:0 0 8px;padding:6px 12px;border-left:5px solid var(--water);border-radius:0 10px 10px 0;
+  background:#F2F8FC;color:#34444C;font-weight:800;font-size:clamp(15px,1.6vw,20px);line-height:1.5;
+}
+/* ① 圓形放大：疊在主照片角落，不畫引線（不宣稱「放大的就是這一點」） */
+.zoomin{
+  position:absolute;z-index:5;width:var(--zw,34%);aspect-ratio:var(--zar,1);
+  border-radius:50%;overflow:hidden;background:#F2EEE4;
+  border:4px solid #fff;box-shadow:0 0 0 3px var(--ink),0 6px 14px rgba(0,0,0,.3);
+  animation:tagIn .35s ease;pointer-events:none;
+}
+.zoomin > img,.zoomin > .img-fallback{width:100%;height:100%;object-fit:cover;display:block}
+.zoomin.tr{right:3%;top:3%}
+.zoomin.tl{left:3%;top:3%}
+.zoomin.br{right:3%;bottom:3%}
+.zoomin.bl{left:3%;bottom:3%}
+
+/* ② 繁殖小實驗：照片並排，後面的格子要按「過一段時間」才打開 */
+.howbox{
+  background:#FFFDF8;border:3px solid var(--ink);border-radius:16px;padding:10px 14px;
+  font-weight:800;font-size:clamp(16px,1.8vw,22px);line-height:1.5;margin-bottom:12px;
+}
+.howbox .hl{
+  display:inline-block;background:var(--sun);border:3px solid var(--ink);border-radius:999px;
+  padding:0 10px;margin-right:8px;font-size:.85em;
+}
+.lapse{display:grid;grid-template-columns:repeat(var(--n,3),minmax(0,1fr));gap:10px;align-items:end}
+.lapse .cell{border:0;background:none;padding:6px 0 0;font:inherit;color:inherit;cursor:pointer;text-align:center;min-width:0}
+.lapse .cell[disabled]{cursor:default}
+/* 課本的時序照上緣是白底（第三格的葉子長出照片外），不加黑框，讓白底和面板融在一起 */
+.lapse .fig{--mh:40vh;box-shadow:none;background:transparent;border-radius:10px}
+.lapse .fig > img{border-radius:10px}
+.lapse .cell.on .fig{box-shadow:0 0 0 6px var(--sun)}
+.lapse .cell:focus-visible{outline:4px solid var(--water-dark);outline-offset:4px;border-radius:12px}
+.lapse .cover{
+  position:absolute;inset:0;border-radius:14px;display:flex;align-items:center;justify-content:center;
+  background:repeating-linear-gradient(45deg,#F2EEE4 0 14px,#E9E3D5 14px 28px);
+  color:var(--muted);font-weight:900;font-size:clamp(30px,4vw,56px);
+}
+.lapse .step{display:block;font-weight:900;margin-top:8px;font-size:clamp(14px,1.5vw,19px);line-height:1.3}
+/* 時序格很窄（手機上約 100px），標籤字很短，不要被擠成一字一行 */
+.lapse .tag{white-space:nowrap;max-width:none !important}
+.labq{margin-top:16px;border-top:3px dashed #C9C2B4;padding-top:14px}
+
+/* ④ 兩條路：用種子種 vs 用塊莖種（純 CSS 小方塊，兩條同一種顏色，不暗示答案） */
+.lanes{display:grid;gap:10px;margin:14px 0}
+.lane{border:3px solid var(--ink);border-radius:16px;padding:8px 12px;background:#FFFDF8}
+.lane .lname{font-weight:900;font-size:clamp(17px,1.9vw,24px);margin-bottom:6px}
+.lsteps{display:flex;flex-wrap:wrap;align-items:center;gap:6px 4px;font-weight:800;font-size:clamp(15px,1.6vw,20px)}
+.lsteps span{border:2px solid var(--ink);border-radius:10px;padding:3px 10px;background:#fff}
+.lsteps i{font-style:normal;font-weight:900;color:var(--muted);padding:0 2px}
+
+/* ③ 開場回收 */
+.recall{margin-top:18px;border-top:3px dashed #C9C2B4;padding-top:16px}
+.recall .ask{margin-bottom:6px}
+.bigpoint small{display:block;margin-top:8px;font-size:.72em;color:#2F5E43;font-weight:800}
+
+@media (max-width:1023px),(orientation:portrait){
+  #lookFig{--mh:36vh !important}
+  #qFig{--mh:34vh !important}
+  .lapse .fig{--mh:30vh}
+}
+@media (max-width:640px){
+  .lapse{gap:6px}
+  .lapse .fig{--mh:26vh}
+  .lapse .tag{font-size:12px;padding:1px 6px;border-width:2px}
+}
+@media (min-width:1800px){
+  .kidsay{font-size:24px}
+  .howbox{font-size:26px}
+  .lapse .step{font-size:22px}
+  .lane .lname{font-size:28px}
+  .lsteps{font-size:23px}
+}
+@media (min-width:2600px){
+  .kidsay{font-size:31px}
+  .howbox{font-size:34px}
+  .lapse .step{font-size:29px}
+  .lane .lname{font-size:37px}
+  .lsteps{font-size:30px}
+}
+</style>
+<script>
+/* 放在 head：圖片一出錯就能呼叫（不論主程式跑到哪裡） */
+function imgFallback(img){
+  const span=document.createElement("span");
+  span.className="img-fallback "+(img.className||"");
+  span.setAttribute("role","img");
+  const name=img.getAttribute("data-name")||img.getAttribute("alt")||"照片";
+  span.setAttribute("aria-label","照片載入失敗："+name);
+  span.textContent="📷 照片載入失敗："+name;
+  img.replaceWith(span);
+}
+</script>
+</head>
+<body>
+<div id="app">
+
+  <header class="sitehead">
+    <div class="headrow">
+      <a class="back" href="../../index.html">← 回教材首頁</a>
+      <h1>營養器官的繁殖</h1>
+      <span class="sub">五年級自然｜第二單元 植物世界　課本 52–53 頁</span>
+    </div>
+    <nav class="stations" aria-label="站別">
+      <button class="station-btn on" data-go="open">開場</button>
+      <button class="station-btn" data-go="look">① 新芽從哪裡來</button>
+      <button class="station-btn" data-go="lab">② 繁殖小實驗</button>
+      <button class="station-btn" data-go="sort">③ 分類白板</button>
+      <button class="station-btn" data-go="why">④ 有什麼好處</button>
+      <button class="station-btn" data-go="quiz">⑤ 闖關驗收</button>
+    </nav>
+  </header>
+
+  <!-- ==================== 開場　除了種子，還有別的辦法嗎？ ==================== -->
+  <section id="screen-open" class="screen active">
+    <div class="panel">
+      <p class="lead">上一課：果實和種子靠風力、水力、動物力或自身彈力傳播出去，長成新的植物。<br>我們也學過：根、莖、葉是<b>營養器官</b>，主要的工作是幫植物活下去。</p>
+      <div class="duo mid">
+        <figure class="figbox">
+          <div class="fig" id="openFig" style="--mh:50vh"></div>
+          <figcaption class="cap center">放太久、發芽的馬鈴薯（放在淺水盤裡，也長出了根）</figcaption>
+        </figure>
+        <div>
+          <div class="ask big">除了種子，植物的哪些部位<br>也能長出一株新的植物？</div>
+          <p class="lead">可以選不只一個。全班先舉手表決，再請一位同學上台按。</p>
+          <div class="opts" id="guessOpts"></div>
+          <div class="btnrow"><button class="btn" id="guessOk">確認</button></div>
+          <div class="feedback" id="guessFeed" aria-live="polite"></div>
+          <div class="guessbox hidden" id="guessBox" aria-live="polite">
+            <div class="g">全班猜的是：<span id="guessText"></span></div>
+            <div class="later">第 ③ 站揭曉！</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="navrow"><button class="btn green" data-next="look">出發：① 新芽從哪裡來 →</button></div>
+    <div class="teacher-tip">
+      <p><b class="time">給老師｜開場 3 分鐘</b></p>
+      <p>先不判對錯。按選項只會記下「全班猜的是：○○」，不會公布答案；重新整理頁面會清掉。</p>
+      <p>可以追問課本 52 頁的「<b>主要</b>」兩個字：根、莖、葉「主要」是幫植物活下去——那主要的工作以外呢？</p>
+      <p>〈多功能的營養器官〉看過吊蘭的走莖、馬鈴薯的芽眼，所以很多人會選「莖」，這是預期的。選「都不行，只能靠種子」的，正是隨堂測驗「農夫只能利用植物的種子進行繁殖」那個迷思。</p>
+      <p>課本使用：① 站翻開 52 頁；② 站和 ③ 站先把課本闔起來；③ 站揭曉後再翻 53 頁對答案。閱讀器 52 頁有 2 分 13 秒的課程影片，建議當預習或回家看，課堂上時間不夠。</p>
+    </div>
+  </section>
+
+  <!-- ==================== ① 新芽從哪裡來（課本 52 頁） ==================== -->
+  <section id="screen-look" class="screen">
+    <div class="panel">
+      <div class="looklay">
+        <figure class="figbox mainbox">
+          <div class="fig" id="lookFig" style="--mh:calc(100vh - 280px)"></div>
+          <figcaption class="cap center" id="lookCap"></figcaption>
+        </figure>
+        <div class="cardarea">
+          <div class="cardhead"><span class="steptag" id="lkStep">觀察卡 1 / 4</span></div>
+          <p class="kidsay" id="lkSay"></p>
+          <p class="fnq" id="lkText"></p>
+          <p class="how">👆 點照片上的號碼作答</p>
+          <div class="feedback" id="lkFeed" aria-live="polite"></div>
+          <p class="note hidden" id="lkExtra" style="margin-top:10px"></p>
+          <div class="btnrow"><button class="btn green hidden" id="lkNext">下一張 →</button></div>
+        </div>
+        <div class="thumbrow">
+          <div class="frames" id="lkFrames"></div>
+        </div>
+      </div>
+      <div class="bigpoint hidden" id="lookPoint" style="margin-top:14px">不是只有<b>種子</b>會長出新的植物！<br>有些植物的根、莖、葉，也可以長出新的一株。</div>
+    </div>
+    <div class="navrow"><button class="btn green" data-next="lab">下一站：② 繁殖小實驗 →</button></div>
+    <div class="teacher-tip">
+      <p><b class="time">給老師｜① 新芽從哪裡來 6 分鐘</b></p>
+      <p>請學生翻開課本 52 頁。每張卡先念課本那句話，再請一位同學上台點照片。點錯不扣分，可以請台下同學給提示。照片上的號碼是隨意編的。</p>
+      <p>這一站只看「新芽、新根從<b>哪裡</b>長出來」，還不問是根、莖還是葉，留到 ③ 站分類。</p>
+      <p>吊蘭：課本補充說小植株長在「走莖末端」，〈多功能的營養器官〉的互動教材說「在節上」——兩種說法都對，小植株長在走莖的節上，常常在末端。走莖上也會開小白花，但小植株是從節長出來的，不是花變的。</p>
+      <p>黃金葛：在台灣很少看到它開花，所以大家幾乎都剪一段莖來種（④ 站可以回頭提）。</p>
+      <p>安全：發芽或變綠的馬鈴薯有毒素，不可以吃。</p>
+    </div>
+  </section>
+
+  <!-- ==================== ② 繁殖小實驗（課本 53 頁） ==================== -->
+  <section id="screen-lab" class="screen">
+    <div class="panel">
+      <div class="tabs" id="labTabs"></div>
+      <div class="duo">
+        <div>
+          <div class="lapse" id="labLapse"></div>
+          <p class="note center" style="margin-top:8px">課本 53 頁的觀察照片，排在一起表示變化的順序（沒有標天數）。</p>
+        </div>
+        <div>
+          <div class="howbox" id="labHow"></div>
+          <div class="btnrow" style="margin-top:0">
+            <button class="btn" id="lapNext">過一段時間 →</button>
+            <button class="btn plain" id="lapReset">↺ 從頭看</button>
+          </div>
+          <div class="saybox" id="labSay" aria-live="polite"></div>
+          <p class="note" id="labNote" style="margin-top:8px"></p>
+          <div id="labQs"></div>
+        </div>
+      </div>
+    </div>
+    <div class="navrow"><button class="btn green" data-next="sort">下一站：③ 分類白板 →</button></div>
+    <div class="teacher-tip">
+      <p><b class="time">給老師｜② 繁殖小實驗 7 分鐘</b></p>
+      <p>課本先闔起來：53 頁的標題已經寫了「根繁殖、莖繁殖、葉繁殖」，這一站先只看照片，名稱留到 ③ 站揭曉。番薯的做法課本寫「番薯的<b>塊根</b>」，這裡先寫「一顆番薯」，免得「塊根」兩個字洩題。</p>
+      <p>每個實驗先請學生說「<b>哪裡變了？</b>」再按「過一段時間 →」。三張照片看完，題目才會出現。照片的順序不等於天數。時間不夠就只做落地生根。</p>
+      <p>番薯：表面的小黑點不是芽眼；番薯的芽常常從一端冒出來。萬年青：照片裡這種一節一節、像竹子的植物，課本叫萬年青，它不是竹子；花市叫「萬年青」的植物不只一種，在家做實驗要選這種一節一節的。</p>
+      <p>落地生根：〈植物身體的組成〉說過「一片葉子只是器官，不是個體」。剛放上去的葉子還是器官；要等它長出新芽和根、長成新的一株，才是新的個體——兩件事不衝突。</p>
+      <p>安全：落地生根不可以吃；水變臭了就換水。</p>
+    </div>
+  </section>
+
+  <!-- ==================== ③ 分類白板（本課重點「橋」：會發芽的不一定是莖） ==================== -->
+  <section id="screen-sort" class="screen">
+    <div class="panel" id="boardPanel">
+      <p class="ptitle">🧺 分類白板</p>
+      <div class="ask">新的植物，是從<b>哪一種器官</b>長出來的？（看新芽<b>從哪一塊長出來</b>，不是看新芽本身）</div>
+      <p class="lead">點一張卡片，再點一個籃子放進去（也可以直接拖曳）。按「揭曉」之前都可以換位置。</p>
+      <div class="cardtray" id="tray" aria-label="還沒分的卡片"></div>
+      <div class="baskets">
+        <div class="basket" data-basket="A" role="group" aria-labelledby="let-A name-A">
+          <div class="bhead"><span class="bletter" id="let-A">A</span><span class="bname" id="name-A">？？？</span><button type="button" class="bdrop">放進 A 籃</button></div>
+          <div class="bhint">不是葉子，身上也找不到<b>節</b>和<b>芽眼</b></div>
+          <div class="drop" id="drop-A"></div>
+        </div>
+        <div class="basket" data-basket="B" role="group" aria-labelledby="let-B name-B">
+          <div class="bhead"><span class="bletter" id="let-B">B</span><span class="bname" id="name-B">？？？</span><button type="button" class="bdrop">放進 B 籃</button></div>
+          <div class="bhint">身上有<b>節</b>或<b>芽眼</b></div>
+          <div class="drop" id="drop-B"></div>
+        </div>
+        <div class="basket" data-basket="C" role="group" aria-labelledby="let-C name-C">
+          <div class="bhead"><span class="bletter" id="let-C">C</span><span class="bname" id="name-C">？？？</span><button type="button" class="bdrop">放進 C 籃</button></div>
+          <div class="bhint">是一片<b>葉子</b></div>
+          <div class="drop" id="drop-C"></div>
+        </div>
+      </div>
+      <div class="scorebar">
+        <button class="btn green" id="revealBtn" disabled>🔍 揭曉</button>
+        <button class="btn plain" id="resetSort">↺ 重新分一次</button>
+        <span id="sortMsg" aria-live="polite"></span>
+      </div>
+
+      <div class="derive hidden" id="derive">
+        <div class="ask">番薯（地瓜）也冒出了芽，為什麼它放在 A 籃，不是莖？</div>
+        <div id="deriveQ" style="margin-top:12px"></div>
+        <div class="feedback" id="deriveFeed" aria-live="polite"></div>
+        <div class="criterion hidden" id="deriveCrit">
+          <div class="k">💡 番薯胖胖的部分是<b>根</b>（叫做<b>塊根</b>，就是肥大的根）。它身上沒有節和芽眼，也能長出新芽和根——<b>會發芽的不一定是莖，要找節。</b></div>
+          <div class="evidence">
+            <figure class="figbox"><div class="fig" id="evFig1" style="--mh:34vh"></div><figcaption class="cap center">馬鈴薯：芽從芽眼（莖上的節）長出來</figcaption></figure>
+            <figure class="figbox"><div class="fig" id="evFig2" style="--mh:34vh"></div><figcaption class="cap center">番薯：找不到節和芽眼，也長出了芽和根</figcaption></figure>
+          </div>
+          <div class="askagain">👩‍🏫 老師追問：<b>番薯新長出來的藤上也有節，為什麼還說番薯是根？</b>（那些藤是<b>從哪一塊長出來</b>的？）</div>
+        </div>
+      </div>
+
+      <div class="recall hidden" id="recallBox">
+        <p class="ptitle">🔁 回到開場：除了種子，哪些部位也能長出新的植物？</p>
+        <div class="ask" id="recallGuess"></div>
+        <div class="btnrow center"><button class="btn" id="recallBtn">🔍 揭曉答案</button></div>
+        <div class="bigpoint hidden" id="recallAns"></div>
+      </div>
+    </div>
+    <div class="navrow"><button class="btn green" data-next="why">下一站：④ 有什麼好處 →</button></div>
+    <div class="teacher-tip">
+      <p><b class="time">給老師｜③ 分類白板 10 分鐘</b>（本課重點「橋」）</p>
+      <p>揭曉前不顯示對錯：先問「你<b>為什麼</b>放這一籃？」，討論完再按揭曉。籃子上的提示是<b>判斷器官的線索</b>，籃子的名字（用根／莖／葉繁殖）揭曉後才出現。</p>
+      <p>討論的主角是<b>番薯</b>：〈植物身體的組成〉和〈多功能的營養器官〉學過「找節和芽眼」，學生很容易推成「會發芽的就是莖」。番薯會發芽，卻找不到節和芽眼——它是根。判斷時看新芽「<b>從哪一塊長出來</b>」，不是看新芽本身：番薯新長的藤是莖、上面有節，但藤是從塊根長出來的；吊蘭剪下來種的小植株，是從走莖（莖）的節長出來的。</p>
+      <p>〈植物身體的組成〉說花生是種子，理由是「種到土裡可以長出新的植物」。今天會看到塊莖、塊根、葉種下去也能長——能長出新植物的不一定是種子；種子是花結果以後，長在果實裡的。</p>
+      <p>南一教師手冊把番薯同時列在根繁殖和莖繁殖：塊根可以種，剪一段番薯藤也可以種（藤是莖）。這件事留給學習單的★挑戰題。</p>
+      <p>南一教師手冊的根繁殖還列了<b>野薑花</b>，本教材沒有放：野薑花是靠地下的莖（根莖）長出新芽，和〈植物身體的組成〉教過的「薑是莖」一致。若考卷出現，請老師自行決定怎麼說明。</p>
+      <p>揭曉後請學生翻開課本 53 頁：「課本怎麼寫？」若這一站超過 12 分鐘，④ 站只念三個好處，⑤ 站只做前 3 題。</p>
+    </div>
+  </section>
+
+  <!-- ==================== ④ 有什麼好處（課本 53 頁「想想看」） ==================== -->
+  <section id="screen-why" class="screen">
+    <div class="panel">
+      <div class="duo mid">
+        <figure class="figbox">
+          <div class="fig" id="whyFig" style="--mh:42vh"></div>
+          <figcaption class="cap center">馬鈴薯的花（維基共享資源的照片，不是課本那一顆）</figcaption>
+        </figure>
+        <div class="ask big">馬鈴薯會開花、結果、結種子，<br>農夫卻通常用<b>塊莖</b>來種。<br>為什麼？</div>
+      </div>
+      <div class="lanes">
+        <div class="lane"><div class="lname">🌸 用種子種</div>
+          <div class="lsteps"><span>開花</span><i>→</i><span>授粉</span><i>→</i><span>結果實和種子</span><i>→</i><span>種子發芽</span><i>→</i><span>長大</span><i>→</i><span>結出新的馬鈴薯</span></div></div>
+        <div class="lane"><div class="lname">🥔 用塊莖種</div>
+          <div class="lsteps"><span>切一塊<b>有芽眼</b>的塊莖</span><i>→</i><span>芽眼發芽</span><i>→</i><span>長大</span><i>→</i><span>結出新的馬鈴薯</span></div></div>
+      </div>
+      <div class="ask">用塊莖種，有哪些好處？（可以選不只一個）</div>
+      <div class="opts col" id="whyOpts" style="margin-top:12px"></div>
+      <div class="btnrow"><button class="btn" id="whyOk">確認</button></div>
+      <div class="feedback" id="whyFeed" aria-live="polite"></div>
+      <div class="criterion hidden" id="whyCrit">
+        <div class="k">💡 用營養器官繁殖：不必等開花、結種子，<b>通常比較快</b>；新植株<b>通常和原來那一株一樣</b>，品質比較穩定；塊莖儲藏的養分<b>比一顆種子多很多</b>，新芽通常長得比較壯。</div>
+        <div class="askagain">👩‍🏫 老師追問：<b>切馬鈴薯來種，為什麼每一塊都要有芽眼？</b>　再想一想：這麼方便，植物為什麼還要開花結種子？（上一課：種子可以被帶到哪裡？）</div>
+      </div>
+    </div>
+    <div class="navrow"><button class="btn green" data-next="quiz">最後一站：⑤ 闖關驗收 →</button></div>
+    <div class="teacher-tip">
+      <p><b class="time">給老師｜④ 有什麼好處 6 分鐘</b></p>
+      <p>課本 53 頁只問「有什麼好處」，沒有印答案。證據來自南一補充：「馬鈴薯會開花、結果、結種子，但為了讓馬鈴薯的品質穩定，通常會利用塊莖來繁殖。」</p>
+      <p>同一題、不同要求：選到一個好處就過關，程度好的請他把三個都說出來。好處都要加「<b>通常</b>」「<b>可能</b>」——長出來的新植株通常和原來那一株一樣，但外表還是會受環境影響。兩條路的格子比較少，不代表天數一定比較少。</p>
+      <p>「為什麼還要種子？」不計分，答案用「可能」：種子可能靠風力、水力、動物力或自身彈力傳到遠方；走莖、塊莖長出的新植株通常就在母株旁邊。可以預告課本 54 頁的蘭花：花農用技術快速繁殖，長出來的蘭花通常和原來那一株一樣美。</p>
+    </div>
+  </section>
+
+  <!-- ==================== ⑤ 闖關驗收 ==================== -->
+  <section id="screen-quiz" class="screen">
+    <div class="quizbar">
+      <span id="qprog">第 1 / 5 題</span>
+      <span class="dots" id="dots"></span>
+      <span class="qscore">⭐ <span id="score">0</span> / 10 分</span>
+      <span id="rank">🥔 剛冒芽</span>
+    </div>
+
+    <div class="panel" id="quizPanel">
+      <div class="quizwrap" id="quizwrap">
+        <div class="qphoto" id="qphoto"></div>
+        <div>
+          <div id="step1">
+            <span class="steptag">第 1 層｜選答案</span>
+            <p class="qtitle" id="q1title"></p>
+            <div id="q1opts"></div>
+            <div class="feedback" id="q1feed" aria-live="polite"></div>
+          </div>
+          <div id="step2" class="hidden" style="margin-top:16px">
+            <span class="steptag">第 2 層｜你怎麼知道？</span>
+            <p class="qtitle">選一個最好的理由：</p>
+            <div id="q2opts"></div>
+            <div class="feedback" id="q2feed" aria-live="polite"></div>
+          </div>
+          <div id="criterion" class="criterion hidden">
+            <div class="k" id="criterionText"></div>
+            <div class="askagain">👩‍🏫 老師追問：<b>你怎麼知道？</b>（請一位同學用上面這句話說說看）</div>
+          </div>
+          <div class="btnrow"><button class="btn green hidden" id="nextBtn">下一題 →</button></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel hidden" id="quizResult">
+      <div class="result">
+        <div class="big" id="finalScore"></div>
+        <p class="rankline" id="finalRank"></p>
+        <div class="ticket"><b>出場單：</b>我原本以為植物只能用＿＿＿＿繁殖，現在知道＿＿＿＿也可以，例如＿＿＿＿。</div>
+        <button class="btn" id="againBtn">↺ 再挑戰一次</button>
+      </div>
+    </div>
+    <div class="teacher-tip">
+      <p><b class="time">給老師｜⑤ 闖關驗收 8 分鐘</b>（含出場單 2 分鐘）</p>
+      <p>每題先給 15 秒想，再請一位同學上台按。第 2 層「你怎麼知道？」請不同的同學說理由。答錯的選項會停用，可以再試，分數減半。</p>
+      <p>第 3 題（番薯）是這一課的橋梁題。第 5 題的誘答就是隨堂測驗那一句「農夫只能利用植物的種子進行繁殖」，另一個誘答是「能繁殖就變成繁殖器官」（上一課學習單的標準答案：它還是營養器官）。</p>
+      <p>結算後用出場單句型，請 2–3 位同學口頭說說看。</p>
+    </div>
+  </section>
+
+  <!-- ==================== 頁尾：照片來源 ==================== -->
+  <footer class="credits" id="credits">
+    <p><b>教學依據：</b><a href="https://reader.nani.com.tw/9200a013cbef8e66" target="_blank" rel="noopener noreferrer">南一自然課本，第 52–53 頁</a>（閱讀器可能需要登入）。</p>
+    <p>本頁植物照片（馬鈴薯的花除外）取自南一版自然五上<b>課本第 52–53 頁</b>，經南一書局授權使用。① 站的圓圈：吊蘭、馬鈴薯、黃金葛是把同一張照片放大；石蓮是課本附的近拍。② 站是課本的觀察照片，排在一起表示變化的順序，沒有標天數。</p>
+    <p>馬鈴薯的花：Thomas Bresson，〈<a href="https://commons.wikimedia.org/wiki/File:ComputerHotline_-_Fleur_de_pomme_de_terre_(by).jpg" target="_blank" rel="noopener noreferrer">Fleur de pomme de terre</a>〉，維基共享資源，<a href="https://creativecommons.org/licenses/by/2.0/" target="_blank" rel="noopener noreferrer">CC BY 2.0</a>（經裁切）。</p>
+    <p>在家觀察時請注意：發芽或變綠的馬鈴薯不要吃；落地生根不要吃；黃金葛的汁液可能讓皮膚癢，碰完要洗手。</p>
+  </footer>
+
+</div>
+
+<script>
+/* ==========================================================
+   營養器官的繁殖 — 程式
+   科學內容（照課本簡化，但不可講錯）：
+   有些植物除了種子，還能用根、莖、葉（營養器官）長出新植株；它們仍然是營養器官。
+   判斷器官：是一片葉子 → 葉；有節或芽眼 → 莖；都沒有 → 根。看新芽「從哪一塊長出來」，不是看新芽本身。
+   會發芽的不一定是莖：番薯（塊根）找不到節和芽眼，也會長芽和根。
+   好處一律加「通常」「可能」。野薑花不放（它靠地下莖長芽，南一手冊列在根繁殖）。
+   ========================================================== */
+const $=id=>document.getElementById(id);
+
+/* ---------- 照片清單：尺寸是處理後的檔案，熱點百分比量在這個尺寸上 ---------- */
+const PHOTO_DIR="photos/";
+const PHOTOS={
+  "spider-plant":        [1036,733, "吊蘭"],
+  "spider-plant-zoom":   [300, 270, "吊蘭走莖上的小植株（同一張照片放大）"],
+  "potato-sprout":       [750, 560, "放太久、發芽的馬鈴薯"],
+  "potato-sprout-zoom":  [210, 180, "馬鈴薯的芽（同一張照片放大）"],
+  "stonelotus":          [251, 212, "石蓮的一片葉子"],
+  "stonelotus-leaf-zoom":[178, 178, "石蓮葉子的基部（課本附的近拍）"],
+  "pothos":              [840, 700, "黃金葛"],
+  "pothos-node-zoom":    [240, 150, "黃金葛莖上的節（同一張照片放大）"],
+  "sweetpotato-1":       [198, 284, "番薯：開始觀察"],
+  "sweetpotato-2":       [198, 284, "番薯：過一段時間"],
+  "sweetpotato-3":       [198, 284, "番薯：再過一段時間"],
+  "dracaena-1":          [198, 285, "萬年青：開始觀察"],   /* 課本稱萬年青 */
+  "dracaena-2":          [198, 285, "萬年青：過一段時間"],
+  "dracaena-3":          [198, 285, "萬年青：再過一段時間"],
+  "kalanchoe-1":         [396, 240, "落地生根：開始觀察"],
+  "kalanchoe-2":         [355, 166, "落地生根：過一段時間"],
+  "potato-flower":       [740, 620, "馬鈴薯的花"]
+};
+function imgTag(id,name){
+  const n=name||PHOTOS[id][2];
+  /* lazy：還沒切到的站別不載入照片（教室電腦記憶體吃緊時會卡） */
+  return `<img src="${PHOTO_DIR}${id}.jpg" alt="${n}" data-name="${n}" draggable="false" loading="lazy" decoding="async" onerror="imgFallback(this)">`;
+}
+/* 照片框：設定原比例後放進照片（同時清掉舊的熱點與標籤） */
+function renderFig(el,id,name){
+  const p=PHOTOS[id];
+  el.style.setProperty("--ar",`${p[0]} / ${p[1]}`);
+  el.innerHTML=imgTag(id,name);
+  return el;
+}
+/* 疊在照片上的標籤。place：r 右、l 左、b 下、t 上、br/bl/tr/tl 斜角。
+   opt.hs＝旁邊是可點熱點（距離大一點）；否則自動加一個小圓點標出位置。 */
+function addTag(fig,x,y,html,place,opt){
+  opt=opt||{};
+  /* 熱點上方有號碼小牌子：往上放的標籤要多讓出牌子的高度，才不會蓋住號碼 */
+  const up=place==="t"||place==="tr"||place==="tl";
+  const off=opt.hs?(up?"(var(--hs) / 2 + var(--hs) * .55 + 12px)":"(var(--hs) / 2 + 6px)"):"14px";
+  const t=document.createElement("div");
+  t.className="tag"; t.innerHTML=html;
+  const s=t.style, m=Math.min(x,100-x);
+  switch(place){
+    case "r": s.left=`calc(${x}% + ${off})`; s.top=y+"%"; s.transform="translateY(-50%)"; s.maxWidth=`calc(${100-x}% - ${off} - 4px)`; break;
+    case "l": s.right=`calc(${100-x}% + ${off})`; s.top=y+"%"; s.transform="translateY(-50%)"; s.maxWidth=`calc(${x}% - ${off} - 4px)`; break;
+    case "t": s.left=x+"%"; s.bottom=`calc(${100-y}% + ${off})`; s.transform="translateX(-50%)"; s.maxWidth=`calc(${2*m}% - 8px)`; break;
+    case "br": s.left=`calc(${x}% - 14px)`; s.top=`calc(${y}% + ${off})`; s.maxWidth=`calc(${100-x}% + 10px)`; break;
+    case "bl": s.right=`calc(${100-x}% - 14px)`; s.top=`calc(${y}% + ${off})`; s.maxWidth=`calc(${x}% + 10px)`; break;
+    case "tr": s.left=`calc(${x}% - 14px)`; s.bottom=`calc(${100-y}% + ${off})`; s.maxWidth=`calc(${100-x}% + 10px)`; break;
+    case "tl": s.right=`calc(${100-x}% - 14px)`; s.bottom=`calc(${100-y}% + ${off})`; s.maxWidth=`calc(${x}% + 10px)`; break;
+    default:   s.left=x+"%"; s.top=`calc(${y}% + ${off})`; s.transform="translateX(-50%)"; s.maxWidth=`calc(${2*m}% - 8px)`;
+  }
+  if(opt.mw) s.maxWidth=opt.mw+"%";
+  if(!opt.hs){
+    const d=document.createElement("span");
+    d.className="pin"; d.style.left=x+"%"; d.style.top=y+"%";
+    fig.appendChild(d);
+  }
+  fig.appendChild(t);
+  return t;
+}
+/* 通用選擇題：答錯的選項標示並停用、可再試；答對就全部停用 */
+function choiceQ(host,opts,ans,onRight,onWrong,cls){
+  const box=document.createElement("div");
+  box.className="opts"+(cls?" "+cls:"");
+  opts.forEach(o=>{
+    const b=document.createElement("button");
+    b.type="button"; b.className="opt"; b.textContent=o;
+    b.addEventListener("click",()=>{
+      if(o===ans){
+        b.classList.add("ok");
+        box.querySelectorAll(".opt").forEach(x=>x.disabled=true);
+        if(onRight) onRight();
+      }else{
+        b.classList.add("no"); b.disabled=true;
+        if(onWrong) onWrong(o);
+      }
+    });
+    box.appendChild(b);
+  });
+  host.appendChild(box);
+  return box;
+}
+
+/* ---------- 站別切換（可自由跳；網址加 #sort 之類可直接開到某一站） ---------- */
+const STATIONS=["open","look","lab","sort","why","quiz"];
+window.addEventListener("hashchange",()=>{
+  const h=location.hash.slice(1);
+  if(STATIONS.includes(h) && !$("screen-"+h).classList.contains("active")) go(h,false);
+});
+function go(name,smooth){
+  if(STATIONS.indexOf(name)<0) name="open";
+  document.querySelectorAll(".station-btn").forEach(b=>{
+    const on=b.dataset.go===name;
+    b.classList.toggle("on",on);
+    if(on) b.setAttribute("aria-current","step"); else b.removeAttribute("aria-current");
+  });
+  document.querySelectorAll(".screen").forEach(s=>s.classList.toggle("active",s.id==="screen-"+name));
+  try{ history.replaceState(null,"","#"+name); }catch(_){}
+  if(name==="sort") updateRecall();
+  window.scrollTo({top:0,behavior:smooth?"smooth":"auto"});
+}
+document.querySelectorAll(".station-btn").forEach(b=>b.addEventListener("click",()=>go(b.dataset.go,true)));
+document.querySelectorAll("[data-next]").forEach(b=>b.addEventListener("click",()=>go(b.dataset.next,true)));
+
+/* ==========================================================
+   開場　複選預測（只記在記憶體，重新整理就清掉；不判對錯）
+   ========================================================== */
+renderFig($("openFig"),"potato-sprout");
+const ORGANS=["根","莖","葉"];
+const NONE="都不行，只能靠種子";
+let classGuess=null;   /* null＝還沒投票；否則是陣列，例如 ["莖","葉"] 或 [NONE] */
+[...ORGANS,NONE].forEach(g=>{
+  const b=document.createElement("button");
+  b.type="button"; b.className="opt"; b.textContent=g; b.dataset.g=g;
+  b.setAttribute("aria-pressed","false");
+  b.addEventListener("click",()=>{
+    const on=b.getAttribute("aria-pressed")!=="true";
+    b.setAttribute("aria-pressed",String(on));
+    /* 「都不行」和三個器官互斥 */
+    if(on) $("guessOpts").querySelectorAll(".opt").forEach(x=>{
+      if(x!==b && (g===NONE || x.dataset.g===NONE)) x.setAttribute("aria-pressed","false");
+    });
+    $("guessFeed").className="feedback"; $("guessFeed").textContent="";
+  });
+  $("guessOpts").appendChild(b);
+});
+$("guessOk").addEventListener("click",()=>{
+  const sel=[...$("guessOpts").querySelectorAll('.opt[aria-pressed="true"]')].map(b=>b.dataset.g);
+  if(!sel.length){
+    $("guessFeed").className="feedback hint";
+    $("guessFeed").textContent="先點選（可以選不只一個），再按確認。";
+    return;
+  }
+  classGuess=sel;
+  $("guessText").textContent="「"+sel.join("、")+"」";
+  $("guessBox").classList.remove("hidden");
+  updateRecall();
+});
+
+/* ==========================================================
+   ① 新芽從哪裡來（課本 52 頁）
+   每張照片兩個熱點：一個是新芽／新根冒出來的地方，一個是誘答（附提示）。
+   熱點號碼刻意錯開，號碼不會洩漏答案。答對後把放大圖疊在照片角落。
+   ========================================================== */
+const LOOK=[
+  {id:"spider-plant", cap:"吊蘭", thumb:"吊蘭",
+   say:"「我種在庭院的吊蘭，有長長的走莖，垂下來長出新芽。」",
+   q:"吊蘭<b>新的小植株</b>長在哪裡？",
+   zoom:"spider-plant-zoom", zc:"tr", zw:32, zcap:"（圓圈：同一張照片放大）",
+   extra:"✂️ 把走莖上的小植株剪下來，種到土裡，通常就能長成一盆新的吊蘭。",
+   spots:[
+     {num:3,x:80,y:86,ok:true, nm:"走莖上的小植株",sub:"長在走莖的節上（常常在末端）",place:"tl"},
+     {num:1,x:29,y:48,ok:false,
+      hint:"這裡是原來那一株吊蘭（母株）自己的葉子，不是新的一株。順著長長垂下來的<b>走莖</b>找找看。"}
+   ]},
+  {id:"potato-sprout", cap:"放太久、發芽的馬鈴薯", thumb:"馬鈴薯",
+   say:"「馬鈴薯的塊莖在廚房放太久，會有一些綠綠的新芽冒出來。」",
+   q:"馬鈴薯的新芽，是從哪裡<b>長出來</b>的？",
+   zoom:"potato-sprout-zoom", zc:"tr", zw:30, zcap:"（圓圈：同一張照片放大）",
+   extra:"⚠️ 發芽或變綠的馬鈴薯有毒素，不可以吃。",
+   spots:[
+     {num:2,x:24,y:41,ok:true, nm:"芽眼",sub:"新芽從這裡長出來（芽眼就是莖上的節）",place:"r"},
+     {num:4,x:24,y:12,ok:false,
+      hint:"芽已經長到這裡了——它是從馬鈴薯身上的<b>哪裡出發</b>的？順著芽往回找。"}
+   ]},
+  {id:"stonelotus", cap:"石蓮的一片葉子，放在土上", thumb:"石蓮",
+   say:"「我看過石蓮以葉繁殖，葉旁邊有長出新芽。」",
+   q:"石蓮的新芽，長在葉子的哪裡？",
+   zoom:"stonelotus-leaf-zoom", zc:"bl", zw:34, zcap:"（圓圈：課本附的近拍，基部也長出了根）",
+   extra:"〈多功能的營養器官〉學過：石蓮肥厚的葉能儲藏水分和養分；今天發現它還能長出新芽——同一種器官，本領可以不只一種。",
+   spots:[
+     {num:4,x:79,y:40,ok:true, nm:"葉子的基部",sub:"原本連著莖的那一端",place:"b"},
+     {num:1,x:18,y:50,ok:false,
+      hint:"這裡是<b>葉尖</b>。新芽長在葉子<b>原本連著莖</b>的那一端。"}
+   ]},
+  {id:"pothos", cap:"黃金葛（課本照片）", thumb:"黃金葛",
+   say:"「學校走廊的黃金葛，莖上的節會長出葉子和根。」",
+   q:"黃金葛的根，是從莖的哪裡長出來的？",
+   zoom:"pothos-node-zoom", zc:"tl", zw:32, zcap:"（圓圈：同一張照片放大）",
+   extra:"✂️ 剪下一段有節（最好已經長出氣生根）的莖插在水裡，通常就能長成新的一株。",
+   spots:[
+     {num:1,x:75,y:85,ok:true, nm:"節",sub:"葉子和根都從這裡長出來",place:"l"},
+     {num:3,x:58,y:65.5,ok:false,
+      hint:"這一段莖光溜溜的。找找莖上<b>長著葉子、鼓起來</b>的那一圈，旁邊還有褐色、小小的氣生根。"}
+   ]}
+];
+let lkIdx=0, lkWaiting=false;
+const lkDoneSet=new Set();
+
+function buildLook(){
+  $("lkFrames").innerHTML="";
+  LOOK.forEach((c,i)=>{
+    const b=document.createElement("button");
+    b.type="button"; b.className="frame-btn";
+    b.innerHTML=`${imgTag(c.id,c.thumb)}<span>${i+1}　${c.thumb}<span class="tick"></span></span>`;
+    b.addEventListener("click",()=>showLook(i));
+    $("lkFrames").appendChild(b);
+  });
+  showLook(0);
+}
+function showLook(i){
+  lkIdx=Math.max(0,Math.min(LOOK.length-1,i));
+  const c=LOOK[lkIdx], fig=renderFig($("lookFig"),c.id,c.cap);
+  $("lookCap").textContent=c.cap;
+  c.spots.forEach(sp=>{
+    const b=document.createElement("button");
+    b.type="button"; b.className="hs"; b.innerHTML=`<span class="n">${sp.num}</span>`;
+    b.style.left=sp.x+"%"; b.style.top=sp.y+"%";
+    b.setAttribute("aria-label","照片上的 "+sp.num+" 號");
+    b.addEventListener("click",()=>tapLook(sp,b,fig));
+    fig.appendChild(b);
+  });
+  $("lkStep").textContent=`觀察卡 ${lkIdx+1} / ${LOOK.length}`;
+  $("lkSay").textContent=c.say;
+  $("lkText").innerHTML=c.q;
+  $("lkFeed").className="feedback"; $("lkFeed").textContent="";
+  $("lkExtra").classList.add("hidden");
+  $("lkNext").classList.add("hidden");
+  lkWaiting=lkDoneSet.has(c.id);
+  if(lkWaiting){ revealLook(c,fig); }
+  $("lkFrames").querySelectorAll(".frame-btn").forEach((b,j)=>{
+    b.classList.toggle("on",j===lkIdx);
+    b.classList.toggle("done",lkDoneSet.has(LOOK[j].id));
+    b.querySelector(".tick").textContent = lkDoneSet.has(LOOK[j].id) ? "　✓" : "";
+    b.setAttribute("aria-pressed",String(j===lkIdx));
+  });
+}
+/* 答對（或回到已完成的卡）：標籤＋放大圈＋補充句 */
+function revealLook(c,fig){
+  c.spots.filter(s=>s.ok).forEach(sp=>{
+    const btn=[...fig.querySelectorAll(".hs")].find(b=>b.querySelector(".n").textContent===String(sp.num));
+    if(btn && !btn.classList.contains("found")){
+      btn.classList.add("found");
+      btn.setAttribute("aria-label",`${sp.num} 號：${sp.nm}`);
+      addTag(fig,sp.x,sp.y,`<b>${sp.nm}</b><small>${sp.sub}</small>`,sp.place,{hs:true});
+    }
+  });
+  if(c.zoom && !fig.querySelector(".zoomin")){
+    const z=document.createElement("div");
+    z.className="zoomin "+c.zc;
+    z.style.setProperty("--zw",c.zw+"%");
+    z.style.setProperty("--zar",`${PHOTOS[c.zoom][0]} / ${PHOTOS[c.zoom][1]}`);
+    z.innerHTML=imgTag(c.zoom);
+    fig.appendChild(z);
+    $("lookCap").textContent=c.cap+c.zcap;
+  }
+  $("lkExtra").innerHTML=c.extra;
+  $("lkExtra").classList.remove("hidden");
+  if(lkDoneSet.size<LOOK.length || lkIdx!==LOOK.length-1){
+    $("lkNext").textContent = lkDoneSet.size<LOOK.length ? "下一張 →" : "四張都完成 ✓";
+    $("lkNext").classList.toggle("hidden", lkDoneSet.size>=LOOK.length);
+  }
+}
+function tapLook(sp,btn,fig){
+  const fb=$("lkFeed");
+  if(lkWaiting){
+    fb.className="feedback good";
+    fb.textContent = lkDoneSet.size<LOOK.length ? "👍 這張答對了，按「下一張 →」繼續。" : "👍 這張答對了。";
+    return;
+  }
+  if(sp.ok){
+    lkDoneSet.add(LOOK[lkIdx].id);
+    lkWaiting=true;
+    revealLook(LOOK[lkIdx],fig);
+    fb.className="feedback good";
+    fb.innerHTML=`✅ 對了！${sp.num} 號是「<b>${sp.nm}</b>」——${sp.sub}。`;
+    const tb=$("lkFrames").querySelectorAll(".frame-btn")[lkIdx];
+    tb.classList.add("done"); tb.querySelector(".tick").textContent="　✓";
+    if(lkDoneSet.size===LOOK.length){
+      $("lookPoint").classList.remove("hidden");
+      $("lookPoint").scrollIntoView({behavior:"smooth",block:"nearest"});
+    }
+  }else{
+    btn.classList.remove("shake"); void btn.offsetWidth; btn.classList.add("shake");
+    fb.className="feedback hint";
+    fb.innerHTML="🤔 再想想（不扣分）："+sp.hint;
+  }
+}
+$("lkNext").addEventListener("click",()=>{
+  /* 跳到下一張還沒完成的卡片 */
+  let j=lkIdx;
+  for(let k=1;k<=LOOK.length;k++){
+    const t=(lkIdx+k)%LOOK.length;
+    if(!lkDoneSet.has(LOOK[t].id)){ j=t; break; }
+  }
+  showLook(j);
+});
+buildLook();
+
+/* ==========================================================
+   ② 繁殖小實驗（課本 53 頁）
+   分頁用植物名稱（不用「實驗 A/B/C」，免得和 ③ 的 A/B/C 籃撞名洩題）。
+   照片並排，後面的格子要按「過一段時間 →」才打開；三張都看完才出現題目。
+   每個分頁的進度與題目狀態都保留（題目載入時就建好，切分頁只換顯示）。
+   ========================================================== */
+const EXPS=[
+  {name:"🍠 番薯（地瓜）",
+   how:"把一顆番薯（地瓜）放在裝了一點水的杯子裡，過一段時間，持續觀察並記錄。",
+   frames:[
+     {id:"sweetpotato-1",step:"開始觀察",text:"番薯下半部泡在水裡，身上還沒有新芽。"},
+     {id:"sweetpotato-2",step:"過一段時間",text:"上面冒出紅紅的新芽，泡在水裡的地方長出白白的根。",
+      tags:[["新芽",40,40,"r"],["新的根",42,89,"r"]]},
+     {id:"sweetpotato-3",step:"再過一段時間",text:"新芽長成一叢綠色的葉子，水裡的根也變多了。"}
+   ],
+   note:"課本補充：天氣暖和時，大約 3～5 天就會長出新芽和根。",
+   q:"番薯（地瓜）身上，找得到<b>節</b>或<b>芽眼</b>嗎？",
+   opts:["找不到","找得到，一圈一圈的節","找得到，一個一個的芽眼"], ans:"找不到",
+   hints:{
+     "找得到，一圈一圈的節":"🤔 再看看（不扣分）：番薯身上，有像萬年青那樣一圈一圈的節嗎？",
+     "找得到，一個一個的芽眼":"🤔 再看看（不扣分）：番薯表面的小黑點不是芽眼。芽眼是馬鈴薯身上一個個凹下去、會冒芽的小窩。"},
+   why:"💡 番薯身上<b>沒有節，也沒有芽眼</b>，可是它還是長出了新芽和根。",
+   ask:"👩‍🏫 老師追問：<b>那番薯是根還是莖？</b>先想想，第 ③ 站再來分。"},
+  {name:"🎋 萬年青",
+   how:"把萬年青的莖放在水中，過一段時間，持續觀察並記錄。",
+   frames:[
+     {id:"dracaena-1",step:"開始觀察",text:"一段莖泡在水裡。看看莖上一圈一圈的地方——那是節。",
+      tags:[["節",52,71,"r"]]},
+     {id:"dracaena-2",step:"過一段時間",text:"新芽從莖上的節長出來，越長越高。",
+      tags:[["新芽",40,46,"r"]]},
+     {id:"dracaena-3",step:"再過一段時間",text:"新芽長出了好幾片葉子。"}
+   ],
+   note:"泡在水裡的那一段也會長出根（這幾張照片看不清楚）。課本補充：大約 10 天莖的下面會突起，15 天長出根。",
+   q:"萬年青的新芽，是從莖的哪裡長出來的？",
+   opts:["莖上的節","葉子上","水裡的種子"], ans:"莖上的節",
+   hints:{
+     "葉子上":"🤔 再看看（不扣分）：一開始泡進水裡的是一段莖，新芽是從莖上一圈一圈的地方冒出來的。",
+     "水裡的種子":"🤔 再看看（不扣分）：杯子裡只有石頭和水，沒有放種子。新芽是從哪裡冒出來的？"},
+   why:"💡 萬年青的新芽，長在莖上的<b>節</b>。",
+   ask:"👩‍🏫 老師追問：<b>黃金葛的根也長在哪裡？</b>（① 站看過）"},
+  {name:"🍃 落地生根",
+   how:"把落地生根的葉放在土壤上（或溼棉花上），過一段時間，持續觀察並記錄。",
+   frames:[
+     {id:"kalanchoe-1",step:"開始觀察",text:"一片葉子平放在土上，邊緣有一個一個的小凹口。",
+      tags:[["葉子的邊緣",40,64,"b"]]},
+     {id:"kalanchoe-2",step:"過一段時間",text:"葉子邊緣長出了一株一株小小的新芽。",
+      tags:[["新芽",26,34,"t"]]}
+   ],
+   note:"課本補充：葉子取下晾 2～3 天，平放在土上保持溼潤，大約一星期會從葉子邊緣長出小芽。",
+   q:"落地生根的新芽，長在葉子的哪裡？",
+   opts:["葉子的邊緣","葉子的正中間","葉柄"], ans:"葉子的邊緣",
+   hints:{
+     "葉子的正中間":"🤔 再看看（不扣分）：新芽是排在葉子的中間，還是排在葉子外圍的凹口？",
+     "葉柄":"🤔 再看看（不扣分）：葉柄在葉子的尾巴那一端。新芽排在哪一圈？"},
+   why:"💡 落地生根的新芽長在<b>葉子邊緣</b>；石蓮的新芽長在<b>葉子基部</b>——都是從一片葉子長出來的。",
+   ask:"👩‍🏫 老師追問：<b>它的名字叫「落地生根」，你猜是為什麼？</b>"}
+];
+let expI=0;
+EXPS.forEach(e=>{ e.upto=0; e.cur=0; });   /* upto：已經打開到第幾格；cur：目前看的那一格 */
+
+function buildLab(){
+  $("labTabs").innerHTML=""; $("labQs").innerHTML="";
+  EXPS.forEach((e,i)=>{
+    const b=document.createElement("button");
+    b.type="button"; b.className="tab"; b.textContent=e.name;
+    b.addEventListener("click",()=>{ expI=i; renderLab(); });
+    $("labTabs").appendChild(b);
+    /* 每個實驗一題，先建好藏起來 */
+    const q=document.createElement("div");
+    q.className="labq hidden"; q.id="labq-"+i;
+    q.innerHTML=`<div class="ask">${e.q}</div><div class="qhost" style="margin-top:12px"></div>
+      <div class="feedback" aria-live="polite"></div>
+      <div class="criterion hidden"><div class="k">${e.why}</div><div class="askagain">${e.ask}</div></div>`;
+    $("labQs").appendChild(q);
+    const fb=q.querySelector(".feedback"), crit=q.querySelector(".criterion");
+    choiceQ(q.querySelector(".qhost"),e.opts,e.ans,
+      ()=>{ fb.className="feedback good"; fb.textContent="✅ 答對了！"; crit.classList.remove("hidden"); },
+      o=>{ fb.className="feedback hint"; fb.textContent=e.hints[o]||"🤔 再看看照片（不扣分）。"; },
+      "col");
+  });
+  renderLab();
+}
+function renderLab(){
+  const e=EXPS[expI];
+  $("labTabs").querySelectorAll(".tab").forEach((b,i)=>{
+    b.classList.toggle("on",i===expI); b.setAttribute("aria-pressed",String(i===expI));
+  });
+  $("labHow").innerHTML=`<span class="hl">怎麼做</span>${e.how}`;
+  const box=$("labLapse");
+  /* 重畫前記住焦點在哪（鍵盤操作時不要讓焦點掉回 body） */
+  const focusCell=box.contains(document.activeElement), focusBtn=document.activeElement===$("lapNext");
+  box.innerHTML="";
+  box.style.setProperty("--n",e.frames.length);
+  e.frames.forEach((f,j)=>{
+    const cell=document.createElement("button");
+    cell.type="button"; cell.className="cell"+(j===e.cur?" on":"");
+    const fig=document.createElement("div"); fig.className="fig";
+    fig.style.setProperty("--ar",`${PHOTOS[f.id][0]} / ${PHOTOS[f.id][1]}`);
+    if(j<=e.upto){
+      fig.innerHTML=imgTag(f.id);
+      (f.tags||[]).forEach(t=>addTag(fig,t[1],t[2],`<b>${t[0]}</b>`,t[3]));
+      cell.setAttribute("aria-label",`第 ${j+1} 張：${f.step}`);
+      cell.addEventListener("click",()=>{ e.cur=j; renderLab(); });
+    }else{
+      fig.innerHTML=`<div class="cover" aria-hidden="true">？</div>`;
+      cell.disabled=true;
+      cell.setAttribute("aria-label",`第 ${j+1} 張：還沒打開`);
+    }
+    cell.appendChild(fig);
+    const st=document.createElement("span"); st.className="step";
+    st.textContent=(j+1)+"　"+f.step;
+    cell.appendChild(st);
+    box.appendChild(cell);
+  });
+  const f=e.frames[e.cur];
+  $("labSay").innerHTML=`<span class="no">${f.step}</span>${f.text}`;
+  const all=e.upto>=e.frames.length-1;          /* 每一格都打開過了 */
+  const atEnd=e.cur>=e.frames.length-1;         /* 正在看最後一格 */
+  $("lapNext").disabled=atEnd;
+  $("lapNext").textContent= atEnd ? "都看完了 ✓" : (e.cur<e.upto ? "下一張 →" : "過一段時間 →");
+  $("labNote").textContent= all ? e.note : "";
+  EXPS.forEach((_,i)=>$("labq-"+i).classList.toggle("hidden", !(i===expI && all)));
+  if(focusCell || (focusBtn && atEnd)) box.children[e.cur].focus();
+}
+/* 往後一格：已經打開過的就直接看；看到最新一格時才再打開下一格（「從頭看」之後也能一格一格走） */
+function lapForward(){
+  const e=EXPS[expI];
+  if(e.cur<e.upto){ e.cur++; renderLab(); }
+  else if(e.upto<e.frames.length-1){ e.upto++; e.cur=e.upto; renderLab(); }
+}
+$("lapNext").addEventListener("click",lapForward);
+$("lapReset").addEventListener("click",()=>{ const e=EXPS[expI]; e.cur=0; renderLab(); });
+document.addEventListener("keydown",ev=>{
+  if(!$("screen-lab").classList.contains("active")) return;
+  if(ev.target.closest && ev.target.closest(".opt,.tab")) return;   /* 在選項或分頁上按方向鍵，不要翻照片 */
+  const e=EXPS[expI];
+  if(ev.key==="ArrowRight") lapForward();
+  if(ev.key==="ArrowLeft" && e.cur>0){ e.cur--; renderLab(); }
+});
+buildLab();
+
+/* ==========================================================
+   ③ 分類白板（揭曉前不顯示任何對錯）
+   籃子提示＝判斷器官的線索；籃名（用根／莖／葉繁殖）揭曉後才出現。
+   ========================================================== */
+const SORT_CARDS=[
+  {id:"sweetpotato-2",     name:"番薯（地瓜）泡在水中", cat:"A"},
+  {id:"spider-plant-zoom", name:"吊蘭垂下來的走莖",     cat:"B"},
+  {id:"potato-sprout",     name:"放太久發芽的馬鈴薯",   cat:"B"},
+  {id:"pothos-node-zoom",  name:"黃金葛莖上的節",       cat:"B"},
+  {id:"dracaena-1",        name:"剪下一段萬年青",       cat:"B"},
+  {id:"stonelotus",        name:"石蓮的一片葉子",       cat:"C"},
+  {id:"kalanchoe-1",       name:"落地生根的一片葉子",   cat:"C"}
+];
+const BASKET_NAMES={
+  A:"用<b>根</b>繁殖",
+  B:"用<b>莖</b>繁殖",
+  C:"用<b>葉</b>繁殖"
+};
+const CN_NUM=["零","一","二","三","四","五","六","七","八","九","十"];
+const tray=$("tray"), revealBtn=$("revealBtn"), sortMsg=$("sortMsg");
+const cardCat=new WeakMap();   /* 正確籃子只存在程式裡，不寫進畫面 */
+let picked=null, sortRevealed=false;
+
+function buildSort(){
+  tray.innerHTML="";
+  ["A","B","C"].forEach(k=>{ $("drop-"+k).innerHTML=""; $("name-"+k).textContent="？？？"; });
+  document.querySelectorAll(".basket").forEach(b=>b.classList.remove("lit","hot"));
+  picked=null; sortRevealed=false;
+  revealBtn.disabled=true;
+  $("derive").classList.add("hidden");
+  buildDerive();
+  SORT_CARDS.slice().sort(()=>Math.random()-0.5).forEach(o=>tray.appendChild(makeCard(o)));
+  checkReady();
+}
+function makeCard(o){
+  const el=document.createElement("div");
+  el.className="fcard"; el.tabIndex=0; el.setAttribute("role","button");
+  el.setAttribute("aria-label",o.name);
+  cardCat.set(el,o.cat);
+  el.innerHTML=`${imgTag(o.id,o.name)}<div class="label">${o.name}</div><div class="mark"></div>`;
+  attachDrag(el);
+  el.addEventListener("keydown",e=>{
+    if(e.key==="Enter"||e.key===" "){ e.preventDefault(); if(!sortRevealed){ togglePick(el); checkReady(); } }
+  });
+  return el;
+}
+function togglePick(el){
+  if(picked===el){ el.classList.remove("picked"); picked=null; }
+  else{
+    if(picked) picked.classList.remove("picked");
+    picked=el; el.classList.add("picked");
+  }
+}
+/* 兩種操作都支援：①點卡片再點籃子　②直接拖曳（Pointer Events，滑鼠與觸控通用） */
+function attachDrag(el){
+  let sx=0, sy=0, ox=0, oy=0, moved=false, down=false;
+  el.addEventListener("pointerdown",e=>{
+    if(sortRevealed || (e.pointerType==="mouse" && e.button!==0)) return;
+    down=true; moved=false; sx=e.clientX; sy=e.clientY;
+    const r=el.getBoundingClientRect(); ox=e.clientX-r.left; oy=e.clientY-r.top;
+    try{ el.setPointerCapture(e.pointerId); }catch(_){}
+  });
+  el.addEventListener("pointermove",e=>{
+    if(!down) return;
+    if(sortRevealed){ if(moved) endDrag(); return; }   /* 拖曳到一半有人按了揭曉：讓卡片回到原位 */
+    if(!moved && Math.hypot(e.clientX-sx,e.clientY-sy)>12){
+      moved=true;
+      const r=el.getBoundingClientRect();
+      el.style.width=r.width+"px";
+      el.classList.add("dragging");
+      setPos(e);
+    }else if(moved){ setPos(e); }
+  });
+  el.addEventListener("pointerup",e=>{
+    if(!down) return;
+    down=false;
+    if(sortRevealed){ if(moved) endDrag(); return; }
+    if(moved){
+      const under=document.elementFromPoint(e.clientX,e.clientY);
+      endDrag();
+      const basket=under && under.closest(".basket");
+      const back=under && under.closest(".cardtray");
+      if(basket) place(el,basket.dataset.basket);
+      else if(back){ tray.appendChild(el); if(picked===el){ el.classList.remove("picked"); picked=null; } }
+    }else{
+      /* 純點擊 → 選取／取消選取。卡片已經在籃子裡也一樣可以選起來，再點別的籃子就能換位置。 */
+      togglePick(el);
+    }
+    checkReady();
+  });
+  el.addEventListener("pointercancel",()=>{ down=false; if(moved) endDrag(); });
+  function endDrag(){
+    el.classList.remove("dragging"); el.style.cssText=""; clearHot(); moved=false;
+  }
+  function setPos(e){
+    el.style.left=(e.clientX-ox)+"px"; el.style.top=(e.clientY-oy)+"px";
+    const under=document.elementFromPoint(e.clientX,e.clientY);
+    clearHot();
+    const b=under && under.closest(".basket"); if(b) b.classList.add("hot");
+  }
+}
+function clearHot(){ document.querySelectorAll(".basket").forEach(b=>b.classList.remove("hot")); }
+function place(el,k){
+  $("drop-"+k).appendChild(el);
+  el.classList.remove("picked");
+  if(picked===el) picked=null;
+}
+/* 點籃子 → 把選起來的卡片放進去。
+   修正舊版 bug：點「籃子裡的卡片」時，pointerup 已經把它選起來，
+   接著冒泡上來的 click 不可以再把它放回同一個籃子（否則永遠搬不走）。 */
+document.querySelectorAll(".basket").forEach(b=>{
+  b.addEventListener("click",e=>{
+    if(sortRevealed || !picked) return;
+    if(e.target.closest(".fcard")) return;
+    place(picked,b.dataset.basket);
+    checkReady();
+  });
+  b.addEventListener("keydown",e=>{
+    if((e.key==="Enter"||e.key===" ") && e.target===b){
+      e.preventDefault();
+      if(sortRevealed || !picked) return;
+      place(picked,b.dataset.basket); checkReady();
+    }
+  });
+});
+/* 點卡片區的空白處 → 把選起來的卡片收回來 */
+tray.addEventListener("click",e=>{
+  if(sortRevealed || !picked || e.target.closest(".fcard")) return;
+  tray.appendChild(picked); picked.classList.remove("picked"); picked=null;
+  checkReady();
+});
+function checkReady(){
+  if(sortRevealed) return;
+  const left=tray.querySelectorAll(".fcard").length;
+  revealBtn.disabled=(left>0);
+  if(picked){
+    sortMsg.textContent=`已選「${picked.querySelector(".label").textContent}」→ 點一個籃子放進去`;
+  }else{
+    sortMsg.textContent= left>0 ? `還有 ${left} 張沒分` : `${CN_NUM[SORT_CARDS.length]}張都分好了，討論完可以按揭曉`;
+  }
+}
+/* 揭曉：籃子命名 ＋ 逐張判 ○ ✗ */
+revealBtn.addEventListener("click",()=>{
+  if(picked){ picked.classList.remove("picked"); picked=null; }
+  sortRevealed=true;
+  let right=0;
+  ["A","B","C"].forEach(k=>{
+    $("name-"+k).innerHTML=BASKET_NAMES[k];
+    $("drop-"+k).querySelectorAll(".fcard").forEach(el=>{
+      const ok=cardCat.get(el)===k;
+      el.classList.add("judged",ok?"ok":"no");
+      el.querySelector(".mark").textContent= ok ? "○ 放對了" : `✗ 應該放 ${cardCat.get(el)} 籃`;
+      right+=ok?1:0;
+    });
+  });
+  sortMsg.textContent=`${CN_NUM[SORT_CARDS.length]}張裡放對 ${right} 張`;
+  revealBtn.disabled=true;
+  $("derive").classList.remove("hidden");
+});
+$("resetSort").addEventListener("click",buildSort);
+
+/* ---------- 推導題：番薯為什麼放 A 籃？（錯選拿白板上的卡當反例） ---------- */
+function buildDerive(){
+  $("deriveQ").innerHTML="";
+  $("deriveFeed").className="feedback"; $("deriveFeed").textContent="";
+  $("deriveCrit").classList.add("hidden");
+  $("evFig1").innerHTML=""; $("evFig2").innerHTML="";
+  $("recallBox").classList.add("hidden");
+  recallShown=false;
+  $("recallAns").classList.add("hidden");
+  $("recallBtn").classList.remove("hidden");
+  choiceQ($("deriveQ"),
+    ["因為它長在土裡","因為它身上找不到節和芽眼","因為它泡在水裡"],
+    "因為它身上找不到節和芽眼",
+    ()=>{
+      $("deriveFeed").className="feedback good"; $("deriveFeed").textContent="✅ 答對了！";
+      $("deriveCrit").classList.remove("hidden");
+      const e1=renderFig($("evFig1"),"potato-sprout");
+      addTag(e1,24,41,"<b>芽眼</b>","r");
+      renderFig($("evFig2"),"sweetpotato-2");
+      $("recallBox").classList.remove("hidden");
+      updateRecall();
+      $("deriveCrit").scrollIntoView({behavior:"smooth",block:"nearest"});
+    },
+    o=>{
+      $("deriveFeed").className="feedback hint";
+      $("deriveFeed").textContent = o==="因為它長在土裡"
+        ? "🤔 再想想（不扣分）：馬鈴薯也長在土裡，它是莖喔。"
+        : "🤔 再想想（不扣分）：萬年青也泡在水裡，它是莖喔。";
+    },
+    "col");
+}
+
+/* ---------- 回收開場的猜測 ---------- */
+let recallShown=false;
+function updateRecall(){
+  const g=classGuess;
+  let t;
+  if(!g) t="開場時還沒有投票，直接來看答案。";
+  else if(g.includes(NONE)) t="開場時全班猜的是：「只能靠種子」";
+  else t="開場時全班猜的是：「"+g.join("、")+"」";
+  $("recallGuess").textContent=t;
+  $("recallGuess").classList.toggle("hidden",recallShown);
+  if(!recallShown) return;
+  let head;
+  if(!g) head="答案是：<b>根、莖、葉都有可能</b>！";
+  else if(g.includes(NONE)) head="開場時全班猜「只能靠種子」——可是今天看到的七個例子，新的植株都是從根、莖、葉長出來的，不是從種子！";
+  else{
+    const EXAMPLE={根:"番薯",莖:"吊蘭、馬鈴薯、黃金葛、萬年青",葉:"石蓮、落地生根"};
+    const miss=ORGANS.filter(o=>!g.includes(o));
+    head = miss.length===0
+      ? "🎉 全班猜對了：根、莖、葉都有！"
+      : `全班猜到了：${ORGANS.filter(o=>g.includes(o)).join("、")}；還有沒猜到的：`
+        + miss.map(o=>`<b>${o}</b>（${EXAMPLE[o]}）`).join("、") + "！";
+  }
+  $("recallAns").innerHTML = head
+    + "<br>有些植物除了利用種子繁殖，還可以利用根、莖、葉等<b>營養器官</b>來繁衍下一代。"
+    + "<small>它們還是營養器官（根、莖、葉「主要」的工作是幫植物活下去）；而且只有「有些」植物可以。</small>";
+}
+$("recallBtn").addEventListener("click",()=>{
+  recallShown=true;
+  $("recallAns").classList.remove("hidden");
+  $("recallBtn").classList.add("hidden");
+  updateRecall();
+});
+buildSort();
+
+/* ==========================================================
+   ④ 有什麼好處（複選：有選到好處、沒有選錯就過關；三個好處全部揭曉）
+   ========================================================== */
+renderFig($("whyFig"),"potato-flower");
+const WHY_OPTS=[
+  {t:"不用等開花、授粉、結種子，通常比較快",ok:true},
+  {t:"用塊莖種，馬鈴薯就不會開花了",ok:false,
+   hint:"🤔 看看上面的照片：馬鈴薯本來就會開花。用塊莖種出來的馬鈴薯，還是可能開花。"},
+  {t:"長出來的新植株，通常和原來那一株一樣，品質比較穩定",ok:true},
+  {t:"馬鈴薯的種子不會發芽",ok:false,
+   hint:"🤔 馬鈴薯會結種子，種子也能發芽長大；只是農夫通常不這樣種。"},
+  {t:"塊莖儲藏的養分比一顆小小的種子多很多，新芽通常長得比較快、比較壯",ok:true}
+];
+WHY_OPTS.forEach(o=>{
+  const b=document.createElement("button");
+  b.type="button"; b.className="opt"; b.textContent=o.t;
+  b.setAttribute("aria-pressed","false");
+  b.addEventListener("click",()=>{
+    b.setAttribute("aria-pressed", b.getAttribute("aria-pressed")==="true" ? "false" : "true");
+    $("whyFeed").className="feedback"; $("whyFeed").textContent="";
+  });
+  $("whyOpts").appendChild(b);
+});
+$("whyOk").addEventListener("click",()=>{
+  const btns=[...$("whyOpts").querySelectorAll(".opt")];
+  const sel=btns.map((b,i)=>b.getAttribute("aria-pressed")==="true"?WHY_OPTS[i]:null).filter(Boolean);
+  const fb=$("whyFeed");
+  if(!sel.length){ fb.className="feedback hint"; fb.textContent="先點選（可以選不只一個），再按確認。"; return; }
+  const bad=sel.find(o=>!o.ok);
+  if(bad){ fb.className="feedback hint"; fb.textContent=bad.hint; return; }
+  const n=sel.length;
+  fb.className="feedback good";
+  fb.textContent = n===3 ? "✅ 三個好處都找到了！" : `✅ 對了！你們找到${CN_NUM[n]}個好處，下面把三個都列出來。`;
+  /* 先清掉「選取中」的黃色，否則會蓋過答對的深綠色（兩個規則權重一樣） */
+  btns.forEach((b,i)=>{ b.disabled=true; b.setAttribute("aria-pressed","false"); if(WHY_OPTS[i].ok) b.classList.add("ok"); });
+  $("whyOk").disabled=true;
+  $("whyCrit").classList.remove("hidden");
+  $("whyCrit").scrollIntoView({behavior:"smooth",block:"nearest"});
+});
+
+/* ==========================================================
+   ⑤ 闖關驗收　兩層：先選答案，再選「你怎麼知道？」
+   ★ 答對後一定要顯示「判準」，那是老師追問的素材。
+   ========================================================== */
+const QUIZ=[
+  {photo:"kalanchoe-2",q:"落地生根的新芽，是從哪裡長出來的？",
+   opts:["葉子的邊緣","葉子的正中間","土裡剛好有的種子"],ans:"葉子的邊緣",
+   r:["照片裡一株株小小的新芽，排在葉子邊緣的凹口","新芽都長在葉脈的正中間","葉子會先開花結種子，再長出新芽"],
+   rAns:"照片裡一株株小小的新芽，排在葉子邊緣的凹口",
+   why:"落地生根可以用葉繁殖：葉子邊緣會長出新芽和根。"},
+  {photo:"dracaena-2",q:"萬年青泡在水中，新芽是從哪裡長出來的？",
+   opts:["莖上的節","葉子","種子"],ans:"莖上的節",
+   r:["照片裡的新芽，長在莖上一圈一圈的節那裡","它的葉子掉進水裡，長成了新芽","萬年青的莖泡了水，就變成種子"],
+   rAns:"照片裡的新芽，長在莖上一圈一圈的節那裡",
+   why:"萬年青可以用莖繁殖：莖上的節會長出新芽和根。"},
+  {photo:"sweetpotato-2",q:"番薯（地瓜）泡在水中，長出了新芽和根。它是用哪一種器官繁殖？",
+   opts:["根","莖","葉"],ans:"根",
+   r:["會發芽的一定是莖","番薯身上找不到節和芽眼，胖胖的部分是根（塊根）","它泡在水裡，泡在水裡的都是根"],
+   rAns:"番薯身上找不到節和芽眼，胖胖的部分是根（塊根）",
+   why:"番薯胖胖的部分是根（塊根），身上沒有節和芽眼，也能長出新芽和根。會發芽的不一定是莖，要找節。"},
+  {photo:"potato-flower",q:"馬鈴薯會開花、結種子，農夫卻通常用塊莖來種。為什麼？",
+   opts:["用塊莖種通常比較快，品質也比較穩定","馬鈴薯的種子不會發芽","用塊莖種，就不會開花了"],
+   ans:"用塊莖種通常比較快，品質也比較穩定",
+   r:["塊莖不用等開花、授粉、結種子，長出來的新植株通常和原來那一株一樣","課本說馬鈴薯不會開花","塊莖是繁殖器官，所以長得快"],
+   rAns:"塊莖不用等開花、授粉、結種子，長出來的新植株通常和原來那一株一樣",
+   why:"用營養器官繁殖，不必等開花結種子，通常比較快；新植株通常和原來的一樣，品質比較穩定。"},
+  {photo:null,q:"下面哪一句說得對？",
+   opts:["有些植物除了用種子，也能用根、莖、葉繁殖","農夫只能利用植物的種子進行繁殖","能長出新植株的走莖、塊莖，就變成繁殖器官了"],
+   ans:"有些植物除了用種子，也能用根、莖、葉繁殖",
+   r:["今天看到的植物，都是用種子種出來的","吊蘭的走莖、番薯的根、石蓮的葉都能長出新植株，但它們還是營養器官","只要能繁殖的，都叫做繁殖器官"],
+   rAns:"吊蘭的走莖、番薯的根、石蓮的葉都能長出新植株，但它們還是營養器官",
+   why:"有些植物除了利用種子繁殖，還可以利用根、莖、葉等營養器官來繁衍下一代——它們還是營養器官。"}
+];
+const RANKS=[{s:0,t:"🥔 剛冒芽"},{s:5,t:"🌱 長出新根"},{s:9,t:"🌿 長成新植株！"}];
+let qi=0, score=0, tries=0;
+function fmt(n){ return Number.isInteger(n)?String(n):n.toFixed(1); }
+function rankOf(s){ let r=RANKS[0]; RANKS.forEach(x=>{ if(s>=x.s) r=x; }); return r.t; }
+function renderDots(){
+  $("dots").innerHTML="";
+  QUIZ.forEach((_,i)=>{
+    const d=document.createElement("span");
+    d.className="dot"+(i<qi?" done":i===qi?" now":"");
+    $("dots").appendChild(d);
+  });
+}
+function renderQPhoto(q){
+  const box=$("qphoto"); box.innerHTML="";
+  $("quizwrap").classList.toggle("nophoto",!q.photo);
+  if(q.photo){
+    box.innerHTML=`<figure class="figbox"><div class="fig" id="qFig" style="--mh:50vh"></div>
+      <figcaption class="cap center">${PHOTOS[q.photo][2]}</figcaption></figure>`;
+    renderFig($("qFig"),q.photo);
+  }
+}
+function renderQ(){
+  const q=QUIZ[qi]; tries=0;
+  $("qprog").textContent=`第 ${qi+1} / ${QUIZ.length} 題`;
+  renderDots();
+  renderQPhoto(q);
+  $("q1title").textContent=q.q;
+  ["q1opts","q2opts"].forEach(id=>$(id).innerHTML="");
+  ["q1feed","q2feed"].forEach(id=>{ $(id).className="feedback"; $(id).textContent=""; });
+  $("step2").classList.add("hidden");
+  $("criterion").classList.add("hidden");
+  $("nextBtn").classList.add("hidden");
+  choiceQ($("q1opts"),q.opts,q.ans,
+    ()=>{ addScore(); $("q1feed").className="feedback good"; $("q1feed").textContent="✅ 答對了！再說說你怎麼知道。"; $("step2").classList.remove("hidden");
+          $("step2").scrollIntoView({behavior:"smooth",block:"nearest"}); },
+    ()=>{ tries++; $("q1feed").className="feedback hint"; $("q1feed").textContent="🤔 再想想看，還可以再試。"; },
+    "col");
+  choiceQ($("q2opts"),q.r,q.rAns,
+    ()=>{
+      addScore();
+      $("q2feed").className="feedback"; $("q2feed").textContent="";
+      $("criterionText").textContent="💡 "+q.why;
+      $("criterion").classList.remove("hidden");
+      $("nextBtn").textContent= qi+1<QUIZ.length ? "下一題 →" : "看結果 →";
+      $("nextBtn").classList.remove("hidden");
+      $("nextBtn").scrollIntoView({behavior:"smooth",block:"nearest"});   /* 判準卡在按鈕正上方，一起帶進畫面 */
+    },
+    ()=>{ tries++; $("q2feed").className="feedback hint"; $("q2feed").textContent="🤔 這個理由說不通，再選一次。"; },
+    "col");
+}
+function addScore(){
+  score += tries===0 ? 1 : 0.5;   /* 答錯再試，分數減半 */
+  tries=0;
+  $("score").textContent=fmt(score);
+  $("rank").textContent=rankOf(score);
+}
+$("nextBtn").addEventListener("click",()=>{
+  qi++;
+  if(qi>=QUIZ.length) showResult();
+  else{ renderQ(); $("quizPanel").scrollIntoView({behavior:"smooth",block:"nearest"}); }
+});
+function showResult(){
+  renderDots();
+  $("qprog").textContent="完成！";
+  $("quizPanel").classList.add("hidden");
+  $("quizResult").classList.remove("hidden");
+  $("finalScore").textContent=`總分 ${fmt(score)} / 10`;
+  $("finalRank").textContent=rankOf(score);
+  $("quizResult").scrollIntoView({behavior:"smooth",block:"start"});
+}
+$("againBtn").addEventListener("click",()=>{
+  qi=0; score=0; $("score").textContent="0"; $("rank").textContent=RANKS[0].t;
+  $("quizResult").classList.add("hidden");
+  $("quizPanel").classList.remove("hidden");
+  renderQ();
+  $("quizPanel").scrollIntoView({block:"start"});
+});
+renderQ();
+
+/* ---------- 開頁：網址有 #站名 就直接跳過去 ---------- */
+(function(){
+  const h=(location.hash||"").replace("#","");
+  if(STATIONS.indexOf(h)>0) go(h,false);
+})();
+</script>
+</body>
+</html>
