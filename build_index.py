@@ -121,6 +121,12 @@ TOPIC_DESCS = {
     ("水中射箭",           "互動教材"): "調角度射進水裡打靶，箭會轉彎。",
 }
 
+# 線上題庫（首頁最上方獨立一區）：(連結, emoji, 標題, 說明, 標籤)；之後有第二次評量就多加一行
+QUIZ_BANKS = [
+    ("題庫/index.html", "✍️", "第一次評量線上題庫",
+     "第一、二單元分主題練習、模擬考、錯題本；進度可以下載到別台電腦繼續。", "題庫"),
+]
+
 # 延伸工具（materials/*.html）各自的卡片資料：檔名 → (emoji, 標題, 說明)
 MATERIALS = {
     "sun-path-explorer.html": ("🌐", "3D 太陽路徑探索", "觀察太陽移動與影子變化。"),
@@ -130,6 +136,13 @@ MATERIALS = {
 scanned = [(u, scan_unit(u)) for u in UNITS]
 
 zones_html = []
+if QUIZ_BANKS:
+    zones_html.append(
+        '<section class="zone zone--bank">\n'
+        '  <div class="zone-head"><span class="zone-emoji">✍️</span><h2>線上題庫</h2></div>\n'
+        '  <p class="zone-desc">自己練習：分主題練習、模擬考、錯題本。練習紀錄存在自己的瀏覽器裡。</p>\n'
+        '  <div class="card-grid">\n%s\n  </div>\n</section>'
+        % "\n".join(card(U.quote(h), e, t, d, g) for h, e, t, d, g in QUIZ_BANKS))
 for t in TYPE_ORDER:
     meta = TYPES[t]
     cards = []

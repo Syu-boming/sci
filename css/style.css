@@ -108,6 +108,7 @@ a { color: var(--c-brand-strong); }
 .zone--materials  { border-top-color: #7b61ff; }
 .zone--summaries  { border-top-color: #f5a623; }
 .zone--worksheets { border-top-color: #3fae5a; }
+.zone--bank       { border-top-color: #e4574c; background: #fffaf3; }
 /* 卡片上的單元標籤（分區內用來標明屬於哪個單元） */
 .tag.unit { background: #eef0f4; color: var(--c-ink-soft); }
 /* 分區內的單元/群組小標題 */

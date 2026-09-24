@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>自然線上題庫｜第一次評量</title>
+<link rel="icon" href="../image/icon.svg" type="image/svg+xml">
+<style>
+/* ==========================================================
+   自然線上題庫 — 樣式
+   學生在家用手機、平板練習為主，也要能投影在教室 75 吋螢幕。
+   顏色沿用互動教材的調色盤；白字只放在深綠 #2E7D4F 上。
+   答對／答錯用顏色＋文字符號（✅／❌）一起表示，不只靠顏色。
+   ========================================================== */
+:root{
+  --bg:#FDF6EC; --ink:#1E1E1E; --card:#FFFFFF; --muted:#5C6970;
+  --green:#58B159; --green-dark:#2E7D4F; --sun:#FFC93C; --sun-soft:#FFF6D8;
+  --wrong:#C8453B; --wrong-soft:#FBE3E1; --ok-soft:#EAF7EE; --water:#2E86C1; --line:#E3DCCD;
+  --shadow:0 6px 18px rgba(46,86,110,.14);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font-family:-apple-system,"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif;
+  font-size:clamp(16px,1.6vw,19px);line-height:1.6;min-height:100vh}
+button{font:inherit;color:inherit}
+#app{max-width:860px;margin:0 auto;padding:10px 14px 60px}
+.hidden{display:none !important}
+
+/* 頁首 */
+.top{display:flex;align-items:center;gap:8px 14px;flex-wrap:wrap;margin:4px 0 12px}
+.back{display:inline-flex;align-items:center;min-height:44px;padding:4px 14px;border:3px solid var(--ink);border-radius:999px;
+  background:var(--card);color:var(--ink);font-weight:800;text-decoration:none;box-shadow:0 3px 0 var(--ink);font-size:15px}
+.brand h1{margin:0;font-size:clamp(22px,3vw,30px);line-height:1.2;font-weight:900}
+.brand .sub{color:var(--muted);font-weight:700;font-size:14px}
+.homebtn{margin-left:auto}
+
+/* 卡片、按鈕 */
+.panel{background:var(--card);border:3px solid var(--ink);border-radius:18px;padding:14px 16px;box-shadow:var(--shadow);margin-bottom:14px}
+.ptitle{font-weight:900;font-size:clamp(18px,2.2vw,23px);margin:0 0 10px}
+.btn{border:3px solid var(--ink);border-radius:999px;background:var(--sun);padding:10px 22px;font-weight:900;cursor:pointer;
+  box-shadow:0 4px 0 var(--ink);min-height:52px}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--ink)}
+.btn.green{background:var(--green-dark);color:#fff}
+.btn.plain{background:var(--card)}
+.btn.small{min-height:44px;padding:6px 16px;font-size:.92em}
+.btn[disabled]{background:#E6E1D6;color:#5B666C;box-shadow:0 4px 0 #9A9486;cursor:not-allowed}
+.btnrow{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:12px}
+.btnrow.end{justify-content:flex-end}
+.note{color:var(--muted);font-size:.9em;font-weight:700}
+.warn{background:var(--wrong-soft);border:3px solid var(--wrong);border-radius:14px;padding:10px 14px;font-weight:800;margin-bottom:12px}
+
+/* 首頁 */
+.examsel{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.examsel .btn{min-height:44px;padding:6px 16px}
+.examsel .btn[aria-pressed="true"]{background:var(--green-dark);color:#fff}
+.stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+@media(min-width:640px){.stats{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.stat{border:3px solid var(--ink);border-radius:14px;background:#FFFDF8;padding:8px 10px;text-align:center}
+.stat b{display:block;font-size:clamp(22px,3vw,30px);line-height:1.2}
+.stat span{font-size:.85em;font-weight:800;color:var(--muted)}
+.modes{display:grid;grid-template-columns:minmax(0,1fr);gap:12px}
+@media(min-width:640px){.modes{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.mode{display:flex;gap:12px;align-items:center;text-align:left;border:3px solid var(--ink);border-radius:18px;background:var(--card);
+  padding:14px 16px;cursor:pointer;box-shadow:0 4px 0 var(--ink);min-height:96px}
+.mode:active{transform:translateY(3px);box-shadow:0 1px 0 var(--ink)}
+.mode .ic{font-size:34px;line-height:1}
+.mode b{display:block;font-size:1.15em}
+.mode small{display:block;color:var(--muted);font-weight:700;line-height:1.4}
+.mode.primary{background:var(--sun-soft)}
+.mode[disabled]{opacity:.6;cursor:default;box-shadow:0 4px 0 #9A9486}
+
+/* 選擇主題 */
+.unitbox{border:2px dashed var(--line);border-radius:14px;padding:10px;margin-bottom:10px}
+.unitbox h3{margin:0 0 8px;font-size:1.02em;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{border:3px solid var(--ink);border-radius:14px;background:var(--card);padding:6px 12px;cursor:pointer;min-height:48px;text-align:left;
+  font-weight:800;line-height:1.3}
+.chip small{display:block;font-weight:700;color:var(--muted);font-size:.78em}
+.chip[aria-pressed="true"]{background:#EAF7EE;border-color:var(--green-dark);box-shadow:0 0 0 3px var(--green-dark) inset}
+.chip[aria-pressed="true"]::before{content:"✓ ";color:var(--green-dark)}
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.seg .chip{min-height:44px}
+.field{margin:12px 0}
+.field > .lab{font-weight:900;margin-bottom:6px}
+
+/* 題目 */
+.qhead{display:flex;align-items:center;gap:6px 10px;flex-wrap:wrap;margin-bottom:8px;font-weight:800}
+.qnum{font-size:1.05em;font-weight:900}
+.tag{display:inline-block;border:2px solid var(--ink);border-radius:999px;padding:0 10px;font-size:.82em;font-weight:900;background:#fff;line-height:1.7}
+.tag.d1{background:#E8F4FB}.tag.d2{background:#FFF1CC}.tag.d3{background:#FBE0D8}
+.tag.topic{border-color:var(--line);color:var(--muted)}
+.qtext{font-size:clamp(18px,2.3vw,23px);font-weight:900;line-height:1.55;margin:4px 0 10px}
+.qmedia{margin:0 0 12px}
+.qmedia img{display:block;max-width:100%;max-height:44vh;width:auto;height:auto;margin:0 auto;border-radius:12px;border:3px solid var(--ink);background:#F2EEE4}
+.qmedia .qfig{display:block;width:100%;max-width:520px;max-height:46vh;margin:0 auto;border:2px solid var(--line);border-radius:12px;background:#fff}
+.qmedia figcaption{text-align:center;font-weight:700;color:var(--muted);font-size:.9em;margin-top:4px}
+.opts{display:grid;gap:10px}
+.opts.tf{grid-template-columns:repeat(2,minmax(0,1fr))}
+.opt{display:flex;align-items:center;gap:10px;width:100%;text-align:left;border:3px solid var(--ink);border-radius:14px;background:var(--card);
+  padding:10px 14px;cursor:pointer;min-height:56px;font-weight:800;box-shadow:0 3px 0 var(--ink);line-height:1.45}
+.opt .k{flex:none;width:30px;height:30px;border-radius:50%;border:2px solid var(--ink);display:flex;align-items:center;justify-content:center;font-weight:900;background:#fff;font-size:.9em}
+.opt.tfopt{justify-content:center;font-size:1.25em}
+.opt:active{transform:translateY(2px);box-shadow:0 1px 0 var(--ink)}
+.opt[aria-pressed="true"]{background:var(--sun-soft);box-shadow:0 0 0 4px var(--sun),0 3px 0 var(--ink)}
+.opt.right{background:var(--ok-soft);border-color:var(--green-dark);box-shadow:0 0 0 3px var(--green-dark)}
+.opt.wrongpick{background:var(--wrong-soft);border-color:var(--wrong)}
+.opt.right::after{content:"✅ 正確答案";margin-left:auto;flex:none;font-size:.8em;color:var(--green-dark)}
+.opt.wrongpick::after{content:"❌ 你的答案";margin-left:auto;flex:none;font-size:.8em;color:var(--wrong)}
+.opt.right.rightpick::after{content:"✅ 你答對了"}
+.opt[disabled]{cursor:default}
+.feedback{margin-top:12px;border-radius:14px;padding:10px 14px;font-weight:800}
+.feedback.good{background:var(--ok-soft);border:3px solid var(--green-dark);color:#23603C}
+.feedback.bad{background:var(--wrong-soft);border:3px solid var(--wrong);color:#8E2E26}
+.exp{margin-top:10px;background:#FFFDF8;border:3px dashed var(--sun);border-radius:14px;padding:10px 14px}
+.exp b{color:#7A5B00}
+.exp .src{display:block;margin-top:4px;font-size:.85em;color:var(--muted);font-weight:700}
+.streak{margin-top:8px;font-weight:800;color:var(--water)}
+.bar{height:12px;border-radius:999px;background:#EEE7D8;overflow:hidden;border:2px solid var(--ink)}
+.bar > i{display:block;height:100%;background:var(--green)}
+
+/* 模擬考 */
+.navgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(40px,1fr));gap:6px;margin:6px 0 10px}
+.navgrid button{min-height:40px;border:2px solid var(--ink);border-radius:10px;background:#fff;font-weight:900;cursor:pointer}
+.navgrid button.done{background:#DDF0FA}
+.navgrid button.cur{box-shadow:0 0 0 3px var(--sun);background:var(--sun-soft)}
+.navgrid button.ok{background:var(--ok-soft);border-color:var(--green-dark)}
+.navgrid button.no{background:var(--wrong-soft);border-color:var(--wrong)}
+.score{font-size:clamp(40px,8vw,64px);font-weight:900;color:var(--green-dark);line-height:1.1;text-align:center}
+.review{border-top:2px dashed var(--line);padding-top:12px;margin-top:12px}
+
+/* 進度表 */
+table.prog{width:100%;border-collapse:collapse;font-size:.93em}
+table.prog th,table.prog td{border-bottom:1px solid var(--line);padding:6px 4px;text-align:left;vertical-align:middle}
+table.prog th{font-size:.85em;color:var(--muted)}
+table.prog td.num{white-space:nowrap;text-align:right}
+table.prog td.barcell{width:30%}
+.hist{display:grid;gap:6px}
+.hist .h{display:flex;justify-content:space-between;gap:10px;border:2px solid var(--line);border-radius:10px;padding:6px 10px;background:#FFFDF8;cursor:pointer;text-align:left;width:100%}
+
+/* 對話框（不用瀏覽器的 alert／confirm） */
+.modal{position:fixed;inset:0;background:rgba(30,30,30,.45);display:flex;align-items:center;justify-content:center;padding:16px;z-index:50}
+.mbox{background:var(--card);border:3px solid var(--ink);border-radius:18px;padding:16px;max-width:520px;width:100%;box-shadow:var(--shadow)}
+.mbox h2{margin:0 0 8px;font-size:1.2em}
+.credits{font-size:.85em;color:var(--muted);line-height:1.6;margin-top:24px;border-top:2px dashed var(--line);padding-top:10px}
+.credits a{color:var(--muted)}
+
+@media (max-width:480px){
+  #app{padding:8px 10px 50px}
+  .panel{padding:12px}
+  .opt{padding:8px 10px}
+  .mode{min-height:84px}
+}
+@media (min-width:1800px){
+  body{font-size:24px}
+  #app{max-width:1300px}
+  .btn{min-height:68px}
+  .opt{min-height:76px}
+  .chip{min-height:60px}
+  .back{min-height:60px;font-size:20px}
+  .qmedia img,.qmedia .qfig{max-height:50vh}
+}
+@media (prefers-reduced-motion:reduce){ .btn:active,.opt:active,.mode:active{transform:none} }
+@media print{ .top,.btnrow,.navgrid{display:none} body{background:#fff} .panel{box-shadow:none} }
+</style>
+</head>
+<body>
+<div id="app">
+  <header class="top">
+    <a class="back" href="../index.html">← 回網站首頁</a>
+    <div class="brand"><h1>自然線上題庫</h1><div class="sub" id="brandSub"></div></div>
+    <button class="btn small plain homebtn hidden" id="homeBtn" type="button">🏠 題庫首頁</button>
+  </header>
+  <div id="storageWarn" class="warn hidden">⚠️ 這個瀏覽器沒辦法儲存練習進度（可能是無痕模式）。可以照常練習，但關掉網頁後紀錄會消失；要保留的話，請用「下載進度」存成檔案。</div>
+  <main id="view" aria-live="polite"></main>
+  <footer class="credits" id="credits"></footer>
+</div>
+
+<div id="modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="mTitle">
+  <div class="mbox"><h2 id="mTitle"></h2><div id="mBody"></div><div class="btnrow end" id="mBtns"></div></div>
+</div>
+<input type="file" id="importFile" accept=".json,application/json" hidden>
+
+<script src="bank-config.js"></script>
+<script src="figures.js"></script>
+<!-- 題目：加新單元時在這裡多加一行 -->
+<script src="questions/photos.js"></script>
+<script src="questions/u1.js"></script>
+<script src="questions/u2.js"></script>
+<script>
+/* ==========================================================
+   自然線上題庫 — 程式
+   模式：主題練習（即時看解析）／模擬考（交卷才看答案）／錯題練習（連續答對 2 次才移出錯題本）
+   紀錄存在 localStorage（BANK.storageKey），可以下載成 JSON、在別台電腦匯入。
+   ========================================================== */
+const $=id=>document.getElementById(id);
+const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const DIFF_NAME={1:"★ 基礎",2:"★★ 進階",3:"★★★ 挑戰"};
+const LABELS="甲乙丙丁戊己";
+const CLEAR_STREAK=2;          /* 錯題連續答對幾次就移出錯題本 */
+const APP_ID="pig-sci-bank";
+
+/* ---------- 題目索引 ---------- */
+const TOPIC={}, UNIT={};
+BANK.units.forEach(u=>{ UNIT[u.id]=u; u.topics.forEach(t=>{ TOPIC[t.id]=Object.assign({unit:u.id},t); }); });
+const QS=[], QMAP={};
+(function(){
+  const seen=new Set();
+  (window.QBANK||[]).forEach(q=>{
+    if(!q||!q.id||seen.has(q.id)||!TOPIC[q.topic]){ if(q&&q.id&&seen.has(q.id)) console.warn("題目 id 重複，已略過：",q.id); return; }
+    seen.add(q.id); q.unit=TOPIC[q.topic].unit; QS.push(q); QMAP[q.id]=q;
+  });
+})();
+const isImg=q=>!!(q.img||q.fig);
+
+/* ---------- 紀錄（localStorage） ---------- */
+let STORAGE_OK=true;
+function blankDB(){ return {app:APP_ID,v:1,q:{},exams:[],cur:null,exam:BANK.exams[0].id}; }
+function normalize(d){
+  const b=blankDB();
+  if(!d||typeof d!=="object") return b;
+  b.q=(d.q&&typeof d.q==="object")?d.q:{};
+  b.exams=Array.isArray(d.exams)?d.exams:[];
+  b.cur=d.cur&&Array.isArray(d.cur.ids)?d.cur:null;
+  b.exam=BANK.exams.some(e=>e.id===d.exam)?d.exam:b.exam;
+  return b;
+}
+function loadDB(){
+  try{
+    const t="__t"; localStorage.setItem(t,"1"); localStorage.removeItem(t);
+    const s=localStorage.getItem(BANK.storageKey);
+    return s?normalize(JSON.parse(s)):blankDB();
+  }catch(e){ STORAGE_OK=false; return blankDB(); }
+}
+let DB=loadDB();
+function saveDB(){
+  if(!STORAGE_OK) return;
+  try{ localStorage.setItem(BANK.storageKey,JSON.stringify(DB)); }
+  catch(e){ STORAGE_OK=false; $("storageWarn").classList.remove("hidden"); }
+}
+function rec(id){ return DB.q[id]||null; }
+/* 作答一次：回傳是否剛好移出錯題本 */
+function record(id,ok){
+  const r=DB.q[id]||(DB.q[id]={a:0,c:0,s:0,w:0,l:0,t:0});
+  let cleared=false;
+  r.a++; r.t=Date.now();
+  if(ok){ r.c++; r.s++; r.l=1; if(r.w&&r.s>=CLEAR_STREAK){ r.w=0; cleared=true; } }
+  else{ r.s=0; r.l=0; r.w=1; }
+  saveDB();
+  return {cleared,rec:r};
+}
+
+/* ---------- 目前選的評量範圍 ---------- */
+const curExam=()=>BANK.exams.find(e=>e.id===DB.exam)||BANK.exams[0];
+const examQs=()=>{ const us=curExam().units; return QS.filter(q=>us.includes(q.unit)); };
+const wrongList=()=>examQs().filter(q=>{ const r=rec(q.id); return r&&r.w; });
+
+/* ---------- 小工具 ---------- */
+function shuffle(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+function fmtDate(t){ const d=new Date(t); const p=n=>String(n).padStart(2,"0"); return `${d.getFullYear()}/${p(d.getMonth()+1)}/${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`; }
+function fmtDur(ms){ const m=Math.floor(ms/60000), s=Math.round(ms/1000)%60; return m?`${m} 分 ${s} 秒`:`${s} 秒`; }
+function show(html){ $("view").innerHTML=html; window.scrollTo({top:0}); }
+function setHome(on){ $("homeBtn").classList.toggle("hidden",!on); }
+$("homeBtn").addEventListener("click",()=>{ quiz=null; home(); });
+
+/* 對話框：btns=[{t:"文字",cls:"green",fn:()=>{}}]；fn 回傳 false 就不關 */
+function modal(title,body,btns){
+  $("mTitle").textContent=title; $("mBody").innerHTML=body; $("mBtns").innerHTML="";
+  btns.forEach(b=>{ const x=document.createElement("button"); x.type="button"; x.className="btn small "+(b.cls||"plain"); x.textContent=b.t;
+    x.addEventListener("click",()=>{ if(!b.fn||b.fn()!==false) closeModal(); }); $("mBtns").appendChild(x); });
+  $("modal").classList.remove("hidden");
+  const f=$("mBtns").querySelector("button"); if(f) f.focus();
+}
+function closeModal(){ $("modal").classList.add("hidden"); }
+document.addEventListener("keydown",e=>{ if(e.key==="Escape"&&!$("modal").classList.contains("hidden")) closeModal(); });
+
+/* ---------- 題目畫面 ---------- */
+function mediaHTML(q){
+  if(q.fig){ return `<figure class="qmedia">${QFIG.render(q.fig)}${q.cap?`<figcaption>${esc(q.cap)}</figcaption>`:""}</figure>`; }
+  if(q.img){ const p=QPHOTOS[q.img]; if(!p) return "";
+    const src=BANK.photoRoot+p.path.split("/").map(encodeURIComponent).join("/");
+    return `<figure class="qmedia"><img src="${src}" alt="${esc(q.cap||"題目照片")}" loading="lazy" decoding="async">${q.cap?`<figcaption>${esc(q.cap)}</figcaption>`:""}</figure>`; }
+  return "";
+}
+/* 選項顯示順序：單選題打亂（避免答案都在同一個位置）；甲乙丙代號題照原順序 */
+function optOrder(q){
+  if(q.type==="tf") return [1,0];
+  const idx=q.opts.map((_,i)=>i);
+  const labelOnly=q.opts.every(o=>/^[甲乙丙丁戊己]$/.test(o.trim()));
+  if(labelOnly) return idx.sort((a,b)=>LABELS.indexOf(q.opts[a])-LABELS.indexOf(q.opts[b]));
+  return q.noShuffle?idx:shuffle(idx);
+}
+function optText(q,v){ return q.type==="tf" ? (v===1?"○ 對":"╳ 錯") : q.opts[v]; }
+function questionHTML(q,num,total,order){
+  const t=TOPIC[q.topic];
+  const opts=order.map((v,k)=>q.type==="tf"
+      ? `<button type="button" class="opt tfopt" data-v="${v}">${v===1?"○ 對":"╳ 錯"}</button>`
+      : `<button type="button" class="opt" data-v="${v}"><span class="k">${"ABCDEF"[k]}</span><span>${esc(q.opts[v])}</span></button>`).join("");
+  return `<div class="qhead"><span class="qnum">第 ${num} / ${total} 題</span>
+      <span class="tag d${q.diff}">${DIFF_NAME[q.diff]}</span>
+      <span class="tag">${q.type==="tf"?"是非題":"選擇題"}</span>${isImg(q)?`<span class="tag">🖼️ 看圖題</span>`:""}
+      <span class="tag topic">${esc(t.name)}</span></div>
+    ${mediaHTML(q)}
+    <div class="qtext" id="qtext" tabindex="-1">${q.type==="tf"?"是非題：":""}${esc(q.q)}</div>
+    <div class="opts${q.type==="tf"?" tf":""}" id="opts">${opts}</div>`;
+}
+function expHTML(q){ return `<div class="exp"><b>💡 解析：</b>${esc(q.exp)}${q.src?`<span class="src">📖 ${esc(q.src)}</span>`:""}</div>`; }
+/* 作答後標出正確答案與學生的選擇 */
+function markOpts(host,q,picked){
+  host.querySelectorAll(".opt").forEach(b=>{ const v=+b.dataset.v; b.disabled=true;
+    if(v===q.ans) b.classList.add("right"); if(v===picked) b.classList.add(v===q.ans?"rightpick":"wrongpick"); });
+}
+
+/* ==========================================================
+   首頁
+   ========================================================== */
+function home(){
+  setHome(false);
+  const ex=curExam(), qs=examQs(), done=qs.filter(q=>rec(q.id)&&rec(q.id).a>0);
+  const lastOk=qs.filter(q=>rec(q.id)&&rec(q.id).l===1).length;
+  const exams=DB.exams.filter(h=>h.exam===ex.id);
+  const best=exams.length?Math.max(...exams.map(h=>h.score)):null;
+  const wr=wrongList().length;
+  $("brandSub").textContent=`${ex.name}｜${ex.units.map(u=>UNIT[u].name).join("、")}`;
+  const examBtns=BANK.exams.length>1?`<div class="panel"><div class="ptitle">📌 選擇評量範圍</div><div class="examsel">${
+      BANK.exams.map(e=>`<button type="button" class="btn small plain" data-exam="${e.id}" aria-pressed="${e.id===ex.id}">${esc(e.name)}</button>`).join("")}</div></div>`:"";
+  const cur=DB.cur&&DB.cur.exam===ex.id?DB.cur:null;
+  show(`${examBtns}
+  <div class="panel">
+    <div class="stats">
+      <div class="stat"><b>${done.length}<small style="font-size:.5em"> / ${qs.length}</small></b><span>做過的題目</span></div>
+      <div class="stat"><b>${done.length?Math.round(lastOk/done.length*100)+"%":"—"}</b><span>最近答對率</span></div>
+      <div class="stat"><b>${wr}</b><span>錯題本</span></div>
+      <div class="stat"><b>${best==null?"—":best}</b><span>模擬考最高分</span></div>
+    </div>
+  </div>
+  <div class="modes">
+    <button type="button" class="mode primary" id="mExam"><span class="ic">📝</span><span><b>${cur?"繼續模擬考":"模擬考"}</b><small>${cur?`還有 ${cur.ids.length-Object.keys(cur.ans).length} 題沒作答`:`隨機 ${ex.size} 題、不限時，交卷才看答案。可以一直考。`}</small></span></button>
+    <button type="button" class="mode" id="mPractice"><span class="ic">📚</span><span><b>主題練習</b><small>選主題和難度，每題作答後馬上看解析。</small></span></button>
+    <button type="button" class="mode" id="mWrong"${wr?"":" disabled"}><span class="ic">🔁</span><span><b>錯題練習（${wr} 題）</b><small>${wr?`答錯過的題目；連續答對 ${CLEAR_STREAK} 次就會移出錯題本。`:"目前沒有錯題，太棒了！"}</small></span></button>
+    <button type="button" class="mode" id="mProg"><span class="ic">📊</span><span><b>我的進度</b><small>各主題答對率、模擬考紀錄、下載／匯入進度。</small></span></button>
+  </div>`);
+  document.querySelectorAll("[data-exam]").forEach(b=>b.addEventListener("click",()=>{ DB.exam=b.dataset.exam; saveDB(); home(); }));
+  $("mExam").addEventListener("click",()=>cur?examRun():examStart());
+  $("mPractice").addEventListener("click",practiceSetup);
+  $("mWrong").addEventListener("click",()=>{ if(wr) wrongStart(); });
+  $("mProg").addEventListener("click",progress);
+}
+
+/* ==========================================================
+   主題練習：設定
+   ========================================================== */
+let PSET={topics:null,diff:0,kind:"all",count:10};
+function topicStat(tid){
+  const qs=QS.filter(q=>q.topic===tid), d=qs.filter(q=>rec(q.id)&&rec(q.id).a>0), ok=qs.filter(q=>rec(q.id)&&rec(q.id).l===1);
+  return {n:qs.length,done:d.length,ok:ok.length};
+}
+function practiceSetup(){
+  setHome(true);
+  const ex=curExam();
+  if(!PSET.topics) PSET.topics=[];
+  const unitHTML=ex.units.map(uid=>{ const u=UNIT[uid];
+    return `<div class="unitbox"><h3>${esc(u.name)} <button type="button" class="btn small plain" data-all="${uid}">全選／全不選</button></h3><div class="chips">${
+      u.topics.map(t=>{ const s=topicStat(t.id); if(!s.n) return "";
+        return `<button type="button" class="chip" data-topic="${t.id}" aria-pressed="${PSET.topics.includes(t.id)}">${esc(t.name)}<small>${esc(t.pages)}｜做過 ${s.done}/${s.n}</small></button>`; }).join("")}</div></div>`; }).join("");
+  show(`<div class="panel"><div class="ptitle">📚 主題練習</div>
+    <div class="field"><div class="lab">① 選主題（可以選好幾個）</div>${unitHTML}</div>
+    <div class="field"><div class="lab">② 難度</div><div class="seg" id="segDiff">${[[0,"全部"],[1,DIFF_NAME[1]],[2,DIFF_NAME[2]],[3,DIFF_NAME[3]]].map(([v,t])=>`<button type="button" class="chip" data-v="${v}" aria-pressed="${PSET.diff===v}">${t}</button>`).join("")}</div></div>
+    <div class="field"><div class="lab">③ 題型</div><div class="seg" id="segKind">${[["all","全部"],["img","只做看圖題"],["tf","只做是非題"],["single","只做選擇題"]].map(([v,t])=>`<button type="button" class="chip" data-v="${v}" aria-pressed="${PSET.kind===v}">${t}</button>`).join("")}</div></div>
+    <div class="field"><div class="lab">④ 題數</div><div class="seg" id="segCount">${[[10,"10 題"],[20,"20 題"],[0,"全部"]].map(([v,t])=>`<button type="button" class="chip" data-v="${v}" aria-pressed="${PSET.count===v}">${t}</button>`).join("")}</div></div>
+    <p class="note" id="poolNote"></p>
+    <div class="btnrow"><button type="button" class="btn green" id="pGo">開始練習 →</button></div>
+    <p class="note">題目會先出「還沒做過」和「上次答錯」的，再出其他的。</p></div>`);
+  const upd=()=>{
+    const pool=practicePool(); $("poolNote").textContent= PSET.topics.length ? `符合條件的題目：${pool.length} 題` : "先選至少一個主題。";
+    $("pGo").disabled=!pool.length;
+  };
+  document.querySelectorAll("[data-topic]").forEach(b=>b.addEventListener("click",()=>{
+    const id=b.dataset.topic, i=PSET.topics.indexOf(id); if(i<0) PSET.topics.push(id); else PSET.topics.splice(i,1);
+    b.setAttribute("aria-pressed",String(i<0)); upd(); }));
+  document.querySelectorAll("[data-all]").forEach(b=>b.addEventListener("click",()=>{
+    const ids=UNIT[b.dataset.all].topics.map(t=>t.id).filter(id=>topicStat(id).n);
+    const allOn=ids.every(id=>PSET.topics.includes(id));
+    PSET.topics=PSET.topics.filter(id=>!ids.includes(id)); if(!allOn) PSET.topics.push(...ids);
+    practiceSetup(); }));
+  const seg=(host,key,cast)=>host.querySelectorAll(".chip").forEach(b=>b.addEventListener("click",()=>{
+    PSET[key]=cast(b.dataset.v); host.querySelectorAll(".chip").forEach(x=>x.setAttribute("aria-pressed",String(x===b))); upd(); }));
+  seg($("segDiff"),"diff",Number); seg($("segKind"),"kind",String); seg($("segCount"),"count",Number);
+  $("pGo").addEventListener("click",()=>{
+    const pool=practicePool(); if(!pool.length) return;
+    /* 還沒做過、上次答錯的先出，再來是其他的；同一組裡面隨機 */
+    const g0=[],g1=[],g2=[];
+    pool.forEach(q=>{ const r=rec(q.id); (!r||!r.a?g0:(r.l===0?g1:g2)).push(q); });
+    let list=[...shuffle(g0),...shuffle(g1),...shuffle(g2)];
+    if(PSET.count) list=list.slice(0,PSET.count);
+    startQuiz(shuffle(list),"practice");
+  });
+  upd();
+}
+function practicePool(){
+  return QS.filter(q=>PSET.topics.includes(q.topic) && (!PSET.diff||q.diff===PSET.diff) &&
+    (PSET.kind==="all" || (PSET.kind==="img"?isImg(q):q.type===PSET.kind)));
+}
+
+/* ==========================================================
+   一題一題作答（主題練習、錯題練習共用）
+   ========================================================== */
+let quiz=null;
+function startQuiz(list,mode){ quiz={list,mode,i:0,res:[]}; quizStep(); }
+function quizStep(){
+  setHome(true);
+  const q=quiz.list[quiz.i], order=optOrder(q);
+  const r=rec(q.id);
+  const wrongNote=quiz.mode==="wrong"&&r&&r.w?`<p class="note">🔁 錯題本：${r.s?`已經連續答對 ${r.s} 次，再答對 ${CLEAR_STREAK-r.s} 次就移出。`:`連續答對 ${CLEAR_STREAK} 次就會移出錯題本。`}</p>`:"";
+  show(`<div class="panel">${questionHTML(q,quiz.i+1,quiz.list.length,order)}${wrongNote}<div id="after"></div></div>`);
+  $("opts").querySelectorAll(".opt").forEach(b=>b.addEventListener("click",()=>answer(q,+b.dataset.v)));
+}
+function answer(q,v){
+  if(quiz.answered===quiz.i) return;
+  quiz.answered=quiz.i;
+  const ok=v===q.ans, res=record(q.id,ok);
+  quiz.res.push({id:q.id,ok,v});
+  markOpts($("opts"),q,v);
+  const last=quiz.i+1>=quiz.list.length;
+  let streak="";
+  if(res.cleared) streak=`<div class="streak">🎉 連續答對 ${CLEAR_STREAK} 次，這一題已經移出錯題本！</div>`;
+  else if(ok&&res.rec.w) streak=`<div class="streak">👍 再答對 ${CLEAR_STREAK-res.rec.s} 次就能移出錯題本。</div>`;
+  else if(!ok) streak=`<div class="streak">📌 這一題已經放進錯題本。</div>`;
+  $("after").innerHTML=`<div class="feedback ${ok?"good":"bad"}">${ok?"✅ 答對了！":"❌ 答錯了，正確答案是："+esc(optText(q,q.ans))}</div>${expHTML(q)}${streak}
+    <div class="btnrow end"><button type="button" class="btn green" id="nextQ">${last?"看結果 →":"下一題 →"}</button></div>`;
+  $("nextQ").addEventListener("click",()=>{ if(last) quizDone(); else { quiz.i++; quizStep(); $("qtext").focus({preventScroll:true}); } });
+  $("nextQ").focus({preventScroll:true});
+  $("after").scrollIntoView({behavior:"smooth",block:"nearest"});
+}
+function quizDone(){
+  const n=quiz.res.length, ok=quiz.res.filter(r=>r.ok).length, wrong=quiz.res.filter(r=>!r.ok).map(r=>QMAP[r.id]);
+  const mode=quiz.mode;
+  show(`<div class="panel"><div class="ptitle">${mode==="wrong"?"🔁 錯題練習完成":"📚 練習完成"}</div>
+    <div class="score">${ok} / ${n}</div><p class="note" style="text-align:center">答對 ${ok} 題、答錯 ${n-ok} 題${mode==="wrong"?`；錯題本還有 ${wrongList().length} 題`:""}</p>
+    ${wrong.length?`<div class="review"><b>這次答錯的題目：</b><ol>${wrong.map(q=>`<li>${esc(q.q)}<br><span class="note">正確答案：${esc(optText(q,q.ans))}</span></li>`).join("")}</ol></div>`:"<p style='text-align:center;font-weight:900'>全部答對！🎉</p>"}
+    <div class="btnrow">${wrong.length?`<button type="button" class="btn" id="again">再練一次答錯的 ${wrong.length} 題</button>`:""}
+      ${mode==="practice"?`<button type="button" class="btn plain" id="more">繼續練習</button>`:""}
+      <button type="button" class="btn plain" id="toHome">回題庫首頁</button></div></div>`);
+  if(wrong.length) $("again").addEventListener("click",()=>startQuiz(shuffle(wrong),"wrong"));
+  if(mode==="practice") $("more").addEventListener("click",practiceSetup);
+  $("toHome").addEventListener("click",()=>{ quiz=null; home(); });
+}
+function wrongStart(){
+  const list=wrongList(); if(!list.length){ home(); return; }
+  startQuiz(shuffle(list),"wrong");
+}
+
+/* ==========================================================
+   模擬考：依難度比例、兩個單元依題數比例抽題；沒做過、答錯過的比較容易被抽到
+   ========================================================== */
+function pickExam(){
+  const ex=curExam(), pool=examQs(), size=Math.min(ex.size,pool.length);
+  const weight=q=>{ const r=rec(q.id); if(!r||!r.a) return 3; if(r.l===0) return 3; return 1; };
+  const pickW=(cands,k)=>{ const out=[], c=cands.slice();
+    while(out.length<k&&c.length){ let tot=c.reduce((s,q)=>s+weight(q),0), x=Math.random()*tot, i=0;
+      for(;i<c.length;i++){ x-=weight(c[i]); if(x<=0) break; } out.push(c.splice(Math.min(i,c.length-1),1)[0]); }
+    return out; };
+  const unitN={}; ex.units.forEach(u=>unitN[u]=pool.filter(q=>q.unit===u).length);
+  const chosen=[];
+  Object.entries(ex.mix).forEach(([d,k])=>{
+    d=+d; k=Math.round(k*size/ex.size);
+    ex.units.forEach((u,ui)=>{
+      const share=ui===ex.units.length-1 ? k-chosen.filter(q=>q.diff===d).length : Math.round(k*unitN[u]/pool.length);
+      const cands=pool.filter(q=>q.diff===d&&q.unit===u&&!chosen.includes(q));
+      chosen.push(...pickW(cands,Math.max(0,share)));
+    });
+  });
+  if(chosen.length<size) chosen.push(...pickW(pool.filter(q=>!chosen.includes(q)),size-chosen.length));
+  /* 同一主題不要太集中：超過上限的，換成同單元、同難度、其他主題的題目 */
+  const cap=Math.max(3,Math.ceil(size/ex.units.reduce((s,u)=>s+UNIT[u].topics.length,0))+2);
+  const cnt={}; chosen.forEach(q=>cnt[q.topic]=(cnt[q.topic]||0)+1);
+  for(let i=0;i<chosen.length;i++){
+    const q=chosen[i]; if(cnt[q.topic]<=cap) continue;
+    const alt=pickW(pool.filter(x=>!chosen.includes(x)&&x.unit===q.unit&&x.diff===q.diff&&(cnt[x.topic]||0)<cap),1)[0];
+    if(alt){ cnt[q.topic]--; cnt[alt.topic]=(cnt[alt.topic]||0)+1; chosen[i]=alt; }
+  }
+  return shuffle(chosen.slice(0,size));
+}
+function examStart(){
+  const ids=pickExam().map(q=>q.id), order={};
+  ids.forEach(id=>order[id]=optOrder(QMAP[id]));
+  DB.cur={exam:curExam().id,ids,order,ans:{},i:0,start:Date.now()}; saveDB();
+  examRun();
+}
+function examRun(){
+  setHome(true);
+  const c=DB.cur; if(!c){ home(); return; }
+  c.ids=c.ids.filter(id=>QMAP[id]);             /* 題庫改版後，已經不存在的題目略過 */
+  const n=c.ids.length, id=c.ids[c.i], q=QMAP[id], order=(c.order&&c.order[id])||optOrder(q);
+  const answered=Object.keys(c.ans).filter(k=>c.ids.includes(k)).length;
+  show(`<div class="panel">
+    <div class="ptitle">📝 模擬考 <span class="note">已作答 ${answered} / ${n}</span></div>
+    <div class="navgrid" id="nav">${c.ids.map((x,k)=>`<button type="button" class="${k===c.i?"cur":""} ${c.ans[x]!=null?"done":""}" data-k="${k}" aria-label="第 ${k+1} 題${c.ans[x]!=null?"（已作答）":""}">${k+1}</button>`).join("")}</div>
+  </div>
+  <div class="panel">${questionHTML(q,c.i+1,n,order)}
+    <div class="btnrow"><button type="button" class="btn plain" id="prevQ"${c.i?"":" disabled"}>← 上一題</button>
+      <button type="button" class="btn plain" id="nextQ"${c.i<n-1?"":" disabled"}>下一題 →</button>
+      <button type="button" class="btn green" id="submit" style="margin-left:auto">交卷</button></div>
+    <p class="note">交卷前都可以改答案。考到一半離開也沒關係，下次會從這裡繼續。</p>
+  </div>`);
+  $("opts").querySelectorAll(".opt").forEach(b=>{
+    if(+b.dataset.v===c.ans[id]) b.setAttribute("aria-pressed","true");
+    b.addEventListener("click",()=>{
+      c.ans[id]=+b.dataset.v; saveDB();
+      $("opts").querySelectorAll(".opt").forEach(x=>x.setAttribute("aria-pressed",String(x===b)));
+      $("nav").querySelectorAll("button")[c.i].classList.add("done");
+      /* 答完自動跳下一題（最後一題不跳） */
+      if(c.i<n-1) setTimeout(()=>{ if(DB.cur===c&&c.ids[c.i]===id){ c.i++; saveDB(); examRun(); } },350);
+    });
+  });
+  $("nav").querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{ c.i=+b.dataset.k; saveDB(); examRun(); }));
+  $("prevQ").addEventListener("click",()=>{ if(c.i>0){ c.i--; saveDB(); examRun(); } });
+  $("nextQ").addEventListener("click",()=>{ if(c.i<n-1){ c.i++; saveDB(); examRun(); } });
+  $("submit").addEventListener("click",()=>{
+    const left=n-Object.keys(c.ans).filter(k=>c.ids.includes(k)).length;
+    if(left) modal("還有題目沒作答",`<p>還有 <b>${left}</b> 題沒作答，沒作答的題目算答錯。確定要交卷嗎？</p>`,
+      [{t:"回去作答"},{t:"確定交卷",cls:"green",fn:()=>{ examSubmit(); }}]);
+    else examSubmit();
+  });
+}
+function examSubmit(){
+  const c=DB.cur; if(!c) return;
+  const ids=c.ids.filter(id=>QMAP[id]);
+  let right=0; const wrong=[];
+  ids.forEach(id=>{ const q=QMAP[id], v=c.ans[id], ok=v===q.ans; if(ok) right++; else wrong.push(id); record(id,ok); });
+  const score=Math.round(right/ids.length*100);
+  const h={t:Date.now(),exam:c.exam,score,n:ids.length,right,dur:Date.now()-c.start,ids,ans:c.ans,order:c.order};
+  DB.exams.push(h); if(DB.exams.length>50) DB.exams=DB.exams.slice(-50);
+  DB.cur=null; saveDB();
+  examResult(DB.exams.length-1);
+}
+function examResult(hi){
+  setHome(true);
+  const h=DB.exams[hi]; if(!h){ home(); return; }
+  const ids=h.ids.filter(id=>QMAP[id]);
+  const per={}; ids.forEach(id=>{ const q=QMAP[id], u=q.unit; per[u]=per[u]||{n:0,r:0}; per[u].n++; if(h.ans[id]===q.ans) per[u].r++; });
+  const byDiff={}; ids.forEach(id=>{ const q=QMAP[id]; byDiff[q.diff]=byDiff[q.diff]||{n:0,r:0}; byDiff[q.diff].n++; if(h.ans[id]===q.ans) byDiff[q.diff].r++; });
+  const wrongIds=ids.filter(id=>h.ans[id]!==QMAP[id].ans);
+  show(`<div class="panel"><div class="ptitle">📝 模擬考成績 <span class="note">${fmtDate(h.t)}｜用時 ${fmtDur(h.dur)}</span></div>
+    <div class="score">${h.score} 分</div>
+    <p class="note" style="text-align:center">${h.n} 題答對 ${h.right} 題</p>
+    <table class="prog"><tr><th>範圍</th><th class="num">答對</th></tr>
+      ${Object.entries(per).map(([u,s])=>`<tr><td>${esc(UNIT[u].name)}</td><td class="num">${s.r} / ${s.n}</td></tr>`).join("")}
+      ${Object.entries(byDiff).map(([d,s])=>`<tr><td>${DIFF_NAME[d]}</td><td class="num">${s.r} / ${s.n}</td></tr>`).join("")}</table>
+    <div class="btnrow">${wrongIds.length?`<button type="button" class="btn" id="rvWrong">只看答錯的 ${wrongIds.length} 題</button><button type="button" class="btn" id="drill">馬上練這 ${wrongIds.length} 題錯題</button>`:""}
+      <button type="button" class="btn plain" id="rvAll">看全部題目與解析</button>
+      <button type="button" class="btn green" id="retake">再考一次 →</button></div>
+    <div id="rv"></div></div>`);
+  const review=list=>{
+    $("rv").innerHTML=list.map((id,k)=>{ const q=QMAP[id], v=h.ans[id], order=(h.order&&h.order[id])||optOrder(q);
+      return `<div class="review">${questionHTML(q,ids.indexOf(id)+1,ids.length,order)}
+        <div class="feedback ${v===q.ans?"good":"bad"}">${v===q.ans?"✅ 答對":v==null?"❌ 沒有作答":"❌ 答錯"}</div>${expHTML(q)}</div>`; }).join("");
+    $("rv").querySelectorAll(".review").forEach((box,k)=>{ const id=list[k]; markOpts(box.querySelector(".opts"),QMAP[id],h.ans[id]); });
+    $("rv").querySelectorAll(".qtext").forEach(x=>x.removeAttribute("id"));
+    $("rv").querySelectorAll(".opts").forEach(x=>x.removeAttribute("id"));
+  };
+  if(wrongIds.length){ $("rvWrong").addEventListener("click",()=>review(wrongIds)); $("drill").addEventListener("click",()=>startQuiz(shuffle(wrongIds.map(id=>QMAP[id])),"wrong")); }
+  $("rvAll").addEventListener("click",()=>review(ids));
+  $("retake").addEventListener("click",examStart);
+}
+
+/* ==========================================================
+   我的進度：各主題、模擬考紀錄、下載／匯入／清除
+   ========================================================== */
+function progress(){
+  setHome(true);
+  const ex=curExam();
+  const rows=ex.units.map(uid=>{ const u=UNIT[uid];
+    return `<tr><th colspan="3" style="padding-top:12px;color:var(--ink);font-size:1em">${esc(u.name)}</th></tr>`+
+      u.topics.map(t=>{ const s=topicStat(t.id); if(!s.n) return "";
+        const pct=Math.round(s.ok/s.n*100);
+        return `<tr><td>${esc(t.name)}<br><span class="note">${esc(t.pages)}</span></td><td class="num">做過 ${s.done}/${s.n}<br><span class="note">答對 ${s.ok}</span></td>
+          <td class="barcell"><div class="bar" role="img" aria-label="掌握 ${pct}%"><i style="width:${pct}%"></i></div></td></tr>`; }).join(""); }).join("");
+  const hist=DB.exams.map((h,i)=>({h,i})).filter(o=>o.h.exam===ex.id).reverse();
+  show(`<div class="panel"><div class="ptitle">📊 我的進度（${esc(ex.name)}）</div>
+    <p class="note">「答對」是這一題最近一次作答的結果；綠色長條＝最近答對的題數 ÷ 這個主題的題數。</p>
+    <table class="prog">${rows}</table></div>
+  <div class="panel"><div class="ptitle">📝 模擬考紀錄</div>
+    ${hist.length?`<div class="hist">${hist.map(o=>`<button type="button" class="h" data-h="${o.i}"><span>${fmtDate(o.h.t)}</span><b>${o.h.score} 分</b></button>`).join("")}</div>`:`<p class="note">還沒有考過模擬考。</p>`}</div>
+  <div class="panel"><div class="ptitle">💾 換電腦繼續練習</div>
+    <p>按「下載進度」會存成一個 <b>.json</b> 檔案（可以用隨身碟、雲端硬碟或 LINE 傳給自己）。到另一台電腦打開題庫，按「匯入進度」選這個檔案，就能接著練習。</p>
+    <div class="btnrow"><button type="button" class="btn" id="exp">⬇️ 下載進度</button>
+      <button type="button" class="btn plain" id="imp">⬆️ 匯入進度</button>
+      <button type="button" class="btn plain" id="reset" style="margin-left:auto">🗑️ 清除這台電腦的紀錄</button></div></div>`);
+  document.querySelectorAll("[data-h]").forEach(b=>b.addEventListener("click",()=>examResult(+b.dataset.h)));
+  $("exp").addEventListener("click",exportProgress);
+  $("imp").addEventListener("click",()=>{ $("importFile").value=""; $("importFile").click(); });
+  $("reset").addEventListener("click",()=>modal("清除紀錄？","<p>會刪除<b>這台電腦</b>上的所有練習紀錄、錯題本和模擬考成績，刪除後不能復原。建議先按「下載進度」備份。</p>",
+    [{t:"取消"},{t:"確定清除",cls:"green",fn:()=>{ DB=blankDB(); saveDB(); progress(); }}]));
+}
+
+/* ---------- 下載進度（JSON） ---------- */
+function exportProgress(){
+  const d=new Date(), p=n=>String(n).padStart(2,"0");
+  const data={app:APP_ID,v:1,exported:d.toISOString(),bank:BANK.title,questions:Object.keys(DB.q).length,
+    data:{q:DB.q,exams:DB.exams,cur:DB.cur,exam:DB.exam}};
+  const blob=new Blob([JSON.stringify(data,null,1)],{type:"application/json"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download=`自然題庫進度-${d.getFullYear()}${p(d.getMonth()+1)}${p(d.getDate())}-${p(d.getHours())}${p(d.getMinutes())}.json`;
+  document.body.appendChild(a); a.click();
+  setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); },1000);
+}
+
+/* ---------- 匯入進度 ---------- */
+$("importFile").addEventListener("change",e=>{
+  const f=e.target.files&&e.target.files[0]; if(!f) return;
+  const rd=new FileReader();
+  rd.onload=()=>{
+    let obj; try{ obj=JSON.parse(rd.result); }catch(_){ obj=null; }
+    if(!obj||obj.app!==APP_ID||!obj.data){ modal("這不是題庫的進度檔",`<p>這個檔案讀不出練習紀錄。請選擇從「下載進度」存下來的 <b>.json</b> 檔。</p>`,[{t:"知道了",cls:"green"}]); return; }
+    const inc=normalize(obj.data);
+    const nq=Object.keys(inc.q).length, ne=inc.exams.length;
+    modal("匯入進度",`<p>檔案裡有 <b>${nq}</b> 題的作答紀錄、<b>${ne}</b> 次模擬考（下載時間：${obj.exported?fmtDate(Date.parse(obj.exported)):"不明"}）。</p>
+      <p><b>合併</b>：兩邊的紀錄都保留，同一題取比較新的那一筆（建議）。<br><b>取代</b>：刪掉這台電腦的紀錄，完全換成檔案裡的。</p>`,
+      [{t:"取消"},{t:"取代",fn:()=>{ DB=inc; saveDB(); afterImport(); }},{t:"合併（建議）",cls:"green",fn:()=>{ mergeInto(inc); saveDB(); afterImport(); }}]);
+  };
+  rd.readAsText(f);
+});
+function mergeInto(inc){
+  Object.entries(inc.q).forEach(([id,r])=>{ const m=DB.q[id]; if(!m||(r&&r.t>(m.t||0))) DB.q[id]=r; });
+  const seen=new Set(DB.exams.map(h=>h.t));
+  inc.exams.forEach(h=>{ if(h&&!seen.has(h.t)) DB.exams.push(h); });
+  DB.exams.sort((a,b)=>a.t-b.t); if(DB.exams.length>50) DB.exams=DB.exams.slice(-50);
+  if(!DB.cur&&inc.cur) DB.cur=inc.cur;
+}
+function afterImport(){ setTimeout(()=>modal("匯入完成","<p>練習紀錄已經更新。</p>",[{t:"好",cls:"green",fn:()=>{ progress(); }}]),50); }
+
+/* ---------- 頁尾：照片來源 ---------- */
+(function(){
+  const used=new Set(QS.filter(q=>q.img).map(q=>q.img));
+  const cc=[...used].map(k=>QPHOTOS[k]).filter(p=>p&&p.credit);
+  $("credits").innerHTML=`<p>題目依據南一版自然五上課本第 10–61 頁出題。題目裡的課本照片經南一書局授權使用；示意圖不是真實比例。</p>`+
+    (cc.length?`<p>其他照片（Wikimedia Commons）：${cc.map(p=>`${esc(p.name)}：${p.credit}`).join("；")}</p>`:"")+
+    `<p>練習紀錄只存在這個瀏覽器裡，不會上傳到網路。</p>`;
+})();
+
+if(!STORAGE_OK) $("storageWarn").classList.remove("hidden");
+if(!QS.length) show(`<div class="warn">題目資料沒有載入。請確認 questions/ 資料夾裡的檔案都在。</div>`); else home();
+</script>
+</body>
+</html>
