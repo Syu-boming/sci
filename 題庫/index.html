@@ -634,7 +634,7 @@ function afterImport(){ setTimeout(()=>modal("匯入完成","<p>練習紀錄已�
 (function(){
   const used=new Set(QS.filter(q=>q.img).map(q=>q.img));
   const cc=[...used].map(k=>QPHOTOS[k]).filter(p=>p&&p.credit);
-  $("credits").innerHTML=`<p>題目依據南一版自然五上課本第 10–61 頁出題。題目裡的課本照片經南一書局授權使用；示意圖不是真實比例。</p>`+
+  $("credits").innerHTML=`<p>題目依據南一版自然五上課本第 10–61 頁出題。示意圖不是真實比例。</p>`+
     (cc.length?`<p>其他照片（Wikimedia Commons）：${cc.map(p=>`${esc(p.name)}：${p.credit}`).join("；")}</p>`:"")+
     `<p>練習紀錄只存在這個瀏覽器裡，不會上傳到網路。</p>`;
 })();
