@@ -18,6 +18,16 @@
      exp:"解析", src:"課本 p.13",
      img:"照片代號"（看 questions/photos.js，可省略）, cap:"照片說明"（可省略）,
      fig:{type:"shadow",...}（示意圖，看 figures.js，可省略） }
+
+   素養題組（questions/literacy.js，用 QGROUP_ADD([...]) 加入）：一段情境＋2–4 題。
+   { id:"s-u1-01"（一樣永遠不要改）, kind:"life"/"data"/"exp"/"argue", title:"題組標題",
+     topics:["u1-shadow",...]（第一個是主要主題）, passage:"情境文字（
+ 分段）",
+     talk:[{who:"小明",say:"……"}]（可省略）, table:{cap,head:[...],rows:[[...]]}（可省略）,
+     chart:{type:"bar"/"line",xLabel,yLabel,x:[...],series:[{name,data:[...]}]}（可省略）,
+     img:"照片代號", fig:{...}, cap:"圖說", src:"課本 p.18–19",
+     questions:[{type,diff,q,opts,ans,exp}, ...] }
+   每一小題的 id 會自動變成「題組 id-第幾題」（例：s-u1-01-2），所以小題的順序不要再調換。
    ========================================================== */
 window.BANK = {
   title: "自然線上題庫",
@@ -45,12 +55,16 @@ window.BANK = {
     ]}
   ],
   exams: [
-    /* size：模擬考題數；mix：各難度題數（加起來＝size） */
-    { id: "exam1", name: "第一次評量", units: ["u1", "u2"], size: 25, mix: { 1: 10, 2: 10, 3: 5 } }
-  ]
+    /* size：模擬考題數；mix：各難度題數（加起來＝size）；groups：另外加考幾組素養題組 */
+    { id: "exam1", name: "第一次評量", units: ["u1", "u2"], size: 25, mix: { 1: 10, 2: 10, 3: 5 }, groups: 2 }
+  ],
+  /* 素養題組的四種類型 */
+  litKinds: { life: "生活情境", data: "圖表判讀", exp: "實驗設計", argue: "誰說得對" }
 };
 
 /* 題目與照片清單由 questions/*.js 加進來 */
 window.QBANK = [];
 window.QBANK_ADD = function (list) { Array.prototype.push.apply(window.QBANK, list); };
 window.QPHOTOS = {};
+window.QGROUPS = [];
+window.QGROUP_ADD = function (list) { Array.prototype.push.apply(window.QGROUPS, list); };

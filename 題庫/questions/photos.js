@@ -4,6 +4,10 @@ Object.assign(QPHOTOS, {
   "path": "第二單元 植物世界/果實和種子的傳播方式/photos/bidens-fruit.jpg",
   "name": "大花咸豐草的果實"
  },
+ "disperse/bidens-plant": {
+  "path": "第二單元 植物世界/果實和種子的傳播方式/photos/bidens-plant.jpg",
+  "name": "大花咸豐草"
+ },
  "disperse/coconut-beach": {
   "path": "第二單元 植物世界/果實和種子的傳播方式/photos/coconut-beach.jpg",
   "name": "漂在水面上的椰子"
@@ -15,6 +19,10 @@ Object.assign(QPHOTOS, {
  "disperse/dandelion-seedhead": {
   "path": "第二單元 植物世界/果實和種子的傳播方式/photos/dandelion-seedhead.jpg",
   "name": "蒲公英的果實"
+ },
+ "disperse/dandelion-single": {
+  "path": "第二單元 植物世界/果實和種子的傳播方式/photos/dandelion-single.jpg",
+  "name": "蒲公英的一顆果實"
  },
  "disperse/ficus-superba": {
   "path": "第二單元 植物世界/果實和種子的傳播方式/photos/ficus-superba.jpg",
@@ -51,6 +59,11 @@ Object.assign(QPHOTOS, {
   "path": "第二單元 植物世界/繁殖器官的功能/photos/corn-silk.jpg",
   "name": "玉米鬚",
   "credit": "<a href=\"https://commons.wikimedia.org/wiki/File:Maize_silks.jpg\" target=\"_blank\" rel=\"noopener\">Abdul Fatawu352</a>，<a href=\"https://creativecommons.org/publicdomain/zero/1.0/deed.en\" target=\"_blank\" rel=\"noopener\">CC0</a>"
+ },
+ "flower/corn-tassel": {
+  "path": "第二單元 植物世界/繁殖器官的功能/photos/corn-tassel.jpg",
+  "name": "玉米頂端的花",
+  "credit": "<a href=\"https://commons.wikimedia.org/wiki/File:Tassels_of_maize_2.jpg\" target=\"_blank\" rel=\"noopener\">Knowledge and philosophy</a>，<a href=\"https://creativecommons.org/licenses/by-sa/4.0\" target=\"_blank\" rel=\"noopener\">CC BY-SA 4.0</a>"
  },
  "flower/fruit-2-ovary": {
   "path": "第二單元 植物世界/繁殖器官的功能/photos/fruit-2-ovary.jpg",

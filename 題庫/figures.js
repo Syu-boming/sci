@@ -206,5 +206,52 @@
     return svg(`0 0 ${W} ${H}`,b,"日晷的側面示意圖");
   };
 
-  window.QFIG={render:p=>{ const f=F[p&&p.type]; return f?f(p):""; }, types:Object.keys(F)};
+  /* 9. 素養題組的統計圖：{type:"bar"|"line", xLabel, yLabel, x:[...], series:[{name,data:[數字或 null]}],
+        yMin, yMax（可省略，自動取整）, labels（可省略：一條資料時預設標數值）}
+        只有一個 y 軸；兩條以上資料一定有圖例；文字一律用墨色，顏色只給資料記號。 */
+  const SERIES=["#2E86C1","#D9822B","#2E7D4F"];
+  const niceStep=span=>{ const raw=span/5, p=Math.pow(10,Math.floor(Math.log10(raw||1))), m=raw/p;
+    return (m<=1?1:m<=2?2:m<=2.5?2.5:m<=5?5:10)*p; };
+  const fmtNum=v=>Number.isInteger(v)?String(v):String(Math.round(v*100)/100);
+  const chart=c=>{
+    const x=c.x||[], se=(c.series||[]).slice(0,3), n=x.length||1, vals=se.flatMap(s=>s.data||[]).filter(v=>v!=null);
+    const W=480, T=se.length>1?66:42, B=60, Lm=50, R=14, H=310, pw=W-Lm-R, ph=H-T-B;
+    let lo=c.yMin!=null?c.yMin:Math.min(0,...vals), hi=c.yMax!=null?c.yMax:Math.max(1,...vals);
+    const step=niceStep(hi-lo); lo=Math.floor(lo/step)*step; hi=c.yMax!=null?hi:Math.ceil(hi/step)*step; if(hi<=lo) hi=lo+step;
+    const Y=v=>T+ph-(v-lo)/(hi-lo)*ph, band=pw/n, X=i=>Lm+band*(i+.5);
+    const lab=c.labels!=null?c.labels:se.length===1;
+    let b=`<rect width="${W}" height="${H}" fill="#fff"/>`;
+    for(let v=lo;v<=hi+1e-9;v+=step){ const y=Y(v);
+      b+=`<line x1="${Lm}" y1="${y}" x2="${W-R}" y2="${y}" stroke="${v===lo?"#8A949A":"#E6E1D6"}" stroke-width="1"/>`;
+      b+=`<text x="${Lm-7}" y="${y}" font-size="15" fill="${C.muted}" text-anchor="end" dominant-baseline="middle">${fmtNum(v)}</text>`; }
+    if(c.yLabel) b+=`<text x="${Lm-8}" y="${T-16}" font-size="15" font-weight="700" fill="${C.ink}" text-anchor="start">${esc(c.yLabel)}</text>`;
+    x.forEach((s,i)=>{ const parts=String(s).length>4&&band<80&&/\s/.test(s)?String(s).split(/\s+/):[String(s)];
+      parts.forEach((t,k)=>{ b+=`<text x="${X(i)}" y="${T+ph+20+k*17}" font-size="15" fill="${C.ink}" text-anchor="middle">${esc(t)}</text>`; }); });
+    if(c.xLabel) b+=`<text x="${W-R}" y="${H-6}" font-size="15" font-weight="700" fill="${C.ink}" text-anchor="end">${esc(c.xLabel)}</text>`;
+    if(se.length>1){ let lx=12; se.forEach((s,k)=>{ const col=SERIES[k];
+      b+=c.type==="line"?`<line x1="${lx}" y1="16" x2="${lx+22}" y2="16" stroke="${col}" stroke-width="2.5"/><circle cx="${lx+11}" cy="16" r="4.5" fill="${col}" stroke="#fff" stroke-width="2"/>`
+                        :`<rect x="${lx}" y="8" width="16" height="16" rx="3" fill="${col}"/>`;
+      b+=`<text x="${lx+(c.type==="line"?28:22)}" y="17" font-size="15" font-weight="700" fill="${C.ink}" dominant-baseline="middle">${esc(s.name||"")}</text>`;
+      lx+=48+String(s.name||"").length*15; }); }
+    const valTxt=(x0,y0,v)=>`<text x="${x0}" y="${y0}" font-size="14" font-weight="700" fill="${C.ink}" text-anchor="middle" stroke="#fff" stroke-width="3" paint-order="stroke">${fmtNum(v)}</text>`;
+    if(c.type==="line"){
+      se.forEach((s,k)=>{ const col=SERIES[k], d=s.data||[]; let path="", pen=false;
+        d.forEach((v,i)=>{ if(v==null){ pen=false; return; } path+=`${pen?"L":"M"}${X(i)},${Y(v)} `; pen=true; });
+        b+=`<path d="${path}" fill="none" stroke="${col}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>`;
+        d.forEach((v,i)=>{ if(v==null) return; b+=`<circle cx="${X(i)}" cy="${Y(v)}" r="4.5" fill="${col}" stroke="#fff" stroke-width="2"/>`;
+          if(lab) b+=valTxt(X(i),Y(v)-12,v); }); });
+    }else{
+      const bw=Math.min(24,(band*.72-2*(se.length-1))/se.length), gw=bw*se.length+2*(se.length-1), base=Y(Math.max(lo,Math.min(0,hi)));
+      se.forEach((s,k)=>{ const col=SERIES[k];
+        (s.data||[]).forEach((v,i)=>{ if(v==null) return; const x0=X(i)-gw/2+k*(bw+2), y=Y(v), h=Math.abs(base-y), r=Math.min(4,h,bw/2);
+          const top=Math.min(y,base);
+          b+= v>=0 ? `<path d="M${x0},${base} V${top+r} Q${x0},${top} ${x0+r},${top} H${x0+bw-r} Q${x0+bw},${top} ${x0+bw},${top+r} V${base} Z" fill="${col}"/>`
+                   : `<rect x="${x0}" y="${top}" width="${bw}" height="${h}" fill="${col}"/>`;
+          if(lab) b+=valTxt(x0+bw/2,top-8,v); }); });
+    }
+    const desc=`${c.type==="line"?"折線圖":"長條圖"}：`+se.map(s=>`${s.name||""} `+x.map((t,i)=>`${t} ${s.data&&s.data[i]!=null?fmtNum(s.data[i]):"沒有資料"}`).join("、")).join("；");
+    return `<svg class="qchart" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(desc)}" xmlns="http://www.w3.org/2000/svg" font-family="Microsoft JhengHei,PingFang TC,Noto Sans TC,sans-serif">${b}</svg>`;
+  };
+
+  window.QFIG={render:p=>{ const f=F[p&&p.type]; return f?f(p):""; }, chart, types:Object.keys(F)};
 })();

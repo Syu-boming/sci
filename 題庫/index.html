@@ -118,6 +118,28 @@ button{font:inherit;color:inherit}
 .bar{height:12px;border-radius:999px;background:#EEE7D8;overflow:hidden;border:2px solid var(--ink)}
 .bar > i{display:block;height:100%;background:var(--green)}
 
+/* 素養題組：情境（文字、對話、表格、統計圖、照片）放在題目上面，每一小題都看得到 */
+.tag.lit{background:#EFE7FB;border-color:#5B3E96;color:#3F2A6B}
+.passage{border:3px solid #5B3E96;border-radius:16px;background:#FBF8FF;padding:10px 14px 12px;margin:2px 0 14px}
+.passage .phead{display:flex;align-items:center;gap:6px 10px;flex-wrap:wrap;margin-bottom:6px}
+.passage .phead b{font-size:1.05em}
+.passage .ptext p{margin:0 0 8px;line-height:1.75}
+.talk{display:grid;gap:8px;margin:6px 0 10px}
+.talk .say{display:flex;gap:8px;align-items:flex-start}
+.talk .who{flex:none;width:44px;height:44px;border-radius:50%;border:2px solid var(--ink);background:var(--sun-soft);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:.8em;text-align:center;line-height:1.1}
+.talk .bub{background:#fff;border:2px solid var(--line);border-radius:4px 14px 14px 14px;padding:6px 12px;line-height:1.6}
+.talk .bub b{display:block;font-size:.82em;color:var(--muted)}
+.ltable-wrap{overflow-x:auto;margin:6px 0 10px;-webkit-overflow-scrolling:touch}
+table.ltable{border-collapse:collapse;min-width:60%;margin:0 auto;background:#fff;font-size:.95em}
+table.ltable caption{font-weight:900;padding-bottom:4px;text-align:left}
+table.ltable th,table.ltable td{border:2px solid #CFC6B4;padding:5px 10px;text-align:center;white-space:nowrap}
+table.ltable thead th{background:#F1EBDD}
+table.ltable tbody th{background:#FAF6EC;text-align:left}
+@media (max-width:640px){ table.ltable{font-size:.88em;width:100%} table.ltable th,table.ltable td{white-space:normal;padding:4px 5px;min-width:3.2em} }
+.qchart{display:block;width:100%;max-width:560px;height:auto;margin:0 auto;border:2px solid var(--line);border-radius:12px;background:#fff}
+.passage .qmedia{margin:6px 0 4px}
+.passage figcaption{text-align:center;font-weight:700;color:var(--muted);font-size:.9em;margin-top:4px}
+
 /* 模擬考 */
 .navgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(40px,1fr));gap:6px;margin:6px 0 10px}
 .navgrid button{min-height:40px;border:2px solid var(--ink);border-radius:10px;background:#fff;font-weight:900;cursor:pointer}
@@ -125,6 +147,8 @@ button{font:inherit;color:inherit}
 .navgrid button.cur{box-shadow:0 0 0 3px var(--sun);background:var(--sun-soft)}
 .navgrid button.ok{background:var(--ok-soft);border-color:var(--green-dark)}
 .navgrid button.no{background:var(--wrong-soft);border-color:var(--wrong)}
+.navgrid button.lit{border-style:dashed;border-color:#5B3E96}
+.mode.wide{grid-column:1/-1;min-height:72px}
 .score{font-size:clamp(40px,8vw,64px);font-weight:900;color:var(--green-dark);line-height:1.1;text-align:center}
 .review{border-top:2px dashed var(--line);padding-top:12px;margin-top:12px}
 
@@ -186,10 +210,12 @@ table.prog td.barcell{width:30%}
 <script src="questions/photos.js"></script>
 <script src="questions/u1.js"></script>
 <script src="questions/u2.js"></script>
+<script src="questions/literacy.js"></script>
 <script>
 /* ==========================================================
    自然線上題庫 — 程式
-   模式：主題練習（即時看解析）／模擬考（交卷才看答案）／錯題練習（連續答對 2 次才移出錯題本）
+   模式：主題練習（即時看解析）／素養題組（一段情境＋幾題）／模擬考（交卷才看答案，最後加素養題組）
+         ／錯題練習（連續答對 2 次才移出錯題本）
    紀錄存在 localStorage（BANK.storageKey），可以下載成 JSON、在別台電腦匯入。
    ========================================================== */
 const $=id=>document.getElementById(id);
@@ -210,6 +236,18 @@ const QS=[], QMAP={};
     seen.add(q.id); q.unit=TOPIC[q.topic].unit; QS.push(q); QMAP[q.id]=q;
   });
 })();
+/* 素養題組：每一小題也放進 QS（id＝題組 id-第幾題），用 q.group 找回同一組的情境 */
+const GROUPS=[], GMAP={};
+(window.QGROUPS||[]).forEach(g=>{
+  if(!g||!g.id||GMAP[g.id]||!(g.topics||[]).length||!TOPIC[g.topics[0]]){ if(g&&g.id&&GMAP[g.id]) console.warn("題組 id 重複，已略過：",g.id); return; }
+  g.unit=TOPIC[g.topics[0]].unit; g.qids=[];
+  (g.questions||[]).forEach((q,i)=>{ const id=`${g.id}-${i+1}`; if(QMAP[id]) return;
+    const x=Object.assign({},q,{id,topic:g.topics[0],unit:g.unit,group:g.id,src:q.src||g.src});
+    QS.push(x); QMAP[id]=x; g.qids.push(id); });
+  if(g.qids.length){ GROUPS.push(g); GMAP[g.id]=g; }
+});
+const isLit=q=>!!q.group;
+const LIT_KIND=BANK.litKinds||{};
 const isImg=q=>!!(q.img||q.fig);
 
 /* ---------- 紀錄（localStorage） ---------- */
@@ -253,6 +291,7 @@ function record(id,ok){
 const curExam=()=>BANK.exams.find(e=>e.id===DB.exam)||BANK.exams[0];
 const examQs=()=>{ const us=curExam().units; return QS.filter(q=>us.includes(q.unit)); };
 const wrongList=()=>examQs().filter(q=>{ const r=rec(q.id); return r&&r.w; });
+const examGroups=()=>{ const us=curExam().units; return GROUPS.filter(g=>us.includes(g.unit)); };
 
 /* ---------- 小工具 ---------- */
 function shuffle(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
@@ -290,15 +329,28 @@ function optOrder(q){
   return q.noShuffle?idx:shuffle(idx);
 }
 function optText(q,v){ return q.type==="tf" ? (v===1?"○ 對":"╳ 錯") : q.opts[v]; }
-function questionHTML(q,num,total,order){
-  const t=TOPIC[q.topic];
+/* 題組的情境：文字、對話、表格、統計圖、照片或示意圖 */
+function passageHTML(g){
+  const text=String(g.passage||"").split(/\n+/).filter(Boolean).map(p=>`<p>${esc(p)}</p>`).join("");
+  const talk=(g.talk||[]).length?`<div class="talk">${g.talk.map(t=>`<div class="say"><span class="who" aria-hidden="true">${esc(String(t.who).slice(-2))}</span><div class="bub"><b>${esc(t.who)}</b>${esc(t.say)}</div></div>`).join("")}</div>`:"";
+  const tb=g.table&&(g.table.rows||[]).length?`<div class="ltable-wrap"><table class="ltable">${g.table.cap?`<caption>${esc(g.table.cap)}</caption>`:""}
+      <thead><tr>${(g.table.head||[]).map(h=>`<th scope="col">${esc(h)}</th>`).join("")}</tr></thead>
+      <tbody>${g.table.rows.map(r=>`<tr>${r.map((c,k)=>k?`<td>${esc(c)}</td>`:`<th scope="row">${esc(c)}</th>`).join("")}</tr>`).join("")}</tbody></table></div>`:"";
+  const ch=g.chart&&(g.chart.x||[]).length?`<figure class="qmedia">${QFIG.chart(g.chart)}${g.chart.title?`<figcaption>${esc(g.chart.title)}</figcaption>`:""}</figure>`:"";
+  return `<section class="passage" aria-label="題組情境"><div class="phead"><span class="tag lit">🧩 ${esc(LIT_KIND[g.kind]||"素養題組")}</span><b>${esc(g.title||"")}</b></div>
+    <div class="ptext">${text}</div>${talk}${tb}${ch}${mediaHTML(g)}</section>`;
+}
+function questionHTML(q,num,total,order,withPassage=true){
+  const t=TOPIC[q.topic], g=q.group&&GMAP[q.group];
   const opts=order.map((v,k)=>q.type==="tf"
       ? `<button type="button" class="opt tfopt" data-v="${v}">${v===1?"○ 對":"╳ 錯"}</button>`
       : `<button type="button" class="opt" data-v="${v}"><span class="k">${"ABCDEF"[k]}</span><span>${esc(q.opts[v])}</span></button>`).join("");
   return `<div class="qhead"><span class="qnum">第 ${num} / ${total} 題</span>
       <span class="tag d${q.diff}">${DIFF_NAME[q.diff]}</span>
       <span class="tag">${q.type==="tf"?"是非題":"選擇題"}</span>${isImg(q)?`<span class="tag">🖼️ 看圖題</span>`:""}
+      ${g?`<span class="tag lit">🧩 題組 第 ${g.qids.indexOf(q.id)+1} / ${g.qids.length} 小題</span>`:""}
       <span class="tag topic">${esc(t.name)}</span></div>
+    ${g&&withPassage?passageHTML(g):""}
     ${mediaHTML(q)}
     <div class="qtext" id="qtext" tabindex="-1">${q.type==="tf"?"是非題：":""}${esc(q.q)}</div>
     <div class="opts${q.type==="tf"?" tf":""}" id="opts">${opts}</div>`;
@@ -334,14 +386,16 @@ function home(){
     </div>
   </div>
   <div class="modes">
-    <button type="button" class="mode primary" id="mExam"><span class="ic">📝</span><span><b>${cur?"繼續模擬考":"模擬考"}</b><small>${cur?`還有 ${cur.ids.length-Object.keys(cur.ans).length} 題沒作答`:`隨機 ${ex.size} 題、不限時，交卷才看答案。可以一直考。`}</small></span></button>
+    <button type="button" class="mode primary" id="mExam"><span class="ic">📝</span><span><b>${cur?"繼續模擬考":"模擬考"}</b><small>${cur?`還有 ${cur.ids.length-Object.keys(cur.ans).length} 題沒作答`:`隨機 ${ex.size} 題${examGroups().length&&ex.groups?`＋素養題組 ${ex.groups} 組`:""}、不限時，交卷才看答案。可以一直考。`}</small></span></button>
     <button type="button" class="mode" id="mPractice"><span class="ic">📚</span><span><b>主題練習</b><small>選主題和難度，每題作答後馬上看解析。</small></span></button>
+    <button type="button" class="mode" id="mLit"${examGroups().length?"":" disabled"}><span class="ic">🧩</span><span><b>素養題組（${examGroups().length} 組）</b><small>讀情境、看表格和圖表、想實驗、判斷誰說得對；一組 2–4 題。</small></span></button>
     <button type="button" class="mode" id="mWrong"${wr?"":" disabled"}><span class="ic">🔁</span><span><b>錯題練習（${wr} 題）</b><small>${wr?`答錯過的題目；連續答對 ${CLEAR_STREAK} 次就會移出錯題本。`:"目前沒有錯題，太棒了！"}</small></span></button>
-    <button type="button" class="mode" id="mProg"><span class="ic">📊</span><span><b>我的進度</b><small>各主題答對率、模擬考紀錄、下載／匯入進度。</small></span></button>
+    <button type="button" class="mode wide" id="mProg"><span class="ic">📊</span><span><b>我的進度</b><small>各主題答對率、模擬考紀錄、下載／匯入進度。</small></span></button>
   </div>`);
   document.querySelectorAll("[data-exam]").forEach(b=>b.addEventListener("click",()=>{ DB.exam=b.dataset.exam; saveDB(); home(); }));
   $("mExam").addEventListener("click",()=>cur?examRun():examStart());
   $("mPractice").addEventListener("click",practiceSetup);
+  $("mLit").addEventListener("click",()=>{ if(examGroups().length) litSetup(); });
   $("mWrong").addEventListener("click",()=>{ if(wr) wrongStart(); });
   $("mProg").addEventListener("click",progress);
 }
@@ -351,7 +405,7 @@ function home(){
    ========================================================== */
 let PSET={topics:null,diff:0,kind:"all",count:10};
 function topicStat(tid){
-  const qs=QS.filter(q=>q.topic===tid), d=qs.filter(q=>rec(q.id)&&rec(q.id).a>0), ok=qs.filter(q=>rec(q.id)&&rec(q.id).l===1);
+  const qs=QS.filter(q=>q.topic===tid&&!isLit(q)),d=qs.filter(q=>rec(q.id)&&rec(q.id).a>0), ok=qs.filter(q=>rec(q.id)&&rec(q.id).l===1);
   return {n:qs.length,done:d.length,ok:ok.length};
 }
 function practiceSetup(){
@@ -397,12 +451,55 @@ function practiceSetup(){
   upd();
 }
 function practicePool(){
-  return QS.filter(q=>PSET.topics.includes(q.topic) && (!PSET.diff||q.diff===PSET.diff) &&
+  return QS.filter(q=>!isLit(q) && PSET.topics.includes(q.topic) && (!PSET.diff||q.diff===PSET.diff) &&
     (PSET.kind==="all" || (PSET.kind==="img"?isImg(q):q.type===PSET.kind)));
 }
 
 /* ==========================================================
-   一題一題作答（主題練習、錯題練習共用）
+   素養題組：選單元、類型、組數；一組的小題照順序出，情境每題都看得到
+   ========================================================== */
+let LSET={units:null,kind:"all",count:3};
+/* 題組狀態：0＝還沒做過、1＝上次有答錯的小題、2＝全部最近都答對 */
+function groupState(g){ const rs=g.qids.map(rec); if(rs.every(r=>!r||!r.a)) return 0; return rs.some(r=>r&&r.l===0)?1:2; }
+function litStat(uid){ const gs=examGroups().filter(g=>!uid||g.unit===uid), qids=gs.flatMap(g=>g.qids);
+  return {g:gs.length,gdone:gs.filter(g=>groupState(g)).length,n:qids.length,
+    done:qids.filter(id=>rec(id)&&rec(id).a>0).length,ok:qids.filter(id=>rec(id)&&rec(id).l===1).length}; }
+function litPool(){ return examGroups().filter(g=>LSET.units.includes(g.unit)&&(LSET.kind==="all"||g.kind===LSET.kind)); }
+function litSetup(){
+  setHome(true);
+  const ex=curExam();
+  if(!LSET.units||!LSET.units.some(u=>ex.units.includes(u))) LSET.units=ex.units.slice();
+  const unitChips=ex.units.map(uid=>{ const s=litStat(uid); if(!s.g) return "";
+    return `<button type="button" class="chip" data-lu="${uid}" aria-pressed="${LSET.units.includes(uid)}">${esc(UNIT[uid].name)}<small>做過 ${s.gdone}/${s.g} 組</small></button>`; }).join("");
+  const kinds=[["all","全部"],...Object.entries(LIT_KIND)];
+  show(`<div class="panel"><div class="ptitle">🧩 素養題組</div>
+    <p>每一組先讀一段<b>情境</b>（可能有表格、統計圖、照片或同學的對話），再回答 2–4 題。情境在每一題上面都看得到，可以隨時回頭看。</p>
+    <div class="field"><div class="lab">① 單元</div><div class="chips">${unitChips}</div></div>
+    <div class="field"><div class="lab">② 類型</div><div class="seg" id="segLK">${kinds.map(([v,t])=>`<button type="button" class="chip" data-v="${v}" aria-pressed="${LSET.kind===v}">${esc(t)}</button>`).join("")}</div></div>
+    <div class="field"><div class="lab">③ 組數</div><div class="seg" id="segLC">${[[3,"3 組"],[5,"5 組"],[0,"全部"]].map(([v,t])=>`<button type="button" class="chip" data-v="${v}" aria-pressed="${LSET.count===v}">${t}</button>`).join("")}</div></div>
+    <p class="note" id="litNote"></p>
+    <div class="btnrow"><button type="button" class="btn green" id="lGo">開始練習 →</button></div>
+    <p class="note">會先出「還沒做過」和「上次有答錯」的題組。</p></div>`);
+  const upd=()=>{ const pool=litPool(), n=pool.reduce((s,g)=>s+g.qids.length,0);
+    $("litNote").textContent=LSET.units.length?`符合條件的題組：${pool.length} 組（${n} 題）`:"先選至少一個單元。"; $("lGo").disabled=!pool.length; };
+  document.querySelectorAll("[data-lu]").forEach(b=>b.addEventListener("click",()=>{
+    const id=b.dataset.lu, i=LSET.units.indexOf(id); if(i<0) LSET.units.push(id); else LSET.units.splice(i,1);
+    b.setAttribute("aria-pressed",String(i<0)); upd(); }));
+  const seg=(host,key,cast)=>host.querySelectorAll(".chip").forEach(b=>b.addEventListener("click",()=>{
+    LSET[key]=cast(b.dataset.v); host.querySelectorAll(".chip").forEach(x=>x.setAttribute("aria-pressed",String(x===b))); upd(); }));
+  seg($("segLK"),"kind",String); seg($("segLC"),"count",Number);
+  $("lGo").addEventListener("click",()=>{
+    const pool=litPool(); if(!pool.length) return;
+    const g0=[],g1=[],g2=[]; pool.forEach(g=>[g0,g1,g2][groupState(g)].push(g));
+    let gs=[...shuffle(g0),...shuffle(g1),...shuffle(g2)];
+    if(LSET.count) gs=gs.slice(0,LSET.count);
+    startQuiz(shuffle(gs).flatMap(g=>g.qids.map(id=>QMAP[id])),"lit");
+  });
+  upd();
+}
+
+/* ==========================================================
+   一題一題作答（主題練習、素養題組、錯題練習共用）
    ========================================================== */
 let quiz=null;
 function startQuiz(list,mode){ quiz={list,mode,i:0,res:[]}; quizStep(); }
@@ -413,7 +510,11 @@ function quizStep(){
   const wrongNote=quiz.mode==="wrong"&&r&&r.w?`<p class="note">🔁 錯題本：${r.s?`已經連續答對 ${r.s} 次，再答對 ${CLEAR_STREAK-r.s} 次就移出。`:`連續答對 ${CLEAR_STREAK} 次就會移出錯題本。`}</p>`:"";
   show(`<div class="panel">${questionHTML(q,quiz.i+1,quiz.list.length,order)}${wrongNote}<div id="after"></div></div>`);
   $("opts").querySelectorAll(".opt").forEach(b=>b.addEventListener("click",()=>answer(q,+b.dataset.v)));
+  if(quiz.i>0&&sameGroup(quiz.list[quiz.i-1],q)) jumpToQuestion();
 }
+/* 同一組的下一小題：情境已經讀過了，直接捲到題目（往上捲還看得到情境） */
+const sameGroup=(a,b)=>!!(a&&b&&a.group&&a.group===b.group);
+function jumpToQuestion(){ const t=$("qtext"); if(!t) return; window.scrollTo({top:Math.max(0,t.getBoundingClientRect().top+window.scrollY-90)}); }
 function answer(q,v){
   if(quiz.answered===quiz.i) return;
   quiz.answered=quiz.i;
@@ -427,21 +528,21 @@ function answer(q,v){
   else if(!ok) streak=`<div class="streak">📌 這一題已經放進錯題本。</div>`;
   $("after").innerHTML=`<div class="feedback ${ok?"good":"bad"}">${ok?"✅ 答對了！":"❌ 答錯了，正確答案是："+esc(optText(q,q.ans))}</div>${expHTML(q)}${streak}
     <div class="btnrow end"><button type="button" class="btn green" id="nextQ">${last?"看結果 →":"下一題 →"}</button></div>`;
-  $("nextQ").addEventListener("click",()=>{ if(last) quizDone(); else { quiz.i++; quizStep(); $("qtext").focus({preventScroll:true}); } });
-  $("nextQ").focus({preventScroll:true});
+  $("nextQ").addEventListener("click",()=>{ if(last) quizDone(); else { quiz.i++; quizStep(); $("qtext").focus({preventScroll:true}); } });  $("nextQ").focus({preventScroll:true});
   $("after").scrollIntoView({behavior:"smooth",block:"nearest"});
 }
 function quizDone(){
   const n=quiz.res.length, ok=quiz.res.filter(r=>r.ok).length, wrong=quiz.res.filter(r=>!r.ok).map(r=>QMAP[r.id]);
   const mode=quiz.mode;
-  show(`<div class="panel"><div class="ptitle">${mode==="wrong"?"🔁 錯題練習完成":"📚 練習完成"}</div>
+  show(`<div class="panel"><div class="ptitle">${mode==="wrong"?"🔁 錯題練習完成":mode==="lit"?"🧩 素養題組完成":"📚 練習完成"}</div>
     <div class="score">${ok} / ${n}</div><p class="note" style="text-align:center">答對 ${ok} 題、答錯 ${n-ok} 題${mode==="wrong"?`；錯題本還有 ${wrongList().length} 題`:""}</p>
     ${wrong.length?`<div class="review"><b>這次答錯的題目：</b><ol>${wrong.map(q=>`<li>${esc(q.q)}<br><span class="note">正確答案：${esc(optText(q,q.ans))}</span></li>`).join("")}</ol></div>`:"<p style='text-align:center;font-weight:900'>全部答對！🎉</p>"}
     <div class="btnrow">${wrong.length?`<button type="button" class="btn" id="again">再練一次答錯的 ${wrong.length} 題</button>`:""}
-      ${mode==="practice"?`<button type="button" class="btn plain" id="more">繼續練習</button>`:""}
+      ${mode==="practice"||mode==="lit"?`<button type="button" class="btn plain" id="more">繼續練習</button>`:""}
       <button type="button" class="btn plain" id="toHome">回題庫首頁</button></div></div>`);
   if(wrong.length) $("again").addEventListener("click",()=>startQuiz(shuffle(wrong),"wrong"));
   if(mode==="practice") $("more").addEventListener("click",practiceSetup);
+  if(mode==="lit") $("more").addEventListener("click",litSetup);
   $("toHome").addEventListener("click",()=>{ quiz=null; home(); });
 }
 function wrongStart(){
@@ -453,7 +554,7 @@ function wrongStart(){
    模擬考：依難度比例、兩個單元依題數比例抽題；沒做過、答錯過的比較容易被抽到
    ========================================================== */
 function pickExam(){
-  const ex=curExam(), pool=examQs(), size=Math.min(ex.size,pool.length);
+  const ex=curExam(), pool=examQs().filter(q=>!isLit(q)), size=Math.min(ex.size,pool.length);
   const weight=q=>{ const r=rec(q.id); if(!r||!r.a) return 3; if(r.l===0) return 3; return 1; };
   const pickW=(cands,k)=>{ const out=[], c=cands.slice();
     while(out.length<k&&c.length){ let tot=c.reduce((s,q)=>s+weight(q),0), x=Math.random()*tot, i=0;
@@ -478,14 +579,24 @@ function pickExam(){
     const alt=pickW(pool.filter(x=>!chosen.includes(x)&&x.unit===q.unit&&x.diff===q.diff&&(cnt[x.topic]||0)<cap),1)[0];
     if(alt){ cnt[q.topic]--; cnt[alt.topic]=(cnt[alt.topic]||0)+1; chosen[i]=alt; }
   }
-  return shuffle(chosen.slice(0,size));
+  /* 素養題組放在最後：各單元輪流抽，沒做過、有答錯的題組比較容易被抽到；小題照順序 */
+  const gpool=examGroups(), picked=[];
+  for(let k=0;k<(ex.groups||0)&&picked.length<gpool.length;k++){
+    const u=ex.units[k%ex.units.length];
+    let c=gpool.filter(g=>g.unit===u&&!picked.includes(g)); if(!c.length) c=gpool.filter(g=>!picked.includes(g));
+    const w=g=>groupState(g)===2?1:3; let x=Math.random()*c.reduce((s,g)=>s+w(g),0), i=0;
+    for(;i<c.length;i++){ x-=w(c[i]); if(x<=0) break; }
+    picked.push(c[Math.min(i,c.length-1)]);
+  }
+  return [...shuffle(chosen.slice(0,size)),...picked.flatMap(g=>g.qids.map(id=>QMAP[id]))];
 }
 function examStart(){
   const ids=pickExam().map(q=>q.id), order={};
   ids.forEach(id=>order[id]=optOrder(QMAP[id]));
   DB.cur={exam:curExam().id,ids,order,ans:{},i:0,start:Date.now()}; saveDB();
-  examRun();
+  examPrev=null; examRun();
 }
+let examPrev=null;   /* 上一個看的題目：同一組的小題之間切換時，直接捲到題目 */
 function examRun(){
   setHome(true);
   const c=DB.cur; if(!c){ home(); return; }
@@ -494,7 +605,8 @@ function examRun(){
   const answered=Object.keys(c.ans).filter(k=>c.ids.includes(k)).length;
   show(`<div class="panel">
     <div class="ptitle">📝 模擬考 <span class="note">已作答 ${answered} / ${n}</span></div>
-    <div class="navgrid" id="nav">${c.ids.map((x,k)=>`<button type="button" class="${k===c.i?"cur":""} ${c.ans[x]!=null?"done":""}" data-k="${k}" aria-label="第 ${k+1} 題${c.ans[x]!=null?"（已作答）":""}">${k+1}</button>`).join("")}</div>
+    <div class="navgrid" id="nav">${c.ids.map((x,k)=>`<button type="button" class="${k===c.i?"cur":""} ${c.ans[x]!=null?"done":""} ${isLit(QMAP[x])?"lit":""}" data-k="${k}" aria-label="第 ${k+1} 題${isLit(QMAP[x])?"（素養題組）":""}${c.ans[x]!=null?"（已作答）":""}">${k+1}</button>`).join("")}</div>
+    ${c.ids.some(x=>isLit(QMAP[x]))?`<p class="note">虛線框的題號是素養題組（最後幾題），要先讀情境再作答。</p>`:""}
   </div>
   <div class="panel">${questionHTML(q,c.i+1,n,order)}
     <div class="btnrow"><button type="button" class="btn plain" id="prevQ"${c.i?"":" disabled"}>← 上一題</button>
@@ -512,6 +624,8 @@ function examRun(){
       if(c.i<n-1) setTimeout(()=>{ if(DB.cur===c&&c.ids[c.i]===id){ c.i++; saveDB(); examRun(); } },350);
     });
   });
+  if(examPrev&&examPrev!==id&&sameGroup(QMAP[examPrev],q)) jumpToQuestion();
+  examPrev=id;
   $("nav").querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{ c.i=+b.dataset.k; saveDB(); examRun(); }));
   $("prevQ").addEventListener("click",()=>{ if(c.i>0){ c.i--; saveDB(); examRun(); } });
   $("nextQ").addEventListener("click",()=>{ if(c.i<n-1){ c.i++; saveDB(); examRun(); } });
@@ -537,14 +651,14 @@ function examResult(hi){
   setHome(true);
   const h=DB.exams[hi]; if(!h){ home(); return; }
   const ids=h.ids.filter(id=>QMAP[id]);
-  const per={}; ids.forEach(id=>{ const q=QMAP[id], u=q.unit; per[u]=per[u]||{n:0,r:0}; per[u].n++; if(h.ans[id]===q.ans) per[u].r++; });
+  const per={}; ids.forEach(id=>{ const q=QMAP[id], u=isLit(q)?"lit":q.unit; per[u]=per[u]||{n:0,r:0}; per[u].n++; if(h.ans[id]===q.ans) per[u].r++; });
   const byDiff={}; ids.forEach(id=>{ const q=QMAP[id]; byDiff[q.diff]=byDiff[q.diff]||{n:0,r:0}; byDiff[q.diff].n++; if(h.ans[id]===q.ans) byDiff[q.diff].r++; });
   const wrongIds=ids.filter(id=>h.ans[id]!==QMAP[id].ans);
   show(`<div class="panel"><div class="ptitle">📝 模擬考成績 <span class="note">${fmtDate(h.t)}｜用時 ${fmtDur(h.dur)}</span></div>
     <div class="score">${h.score} 分</div>
     <p class="note" style="text-align:center">${h.n} 題答對 ${h.right} 題</p>
     <table class="prog"><tr><th>範圍</th><th class="num">答對</th></tr>
-      ${Object.entries(per).map(([u,s])=>`<tr><td>${esc(UNIT[u].name)}</td><td class="num">${s.r} / ${s.n}</td></tr>`).join("")}
+      ${Object.entries(per).sort(([a],[b])=>(a==="lit")-(b==="lit")).map(([u,s])=>`<tr><td>${u==="lit"?"🧩 素養題組":esc(UNIT[u].name)}</td><td class="num">${s.r} / ${s.n}</td></tr>`).join("")}
       ${Object.entries(byDiff).map(([d,s])=>`<tr><td>${DIFF_NAME[d]}</td><td class="num">${s.r} / ${s.n}</td></tr>`).join("")}</table>
     <div class="btnrow">${wrongIds.length?`<button type="button" class="btn" id="rvWrong">只看答錯的 ${wrongIds.length} 題</button><button type="button" class="btn" id="drill">馬上練這 ${wrongIds.length} 題錯題</button>`:""}
       <button type="button" class="btn plain" id="rvAll">看全部題目與解析</button>
@@ -552,7 +666,8 @@ function examResult(hi){
     <div id="rv"></div></div>`);
   const review=list=>{
     $("rv").innerHTML=list.map((id,k)=>{ const q=QMAP[id], v=h.ans[id], order=(h.order&&h.order[id])||optOrder(q);
-      return `<div class="review">${questionHTML(q,ids.indexOf(id)+1,ids.length,order)}
+      const newGroup=q.group&&!(k&&QMAP[list[k-1]].group===q.group);   /* 同一組連續的小題，情境只顯示一次 */
+      return `<div class="review">${questionHTML(q,ids.indexOf(id)+1,ids.length,order,newGroup)}
         <div class="feedback ${v===q.ans?"good":"bad"}">${v===q.ans?"✅ 答對":v==null?"❌ 沒有作答":"❌ 答錯"}</div>${expHTML(q)}</div>`; }).join("");
     $("rv").querySelectorAll(".review").forEach((box,k)=>{ const id=list[k]; markOpts(box.querySelector(".opts"),QMAP[id],h.ans[id]); });
     $("rv").querySelectorAll(".qtext").forEach(x=>x.removeAttribute("id"));
@@ -574,7 +689,11 @@ function progress(){
       u.topics.map(t=>{ const s=topicStat(t.id); if(!s.n) return "";
         const pct=Math.round(s.ok/s.n*100);
         return `<tr><td>${esc(t.name)}<br><span class="note">${esc(t.pages)}</span></td><td class="num">做過 ${s.done}/${s.n}<br><span class="note">答對 ${s.ok}</span></td>
-          <td class="barcell"><div class="bar" role="img" aria-label="掌握 ${pct}%"><i style="width:${pct}%"></i></div></td></tr>`; }).join(""); }).join("");
+          <td class="barcell"><div class="bar" role="img" aria-label="掌握 ${pct}%"><i style="width:${pct}%"></i></div></td></tr>`; }).join(""); }).join("")+
+    (examGroups().length?`<tr><th colspan="3" style="padding-top:12px;color:var(--ink);font-size:1em">🧩 素養題組</th></tr>`+ex.units.map(uid=>{ const s=litStat(uid); if(!s.g) return "";
+        const pct=Math.round(s.ok/s.n*100);
+        return `<tr><td>${esc(UNIT[uid].name)}<br><span class="note">做過 ${s.gdone}/${s.g} 組</span></td><td class="num">做過 ${s.done}/${s.n}<br><span class="note">答對 ${s.ok}</span></td>
+          <td class="barcell"><div class="bar" role="img" aria-label="掌握 ${pct}%"><i style="width:${pct}%"></i></div></td></tr>`; }).join(""):"");
   const hist=DB.exams.map((h,i)=>({h,i})).filter(o=>o.h.exam===ex.id).reverse();
   show(`<div class="panel"><div class="ptitle">📊 我的進度（${esc(ex.name)}）</div>
     <p class="note">「答對」是這一題最近一次作答的結果；綠色長條＝最近答對的題數 ÷ 這個主題的題數。</p>
@@ -632,7 +751,7 @@ function afterImport(){ setTimeout(()=>modal("匯入完成","<p>練習紀錄已�
 
 /* ---------- 頁尾：照片來源 ---------- */
 (function(){
-  const used=new Set(QS.filter(q=>q.img).map(q=>q.img));
+  const used=new Set([...QS.filter(q=>q.img).map(q=>q.img),...GROUPS.filter(g=>g.img).map(g=>g.img)]);
   const cc=[...used].map(k=>QPHOTOS[k]).filter(p=>p&&p.credit);
   $("credits").innerHTML=`<p>題目依據南一版自然五上課本第 10–61 頁出題。示意圖不是真實比例。</p>`+
     (cc.length?`<p>其他照片（Wikimedia Commons）：${cc.map(p=>`${esc(p.name)}：${p.credit}`).join("；")}</p>`:"")+
