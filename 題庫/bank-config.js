@@ -17,7 +17,7 @@
      opts:["選項",...]（單選題；是非題不用）, ans: 單選＝正確選項的索引（從 0 算）；是非＝1(○) 或 0(╳),
      exp:"解析", src:"課本 p.13",
      img:"照片代號"（看 questions/photos.js，可省略）, cap:"照片說明"（可省略）,
-     fig:{type:"shadow",...}（示意圖，看 figures.js，可省略） }
+     fig:{type:"shadow",...}（示意圖，看 figures.js 檔內的規格，可省略） }
 
    素養題組（questions/literacy.js，用 QGROUP_ADD([...]) 加入）：一段情境＋2–4 題。
    { id:"s-u1-01"（一樣永遠不要改）, kind:"life"/"data"/"exp"/"argue", title:"題組標題",
@@ -52,11 +52,31 @@ window.BANK = {
       { id: "u2-vegrepro", name: "營養器官的繁殖",       pages: "課本 52–53" },
       { id: "u2-human",    name: "植物與人類生活",       pages: "課本 54–57" },
       { id: "u2-family",   name: "植物家族",             pages: "課本 58–59" }
+    ]},
+    { id: "u3", name: "第三單元 水溶液", topics: [
+      { id: "u3-dissolve",  name: "溶解現象與重量",       pages: "課本 64–65" },
+      { id: "u3-recover",   name: "把溶解的物質取回來",   pages: "課本 66" },
+      { id: "u3-props",     name: "水溶液的性質與配製",   pages: "課本 66–69" },
+      { id: "u3-litmus",    name: "石蕊試紙檢驗酸鹼性",   pages: "課本 70–73、81" },
+      { id: "u3-indicator", name: "自製酸鹼指示劑",       pages: "課本 74–75、80" },
+      { id: "u3-mix",       name: "混合水溶液的酸鹼性",   pages: "課本 76–77" },
+      { id: "u3-conduct",   name: "水溶液的導電性",       pages: "課本 78–79" }
+    ]},
+    { id: "u4", name: "第四單元 力與運動", topics: [
+      { id: "u4-force",    name: "生活中的力",           pages: "課本 86–87" },
+      { id: "u4-spring",   name: "彈簧與彈性限度",       pages: "課本 88–91、106–107" },
+      { id: "u4-scale",    name: "彈簧秤與秤重工具",     pages: "課本 92–93" },
+      { id: "u4-balance",  name: "力的平衡",             pages: "課本 94–95" },
+      { id: "u4-friction", name: "摩擦力",               pages: "課本 96–98" },
+      { id: "u4-speed",    name: "運動的快慢",           pages: "課本 99–103" },
+      { id: "u4-energy",   name: "能量的轉換",           pages: "課本 104–105" }
     ]}
   ],
   exams: [
-    /* size：模擬考題數；mix：各難度題數（加起來＝size）；groups：另外加考幾組素養題組 */
-    { id: "exam1", name: "第一次評量", units: ["u1", "u2"], size: 25, mix: { 1: 10, 2: 10, 3: 5 }, groups: 2 }
+    /* size：模擬考題數；mix：各難度題數（加起來＝size）；groups：另外加考幾組素養題組；pages：課本頁碼（寫在頁尾）
+       第一筆是預設的評量（學生第一次打開、沒有紀錄時）；網址加 ?exam=exam2 會直接切到那一個評量 */
+    { id: "exam1", name: "第一次評量", units: ["u1", "u2"], size: 25, mix: { 1: 10, 2: 10, 3: 5 }, groups: 2, pages: "10–61" },
+    { id: "exam2", name: "第二次評量", units: ["u3", "u4"], size: 25, mix: { 1: 10, 2: 10, 3: 5 }, groups: 2, pages: "62–109" }
   ],
   /* 素養題組的四種類型 */
   litKinds: { life: "生活情境", data: "圖表判讀", exp: "實驗設計", argue: "誰說得對" }

@@ -123,8 +123,10 @@ TOPIC_DESCS = {
 
 # 線上題庫（首頁最上方獨立一區）：(連結, emoji, 標題, 說明, 標籤)；之後有第二次評量就多加一行
 QUIZ_BANKS = [
-    ("題庫/index.html", "✍️", "第一次評量線上題庫",
+    ("題庫/index.html?exam=exam1", "✍️", "第一次評量線上題庫",
      "第一、二單元分主題練習、素養題組、模擬考、錯題本；進度可以下載到別台電腦繼續。", "題庫"),
+    ("題庫/index.html?exam=exam2", "✍️", "第二次評量線上題庫",
+     "第三、四單元（水溶液、力與運動）分主題練習、素養題組、模擬考、錯題本。", "題庫"),
 ]
 
 # 延伸工具（materials/*.html）各自的卡片資料：檔名 → (emoji, 標題, 說明)
@@ -142,7 +144,7 @@ if QUIZ_BANKS:
         '  <div class="zone-head"><span class="zone-emoji">✍️</span><h2>線上題庫</h2></div>\n'
         '  <p class="zone-desc">自己練習：分主題練習、素養題組、模擬考、錯題本。練習紀錄存在自己的瀏覽器裡。</p>\n'
         '  <div class="card-grid">\n%s\n  </div>\n</section>'
-        % "\n".join(card(U.quote(h), e, t, d, g) for h, e, t, d, g in QUIZ_BANKS))
+        % "\n".join(card(U.quote(h, safe="/?="), e, t, d, g) for h, e, t, d, g in QUIZ_BANKS))
 for t in TYPE_ORDER:
     meta = TYPES[t]
     cards = []

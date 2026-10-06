@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>自然線上題庫｜第一次評量</title>
+<title>自然線上題庫</title>
 <link rel="icon" href="../image/icon.svg" type="image/svg+xml">
 <style>
 /* ==========================================================
@@ -132,7 +132,7 @@ button{font:inherit;color:inherit}
 .ltable-wrap{overflow-x:auto;margin:6px 0 10px;-webkit-overflow-scrolling:touch}
 table.ltable{border-collapse:collapse;min-width:60%;margin:0 auto;background:#fff;font-size:.95em}
 table.ltable caption{font-weight:900;padding-bottom:4px;text-align:left}
-table.ltable th,table.ltable td{border:2px solid #CFC6B4;padding:5px 10px;text-align:center;white-space:nowrap}
+table.ltable th,table.ltable td{border:2px solid #CFC6B4;padding:5px 10px;text-align:center;white-space:normal}
 table.ltable thead th{background:#F1EBDD}
 table.ltable tbody th{background:#FAF6EC;text-align:left}
 @media (max-width:640px){ table.ltable{font-size:.88em;width:100%} table.ltable th,table.ltable td{white-space:normal;padding:4px 5px;min-width:3.2em} }
@@ -204,14 +204,16 @@ table.prog td.barcell{width:30%}
 </div>
 <input type="file" id="importFile" accept=".json,application/json" hidden>
 
-<script src="bank-config.js?v=20260929b"></script>
-<script src="figures.js?v=20260929b"></script>
+<script src="bank-config.js?v=20261006a"></script>
+<script src="figures.js?v=20261006a"></script>
 <!-- 題目：加新單元時在這裡多加一行。
      ?v= 是版本號：改了任何 .js 檔，就把所有 ?v= 改成新的日期，學生的瀏覽器才會抓新版（GitHub Pages 會讓瀏覽器暫存 10 分鐘）。 -->
-<script src="questions/photos.js?v=20260929b"></script>
-<script src="questions/u1.js?v=20260929b"></script>
-<script src="questions/u2.js?v=20260929b"></script>
-<script src="questions/literacy.js?v=20260929b"></script>
+<script src="questions/photos.js?v=20261006a"></script>
+<script src="questions/u1.js?v=20261006a"></script>
+<script src="questions/u2.js?v=20261006a"></script>
+<script src="questions/u3.js?v=20261006a"></script>
+<script src="questions/u4.js?v=20261006a"></script>
+<script src="questions/literacy.js?v=20261006a"></script>
 <script>
 /* ==========================================================
    自然線上題庫 — 程式
@@ -276,6 +278,9 @@ function saveDB(){
   try{ localStorage.setItem(BANK.storageKey,JSON.stringify(DB)); }
   catch(e){ STORAGE_OK=false; $("storageWarn").classList.remove("hidden"); }
 }
+/* 網址加 ?exam=exam2 會直接切到那一個評量（網站首頁的題庫卡片用這個） */
+(function(){ try{ const want=new URLSearchParams(location.search).get("exam");
+  if(want&&BANK.exams.some(e=>e.id===want)&&DB.exam!==want){ DB.exam=want; saveDB(); } }catch(e){} })();
 function rec(id){ return DB.q[id]||null; }
 /* 作答一次：回傳是否剛好移出錯題本 */
 function record(id,ok){
@@ -374,6 +379,7 @@ function home(){
   const best=exams.length?Math.max(...exams.map(h=>h.score)):null;
   const wr=wrongList().length;
   $("brandSub").textContent=`${ex.name}｜${ex.units.map(u=>UNIT[u].name).join("、")}`;
+  document.title=`自然線上題庫｜${ex.name}`;
   const examBtns=BANK.exams.length>1?`<div class="panel"><div class="ptitle">📌 選擇評量範圍</div><div class="examsel">${
       BANK.exams.map(e=>`<button type="button" class="btn small plain" data-exam="${e.id}" aria-pressed="${e.id===ex.id}">${esc(e.name)}</button>`).join("")}</div></div>`:"";
   const cur=DB.cur&&DB.cur.exam===ex.id?DB.cur:null;
@@ -413,6 +419,7 @@ function practiceSetup(){
   setHome(true);
   const ex=curExam();
   if(!PSET.topics) PSET.topics=[];
+  PSET.topics=PSET.topics.filter(id=>TOPIC[id]&&ex.units.includes(TOPIC[id].unit));   /* 換了評量範圍，就不留另一個評量選過的主題 */
   const unitHTML=ex.units.map(uid=>{ const u=UNIT[uid];
     return `<div class="unitbox"><h3>${esc(u.name)} <button type="button" class="btn small plain" data-all="${uid}">全選／全不選</button></h3><div class="chips">${
       u.topics.map(t=>{ const s=topicStat(t.id); if(!s.n) return "";
@@ -754,7 +761,8 @@ function afterImport(){ setTimeout(()=>modal("匯入完成","<p>練習紀錄已�
 (function(){
   const used=new Set([...QS.filter(q=>q.img).map(q=>q.img),...GROUPS.filter(g=>g.img).map(g=>g.img)]);
   const cc=[...used].map(k=>QPHOTOS[k]).filter(p=>p&&p.credit);
-  $("credits").innerHTML=`<p>題目依據南一版自然五上課本第 10–61 頁出題。示意圖不是真實比例。</p>`+
+  const pages=BANK.exams.filter(e=>e.pages).map(e=>`${esc(e.name)}：第 ${esc(e.pages)} 頁`).join("；");
+  $("credits").innerHTML=`<p>題目依據南一版自然五上課本出題（${pages}）。示意圖不是真實比例。</p>`+
     (cc.length?`<p>其他照片（Wikimedia Commons）：${cc.map(p=>`${esc(p.name)}：${p.credit}`).join("；")}</p>`:"")+
     `<p>練習紀錄只存在這個瀏覽器裡，不會上傳到網路。</p>`;
 })();
