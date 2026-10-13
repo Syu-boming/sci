@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>檢驗水溶液的酸鹼性　重點整理</title>
+  <link rel="icon" href="../../image/icon.svg">
+  <style>
+    :root{--c-ink:#2c2f31;--c-soft:#55606a;--c-bg:#fff9f0;--c-brand:#f5a623;--c-brandS:#e8890b;--c-brandSoft:#fff2d9;--c-no:#e5484d;--c-noSoft:#fdeaea;--radius:16px;
+      --font:"Noto Sans TC","PingFang TC","Microsoft JhengHei","微軟正黑體",system-ui,-apple-system,sans-serif;}
+    *{box-sizing:border-box;}
+    body{margin:0;font-family:var(--font);color:var(--c-ink);background:var(--c-bg);line-height:1.75;font-size:18px;}
+    .wrap{width:min(880px,92vw);margin:0 auto;}
+    .site-header{background:linear-gradient(135deg,var(--c-brand),var(--c-brandS));color:#fff;padding:24px 0;}
+    .site-header .wrap{display:flex;align-items:center;gap:14px;}
+    .site-header img{width:50px;height:50px;}
+    .site-header h1{margin:0;font-size:1.5rem;}
+    .site-header p{margin:2px 0 0;opacity:.92;font-size:.95rem;}
+    .breadcrumb{padding:14px 0;font-size:.95rem;}
+    .breadcrumb a{color:var(--c-brandS);text-decoration:none;margin-right:14px;display:inline-block;padding:9px 0;min-height:44px;}
+    .breadcrumb a:hover{text-decoration:underline;}
+    .keypoint{background:#fff;border:1px solid #ece3d6;border-left:5px solid var(--c-brand);border-radius:12px;
+      padding:14px 16px;margin:12px 0;box-shadow:0 6px 20px rgba(90,70,30,.08);}
+    .keypoint.danger{border-left-color:var(--c-no);background:var(--c-noSoft);}
+    .keypoint b{color:var(--c-brandS);}
+    .keypoint.danger b{color:var(--c-no);}
+    .keytab{width:100%;border-collapse:collapse;margin:14px 0;background:#fff;border-radius:12px;overflow:hidden;
+      box-shadow:0 6px 20px rgba(90,70,30,.08);}
+    .keytab th,.keytab td{border:1px solid #ece3d6;padding:10px 12px;text-align:center;}
+    .keytab th{background:var(--c-brandSoft);color:var(--c-brandS);}
+    .keytab td.l{text-align:left;}
+    h2{font-size:1.3rem;}
+    .toolbar{margin:18px 0;}
+    .btn{cursor:pointer;border:none;border-radius:999px;padding:10px 20px;font-family:inherit;font-size:1rem;font-weight:700;background:var(--c-brand);color:#fff;min-height:44px;}
+    .btn:hover{background:var(--c-brandS);}
+    .site-footer{margin:40px 0 26px;text-align:center;color:var(--c-soft);font-size:.9rem;}
+    .site-footer a{color:var(--c-brandS);}
+    .print-title{display:none;}
+    .keytab td.grp{font-weight:800;color:var(--c-brandS);background:#fffaf1;}
+    .keytab td.nw{white-space:nowrap;}
+    .nobr{white-space:nowrap;}
+    /* 階梯圖（步驟） */
+    .ladder{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;
+      background:#fff;border:1px solid #ece3d6;border-radius:12px;padding:16px;margin:14px 0;
+      box-shadow:0 6px 20px rgba(90,70,30,.08);}
+    .step{text-align:center;min-width:120px;}
+    .step .box{font-size:2rem;line-height:1.2;}
+    .step .nm{font-weight:800;color:var(--c-brandS);}
+    .step .ds{font-size:.85em;color:var(--c-soft);}
+    .step .ds b{color:var(--c-ink);font-size:1.15em;}
+    .arrow{font-size:1.6rem;color:var(--c-soft);}
+    /* 每格都放一段話：平均分寬、不換行成兩列 */
+    .ladder.wide{flex-wrap:nowrap;align-items:stretch;}
+    .ladder.wide .step{flex:1 1 0;min-width:0;}
+    .ladder.wide .arrow{flex:none;align-self:center;}
+    .nest-ttl{font-weight:700;margin:4px 0 6px;}
+    .nest{display:flex;gap:10px;flex-wrap:wrap;}
+    .fl{flex:1 1 0;min-width:0;background:#fff;border:2px solid var(--c-ink);border-radius:14px;padding:8px 10px;text-align:center;}
+    .fl-nm{font-weight:800;}
+    .fl-ds{font-size:.85em;color:var(--c-soft);line-height:1.5;}
+    /* 迷思清單、一般清單：開頭符號凸出來，第二行對齊文字 */
+    .nope,.list{margin:0;padding:0;list-style:none;}
+    .nope li,.list li{padding-left:1.6em;text-indent:-1.6em;margin:2px 0;}
+    .keypoint .lead{font-weight:700;margin-bottom:2px;}
+    .note{font-size:.88em;color:var(--c-soft);margin:4px 0 0;}
+    .tag{display:inline-block;font-size:.62em;font-weight:700;color:var(--c-soft);border:1px solid #cfc3b1;border-radius:999px;
+      padding:0 10px;margin-left:8px;vertical-align:middle;white-space:nowrap;}
+    .keypoint.soft{border-left-color:#b9ad9b;box-shadow:none;}
+    .keypoint.soft b{color:var(--c-ink);}
+    /* 給高能力學生的延伸小知識（次要） */
+    .extra{background:#f4f7ff;border:1px dashed #9db4e0;border-radius:12px;padding:12px 16px;margin:28px 0 14px;
+      font-size:.9em;color:#3f5488;}
+    .extra b{color:#2f4680;}
+    .extra .ttl{display:flex;flex-wrap:wrap;align-items:baseline;gap:0 10px;}
+    .extra .ttl small{font-size:.88em;color:#52679a;}
+    .extra ul{margin:4px 0 0;padding-left:1.2em;}
+
+    /* ===== 本課新增 ===== */
+    /* 必會 3 句：編號清單 */
+    .must3{margin:0;padding-left:1.6em;}
+    .must3 li{margin:4px 0;font-weight:700;}
+    /* 安全三不：╳ 大字（黑白印也看得懂） */
+    .fl.no{border-color:var(--c-no);background:#fff;}
+    .fl.no .x{display:block;font-size:1.6rem;font-weight:900;color:#c0352f;line-height:1.1;}
+    .fl.no .fl-nm{font-size:1.08em;}
+    /* 搧聞示意圖 */
+    .fanfig{margin:8px auto 0;max-width:420px;text-align:center;}
+    .fanfig svg{display:block;width:100%;height:auto;border:1px solid #ece3d6;border-radius:10px;background:#FFFDF8;}
+    .fanfig figcaption{font-size:.85em;color:var(--c-soft);}
+    .step .num{display:inline-flex;align-items:center;justify-content:center;width:1.9em;height:1.9em;border-radius:50%;
+      border:2px solid var(--c-ink);font-weight:900;font-size:1.1rem;background:#fff;}
+    .chk{font-weight:800;}
+    a.ext{color:var(--c-brandS);font-weight:700;}
+
+    /* 本課：表格裡的「變色」加粗加底線（黑白印也看得出來） */
+    .keytab td.chg{font-weight:800;text-decoration:underline;text-underline-offset:3px;}
+    .keytab td.no{color:var(--c-soft);}
+    .story{margin:0;padding-left:1.6em;}
+    .story li{margin:3px 0;}
+
+    @media print{
+      @page{size:A4;margin:14mm;}
+      body{background:#fff;color:#000;font-size:11pt;line-height:1.5;}
+      .site-header,.breadcrumb,.toolbar,.site-footer{display:none!important;}
+      .keypoint,.keytab,.ladder,.extra{box-shadow:none;break-inside:avoid;}
+      /* 保留分類底色，黑白印也看得出虛線／實線 */
+      .keypoint.danger,.keytab th,.keytab td.grp,.extra{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+      .print-title{display:block;margin:0 0 4px;font-size:15pt;font-weight:800;}
+      .print-title small{font-size:9.5pt;font-weight:400;color:#555;margin-left:10px;}
+      /* 每個段落整段不跨頁 */
+      .sec{break-inside:avoid;}
+      h2{break-after:avoid;font-size:13pt;margin:.5em 0 .2em;}
+      p{margin:.3em 0;}
+      .keypoint{padding:5px 10px;margin:5px 0;}
+      .keytab{margin:5px 0;}
+      .keytab th,.keytab td{padding:2px 8px;}
+      .ladder{padding:4px 6px;margin:5px 0;}
+      .nope li,.list li{margin:0;}
+      .step .box{font-size:1.3rem;}
+      .step .ds{line-height:1.45;}
+      .nest-ttl{margin:2px 0 4px;}
+      .fl{padding:4px 8px;}
+      .note{margin:2px 0 0;}
+      .extra{padding:5px 14px;margin:6px 0 0;font-size:10pt;line-height:1.45;}
+      .fanfig{max-width:78mm;margin-top:4px;}
+      .must3 li{margin:1px 0;}
+    }
+
+    /* ===== RWD：手機 / 平板 / 筆電 / 75 吋觸控螢幕 ===== */
+    @media (max-width:640px){
+      body{font-size:16px;line-height:1.65;}
+      .wrap{width:94vw;}
+      .site-header{padding:16px 0;}
+      .site-header img{width:38px;height:38px;}
+      .site-header h1{font-size:1.22rem;}
+      .site-header p{font-size:.82rem;}
+      h2{font-size:1.1rem;}
+      .keypoint{padding:11px 12px;border-radius:10px;margin:9px 0;}
+      .keytab{font-size:.88em;}
+      .keytab th,.keytab td{padding:7px 5px;}
+      .keytab td.nw{white-space:normal;}
+      .btn{padding:12px 20px;}
+      .ladder{gap:6px;padding:12px;}
+      .ladder .step{min-width:96px;}
+      .arrow{font-size:1.2rem;}
+      /* 手機：步驟改成直向，箭頭朝下 */
+      .ladder.v3{flex-direction:column;gap:2px;}
+      .ladder.v3 .arrow{transform:rotate(90deg);line-height:1;}
+      .ladder.wide{align-items:center;}
+      .ladder.wide .step{flex:0 0 auto;width:100%;max-width:26em;}
+      .nest{flex-direction:column;gap:8px;}
+      .fl{display:flex;flex-wrap:wrap;align-items:center;gap:2px 10px;text-align:left;padding:7px 10px;}
+      .fl.no .x{display:inline;font-size:1.3rem;}
+      .fl-ds{flex-basis:100%;}
+      .tag{white-space:normal;}
+    }
+    @media (min-width:641px) and (max-width:1024px){ .wrap{width:94vw;} }
+    @media (min-width:1800px){
+      body{font-size:23px;}
+      .wrap{width:min(1250px,90vw);}
+      .site-header{padding:34px 0;}
+      .site-header img{width:70px;height:70px;}
+      .site-header h1{font-size:2rem;}
+      h2{font-size:1.6rem;}
+      .keypoint{padding:20px 24px;border-radius:16px;}
+      .keytab th,.keytab td{padding:15px 18px;}
+      .btn{font-size:1.15rem;padding:14px 28px;}
+      .ladder .step{min-width:180px;}
+      .ladder.wide .step{min-width:0;}
+      .ladder .step .box{font-size:3rem;}
+      .fl{border-width:3px;}
+      .nest{gap:18px;}
+      .fl{padding:14px 16px;}
+      .extra{padding:18px 24px;}
+      .fanfig{max-width:620px;}
+    }
+    @media (min-width:2600px){
+      body{font-size:30px;}
+      .wrap{width:min(1750px,88vw);}
+      .site-header img{width:94px;height:94px;}
+      .site-header h1{font-size:2.6rem;}
+      h2{font-size:2.1rem;}
+      .keytab th,.keytab td{padding:20px 24px;}
+      .ladder .step{min-width:240px;}
+      .ladder.wide .step{min-width:0;}
+      .ladder .step .box{font-size:4rem;}
+      .fl{border-width:4px;}
+      .fanfig{max-width:820px;}
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap">
+      <img src="../../image/icon.svg" alt="站標">
+      <div>
+        <h1>檢驗水溶液的酸鹼性</h1>
+        <p>單元重點整理 · 五年級自然｜第三單元 水溶液　課本 70–73、81 頁</p>
+      </div>
+    </div>
+  </header>
+
+  <nav class="breadcrumb wrap">
+    <a href="../../index.html">← 回首頁</a><a href="檢驗水溶液的酸鹼性_互動教材.html">← 回互動教材</a><a href="檢驗水溶液的酸鹼性_學習單.html">📄 學習單</a>
+  </nav>
+
+  <main class="wrap">
+    <div class="toolbar"><button class="btn" onclick="window.print()">🖨️ 列印重點</button></div>
+    <div class="print-title">檢驗水溶液的酸鹼性　重點整理<small>五年級自然｜第三單元 水溶液　課本 70–73、81 頁</small></div>
+
+    <section class="sec">
+      <h2>⭐ 必會 3 句</h2>
+      <div class="keypoint">
+        <ol class="must3">
+          <li><span class="must">酸性水溶液會讓藍色石蕊試紙變紅色，紅色石蕊試紙不變色。</span></li>
+          <li><span class="must">鹼性水溶液會讓紅色石蕊試紙變藍色，藍色石蕊試紙不變色。</span></li>
+          <li><span class="must">中性水溶液讓紅色和藍色石蕊試紙都不變色。</span></li>
+        </ol>
+      </div>
+      <table class="keytab" aria-label="石蕊試紙的顏色變化表">
+        <tr><th style="width:24%">滴上……</th><th>藍色石蕊試紙</th><th>紅色石蕊試紙</th></tr>
+        <tr><td class="grp">酸性水溶液</td><td class="chg">變紅色</td><td class="no">不變色</td></tr>
+        <tr><td class="grp">中性水溶液</td><td class="no">不變色</td><td class="no">不變色</td></tr>
+        <tr><td class="grp">鹼性水溶液</td><td class="no">不變色</td><td class="chg">變藍色</td></tr>
+      </table>
+      <div class="keypoint soft">🔍 <b>先看藍色石蕊試紙：變紅色＝酸性。再看紅色石蕊試紙：變藍色＝鹼性。兩種都不變色＝中性。</b></div>
+    </section>
+
+    <section class="sec">
+      <h2>🧻 石蕊試紙怎麼用（課本 70、72 頁）</h2>
+      <div class="ladder v3 wide">
+        <div class="step"><div class="box"><span class="num">1</span></div><div class="nm">鑷子夾</div><div class="ds">用<b>鑷子</b>夾試紙，剪<b>一小段</b>就夠了<br>理由：避免手碰觸試紙，影響實驗結果</div></div>
+        <div class="arrow">→</div>
+        <div class="step"><div class="box"><span class="num">2</span></div><div class="nm">滴管滴</div><div class="ds">用<b>滴管</b>把水溶液滴在試紙上<br>理由：試紙直接放進去沾，會影響水溶液原來的性質</div></div>
+        <div class="arrow">→</div>
+        <div class="step"><div class="box"><span class="num">3</span></div><div class="nm">同一種用同一支</div><div class="ds">同一種水溶液用<b>同一支滴管</b><br>理由：殘留的水溶液會造成誤判</div></div>
+        <div class="arrow">→</div>
+        <div class="step"><div class="box"><span class="num">4</span></div><div class="nm">純水對照</div><div class="ds">另一張試紙用<b>純水沾溼</b>，拿來對照<br>理由：分清楚「沾溼變深」和「變色」</div></div>
+      </div>
+      <div class="keypoint">💧 <b>試紙被純水沾溼，顏色會變深一點，那不是變色，所以要用純水沾溼的試紙對照。</b></div>
+      <p class="note">例：吸過醋的滴管沒換就去吸糖水，殘留的醋可能讓糖水看起來像酸性。水溶液也要用<b>純水</b>配製。</p>
+    </section>
+
+    <section class="sec">
+      <h2>🧩 只用一種試紙，行不行？（課本 73 頁）</h2>
+      <table class="keytab">
+        <tr><th style="width:20%">只用……</th><th>變色的</th><th>不變色的</th><th>分得出來的</th></tr>
+        <tr><td class="grp">藍色石蕊試紙</td><td>變紅色 → 酸性</td><td>可能是中性，也可能是鹼性</td><td>「酸性」和「不是酸性」</td></tr>
+        <tr><td class="grp">紅色石蕊試紙</td><td>變藍色 → 鹼性</td><td>可能是酸性，也可能是中性</td><td>「鹼性」和「不是鹼性」</td></tr>
+        <tr><td class="grp">兩種都用</td><td colspan="2">先看藍色、再看紅色</td><td>酸性、中性、鹼性三種都分得出來</td></tr>
+      </table>
+      <div class="keypoint">
+        <ul class="list">
+          <li>💡 <b>只用藍色石蕊試紙，不變色的可能是中性，也可能是鹼性，要再用紅色石蕊試紙才分得出來。</b></li>
+          <li>💡 <b>只用紅色石蕊試紙，不變色的可能是酸性，也可能是中性。</b></li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="sec">
+      <h2>🧪 課本的例子（課本 71–73 頁）</h2>
+      <table class="keytab">
+        <tr><th style="width:18%">性質</th><th style="width:40%">水溶液</th><th>石蕊試紙的變化</th></tr>
+        <tr><td class="grp">酸性</td><td>醋、檸檬酸水</td><td class="l">藍色石蕊試紙<b>變紅色</b>；紅色石蕊試紙不變色</td></tr>
+        <tr><td class="grp">中性</td><td>食鹽水、糖水、純水</td><td class="l">兩種試紙都不變色</td></tr>
+        <tr><td class="grp">鹼性</td><td>小蘇打水、肥皂水</td><td class="l">紅色石蕊試紙<b>變藍色</b>；藍色石蕊試紙不變色</td></tr>
+      </table>
+    </section>
+
+    <section class="sec">
+      <h2>📜 波以耳和石蕊試紙的故事（課本 81 頁）</h2>
+      <div class="keypoint">
+        <ol class="story">
+          <li>英國化學家<b>波以耳</b>（1627–1691）不小心把鹽酸甩到紫羅蘭的花瓣上，用水清洗後，紫色的花瓣<b>變成紅色</b>。</li>
+          <li>他發現從<b>石蕊地衣</b>提取的紫色液體，遇到酸變成紅色，遇到鹼變成藍色。</li>
+          <li>他把石蕊地衣做成紅、藍兩種液體，把紙張浸進去、烘乾，就成了<b>石蕊試紙</b>。</li>
+        </ol>
+        <p class="note">想一想：檸檬汁、醋也是酸性的，滴在紫羅蘭上<b>可能</b>也會讓花瓣變紅。鹽酸是很強的酸，這個實驗只聽故事，不在教室做。</p>
+      </div>
+    </section>
+
+    <section class="sec">
+      <h2>⚠️ 容易搞混的地方</h2>
+      <div class="keypoint danger">
+        <ul class="nope">
+          <li>❌「藍色石蕊試紙不變色，就是中性」→ 不對！也可能是<b>鹼性</b>，要再用紅色石蕊試紙。</li>
+          <li>❌「試紙可以直接放進水溶液裡沾」→ 不對！要用<b>滴管</b>滴在試紙上，以免影響水溶液原來的性質。</li>
+          <li>❌「小蘇打水會讓藍色石蕊試紙變紅色」→ 不對！小蘇打水是<b>鹼性</b>，會讓<b>紅色</b>石蕊試紙變藍色。</li>
+          <li>❌「試紙沾溼後顏色變深，就是變色」→ 不對！沾溼變深<b>不是變色</b>，要和純水沾溼的試紙比。</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="sec">
+      <h2>⚠️ 安全</h2>
+      <div class="keypoint">強酸、強鹼會造成傷害，使用時要<b>戴手套、保持通風</b>（習作 33 頁）。不小心碰到要怎麼處理，〈混合水溶液的酸鹼性〉會學。<br>實驗室裡的東西<b>一律不嘗</b>；石蕊試紙一律用<b>鑷子</b>夾。</div>
+    </section>
+
+    <section class="sec">
+      <h2>🎯 想多練習</h2>
+      <div class="keypoint soft">自由練習，<b>不是作業</b>；用眼 30 分鐘要休息 10 分鐘。<br>
+        打開 <a class="ext" href="../../題庫/index.html?exam=exam2">第二次評量線上題庫</a> →「📚 主題練習」→ 選「<b>石蕊試紙檢驗酸鹼性</b>」（課本 70–73、81）。<br>
+        <span class="note">「素養題組」裡的〈全班的石蕊試紙紀錄〉〈小華的兩步驟檢驗〉〈試紙顏色變深了？〉〈紫羅蘭為什麼變紅〉〈廚房裡的三杯水〉，也是這一課的內容。</span></div>
+    </section>
+
+  </main>
+
+  <footer class="site-footer"><div class="wrap"><a href="../../index.html">← 回首頁</a> · <a href="檢驗水溶液的酸鹼性_互動教材.html">互動教材</a> · <a href="檢驗水溶液的酸鹼性_學習單.html">學習單</a> · 豬豬的自然探索 · 教學依據：<a href="https://reader.nani.com.tw/9200a013cbef8e66" target="_blank" rel="noopener">南一自然課本，第 70–73、81 頁</a> · 本頁沒有照片，表格裡的顏色都寫成字</div></footer>
+</body>
+</html>

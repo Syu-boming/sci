@@ -1,0 +1,1816 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>水溶液偵探社｜用最少的檢驗找出每一杯的酸鹼性</title>
+<link rel="icon" href="../../image/icon.svg" type="image/svg+xml">
+<style>
+/* ==========================================================
+   水溶液偵探社 — 第三單元補充遊戲（DOM，不用 canvas）
+   使用情境：教室 75 吋觸控螢幕，全班分兩隊、輪流派一人上臺操作；也可以單人闖關。
+   沿用〈植物與人類生活〉的調色盤與元件；玩家 1／2 的顏色 #286b8b／#ad5a2f。
+   所有杯子、試紙、高麗菜汁、LED 電路都是示意圖；顏色旁邊一律寫字。
+   ========================================================== */
+:root{
+  --bg:#FDF6EC; --ink:#1E1E1E; --green:#58B159; --green-dark:#2E7D4F;
+  --water:#4FB0E5; --water-dark:#2E86C1; --sun:#FFC93C; --coral:#FF7F66; --coral-dark:#E4574C;
+  --wrong:#E4574C; --card:#FFFFFF; --muted:#6B7A82; --shadow:0 6px 18px rgba(46,86,110,.16);
+  --p1:#286b8b; --p2:#ad5a2f;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+[hidden]{display:none !important}
+html,body{margin:0;padding:0}
+body{
+  min-height:100vh;color:var(--ink);background:var(--bg);
+  font-family:-apple-system,"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif;
+  font-size:clamp(17px,1.9vw,22px);line-height:1.6;
+}
+#app{max-width:1240px;margin:0 auto;padding:12px 16px 40px}
+
+/* ---------- 頁首 ---------- */
+.sitehead{margin-bottom:12px}
+.headrow{display:flex;align-items:center;gap:6px 16px;flex-wrap:wrap}
+.toprow{display:flex;align-items:center;gap:8px 12px;flex-wrap:wrap;margin-top:8px}
+.back{
+  display:inline-flex;align-items:center;min-height:44px;padding:4px 16px;
+  border:3px solid var(--ink);border-radius:999px;background:var(--card);color:var(--ink);
+  font:inherit;font-weight:800;text-decoration:none;box-shadow:0 3px 0 var(--ink);font-size:clamp(15px,1.4vw,18px);cursor:pointer;
+}
+.back:active{transform:translateY(2px);box-shadow:0 1px 0 var(--ink)}
+.back.alt{background:#EAF4FA}
+.sitehead h1{margin:0;font-size:clamp(22px,2.6vw,32px);font-weight:900;letter-spacing:.5px;line-height:1.25}
+.sitehead .sub{color:var(--muted);font-size:clamp(13px,1.35vw,17px);font-weight:700}
+
+/* ---------- 畫面切換 ---------- */
+.screen{display:none}
+.screen.active{display:block;animation:fadeIn .35s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+/* ---------- 通用卡片、按鈕（同樣板） ---------- */
+.panel{
+  background:var(--card);border:3px solid var(--ink);border-radius:20px;
+  padding:16px 18px;box-shadow:var(--shadow);margin-bottom:14px;min-width:0;
+}
+.ptitle{font-weight:900;font-size:clamp(19px,2.2vw,27px);margin:0 0 10px;line-height:1.35}
+.ptitle.small{font-size:clamp(16px,1.7vw,21px);margin:0 0 8px}
+.btn{
+  border:3px solid var(--ink);border-radius:999px;background:var(--sun);color:var(--ink);
+  padding:12px 26px;font:inherit;font-weight:900;cursor:pointer;
+  box-shadow:0 4px 0 var(--ink);min-height:60px;
+}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--ink)}
+.btn.green{background:var(--green-dark);color:#fff}
+.btn.plain{background:var(--card)}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.btn.green[disabled]{opacity:1;background:#E6E1D6;color:#5B666C;box-shadow:0 4px 0 #9A9486}
+.btnrow{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-top:14px}
+.btnrow.center{justify-content:center}
+.ask{
+  background:#FFF6D8;border:3px dashed var(--sun);border-radius:16px;
+  padding:12px 16px;font-weight:800;font-size:clamp(18px,2.1vw,25px);text-align:center;
+}
+.ask.big{font-size:clamp(22px,2.6vw,40px);padding:16px}
+.lead{color:var(--muted);font-weight:700;margin:10px 0;font-size:clamp(15px,1.6vw,19px)}
+.note{color:var(--muted);font-weight:700;font-size:clamp(13px,1.4vw,17px);line-height:1.45}
+.center{text-align:center}
+.steptag{
+  display:inline-block;background:#DDF0FA;color:var(--ink);border:3px solid var(--ink);
+  border-radius:999px;padding:2px 14px;font-weight:900;margin:0 0 8px;font-size:clamp(14px,1.5vw,19px);
+}
+.qtitle{font-weight:900;font-size:clamp(19px,2.2vw,27px);margin:0 0 12px;line-height:1.4}
+.criterion{
+  background:#EAF7EE;border:3px solid var(--green-dark);border-radius:18px;padding:12px 16px;margin-top:14px;
+}
+.criterion .k{font-weight:900;color:var(--green-dark);font-size:clamp(18px,2.1vw,25px)}
+.criterion p{margin:6px 0 0;font-weight:800}
+.bigpoint{
+  background:#EAF7EE;border:3px solid var(--green-dark);border-radius:18px;margin-bottom:14px;
+  padding:14px 18px;font-weight:900;font-size:clamp(19px,2.3vw,28px);text-align:center;color:var(--green-dark);
+}
+.bigpoint small{display:block;margin-top:6px;font-size:.7em;color:#2F5E43;font-weight:800}
+.teacher-tip{
+  margin:0 0 18px;font-size:clamp(13px,1.4vw,16px);color:var(--muted);
+  border-left:5px solid var(--sun);padding:6px 12px;background:#FFFCF2;border-radius:0 10px 10px 0;
+}
+.teacher-tip b.time{color:#7A5B00}
+.teacher-tip p{margin:4px 0}
+.teacher-tip details{margin-top:6px}
+.teacher-tip summary{cursor:pointer;font-weight:800;min-height:44px;display:flex;align-items:center}
+.teacher-tip ul{margin:4px 0;padding-left:1.3em}
+.tagS{
+  display:inline-block;background:#fff;border:2px solid var(--muted);color:#4E5C63;border-radius:999px;
+  padding:0 8px;font-size:.72em;font-weight:900;line-height:1.5;vertical-align:middle;
+}
+.mini{
+  border:3px solid var(--ink);border-radius:999px;background:var(--card);color:var(--ink);
+  padding:6px 16px;min-height:48px;font:inherit;font-weight:800;cursor:pointer;font-size:clamp(14px,1.45vw,18px);
+  box-shadow:0 3px 0 var(--ink);line-height:1.3;
+}
+.mini:active{transform:translateY(2px);box-shadow:0 1px 0 var(--ink)}
+.mini[disabled]{opacity:.45;cursor:not-allowed}
+.mini.claim{background:#EFE8FA}
+.linkbtn{
+  border:0;background:none;color:var(--water-dark);text-decoration:underline;font:inherit;font-weight:800;
+  cursor:pointer;min-height:44px;padding:0 6px;
+}
+.chip{display:inline-block;background:#FFF6D8;border:2px solid var(--sun);border-radius:999px;padding:2px 14px;font-weight:900}
+.letter{
+  width:44px;height:44px;border-radius:50%;border:3px solid var(--ink);background:#fff;flex:none;
+  display:inline-flex;align-items:center;justify-content:center;font-weight:900;font-size:24px;line-height:1;
+}
+.letter.sm{width:36px;height:36px;font-size:19px}
+.stars{color:#9A6100;letter-spacing:2px;font-weight:900}
+.qfig,.fig{width:100%;height:auto;display:block}
+.figfallback{
+  display:flex;align-items:center;justify-content:center;text-align:center;min-height:120px;
+  background:#F2EEE4;color:var(--muted);font-weight:800;border:2px dashed #C9C2B4;border-radius:12px;padding:10px;
+}
+.sr{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0;padding:0}
+
+/* ==========================================================
+   首頁：選玩法、選關卡、規則
+   ========================================================== */
+.modes{display:flex;gap:12px;flex-wrap:wrap}
+.mode{
+  border:3px solid var(--ink);border-radius:16px;background:var(--card);color:var(--ink);
+  padding:12px 24px;font:inherit;font-weight:900;cursor:pointer;
+  box-shadow:0 4px 0 var(--ink);min-height:62px;font-size:clamp(18px,2vw,25px);
+}
+.mode[aria-pressed="true"]{background:var(--green-dark);color:#fff}
+.levels{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,210px),1fr));gap:12px}
+.lvbtn{
+  display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:left;
+  border:3px solid var(--ink);border-radius:16px;background:var(--card);color:var(--ink);
+  padding:10px 14px;font:inherit;cursor:pointer;box-shadow:0 4px 0 var(--ink);min-height:84px;min-width:0;
+}
+.lvbtn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--ink)}
+.lvbtn .no{font-weight:900;font-size:clamp(15px,1.5vw,19px);color:#2E6EA6}
+.lvbtn .t{font-weight:900;font-size:clamp(16px,1.7vw,21px);line-height:1.3}
+.lvbtn .best{font-weight:800;color:var(--muted);font-size:clamp(13px,1.35vw,17px)}
+.lvbtn[aria-pressed="true"]{background:#FFF3C4;box-shadow:0 0 0 5px var(--sun),0 4px 0 var(--ink)}
+.lvbtn.sm{min-height:64px}
+.rules ol{margin:0 0 10px;padding-left:1.5em}
+.rules li{margin:4px 0;font-weight:700}
+.tablewrap{overflow-x:auto;max-width:100%;-webkit-overflow-scrolling:touch}
+.startab,.restab{border-collapse:collapse;width:100%;margin:8px 0;font-size:clamp(14px,1.5vw,19px)}
+.startab caption,.restab caption{font-weight:900;text-align:left;margin-bottom:4px}
+.startab th,.startab td,.restab th,.restab td{border:2px solid #C9C2B4;padding:5px 8px;text-align:left;vertical-align:top}
+.startab th,.restab th{background:#FFF6D8}
+.restab{min-width:640px}
+.restab td small{color:var(--muted);font-weight:700}
+details.table{margin-top:8px}
+details.table summary{cursor:pointer;font-weight:900;min-height:44px;display:flex;align-items:center;color:#2E6EA6}
+.steps{margin:6px 0 10px;padding-left:1.5em;font-weight:700}
+
+/* ---------- 計分板（兩隊） ---------- */
+.board{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-bottom:10px}
+.team{
+  display:flex;flex-direction:column;gap:2px;border:3px solid var(--ink);border-left-width:16px;
+  border-radius:16px;background:#fff;padding:8px 12px;min-width:0;
+}
+.team.t0{border-left-color:var(--p1)}
+.team.t1{border-left-color:var(--p2)}
+.team .tn{font-weight:900;font-size:clamp(18px,2vw,25px)}
+.team.t0 .tn{color:var(--p1)}
+.team.t1 .tn{color:var(--p2)}
+.team .ts{font-weight:900;font-size:clamp(22px,2.6vw,34px)}
+.team .turn{font-weight:800;color:#7A4B00;font-size:clamp(13px,1.35vw,17px)}
+.team.now{box-shadow:0 0 0 5px var(--sun)}
+.teamtag{
+  display:inline-flex;align-items:center;border-radius:999px;padding:2px 14px;color:#fff;font-weight:900;
+  border:3px solid var(--ink);line-height:1.4;
+}
+.teamtag.t0{background:var(--p1)}
+.teamtag.t1{background:var(--p2)}
+
+/* ==========================================================
+   關卡畫面
+   ========================================================== */
+.hud{
+  display:flex;align-items:center;gap:8px 12px;flex-wrap:wrap;
+  background:var(--card);border:3px solid var(--ink);border-radius:18px;padding:8px 14px;
+  box-shadow:var(--shadow);margin-bottom:12px;font-weight:900;
+}
+.hud .lvname{font-size:clamp(17px,2vw,24px);line-height:1.3}
+.pill{
+  display:inline-flex;align-items:center;gap:6px;border:3px solid var(--ink);border-radius:999px;
+  padding:2px 12px;background:#FFFDF8;font-size:clamp(14px,1.55vw,19px);line-height:1.4;
+}
+.hud #quitBtn{margin-left:auto}
+.mission .cands{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.mission .task{font-weight:800;margin:8px 0 4px;line-height:1.5}
+.mission .rule{color:#4E5C63;font-weight:800;font-size:clamp(14px,1.45vw,18px);margin:0;line-height:1.5}
+.playgrid{display:grid;grid-template-columns:minmax(0,1fr);grid-template-areas:"tools" "cups" "zoom";gap:0 14px;align-items:start}
+.toolpanel{grid-area:tools}
+.cupcol{grid-area:cups;min-width:0}
+.zoom{grid-area:zoom}
+/* 橫向大螢幕：左邊選工具、放大看；右邊杯子（照 ①②③ 的順序由左到右） */
+@media (min-width:1024px) and (orientation:landscape){
+  .playgrid{grid-template-columns:minmax(0,1fr) minmax(0,1.75fr);grid-template-areas:"tools cups" "zoom cups";grid-template-rows:auto 1fr}
+}
+.toolbar{display:flex;flex-wrap:wrap;gap:10px}
+.tool{
+  display:inline-flex;align-items:center;gap:8px;border:3px solid var(--ink);border-radius:14px;
+  background:var(--card);color:var(--ink);padding:6px 14px;font:inherit;font-weight:900;cursor:pointer;
+  box-shadow:0 4px 0 var(--ink);min-height:56px;font-size:clamp(15px,1.55vw,20px);line-height:1.25;text-align:left;
+}
+.tool:active{transform:translateY(3px);box-shadow:0 1px 0 var(--ink)}
+.tool[aria-pressed="true"]{background:#FFF3C4;box-shadow:0 0 0 5px var(--sun),0 4px 0 var(--ink)}
+.tool .ico{width:28px;height:28px;flex:none;display:block}
+.tool[disabled]{opacity:.45;cursor:not-allowed}
+.extras{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+.status{margin:10px 0 0;font-weight:800;color:#34444C}
+.status.warn{color:#9A3A1F}
+.step2{margin-top:2px}
+.cups{display:grid;gap:12px;grid-template-columns:repeat(2,minmax(0,1fr));margin-bottom:14px}
+@media (min-width:700px){.cups.n3{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (min-width:1500px){.cups.n4{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.cup{
+  background:var(--card);border:3px solid var(--ink);border-radius:18px;padding:10px;
+  display:flex;flex-direction:column;gap:8px;min-width:0;box-shadow:var(--shadow);
+}
+.cup.ok{border-color:var(--green-dark);box-shadow:0 0 0 4px #B9E3C6}
+.cup.no{border-color:var(--wrong);box-shadow:0 0 0 4px #F6C3BE}
+.cuphead{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.look{font-weight:800;color:#34444C;font-size:clamp(13px,1.35vw,17px);line-height:1.3}
+.cupbtn{
+  display:flex;flex-direction:column;align-items:center;gap:4px;width:100%;
+  border:3px dashed #9FB3BF;border-radius:14px;background:#F7FBFD;padding:6px;cursor:pointer;
+  font:inherit;color:var(--ink);min-height:44px;
+}
+.cupbtn svg{width:min(100%,130px);height:auto;display:block}
+.cupbtn .tl{font-weight:900;font-size:clamp(14px,1.45vw,18px);line-height:1.3;text-align:center}
+.cupbtn.ready{border-style:solid;border-color:var(--ink);background:#FFF6D8;box-shadow:0 4px 0 var(--ink)}
+.cupbtn.ready:active{transform:translateY(3px);box-shadow:0 1px 0 var(--ink)}
+.cupbtn[disabled]{cursor:default}
+.results{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px}
+.results li{
+  display:flex;align-items:flex-start;gap:6px;font-weight:800;font-size:clamp(13px,1.35vw,17px);line-height:1.4;
+  background:#F6F3EC;border-radius:10px;padding:4px 8px;min-width:0;overflow-wrap:anywhere;
+}
+.results li.none{color:var(--muted);background:none;padding:0 2px}
+.sw{width:18px;height:18px;border-radius:5px;border:2px solid var(--ink);flex:none;margin-top:2px}
+.sw.round{border-radius:50%}
+.ansrow{display:flex;flex-wrap:wrap;gap:6px}
+.ansbtn{
+  flex:1 1 auto;min-height:48px;border:3px solid var(--ink);border-radius:12px;background:var(--card);color:var(--ink);
+  font:inherit;font-weight:900;cursor:pointer;padding:4px 8px;box-shadow:0 3px 0 var(--ink);
+  font-size:clamp(14px,1.5vw,19px);line-height:1.25;
+}
+.ansbtn:active{transform:translateY(2px);box-shadow:0 1px 0 var(--ink)}
+.ansbtn[disabled]{opacity:.45;cursor:not-allowed}
+.cupmsg{margin:0;font-weight:800;font-size:clamp(13px,1.35vw,17px);color:#8A4B00;line-height:1.4}
+.cupmsg:empty{display:none}
+.verdict{border-radius:12px;padding:6px 10px;font-weight:900;line-height:1.45;font-size:clamp(15px,1.55vw,20px)}
+.verdict.ok{background:#EAF7EE;border:3px solid var(--green-dark);color:var(--green-dark)}
+.verdict.no{background:#FBE3E1;border:3px solid var(--wrong);color:#B03A30}
+.ev{display:inline-block;border-radius:999px;padding:0 10px;margin-left:6px;font-size:.82em;border:2px solid currentColor;background:#fff}
+.why{font-weight:700;color:#34444C;font-size:.86em;margin-top:3px}
+.zoom .figbox{background:#FFFDF8;border:3px solid var(--ink);border-radius:14px;padding:6px;max-width:640px;margin:0 auto}
+.zoomcap{font-weight:900;text-align:center;margin:8px 0 10px;line-height:1.45}
+.zoomcap small{display:block;font-weight:700;color:#4E5C63}
+.log{margin:4px 0 0;padding-left:1.6em;font-weight:700;font-size:clamp(13px,1.35vw,17px);max-height:16em;overflow:auto}
+.log li.none{list-style:none;margin-left:-1.6em;color:var(--muted)}
+
+/* ---------- 抓錯關 ---------- */
+.frames{display:grid;grid-template-columns:minmax(0,1fr);gap:12px}
+@media (min-width:760px){.frames{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.frame{
+  display:flex;flex-direction:column;gap:6px;border:3px solid var(--ink);border-radius:16px;background:#fff;color:var(--ink);
+  padding:8px;cursor:pointer;font:inherit;text-align:left;box-shadow:0 4px 0 var(--ink);min-width:0;
+}
+.frame:active{transform:translateY(3px);box-shadow:0 1px 0 var(--ink)}
+.frame[disabled]{cursor:default;transform:none}
+.frame .fhead{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.frame .fcap{font-weight:800;line-height:1.45;font-size:clamp(15px,1.55vw,20px)}
+.frame.bad{border-color:var(--wrong);box-shadow:0 0 0 5px #F6C3BE}
+.frame.pickok{background:#EAF7EE}
+.frame.pickno{background:#FFF6D8}
+.frame .mark{font-weight:900;font-size:clamp(14px,1.45vw,18px)}
+.frame.bad .mark{color:#B03A30}
+
+/* ---------- 預測（全班舉卡） ---------- */
+.cards{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;margin-top:14px}
+.card{
+  min-width:120px;min-height:88px;border:3px solid var(--ink);border-radius:16px;background:#fff;color:var(--ink);
+  font:inherit;font-weight:900;font-size:clamp(26px,3vw,42px);cursor:pointer;box-shadow:0 4px 0 var(--ink);padding:6px 18px;
+}
+.card[aria-pressed="true"]{background:#FFF3C4;box-shadow:0 0 0 5px var(--sun),0 4px 0 var(--ink)}
+
+/* ---------- 結算 ---------- */
+.result{text-align:center;padding:16px}
+.result .big{font-size:clamp(34px,5vw,64px);font-weight:900;color:#9A6100;letter-spacing:4px;line-height:1.2}
+.rankline{font-weight:900;font-size:clamp(22px,2.8vw,36px);margin:6px 0}
+.breakdown{list-style:none;margin:8px auto 0;padding:0;max-width:900px;font-weight:800;text-align:left}
+.breakdown li{border-bottom:2px dashed #E3DACA;padding:4px 2px}
+.endcups{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.endcups li{display:flex;gap:10px;align-items:flex-start;background:#FFFDF8;border:2px solid #E3DACA;border-radius:14px;padding:8px 10px;min-width:0}
+.endcups .who{font-weight:900}
+.endcups .what{font-weight:700;line-height:1.5;min-width:0;overflow-wrap:anywhere}
+.endcups .ok{color:var(--green-dark);font-weight:900}
+.endcups .no{color:#B03A30;font-weight:900}
+.hintline{font-weight:800;color:#2F5E43;background:#EAF7EE;border-radius:12px;padding:8px 12px;margin:10px 0 0}
+.hintline:empty{display:none}
+.predrev{font-weight:800;line-height:1.6}
+
+/* ---------- 停格說明 ---------- */
+.freeze{position:fixed;inset:0;z-index:50;background:rgba(20,20,20,.5);display:flex;align-items:center;justify-content:center;padding:16px}
+.fbox{
+  background:var(--card);border:4px solid var(--ink);border-radius:22px;max-width:760px;width:100%;
+  padding:18px 20px;box-shadow:0 14px 30px rgba(0,0,0,.35);max-height:calc(100vh - 32px);overflow:auto;
+}
+.fbox.wrong{border-color:var(--wrong)}
+.fbox.info{border-color:var(--water-dark)}
+.fbox h2{margin:0 0 8px;font-size:clamp(22px,2.6vw,34px);line-height:1.3}
+.fbox.wrong h2{color:#B03A30}
+.fmsg{font-weight:800;font-size:clamp(17px,2vw,25px);line-height:1.55}
+.fmsg p{margin:6px 0}
+.fmsg .crit{background:#EAF7EE;border:3px solid var(--green-dark);border-radius:14px;padding:8px 12px;color:#245E3C}
+.fbar{height:10px;border-radius:99px;background:#EEE8DC;overflow:hidden;margin:12px 0 0}
+.fbar i{display:block;height:100%;width:0;background:var(--green-dark)}
+
+/* ---------- 頁尾 ---------- */
+.credits{
+  font-size:clamp(12px,1.2vw,15px);color:var(--muted);margin-top:20px;line-height:1.55;
+  border-top:2px dashed #D9CFBE;padding-top:12px;
+}
+.credits a{color:var(--muted)}
+.credits p{margin:4px 0}
+
+@media (prefers-reduced-motion:reduce){
+  .screen.active{animation:none}
+}
+
+/* ===== RWD：手機 / 平板 / 筆電 / 75 吋觸控螢幕 ===== */
+@media (max-width:640px){
+  #app{padding:10px 10px 28px}
+  .panel{border-radius:14px;padding:12px}
+  .btn{padding:10px 18px;min-height:52px}
+  .mode{padding:10px 14px;min-height:52px}
+  .tool{padding:6px 10px}
+  .cup{padding:8px}
+  .cupbtn svg{width:min(100%,84px)}
+  .board{grid-template-columns:minmax(0,1fr)}
+  .card{min-width:96px;min-height:72px}
+}
+@media (min-width:1024px) and (max-height:760px){
+  .mission .rule{font-size:15px}
+  .cupbtn{flex-direction:row;justify-content:center;gap:10px;padding:4px 8px}
+  .cupbtn svg{width:64px}
+  .cupbtn .tl{text-align:left}
+}
+@media (min-width:1800px){
+  body{font-size:26px}
+  #app{max-width:1680px;padding:20px 30px 60px}
+  .sitehead h1{font-size:38px}
+  .sitehead .sub{font-size:21px}
+  .back{min-height:64px;font-size:22px;padding:6px 24px}
+  .btn{min-height:80px;padding:16px 40px}
+  .mode{min-height:84px;font-size:28px}
+  .ptitle,.qtitle{font-size:32px}
+  .ptitle.small{font-size:25px}
+  .ask{font-size:30px}
+  .ask.big{font-size:46px}
+  .steptag{font-size:23px}
+  .lead,.note{font-size:20px}
+  .teacher-tip{font-size:19px}
+  .credits{font-size:16px}
+  .mini{min-height:64px;font-size:22px}
+  .tool{min-height:72px;font-size:23px}
+  .tool .ico{width:36px;height:36px}
+  .letter{width:56px;height:56px;font-size:30px}
+  .letter.sm{width:46px;height:46px;font-size:24px}
+  .cupbtn svg{width:min(100%,170px)}
+  .cupbtn .tl,.look{font-size:21px}
+  .results li,.cupmsg,.log{font-size:20px}
+  .sw{width:24px;height:24px}
+  .ansbtn{min-height:64px;font-size:23px}
+  .verdict{font-size:23px}
+  .pill{font-size:22px}
+  .hud .lvname{font-size:28px}
+  .mission .rule{font-size:20px}
+  .zoom .figbox{max-width:760px}
+  .lvbtn{min-height:110px}
+  .lvbtn .no{font-size:22px}
+  .lvbtn .t{font-size:25px}
+  .lvbtn .best{font-size:20px}
+  .frame .fcap{font-size:23px}
+  .card{min-width:160px;min-height:110px;font-size:48px}
+  .team .tn{font-size:30px}
+  .team .ts{font-size:40px}
+  .fbox{max-width:1100px}
+  .fbox h2{font-size:42px}
+  .fmsg{font-size:30px}
+  .bigpoint{font-size:33px}
+  .criterion .k{font-size:30px}
+  .startab,.restab{font-size:21px}
+}
+@media (min-width:2600px){
+  body{font-size:34px}
+  #app{max-width:2280px;padding:30px 40px 80px}
+  .sitehead h1{font-size:50px}
+  .sitehead .sub{font-size:27px}
+  .back{min-height:84px;font-size:30px}
+  .btn{min-height:104px;padding:22px 52px}
+  .mode{min-height:110px;font-size:36px}
+  .ptitle,.qtitle{font-size:42px}
+  .ptitle.small{font-size:33px}
+  .ask{font-size:39px}
+  .ask.big{font-size:60px}
+  .steptag{font-size:30px}
+  .lead,.note{font-size:26px}
+  .teacher-tip{font-size:25px}
+  .credits{font-size:21px}
+  .mini{min-height:84px;font-size:29px}
+  .tool{min-height:96px;font-size:30px}
+  .tool .ico{width:48px;height:48px}
+  .letter{width:72px;height:72px;font-size:40px}
+  .letter.sm{width:58px;height:58px;font-size:31px}
+  .cupbtn svg{width:min(100%,220px)}
+  .cupbtn .tl,.look{font-size:28px}
+  .results li,.cupmsg,.log{font-size:26px}
+  .sw{width:30px;height:30px}
+  .ansbtn{min-height:84px;font-size:30px}
+  .verdict{font-size:30px}
+  .pill{font-size:29px}
+  .hud .lvname{font-size:36px}
+  .mission .rule{font-size:26px}
+  .zoom .figbox{max-width:1000px}
+  .lvbtn{min-height:140px}
+  .lvbtn .no{font-size:29px}
+  .lvbtn .t{font-size:33px}
+  .lvbtn .best{font-size:26px}
+  .frame .fcap{font-size:30px}
+  .card{min-width:210px;min-height:140px;font-size:62px}
+  .team .tn{font-size:39px}
+  .team .ts{font-size:52px}
+  .fbox{max-width:1500px}
+  .fbox h2{font-size:55px}
+  .fmsg{font-size:39px}
+  .bigpoint{font-size:43px}
+  .criterion .k{font-size:39px}
+  .startab,.restab{font-size:27px}
+}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <header class="sitehead">
+    <div class="headrow">
+      <a class="back" href="../../index.html">← 回教材首頁</a>
+      <h1>水溶液偵探社</h1>
+      <span class="sub">五年級自然｜第三單元 水溶液　課本 66–79 頁</span>
+    </div>
+    <div class="toprow">
+      <a class="back alt" href="../水溶液的導電性/水溶液的導電性_互動教材.html#compare">→ 複習〈水溶液的導電性〉</a>
+      <button type="button" class="back" id="sndBtn" aria-pressed="true">🔊 音效：開</button>
+    </div>
+  </header>
+
+  <!-- ==================== 首頁：選玩法 ==================== -->
+  <section id="scr-home" class="screen active" aria-label="遊戲首頁">
+    <div class="panel">
+      <p class="ptitle">🔎 桌上有幾杯沒貼名稱的水溶液，你能用最少的檢驗找出答案嗎？</p>
+      <p class="lead">每一杯只貼了代號（甲、乙、丙、丁）。用工具檢驗，說出每一杯是酸性、中性還是鹼性。檢驗次數愈少，星星愈多！</p>
+      <div class="modes" role="group" aria-label="玩法">
+        <button type="button" class="mode" data-mode="solo" aria-pressed="true">👤 單人關卡</button>
+        <button type="button" class="mode" data-mode="team" aria-pressed="false">👥 兩隊輪流</button>
+      </div>
+    </div>
+
+    <div class="panel" id="soloBox">
+      <p class="ptitle">選一關（每一關都可以重玩）</p>
+      <div class="levels" id="levelGrid"></div>
+      <p class="note">最佳星星數只存在這臺裝置，不記名字。<button type="button" class="linkbtn" id="clearBest">清除紀錄</button></p>
+    </div>
+
+    <div class="panel" id="teamBox" hidden>
+      <p class="ptitle">兩隊輪流</p>
+      <div class="board" id="homeBoard"></div>
+      <ol class="steps">
+        <li>每一回合，全班先舉反應卡預測，老師點最多人舉的卡。</li>
+        <li>輪到的隊伍派一人上臺操作，同隊可以出聲建議，由上臺的人按。</li>
+        <li>同一關兩隊各玩一次（杯子會重新排），星星加進各隊的總分。</li>
+      </ol>
+      <p class="ptitle small">從第幾關開始？</p>
+      <div class="levels" id="teamStart"></div>
+      <div class="btnrow"><button type="button" class="btn green" id="teamGo">開始比賽</button></div>
+    </div>
+
+    <div class="panel rules">
+      <p class="ptitle">怎麼玩</p>
+      <ol>
+        <li>每一關先看「本關的杯子」：清單上的水溶液<b>每種只有一杯</b>，杯子上只貼代號。</li>
+        <li>先選一種工具，再按杯子下面的「檢驗」。<b>一種工具用在一杯上，算一次檢驗</b>；純水沾溼的對照試紙不算次數。</li>
+        <li>證據夠了，就在杯子下面選答案：酸性、中性或鹼性。食鹽水和糖水都在清單上時，中性的杯子要說出是哪一種。</li>
+        <li>兩種證據都算數：<b>實測</b>＝這一杯直接做了檢驗；<b>推論</b>＝用清單和其他杯的結果，這一杯只剩一種可能。</li>
+        <li>證據還不夠就作答，會提醒「證據還不夠，再檢驗看看」，不算答錯；證據夠了卻答錯，扣 1 顆星，並公布這一杯的答案。</li>
+        <li>如果這一關的工具怎麼測都分不出來，就按「宣布：這些工具分不出來」。</li>
+        <li>注意安全：做了不安全的動作，扣 1 顆星。</li>
+      </ol>
+      <div class="tablewrap">
+        <table class="startab">
+          <caption>星星怎麼算</caption>
+          <tr><th scope="col">檢驗次數</th><th scope="col">星星</th></tr>
+          <tr><td>等於或少於這一關的最少次數</td><td><span class="stars">★★★</span> 3 顆</td></tr>
+          <tr><td>比最少次數多 1～2 次</td><td><span class="stars">★★☆</span> 2 顆</td></tr>
+          <tr><td>比最少次數多 3 次以上（包括全部工具都用過）</td><td><span class="stars">★☆☆</span> 1 顆</td></tr>
+          <tr><td>每答錯一杯、每做一次不安全的動作</td><td>扣 1 顆（最少 0 顆；0 顆就再挑戰一次）</td></tr>
+        </table>
+      </div>
+      <p class="note">每一關的最少次數，是程式把所有可能的結果都試過算出來的：不管運氣好不好，照最好的順序檢驗，最多這麼多次就能確定答案。答案是「分不出來」的關卡：2 次以內宣布＝3 顆、3～4 次＝2 顆、5 次以上＝1 顆；硬猜答案算答錯。</p>
+      <details class="table"><summary>看結果對照表（課本的結果）</summary><div class="tablewrap" id="homeTable"></div></details>
+    </div>
+
+    <div class="teacher-tip">
+      <p><b class="time">給老師｜⑩ 試玩 15 分鐘</b>（第 8 週彈性節再玩、第 9 週複習）。每一關約 2 分鐘；兩隊輪流時，同一關兩隊各玩一次。</p>
+      <p>上臺的人先說「我要用＿＿檢驗＿杯，因為＿＿」再按；作答時說出這一杯是「實測」還是「推論」。答錯時畫面會停 1.5 秒，請全班一起讀原因。</p>
+      <p>網址後面加 <b>#level-3</b> 這類代號，可以直接打開第 3 關（單人）。</p>
+      <details>
+        <summary>給老師：各關重點（會透露答案，投影前先收起來）</summary>
+        <ul>
+          <li>第 1 關 醋、小蘇打水：一種試紙就分得出來（最少 1 次）。</li>
+          <li>第 2 關 食鹽水、糖水：只有 LED 分得出來（最少 1 次）。</li>
+          <li>第 3 關 醋、食鹽水、小蘇打水：只用紫色高麗菜汁，測兩杯、第三杯用刪去法（最少 2 次）。</li>
+          <li>第 4 關（只給藍色石蕊試紙＋LED）食鹽水、小蘇打水：正確答案是「分不出來」，要再用紅色試紙或高麗菜汁。</li>
+          <li>第 5 關（只給紅色石蕊試紙＋LED）檸檬酸水、食鹽水：正確答案是「分不出來」。</li>
+          <li>第 6 關（只給高麗菜汁＋LED）檸檬酸水、糖水、食鹽水、肥皂水：肥皂水稍微混濁，一看就知道是哪一杯；其他三杯最少 3 次。</li>
+          <li>第 7 關 抓錯關：沒換滴管、兩條電線相碰、LED 接反。</li>
+          <li>第 8 關 隨機 3 杯：小蘇打水和肥皂水同時出現時只要求判「鹼性」；醋和檸檬酸水同時出現時只要求判「酸性」。</li>
+        </ul>
+      </details>
+    </div>
+  </section>
+
+  <!-- ==================== 兩隊：全班先舉卡預測 ==================== -->
+  <section id="scr-predict" class="screen" aria-label="全班預測">
+    <div class="panel">
+      <p class="steptag" id="pdRound"></p>
+      <p class="qtitle" id="pdTurn"></p>
+      <div class="ask big" id="pdQ"></div>
+      <div class="cards" id="pdCards" role="group" aria-label="全班最多人舉的卡"></div>
+      <p class="lead center" id="pdNote">老師：點全班最多人舉的卡（只記下來，這一隊玩完再對答案）。</p>
+      <div class="btnrow center"><button type="button" class="btn green" id="pdGo">開始</button></div>
+    </div>
+    <div class="panel">
+      <div class="board" id="pdBoard"></div>
+      <div class="btnrow"><button type="button" class="mini" id="pdStop">結束比賽，看結果</button></div>
+    </div>
+  </section>
+
+  <!-- ==================== 關卡 ==================== -->
+  <section id="scr-play" class="screen" aria-label="關卡">
+    <div class="hud">
+      <span class="lvname" id="hudLv"></span>
+      <span class="teamtag" id="hudTeam" hidden></span>
+      <span class="pill" id="hudTests"></span>
+      <span class="pill" id="hudStars"></span>
+      <button type="button" class="mini" id="quitBtn">回關卡選單</button>
+    </div>
+
+    <div id="cupStage">
+      <div class="panel mission" id="mission"></div>
+      <div class="playgrid">
+          <div class="panel toolpanel">
+            <p class="ptitle small">① 選一種工具</p>
+            <div class="toolbar" id="toolbar" role="group" aria-label="工具"></div>
+            <div class="extras">
+              <button type="button" class="mini" id="ctrlBtn">對照：純水沾溼的試紙（不算次數）</button>
+              <button type="button" class="mini claim" id="claimBtn">宣布：這些工具分不出來</button>
+            </div>
+            <p class="status" id="selLine" aria-live="polite"></p>
+          </div>
+          <div class="cupcol">
+            <p class="ptitle small step2">② 按杯子下面的「檢驗」　③ 證據夠了，就選答案　<span class="tagS">杯子是示意圖</span></p>
+            <div class="cups" id="cups"></div>
+          </div>
+        <aside class="panel zoom" aria-label="放大看">
+          <p class="ptitle small">放大看 <span class="tagS">示意</span></p>
+          <div class="figbox" id="zoomFig"></div>
+          <p class="zoomcap" id="zoomCap"></p>
+          <p class="ptitle small">檢驗紀錄</p>
+          <ol class="log" id="logList"></ol>
+        </aside>
+      </div>
+    </div>
+
+    <div id="spotStage" hidden>
+      <div class="panel">
+        <p class="steptag" id="spotNo"></p>
+        <p class="qtitle" id="spotCtx"></p>
+        <div class="frames" id="frames"></div>
+        <div id="spotFb"></div>
+        <div class="btnrow"><button type="button" class="btn green" id="spotNext" hidden>下一題 →</button></div>
+      </div>
+    </div>
+
+    <div class="teacher-tip">
+      <p><b class="time">給老師｜每一關約 2 分鐘</b>　追問：「你怎麼知道？這一杯是實測還是推論？」證據還不夠就作答不扣星，只會提醒再檢驗；證據夠了卻答錯才扣星。</p>
+    </div>
+  </section>
+
+  <!-- ==================== 這一關的結果 ==================== -->
+  <section id="scr-end" class="screen" aria-label="這一關的結果">
+    <div class="panel result">
+      <div class="big" id="endStars"></div>
+      <p class="rankline" id="endTitle"></p>
+      <ul class="breakdown" id="endBreak"></ul>
+    </div>
+    <div class="panel">
+      <p class="ptitle small" id="endListTitle">每一杯的答案</p>
+      <ul class="endcups" id="endCups"></ul>
+      <p class="hintline" id="endHint"></p>
+    </div>
+    <div class="bigpoint" id="endPoint"></div>
+    <div class="panel" id="endPred" hidden></div>
+    <div class="panel" id="endBoardBox" hidden><div class="board" id="endBoard"></div></div>
+    <div class="btnrow center" id="endBtns"></div>
+  </section>
+
+  <!-- ==================== 比賽結果（兩隊） ==================== -->
+  <section id="scr-final" class="screen" aria-label="比賽結果">
+    <div class="panel result">
+      <p class="rankline" id="fnTitle"></p>
+      <div class="board" id="fnBoard"></div>
+      <p class="lead" id="fnNote"></p>
+      <div class="btnrow center">
+        <button type="button" class="btn green" id="fnAgain">再比一次</button>
+        <button type="button" class="btn plain" id="fnHome">回遊戲首頁</button>
+      </div>
+    </div>
+  </section>
+
+  <footer class="credits">
+    <p>教學依據：<a href="https://reader.nani.com.tw/9200a013cbef8e66" target="_blank" rel="noopener">南一自然課本，第 66–79 頁</a>（搧聞 p.66；石蕊試紙 p.70–73；紫色高麗菜汁 p.74–75；水溶液的導電性 p.78–79）。石蕊試紙、紫色高麗菜汁、LED 的結果只用課本 p.71、p.73、p.75、p.79 與習作 P.25、P.26、P.31；課本沒有測檸檬酸水的導電性，遊戲依習作 P.31「酸性和鹼性水溶液容易導電」設定為會亮。搧聞的結果（醋有酸酸的氣味、肥皂水有肥皂的氣味）和肥皂水稍微混濁，是依生活經驗的設定。</p>
+    <p>照片出處：本遊戲沒有使用照片。</p>
+    <p>示意畫面：杯子、搧聞和抓錯關的操作圖是本頁程式畫的示意圖；石蕊試紙、紫色高麗菜汁、LED 導電電路的圖和線上題庫是同一套示意圖。顏色一律同時寫成字。</p>
+  </footer>
+</div>
+
+<!-- 停格說明：做錯時畫面停 1.5 秒，寫出為什麼 -->
+<div class="freeze" id="freeze" hidden>
+  <div class="fbox" id="fzBox" role="alertdialog" aria-modal="true" aria-labelledby="fzTitle" aria-describedby="fzMsg">
+    <h2 id="fzTitle">停一下！</h2>
+    <div class="fmsg" id="fzMsg"></div>
+    <div class="fbar" aria-hidden="true"><i id="fzBar"></i></div>
+    <div class="btnrow center"><button type="button" class="btn" id="fzGo" disabled>看懂了，繼續</button></div>
+  </div>
+</div>
+<div class="sr" id="live" aria-live="polite"></div>
+
+<script src="../../題庫/figures.js?v=20261006a"></script>
+<script>
+(function(){
+"use strict";
+/* ==========================================================
+   水溶液偵探社 — 主程式
+   ① 資料：六種水溶液與五種工具的結果（只用課本的結果）
+   ② 引擎：證據判斷（所有和目前結果相符的組合）、決策樹窮舉最少次數、計分
+   ③ 機器人驗平衡（亂猜／只用藍色試紙／最佳策略）
+   ④ 畫面：首頁、兩隊預測、關卡、抓錯關、結算、停格說明、音效
+   ⑤ 測試掛鉤 window.DETECTIVE_API
+   ========================================================== */
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const LETTERS = ["甲","乙","丙","丁"];
+const STORE_KEY = "solution-detective-v1";
+
+/* ---------- 亂數：固定種子（同一個種子，杯子的排法一定一樣） ---------- */
+function mulberry32(a){
+  return function(){
+    a |= 0; a = a + 0x6D2B79F5 | 0;
+    let t = Math.imul(a ^ a >>> 15, 1 | a);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+function shuffle(arr, rnd){
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--){ const j = Math.floor(rnd() * (i + 1)); const x = a[i]; a[i] = a[j]; a[j] = x; }
+  return a;
+}
+function perms(arr){
+  if (arr.length <= 1) return [arr.slice()];
+  const out = [];
+  arr.forEach((x, i) => { perms(arr.slice(0, i).concat(arr.slice(i + 1))).forEach(p => out.push([x].concat(p))); });
+  return out;
+}
+function combos(arr, k){
+  if (k === 0) return [[]];
+  if (arr.length < k) return [];
+  const [h, ...rest] = arr;
+  return combos(rest, k - 1).map(c => [h].concat(c)).concat(combos(rest, k));
+}
+const popcount = m => { let n = 0; while (m){ m &= m - 1; n++; } return n; };
+
+/* ==========================================================
+   ① 資料（課本 p.71、p.73、p.75、p.79；習作 P.25、P.26、P.31）
+   ========================================================== */
+const SOLS = {
+  vinegar:{ name:"醋",       cat:"acid",    cab:"red",       led:"on",  smell:"sour", look:"clear"  },
+  citric: { name:"檸檬酸水", cat:"acid",    cab:"red",       led:"on",  smell:"none", look:"clear"  },
+  salt:   { name:"食鹽水",   cat:"neutral", cab:"purple",    led:"on",  smell:"none", look:"clear"  },
+  sugar:  { name:"糖水",     cat:"neutral", cab:"purple",    led:"off", smell:"none", look:"clear"  },
+  soda:   { name:"小蘇打水", cat:"base",    cab:"bluegreen", led:"on",  smell:"none", look:"clear"  },
+  soap:   { name:"肥皂水",   cat:"base",    cab:"green",     led:"on",  smell:"soap", look:"cloudy" }
+};
+const SOL_ORDER = ["vinegar","citric","salt","sugar","soda","soap"];
+const CAT = { acid:"酸性", neutral:"中性", base:"鹼性" };
+
+const TOOLS = {
+  blue: { name:"藍色石蕊試紙", res: s => s.cat === "acid" ? "red" : "same" },
+  red:  { name:"紅色石蕊試紙", res: s => s.cat === "base" ? "blue" : "same" },
+  cab:  { name:"紫色高麗菜汁", res: s => s.cab },
+  led:  { name:"LED 導電電路", res: s => s.led },
+  smell:{ name:"搧聞",         res: s => s.smell }
+};
+const TOOL_ORDER = ["blue","red","cab","led","smell"];
+const RES_TEXT = {
+  blue: { red:"變紅色", same:"不變色（還是藍色）" },
+  red:  { blue:"變藍色", same:"不變色（還是紅色）" },
+  cab:  { red:"偏紅", purple:"偏紫", bluegreen:"偏藍綠", green:"偏綠" },
+  led:  { on:"LED 亮了", off:"LED 不亮" },
+  smell:{ sour:"有酸酸的氣味", soap:"有肥皂的氣味", none:"聞不出明顯的氣味" }
+};
+/* 結果旁的小色塊（色塊旁一定有字） */
+const SWATCH = {
+  blue: { red:"#D9414E", same:"#9CC3EC" },
+  red:  { blue:"#2F62C9", same:"#F3B0B0" },
+  cab:  { red:"#E2557F", purple:"#8A5BB8", bluegreen:"#3A9AA8", green:"#5AAA4A" },
+  led:  { on:"#FF4D4D", off:"#C9C2B4" }
+};
+/* 安全陷阱：出現在工具列，選了就停格說明並扣 1 顆星 */
+const MUST_SAFE = "不清楚來源的水溶液，不能碰、不能嘗、不能直接靠近聞；要聞氣味時，用手掌往鼻子方向搧聞。";
+const CRIT_SMELL = "搧聞：手掌往鼻子方向輕輕搧，是用來安全地聞氣味；只靠搧聞，不能確定水溶液是酸性還是鹼性。";
+const CRIT_CONTROL = "試紙被純水沾溼，顏色會變深一點，那不是變色，所以要用純水沾溼的試紙對照。";
+const TRAPS = {
+  taste:{ name:"用舌頭嘗一嘗", title:"停一下！不明的水溶液千萬不能嘗", msg:"不明的水溶液千萬不能嘗！實驗室裡的東西一律不嘗，以免受到傷害。" },
+  sniff:{ name:"鼻子湊近杯口聞", title:"停一下！要用手掌搧聞", msg:"不可以把鼻子湊近杯口聞，可能吸入刺激的氣體，受到傷害。要用手掌往鼻子方向搧聞。" }
+};
+const ANS_LABEL = { acid:"酸性", neutral:"中性", base:"鹼性", salt:"中性：食鹽水", sugar:"中性：糖水" };
+const ANS_FULL  = { acid:"酸性", neutral:"中性", base:"鹼性", salt:"食鹽水（中性）", sugar:"糖水（中性）" };
+
+const ICON = {
+  blue: `<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="3" width="12" height="18" rx="2" fill="#9CC3EC" stroke="#1E1E1E" stroke-width="2"/></svg>`,
+  red:  `<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="3" width="12" height="18" rx="2" fill="#F3B0B0" stroke="#1E1E1E" stroke-width="2"/></svg>`,
+  cab:  `<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 10 V17 A3 3 0 0 0 15 17 V10 Z" fill="#7B4FA6"/><path d="M9 3 V17 A3 3 0 0 0 15 17 V3" fill="none" stroke="#1E1E1E" stroke-width="2"/><line x1="7" y1="3" x2="17" y2="3" stroke="#1E1E1E" stroke-width="2"/></svg>`,
+  led:  `<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 13 V8 A5 5 0 0 1 17 8 V13 Z" fill="#FF4D4D" stroke="#1E1E1E" stroke-width="1.8"/><line x1="10" y1="13" x2="10" y2="22" stroke="#666" stroke-width="2"/><line x1="14" y1="13" x2="14" y2="19" stroke="#666" stroke-width="2"/></svg>`,
+  smell:`<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7 Q7 3 11 7 T19 7" fill="none" stroke="#1E1E1E" stroke-width="2" stroke-linecap="round"/><path d="M3 12 Q7 8 11 12 T19 12" fill="none" stroke="#1E1E1E" stroke-width="2" stroke-linecap="round"/><path d="M3 17 Q7 13 11 17 T19 17" fill="none" stroke="#1E1E1E" stroke-width="2" stroke-linecap="round"/></svg>`,
+  taste:`<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8 H19 V11 A7 7 0 0 1 5 11 Z" fill="#F08A9A" stroke="#1E1E1E" stroke-width="1.8"/><line x1="12" y1="9" x2="12" y2="14" stroke="#9E3F4C" stroke-width="1.6"/></svg>`,
+  sniff:`<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 C11 8 7 12 7 15 A5 4 0 0 0 17 15 C17 12 13 8 12 2 Z" fill="#F2C29B" stroke="#1E1E1E" stroke-width="1.8"/></svg>`
+};
+
+/* ---------- 關卡（設計書 6.1） ---------- */
+const ALL_TOOLS = TOOL_ORDER.slice();
+const LEVELS = [
+  { title:"一張試紙就夠了？", sols:["vinegar","soda"], tools:ALL_TOOLS,
+    point:"先看藍色石蕊試紙：變紅色＝酸性。再看紅色石蕊試紙：變藍色＝鹼性。兩種都不變色＝中性。",
+    sub:"醋和小蘇打水，用一種試紙就分得出來。" },
+  { title:"看起來一模一樣", sols:["salt","sugar"], tools:ALL_TOOLS,
+    point:"三種方法各有用處：石蕊試紙和紫色高麗菜汁看酸鹼性，LED 看導電性；食鹽水和糖水都是中性，只有 LED 分得出來。",
+    sub:"食鹽水和糖水，用石蕊試紙、紫色高麗菜汁、搧聞都分不出來。" },
+  { title:"刪去法", sols:["vinegar","salt","soda"], tools:ALL_TOOLS,
+    point:"紫色高麗菜汁：偏紅色＝酸性，偏紫色＝中性，偏藍色或綠色＝鹼性。",
+    sub:"只用紫色高麗菜汁：測兩杯，第三杯用刪去法。" },
+  { title:"工具只有兩種（一）", sols:["salt","soda"], tools:["blue","led"], cannot:true,
+    point:"只用藍色石蕊試紙，不變色的可能是中性，也可能是鹼性，要再用紅色石蕊試紙才分得出來。",
+    sub:"這一關的正確答案是「分不出來」：要再用紅色石蕊試紙或紫色高麗菜汁。" },
+  { title:"工具只有兩種（二）", sols:["citric","salt"], tools:["red","led"], cannot:true,
+    point:"只用紅色石蕊試紙，不變色的可能是酸性，也可能是中性。",
+    sub:"這一關的正確答案是「分不出來」：要再用藍色石蕊試紙或紫色高麗菜汁。" },
+  { title:"四杯大挑戰", sols:["citric","sugar","salt","soap"], tools:["cab","led"],
+    point:"酸性和鹼性水溶液容易導電；中性水溶液不一定，食鹽水容易導電，糖水不容易導電。",
+    sub:"紫色高麗菜汁分出酸、中、鹼，LED 再分出食鹽水和糖水。" },
+  { title:"抓錯關", type:"spot",
+    point:"兩條電線在水溶液裡碰在一起時，電路直接接通，LED 會亮起來，這時的結果不能算。",
+    sub:"同一種水溶液用同一支滴管；LED 的長腳要接在電池正極出來的電線上。" },
+  { title:"隨機三杯", random:3, tools:ALL_TOOLS }
+];
+
+/* ---------- 每回合全班先舉卡預測（兩隊模式；每關兩題，兩隊各一題） ---------- */
+const PRED = [
+  [ { q:"只用藍色石蕊試紙，分得出醋和小蘇打水嗎？", cards:["○","╳"], ans:"○", why:"醋讓藍色石蕊試紙變紅色，小蘇打水讓它不變色，一張試紙就分得出來。" },
+    { q:"把 LED 電路的兩條電線分開放進小蘇打水，LED 會亮嗎？", cards:["亮","不亮"], ans:"亮", why:"課本 p.79：小蘇打水讓 LED 發亮，容易導電。" } ],
+  [ { q:"把 LED 電路的兩條電線分開放進糖水，LED 會亮嗎？", cards:["亮","不亮"], ans:"不亮", why:"課本 p.79：糖水讓 LED 不亮，不容易導電。" },
+    { q:"食鹽水和糖水滴在藍色石蕊試紙上，看得出差別嗎？", cards:["○","╳"], ans:"╳", why:"兩杯都是中性，藍色石蕊試紙都不變色。" } ],
+  [ { q:"用紫色高麗菜汁測了兩杯以後，第三杯還要再測嗎？", cards:["○","╳"], ans:"╳", why:"每種水溶液只有一杯，前兩杯確定了，第三杯就是剩下的那一種（刪去法）。" },
+    { q:"醋、食鹽水、小蘇打水都用 LED 測，分得出來嗎？", cards:["○","╳"], ans:"╳", why:"課本 p.79：這三杯都讓 LED 發亮。" } ],
+  [ { q:"只用藍色石蕊試紙和 LED，分得出食鹽水和小蘇打水嗎？", cards:["○","╳"], ans:"╳", why:"兩杯都讓藍色石蕊試紙不變色，也都讓 LED 發亮。" },
+    { q:"食鹽水和小蘇打水的酸鹼性一樣嗎？", cards:["○","╳"], ans:"╳", why:"食鹽水是中性，小蘇打水是鹼性。酸鹼性不一樣，只是有些工具看不出來。" } ],
+  [ { q:"檸檬酸水滴在紅色石蕊試紙上，試紙會變色嗎？", cards:["○","╳"], ans:"╳", why:"檸檬酸水是酸性，紅色石蕊試紙不變色。" },
+    { q:"只用紅色石蕊試紙和 LED，分得出檸檬酸水和食鹽水嗎？", cards:["○","╳"], ans:"╳", why:"兩杯都讓紅色石蕊試紙不變色，也都讓 LED 發亮。" } ],
+  [ { q:"肥皂水滴入紫色高麗菜汁會偏綠，肥皂水是哪一種？", cards:["酸","中","鹼"], ans:"鹼", why:"紫色高麗菜汁偏藍色或綠色＝鹼性；課本 p.72–73 的實驗也測過肥皂水是鹼性。" },
+    { q:"檸檬酸水和肥皂水滴入紫色高麗菜汁，顏色會一樣嗎？", cards:["○","╳"], ans:"╳", why:"檸檬酸水偏紅（酸性），肥皂水偏綠（鹼性）。" } ],
+  [ { q:"兩條電線在杯子裡碰在一起，LED 會亮嗎？", cards:["亮","不亮"], ans:"亮", why:"兩條電線在水溶液裡碰在一起時，電路直接接通，LED 會亮起來，這時的結果不能算。" },
+    { q:"LED 的長短腳接反了，放進食鹽水，LED 會亮嗎？", cards:["亮","不亮"], ans:"不亮", why:"LED 的長腳要接在電池正極出來的電線上，短腳接負極那一邊；LED 不是燈泡，是發光二極體。" } ],
+  [ { q:"一杯水溶液讓藍色石蕊試紙不變色，就一定是中性嗎？", cards:["○","╳"], ans:"╳", why:"只用藍色石蕊試紙，不變色的可能是中性，也可能是鹼性，要再用紅色石蕊試紙才分得出來。" },
+    { q:"只靠搧聞，就能確定一杯水溶液是酸性還是鹼性嗎？", cards:["○","╳"], ans:"╳", why:CRIT_SMELL + "（遊戲裡是先用氣味認出「這杯是醋」，再用課本測過的結果，知道醋是酸性。）" } ]
+];
+
+/* ---------- 示意圖（本頁自己畫的：杯子、搧聞、抓錯關的操作圖） ---------- */
+const INK = "#1E1E1E";
+function T(x, y, s, o){
+  o = o || {};
+  return `<text x="${x}" y="${y}" font-size="${o.size || 15}" font-weight="${o.w || 800}" fill="${o.fill || INK}" text-anchor="${o.anchor || "middle"}" dominant-baseline="middle" stroke="#fff" stroke-width="4" stroke-linejoin="round" paint-order="stroke">${esc(s)}</text>`;
+}
+function svgWrap(vb, body, aria){
+  return `<svg class="fig" viewBox="${vb}" role="img" aria-label="${esc(aria)}（示意）" xmlns="http://www.w3.org/2000/svg" font-family="Microsoft JhengHei,PingFang TC,Noto Sans TC,sans-serif"><rect width="100%" height="100%" fill="#FFFDF8"/>${body}</svg>`;
+}
+function beaker(x, y, w, h, label, opt){
+  opt = opt || {};
+  const lv = y + h * 0.36;
+  let s = `<path d="M${x+2} ${lv} H${x+w-2} V${y+h-8} Q${x+w-2} ${y+h-2} ${x+w-10} ${y+h-2} H${x+10} Q${x+2} ${y+h-2} ${x+2} ${y+h-8} Z" fill="${opt.fill || "#D8EEF9"}"/>`;
+  s += `<path d="M${x-5} ${y} H${x+w+5} M${x} ${y} V${y+h-8} Q${x} ${y+h} ${x+8} ${y+h} H${x+w-8} Q${x+w} ${y+h} ${x+w} ${y+h-8} V${y}" fill="none" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/>`;
+  if (label) s += T(x + w / 2, y + h * 0.68, label, { size: opt.size || 15 });
+  return s;
+}
+function dropper(x, tipY, tag, high){
+  const top = tipY - 92, ty = high ? top + 2 : top + 34;   // high：標籤貼在橡皮頭旁邊（避免蓋到杯子上的字）
+  let s = `<rect x="${x-10}" y="${top}" width="20" height="28" rx="9" fill="#A84B3A" stroke="${INK}" stroke-width="2"/>`;
+  s += `<path d="M${x-6} ${top+28} H${x+6} V${tipY-14} L${x} ${tipY} L${x-6} ${tipY-14} Z" fill="#EAF5FB" stroke="${INK}" stroke-width="2"/>`;
+  if (tag) s += `<line x1="${x + (high ? 10 : 6)}" y1="${ty+12}" x2="${x+16}" y2="${ty+12}" stroke="${INK}" stroke-width="2"/><rect x="${x+16}" y="${ty}" width="44" height="24" rx="5" fill="#fff" stroke="${INK}" stroke-width="2"/>` + T(x + 38, ty + 12, tag, { size:14 });
+  return s;
+}
+function boardPaper(color, label){
+  return `<rect x="40" y="118" width="220" height="50" rx="6" fill="#fff" stroke="${INK}" stroke-width="3"/>` + T(150, 181, "白底板", { size:12, w:700, fill:"#6B7A82" }) +
+    `<rect x="120" y="134" width="60" height="18" rx="2" fill="${color}" stroke="#6B7A82" stroke-width="1.5"/>` + T(84, 106, label, { size:13 });
+}
+function arrowUp(x, y, len){
+  return `<line x1="${x}" y1="${y}" x2="${x}" y2="${y-len}" stroke="#2E7D4F" stroke-width="4" stroke-linecap="round"/><polygon points="${x},${y-len-10} ${x-7},${y-len+2} ${x+7},${y-len+2}" fill="#2E7D4F"/>`;
+}
+function cupSVG(letter, cloudy){
+  let haze = "";
+  if (cloudy) haze = [[44,72],[60,86],[78,74],[52,102],[70,106],[84,94],[40,92],[66,64]].map(p => `<circle cx="${p[0]}" cy="${p[1]}" r="7" fill="#FFFFFF" opacity=".8"/>`).join("");
+  return `<svg viewBox="0 0 120 128" role="img" aria-label="${letter}杯（示意）：${cloudy ? "稍微混濁" : "透明"}" xmlns="http://www.w3.org/2000/svg" font-family="Microsoft JhengHei,PingFang TC,Noto Sans TC,sans-serif">` +
+    `<path d="M30 52 H90 V110 Q90 120 80 120 H40 Q30 120 30 110 Z" fill="${cloudy ? "#E6E1D5" : "#D8EEF9"}"/>${haze}` +
+    `<path d="M24 14 H96 M30 14 V110 Q30 120 40 120 H80 Q90 120 90 110 V14" fill="none" stroke="${INK}" stroke-width="4" stroke-linejoin="round"/>` +
+    `<circle cx="60" cy="34" r="15" fill="#fff" stroke="${INK}" stroke-width="3"/>` + T(60, 35, letter, { size:18, w:900 }) + `</svg>`;
+}
+function figSmell(){
+  let b = beaker(40, 92, 100, 88, "");
+  b += [70, 90, 110].map(x => `<path d="M${x} 86 q-8 -10 0 -20 q8 -10 0 -20" fill="none" stroke="#9AA5AD" stroke-width="3" stroke-linecap="round"/>`).join("");
+  b += `<ellipse cx="190" cy="78" rx="20" ry="32" transform="rotate(-35 190 78)" fill="#F2C29B" stroke="${INK}" stroke-width="2.5"/>`;
+  b += `<path d="M150 64 Q 196 18 244 34" fill="none" stroke="#2E7D4F" stroke-width="3" stroke-dasharray="6 5"/><polygon points="252,37 238,28 238,44" fill="#2E7D4F"/>`;
+  b += `<circle cx="270" cy="62" r="13" fill="#F2C29B" stroke="${INK}" stroke-width="2"/>` + T(270, 92, "鼻子", { size:14 });
+  b += T(214, 132, "手掌往鼻子方向搧", { size:14 }) + T(214, 154, "（鼻子不靠近杯口）", { size:12, w:700, fill:"#4E5C63" });
+  return svgWrap("0 0 300 190", b, "用手掌往鼻子方向搧聞");
+}
+function figTweezers(){
+  let b = boardPaper("#9CC3EC", "藍色石蕊試紙");
+  b += `<path d="M236 26 L172 134" stroke="#7D858C" stroke-width="7" stroke-linecap="round"/><path d="M254 34 L180 136" stroke="#7D858C" stroke-width="7" stroke-linecap="round"/><path d="M236 26 L254 34" stroke="#7D858C" stroke-width="7" stroke-linecap="round"/>` + T(268, 20, "鑷子", { size:14 });
+  return svgWrap("0 0 300 190", b, "用鑷子夾著一小段藍色石蕊試紙，放在白底板上");
+}
+function figDrip(){
+  let b = boardPaper("#9CC3EC", "石蕊試紙") + beaker(14, 20, 56, 64, "醋", { size:14 });
+  b += dropper(150, 120, "醋") + `<circle cx="150" cy="128" r="4.5" fill="#BFE3F7" stroke="#2E86C1" stroke-width="1.5"/>`;
+  return svgWrap("0 0 300 190", b, "貼著「醋」標籤的滴管吸了醋，滴一滴在試紙上");
+}
+function figDropWrong(){
+  let b = beaker(24, 100, 96, 80, "醋") + beaker(176, 100, 96, 80, "糖水");
+  b += dropper(196, 162, "醋", true);
+  return svgWrap("0 0 300 190", b, "貼著「醋」標籤的滴管，伸進糖水的杯子裡吸糖水");
+}
+function figLift(){
+  let b = beaker(95, 96, 110, 84, "醋");
+  b += `<line x1="128" y1="8" x2="128" y2="82" stroke="#B87333" stroke-width="5" stroke-linecap="round"/><line x1="172" y1="8" x2="172" y2="82" stroke="#B87333" stroke-width="5" stroke-linecap="round"/>`;
+  b += arrowUp(104, 82, 44) + arrowUp(196, 82, 44) + T(52, 40, "LED 亮了", { size:14 }) + T(248, 40, "立刻拿出來", { size:14 });
+  return svgWrap("0 0 300 190", b, "LED 亮了以後，兩條銅線從醋裡往上拿出來");
+}
+function figRinse(){
+  let b = beaker(150, 112, 100, 68, "廢液杯", { size:13 });
+  b += `<line x1="185" y1="12" x2="185" y2="98" stroke="#B87333" stroke-width="5" stroke-linecap="round"/><line x1="215" y1="12" x2="215" y2="98" stroke="#B87333" stroke-width="5" stroke-linecap="round"/>`;
+  b += `<rect x="26" y="74" width="62" height="96" rx="14" fill="#EAF5FB" stroke="${INK}" stroke-width="3"/><path d="M57 74 V54 L150 62" fill="none" stroke="${INK}" stroke-width="4" stroke-linecap="round"/>` + T(57, 124, "純水", { size:15 });
+  b += `<path d="M156 60 L178 66 M156 66 L177 78 M157 72 L175 90" stroke="#2E86C1" stroke-width="3" stroke-linecap="round"/>`;
+  b += `<rect x="234" y="20" width="56" height="34" rx="6" fill="#F3EEE2" stroke="${INK}" stroke-width="2"/>` + T(262, 37, "擦乾", { size:13 });
+  return svgWrap("0 0 300 190", b, "用純水沖洗兩條銅線，再擦乾");
+}
+/* 題庫同一套示意圖（figures.js）；讀不到時退回文字框 */
+function qfig(p, alt){
+  try{
+    if (window.QFIG && typeof window.QFIG.render === "function"){ const s = window.QFIG.render(p); if (s) return s; }
+  }catch(_){}
+  return `<div class="figfallback" role="img" aria-label="${esc(alt)}">（示意圖暫時載入不了）<br>${esc(alt)}</div>`;
+}
+
+/* ---------- 第 7 關：抓錯關（看隊友的三格操作圖，找出錯的一格） ---------- */
+const SPOT_ROUNDS = [
+  { ctx:"隊友用石蕊試紙檢驗醋和糖水。三格裡，哪一格做錯了？",
+    frames:[
+      { draw:figTweezers, cap:"用鑷子夾一小段石蕊試紙，放在白底板上。" },
+      { draw:figDrip, cap:"用醋的滴管吸醋，滴一滴在試紙上。" },
+      { draw:figDropWrong, cap:"接著吸糖水，滴在另一段試紙上。", bad:true,
+        why:"滴管上還貼著「醋」：用吸過醋的滴管去吸糖水，殘留的醋會混進糖水，造成誤判。同一種水溶液要用同一支滴管。" } ] },
+  { ctx:"隊友用 LED 導電電路測醋。三格裡，哪一格做錯了？",
+    frames:[
+      { q:{ type:"led", on:true, name:"食鹽水" }, alt:"LED 電路放進食鹽水，LED 亮了", cap:"先用一杯食鹽水確認電路會亮。" },
+      { draw:figLift, cap:"LED 亮了以後，立刻把銅線從水溶液裡拿出來。" },
+      { q:{ type:"led", on:true, name:"醋", touch:true }, alt:"兩條電線在醋裡碰在一起，LED 亮了", cap:"把兩條電線放進醋裡，LED 亮了。", bad:true,
+        why:"兩條電線在水溶液裡碰在一起時，電路直接接通，LED 會亮起來，這時的結果不能算。兩條電線不可互相碰觸；電流太強還可能燒壞 LED。" } ] },
+  { ctx:"隊友用 LED 導電電路測食鹽水。三格裡，哪一格做錯了？（看看 LED 的長腳、短腳接在哪裡）",
+    frames:[
+      { draw:figRinse, cap:"測完上一杯，用純水沖洗電線並擦乾。" },
+      { q:{ type:"led", on:false, name:"食鹽水", legs:"reversed", showLegs:true }, alt:"LED 長腳接到電池負極那一邊，LED 不亮", cap:"接好電路，把兩條電線分開放進食鹽水。", bad:true,
+        why:"LED 長短腳接反了，LED 不會亮，會誤以為食鹽水不容易導電。LED 的長腳要接在電池正極出來的電線上，短腳接負極那一邊；LED 不是燈泡，是發光二極體。" },
+      { q:{ type:"led", on:true, name:"食鹽水", showLegs:true }, alt:"LED 長腳接電池正極出來的電線，LED 亮了", cap:"接好電路，把兩條電線分開放進食鹽水。" } ] }
+];
+function frameFig(f){ return f.draw ? f.draw() : qfig(f.q, f.alt); }
+
+/* ==========================================================
+   ② 引擎
+   「世界」＝每一杯各是哪一種水溶液的一種排法（每種一杯）。
+   目前所有和結果相符的世界都同意某一杯的答案 → 這一杯的證據夠了。
+   外觀（肥皂水稍微混濁）一開始就看得到，也算已知的結果，不算檢驗次數。
+   ========================================================== */
+function answerKey(inst, sid){ const s = SOLS[sid]; return (s.cat === "neutral" && inst.needNames) ? sid : s.cat; }
+function answerOptions(inst){ return inst.needNames ? ["acid","salt","sugar","base"] : ["acid","neutral","base"]; }
+
+/* 決策樹窮舉：f(目前的世界) ＝ 最壞情況下，最少還要檢驗幾次才能確定每一杯的答案 */
+function makeSolver(inst){
+  const W = inst.worlds, n = inst.n, tools = inst.tools;
+  const ans = W.map(w => w.map(sid => answerKey(inst, sid)));
+  const memo = new Map();
+  const has = (m, k) => (m >>> k) & 1;
+  function determinedAns(mask, c){
+    let a = null;
+    for (let k = 0; k < W.length; k++) if (has(mask, k)){ if (a === null) a = ans[k][c]; else if (ans[k][c] !== a) return null; }
+    return a;
+  }
+  function goal(mask){ for (let c = 0; c < n; c++) if (determinedAns(mask, c) === null) return false; return true; }
+  function split(mask, c, t){
+    const g = new Map();
+    for (let k = 0; k < W.length; k++) if (has(mask, k)){ const r = TOOLS[t].res(SOLS[W[k][c]]); g.set(r, (g.get(r) || 0) | (1 << k)); }
+    return g;
+  }
+  function f(mask){
+    const hit = memo.get(mask);
+    if (hit) return hit.v;
+    let v = Infinity, a = null;
+    if (goal(mask)) v = 0;
+    else for (let c = 0; c < n; c++) for (const t of tools){
+      const g = split(mask, c, t);
+      if (g.size < 2) continue;               // 這個檢驗得不到新資訊
+      let worst = 0;
+      for (const m of g.values()){ worst = Math.max(worst, f(m)); if (worst + 1 >= v) break; }
+      if (worst + 1 < v){ v = worst + 1; a = { cup:c, tool:t }; }
+    }
+    memo.set(mask, { v, a });
+    return v;
+  }
+  function bestAction(mask){ f(mask); return memo.get(mask).a; }
+  return { f, bestAction, determinedAns, goal };
+}
+function buildInst(L, sols, actual){
+  const inst = { sols, actual, n: sols.length, tools: L.tools.slice(),
+    needNames: sols.includes("salt") && sols.includes("sugar") };
+  inst.worlds = perms(sols).filter(w => w.every((sid, i) => SOLS[sid].look === SOLS[actual[i]].look));
+  inst.full = (1 << inst.worlds.length) - 1;
+  inst.solver = makeSolver(inst);
+  const m = inst.solver.f(inst.full);
+  inst.min = isFinite(m) ? m : null;
+  inst.cannot = inst.min === null;           // 怎麼測都分不出來 → 正確答案是「分不出來」
+  return inst;
+}
+function createGame(li, seed){
+  const L = LEVELS[li];
+  const rnd = mulberry32((seed >>> 0) || 1);
+  const G = { li, L, seed, type: L.type || "cups", tests:0, wrong:0, traps:0, finished:false, stars:null, log:[] };
+  if (G.type === "spot"){
+    G.rounds = SPOT_ROUNDS.map(R => ({ ctx:R.ctx, frames:shuffle(R.frames, rnd), picked:null, ok:null }));
+    G.round = 0;
+    return G;
+  }
+  let inst = null;
+  for (let tries = 0; tries < 60; tries++){
+    const sols = (L.random ? shuffle(SOL_ORDER, rnd).slice(0, L.random) : L.sols.slice())
+      .sort((a, b) => SOL_ORDER.indexOf(a) - SOL_ORDER.indexOf(b));
+    inst = buildInst(L, sols, shuffle(sols, rnd));
+    if (!L.random || inst.min > 0) break;      // 隨機關：不用檢驗就推得出全部答案的組合重抽
+  }
+  G.inst = inst;
+  G.obs = []; G.tested = {}; G.mask = inst.full;
+  G.cups = inst.actual.map(() => ({ done:false, correct:null, given:null, evid:null, why:"" }));
+  G.cannotDone = false;
+  return G;
+}
+function gUseTool(G, cup, tool){
+  if (G.finished) return { ok:false, msg:"這一關已經結束了。" };
+  if (G.type !== "cups") return { ok:false, msg:"這一關不用工具。" };
+  const inst = G.inst;
+  if (!(cup >= 0 && cup < inst.n)) return { ok:false, msg:"沒有這一杯。" };
+  if (TRAPS[tool]){ G.traps++; G.log.push({ cup, trap:tool }); return { ok:true, trap:true, msg:TRAPS[tool].msg }; }
+  if (!TOOLS[tool] || !inst.tools.includes(tool)) return { ok:false, msg:"這一關沒有這個工具。" };
+  if (G.cups[cup].done) return { ok:false, msg:`${LETTERS[cup]}杯已經作答了。` };
+  const res = TOOLS[tool].res(SOLS[inst.actual[cup]]);
+  const key = cup + ":" + tool;
+  if (G.tested[key]) return { ok:true, repeat:true, res, text:RES_TEXT[tool][res] };
+  G.tested[key] = res; G.tests++;
+  G.obs.push({ cup, tool, res }); G.log.push({ cup, tool, res });
+  let m = 0;
+  inst.worlds.forEach((w, k) => { if (((G.mask >>> k) & 1) && TOOLS[tool].res(SOLS[w[cup]]) === res) m |= 1 << k; });
+  G.mask = m;
+  return { ok:true, counted:true, res, text:RES_TEXT[tool][res] };
+}
+function ownSet(G, c){
+  const inst = G.inst, look = SOLS[inst.actual[c]].look;
+  return inst.sols.filter(s => SOLS[s].look === look && G.obs.every(o => o.cup !== c || TOOLS[o.tool].res(SOLS[s]) === o.res));
+}
+function possibleSols(G, c){
+  const set = [];
+  G.inst.worlds.forEach((w, k) => { if (((G.mask >>> k) & 1) && !set.includes(w[c])) set.push(w[c]); });
+  return set.sort((a, b) => SOL_ORDER.indexOf(a) - SOL_ORDER.indexOf(b));
+}
+/* 實測：這一杯自己做過的檢驗（加上清單）就能確定答案；推論：要靠清單和其他杯的結果 */
+function evidenceType(G, c){
+  if (!G.obs.some(o => o.cup === c)) return "推論";
+  const keys = new Set(ownSet(G, c).map(s => answerKey(G.inst, s)));
+  return keys.size === 1 ? "實測" : "推論";
+}
+function catFromOwn(own){
+  const r = t => { const o = own.find(x => x.tool === t); return o ? o.res : null; };
+  if (r("blue") === "red") return { cat:"acid", txt:"藍色石蕊試紙變紅色 → 酸性" };
+  if (r("red") === "blue") return { cat:"base", txt:"紅色石蕊試紙變藍色 → 鹼性" };
+  const cab = r("cab");
+  if (cab === "red") return { cat:"acid", txt:"紫色高麗菜汁偏紅 → 酸性" };
+  if (cab === "purple") return { cat:"neutral", txt:"紫色高麗菜汁偏紫 → 中性" };
+  if (cab === "bluegreen") return { cat:"base", txt:"紫色高麗菜汁偏藍綠 → 鹼性" };
+  if (cab === "green") return { cat:"base", txt:"紫色高麗菜汁偏綠 → 鹼性" };
+  if (r("blue") === "same" && r("red") === "same") return { cat:"neutral", txt:"兩種石蕊試紙都不變色 → 中性" };
+  return null;
+}
+function whyText(G, c, evid){
+  const inst = G.inst, sid = inst.actual[c], S = SOLS[sid], key = answerKey(inst, sid);
+  const own = G.obs.filter(o => o.cup === c);
+  const ownTxt = own.map(o => `${TOOLS[o.tool].name}：${RES_TEXT[o.tool][o.res]}`).join("、");
+  if (evid === "實測"){
+    const d = catFromOwn(own);
+    if (d && d.cat === S.cat){
+      if (key === S.cat) return d.txt;
+      const led = own.find(o => o.tool === "led");
+      if (led) return d.txt + "；" + (led.res === "off" ? "LED 不亮 → 中性的兩種裡，只有糖水不容易導電 → 糖水" : "LED 亮了 → 中性的兩種裡，只有食鹽水容易導電 → 食鹽水");
+    }
+    const sm = own.find(o => o.tool === "smell");
+    if (sm && sm.res === "sour") return "只有醋有這種氣味 → 這杯是醋 → 醋是酸性（課本 p.73 測過）";
+    if (sm && sm.res === "soap") return "只有肥皂水有這種氣味 → 這杯是肥皂水 → 肥皂水是鹼性（課本 p.72–73 測過）";
+    const set = ownSet(G, c);
+    if (set.length === 1) return `${ownTxt} → 清單裡只有${SOLS[set[0]].name}會這樣 → 這杯是${ANS_FULL[key] === CAT[S.cat] ? SOLS[set[0]].name + "（" + CAT[S.cat] + "）" : ANS_FULL[key]}`;
+    return `${ownTxt} → 這杯可能是${set.map(s => SOLS[s].name).join("或")}，都是${CAT[S.cat]}`;
+  }
+  const P = possibleSols(G, c);
+  if (!own.length && S.look === "cloudy" && P.length === 1) return "只有肥皂水看起來稍微混濁 → 這杯是肥皂水 → 肥皂水是鹼性（課本 p.72–73 測過）";
+  const head = own.length ? `這杯測過：${ownTxt}；` : "這杯沒有直接檢驗；";
+  if (P.length === 1) return `${head}再看清單和其他杯的結果 → 這杯只可能是${SOLS[P[0]].name} → ${ANS_FULL[key]}`;
+  return `${head}再看清單和其他杯的結果 → 這杯只可能是${P.map(s => SOLS[s].name).join("或")} → 都是${ANS_FULL[key]}`;
+}
+function gAnswer(G, cup, value){
+  if (G.finished) return { ok:false, result:"finished" };
+  if (G.type === "spot") return gSpot(G, cup, value);
+  if (value === "cannot") return gClaim(G);
+  const inst = G.inst;
+  if (!(cup >= 0 && cup < inst.n)) return { ok:false, result:"badcup" };
+  const C = G.cups[cup];
+  if (C.done) return { ok:false, result:"done" };
+  if (!answerOptions(inst).includes(value)) return { ok:false, result:"badvalue" };
+  if (inst.cannot){ G.wrong++; G.log.push({ cup, guess:value }); return { ok:true, result:"guess" }; }   // 硬猜算答錯
+  const det = inst.solver.determinedAns(G.mask, cup);
+  if (det === null){
+    const own = G.obs.filter(o => o.cup === cup);
+    return { ok:true, result:"notEnough", untested: own.length === 0, smellOnly: own.length > 0 && own.every(o => o.tool === "smell") };
+  }
+  C.done = true; C.given = value;
+  C.evid = evidenceType(G, cup);
+  C.why = whyText(G, cup, C.evid);
+  if (value === det) C.correct = true;
+  else { C.correct = false; G.wrong++; }
+  if (G.cups.every(x => x.done)) finish(G);
+  return { ok:true, result: C.correct ? "correct" : "wrong", evidence: C.evid, answer: det };
+}
+function gClaim(G){
+  if (G.finished || G.type !== "cups") return { ok:false, result:"finished" };
+  if (G.inst.cannot){ G.cannotDone = true; finish(G); return { ok:true, result:"claimOk" }; }
+  G.wrong++; G.log.push({ claim:true });
+  return { ok:true, result:"claimWrong" };
+}
+function gSpot(G, r, k){
+  if (G.finished || G.type !== "spot") return { ok:false, result:"finished" };
+  if (r == null || r < 0) r = G.round;
+  if (r !== G.round) return { ok:false, result:"notCurrent" };
+  const R = G.rounds[r];
+  if (typeof k === "string" && LETTERS.includes(k)) k = LETTERS.indexOf(k);
+  if (!(k >= 0 && k < R.frames.length)) return { ok:false, result:"badframe" };
+  R.picked = k; R.ok = !!R.frames[k].bad;
+  if (!R.ok) G.wrong++;
+  G.round++;
+  if (G.round >= G.rounds.length) finish(G);
+  return { ok:true, result: R.ok ? "correct" : "wrong", bad: R.frames.findIndex(f => f.bad) };
+}
+function baseStars(G){
+  if (G.type === "spot") return 3;
+  const t = G.tests, m = G.inst.cannot ? 2 : G.inst.min;
+  return t <= m ? 3 : t <= m + 2 ? 2 : 1;
+}
+function starsNow(G){ return Math.max(0, baseStars(G) - G.wrong - G.traps); }
+function finish(G){ G.finished = true; G.stars = starsNow(G); }
+
+/* ==========================================================
+   ③ 機器人驗平衡（三種機器人共用同一套規則）
+   亂猜：一半機會隨機選工具（含兩個安全陷阱）用在隨機一杯，一半機會隨機作答（含「分不出來」）。
+   只用藍色試紙：先把每一杯都滴藍色試紙；證據夠的杯子就答；還分不出來，就把剩下每一杯的工具全部測完再對表；
+                 全部測完還是分不出來，才宣布「分不出來」。第 7 關沒有工具，它和亂猜一樣隨便選。
+   最佳策略：照決策樹選下一步；分不出來的關卡直接宣布；第 7 關都選對。
+   ========================================================== */
+function botPlay(kind, li, seed){
+  const G = createGame(li, seed);
+  const rnd = mulberry32(((seed * 2654435761) ^ 0x5bd1e995) >>> 0 || 7);
+  const pick = a => a[Math.floor(rnd() * a.length)];
+  for (let step = 0; step < 800 && !G.finished; step++){
+    if (G.type === "spot"){
+      const R = G.rounds[G.round];
+      gSpot(G, G.round, kind === "best" ? R.frames.findIndex(f => f.bad) : Math.floor(rnd() * R.frames.length));
+      continue;
+    }
+    const inst = G.inst;
+    const open = G.cups.map((x, i) => x.done ? -1 : i).filter(i => i >= 0);
+    if (kind === "random"){
+      if (rnd() < 0.5) gUseTool(G, pick(open), pick(inst.tools.concat(["taste","sniff"])));
+      else {
+        const acts = [];
+        open.forEach(c => answerOptions(inst).forEach(v => acts.push([c, v])));
+        acts.push([-1, "cannot"]);
+        const a = pick(acts);
+        gAnswer(G, a[0], a[1]);
+      }
+      continue;
+    }
+    if (!inst.cannot){
+      const c = open.find(i => inst.solver.determinedAns(G.mask, i) !== null);
+      if (c !== undefined){ gAnswer(G, c, inst.solver.determinedAns(G.mask, c)); continue; }
+    }
+    if (kind === "best"){
+      if (inst.cannot){ gClaim(G); continue; }
+      const a = inst.solver.bestAction(G.mask);
+      gUseTool(G, a.cup, a.tool);
+      continue;
+    }
+    let did = false;
+    if (inst.tools.includes("blue")){
+      for (const c of open){ if (!G.tested[c + ":blue"]){ gUseTool(G, c, "blue"); did = true; break; } }
+    }
+    if (did) continue;
+    for (const c of open){
+      if (!inst.cannot && inst.solver.determinedAns(G.mask, c) !== null) continue;
+      for (const t of inst.tools){ if (!G.tested[c + ":" + t]){ gUseTool(G, c, t); did = true; break; } }
+      if (did) break;
+    }
+    if (did) continue;
+    gClaim(G);
+  }
+  return { stars: G.finished ? G.stars : 0, tests: G.tests || 0, finished: G.finished };
+}
+function minSummary(){
+  return LEVELS.map((L, li) => {
+    if (L.type === "spot") return { level:li + 1, min:null, note:"抓錯關（不用工具）" };
+    if (L.random){
+      const dist = {};
+      combos(SOL_ORDER, L.random).forEach(sols => {
+        const inst = buildInst(L, sols, sols.slice());
+        const k = inst.min === 0 ? "0（會重抽）" : String(inst.min);
+        dist[k] = (dist[k] || 0) + 1;
+      });
+      return { level:li + 1, min:null, note:"每次抽到的組合各自窮舉", dist };
+    }
+    const inst = buildInst(L, L.sols.slice(), L.sols.slice());
+    return { level:li + 1, min:inst.min, cannot:inst.cannot, note: inst.cannot ? "分不出來（答「分不出來」2 次以內＝3 顆）" : "" };
+  });
+}
+function runBots(n){
+  n = n || 200;
+  const out = { games:n, min:minSummary() };
+  ["random","blue","best"].forEach(kind => {
+    let all3 = true;
+    const per = LEVELS.map((L, li) => {
+      let s = 0, t = 0, unfinished = 0;
+      for (let g = 0; g < n; g++){
+        const r = botPlay(kind, li, 1 + g * 7919 + li * 104729);
+        s += r.stars; t += r.tests; if (!r.finished) unfinished++;
+        if (r.stars !== 3) all3 = false;
+      }
+      return { stars: +(s / n).toFixed(2), tests: +(t / n).toFixed(2), unfinished };
+    });
+    out[kind] = { perLevel: per.map(x => x.stars), avgTests: per.map(x => x.tests),
+      unfinished: per.reduce((a, x) => a + x.unfinished, 0),
+      avg: +(per.reduce((a, x) => a + x.stars, 0) / per.length).toFixed(2), all3 };
+  });
+  out.ordered = out.random.avg < out.blue.avg && out.blue.avg < out.best.avg;
+  return out;
+}
+
+/* ==========================================================
+   ④ 畫面
+   ========================================================== */
+const UI = { mode:"solo", G:null, sel:null, selMsg:false, zoom:null, cupMsg:[], quiet:false, frozen:false, pendingEnd:false,
+             spotShow:null, startLevel:0, team:null, seq:0, clearArm:false };
+const SCREENS = ["home","predict","play","end","final"];
+function show(name){
+  SCREENS.forEach(s => $("scr-" + s).classList.toggle("active", s === name));
+  try{ window.scrollTo(0, 0); }catch(_){}
+}
+function newSeed(){ UI.seq++; return ((Date.now() % 1000000007) ^ Math.imul(UI.seq, 2654435761)) >>> 0; }
+function live(s){ $("live").textContent = s; }
+function starStr(n){ return "★".repeat(n) + "☆".repeat(Math.max(0, 3 - n)); }
+function setHash(h){ try{ history.replaceState(null, "", h ? "#" + h : location.pathname + location.search); }catch(_){} }
+
+/* ---------- 儲存：只存每一關的最佳星星數（和音效開關），讀寫都包 try/catch ---------- */
+function loadStore(){ try{ const o = JSON.parse(localStorage.getItem(STORE_KEY) || "null"); return (o && typeof o === "object") ? o : {}; }catch(_){ return {}; } }
+function saveStore(o){ try{ localStorage.setItem(STORE_KEY, JSON.stringify(o)); }catch(_){} }
+function loadBest(){ const b = loadStore().best; return (b && typeof b === "object") ? b : {}; }
+function saveBest(li, stars){
+  const o = loadStore();
+  o.best = (o.best && typeof o.best === "object") ? o.best : {};
+  if (!(o.best[li] >= stars)){ o.best[li] = stars; saveStore(o); }
+}
+
+/* ---------- 音效（Web Audio 即時合成；沿用〈器官大跑酷〉的 Sound 模組） ---------- */
+const Sound = {
+  ctx:null, on:true,
+  ensure(){
+    if (!this.on) return;
+    try{
+      if (!this.ctx){ const AC = window.AudioContext || window.webkitAudioContext; if (AC) this.ctx = new AC(); }
+      if (this.ctx && this.ctx.state === "suspended") this.ctx.resume();
+    }catch(_){}
+  },
+  tone(freq, delay, dur, type, vol){
+    if (!this.on || !this.ctx || UI.quiet) return;
+    try{
+      const t = this.ctx.currentTime + delay, osc = this.ctx.createOscillator(), gain = this.ctx.createGain();
+      osc.type = type || "sine"; osc.frequency.value = freq;
+      gain.gain.setValueAtTime(0.0001, t);
+      gain.gain.linearRampToValueAtTime(vol || 0.15, t + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      osc.connect(gain).connect(this.ctx.destination);
+      osc.start(t); osc.stop(t + dur + 0.05);
+    }catch(_){}
+  },
+  tick(){ this.tone(660, 0, 0.08, "triangle", 0.08); },
+  soft(){ this.tone(440, 0, 0.12, "sine", 0.07); },
+  ok(){ this.tone(660, 0, 0.1, "triangle", 0.12); this.tone(990, 0.08, 0.14, "triangle", 0.12); },
+  bad(){ this.tone(196, 0, 0.22, "sawtooth", 0.08); this.tone(147, 0.12, 0.28, "sawtooth", 0.07); },
+  win(){ [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => this.tone(f, i * 0.09, 0.2, "triangle", 0.12)); },
+  over(){ [392, 330, 262].forEach((f, i) => this.tone(f, i * 0.14, 0.22, "triangle", 0.1)); }
+};
+function setSound(on, save){
+  Sound.on = on;
+  $("sndBtn").textContent = on ? "🔊 音效：開" : "🔇 音效：關";
+  $("sndBtn").setAttribute("aria-pressed", String(on));
+  if (save){ const o = loadStore(); o.sound = on; saveStore(o); }
+}
+
+/* ---------- 結果對照表（由同一份資料產生，和遊戲結果一定一致） ---------- */
+function resultTableHTML(){
+  const head = `<tr><th scope="col">水溶液</th>${TOOL_ORDER.map(t => `<th scope="col">${TOOLS[t].name}</th>`).join("")}<th scope="col">外觀</th></tr>`;
+  const rows = SOL_ORDER.map(sid => {
+    const S = SOLS[sid];
+    return `<tr><th scope="row">${S.name}<br><small>${CAT[S.cat]}</small></th>${TOOL_ORDER.map(t => {
+      const r = TOOLS[t].res(S);
+      const note = (t === "led" && sid === "citric") ? "<br><small>課本沒測；習作 P.31：酸性和鹼性水溶液容易導電</small>" : "";
+      return `<td>${RES_TEXT[t][r]}${note}</td>`;
+    }).join("")}<td>${S.look === "cloudy" ? "稍微混濁" : "透明"}</td></tr>`;
+  }).join("");
+  return `<table class="restab"><caption>每一種水溶液的檢驗結果（試紙、紫色高麗菜汁、LED：課本 p.71、p.73、p.75、p.79，習作 P.25、P.26、P.31；搧聞、外觀：依生活經驗）</caption>${head}${rows}</table>`;
+}
+
+/* ---------- 首頁 ---------- */
+function boardHTML(now){
+  const T = UI.team || { scores:[0, 0] };
+  return [0, 1].map(i => `<div class="team t${i}${now === i ? " now" : ""}"><span class="tn">第 ${i + 1} 隊</span><span class="ts">★ ${T.scores[i]} 顆</span>${now === i ? `<span class="turn">輪到這一隊</span>` : ""}</div>`).join("");
+}
+function renderHome(){
+  const best = loadBest();
+  $("levelGrid").innerHTML = LEVELS.map((L, i) => `<button type="button" class="lvbtn" data-level="${i}"><span class="no">第 ${i + 1} 關</span><span class="t">${esc(L.title)}</span><span class="best">${best[i] != null ? "最佳：" + starStr(best[i]) + `（${best[i]} 顆）` : "還沒玩過"}</span></button>`).join("");
+  $("teamStart").innerHTML = LEVELS.map((L, i) => `<button type="button" class="lvbtn sm" data-start="${i}" aria-pressed="${i === UI.startLevel}"><span class="no">第 ${i + 1} 關</span><span class="t">${esc(L.title)}</span></button>`).join("");
+  $("homeBoard").innerHTML = [0, 1].map(i => `<div class="team t${i}"><span class="tn">第 ${i + 1} 隊</span></div>`).join("");
+  $("homeTable").innerHTML = resultTableHTML();
+  document.querySelectorAll(".mode").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.mode === UI.mode)));
+  $("soloBox").hidden = UI.mode !== "solo";
+  $("teamBox").hidden = UI.mode !== "team";
+  $("clearBest").textContent = UI.clearArm ? "再按一次，確定清除" : "清除紀錄";
+}
+function goHome(){
+  UI.G = null; UI.sel = null; UI.spotShow = null;
+  setHash("");
+  renderHome(); show("home");
+}
+
+/* ---------- 開始一關 ---------- */
+function beginGame(li, team){
+  const G = createGame(li, newSeed());
+  if (team != null) G.team = team;
+  UI.G = G; UI.sel = null; UI.selMsg = false; UI.zoom = null; UI.spotShow = null; UI.pendingEnd = false;
+  UI.cupMsg = G.type === "cups" ? G.inst.actual.map(() => "") : [];
+  renderPlay(); show("play");
+}
+function startSolo(li){
+  UI.mode = "solo"; UI.team = null;
+  setHash("level-" + (li + 1));
+  beginGame(li, null);
+}
+
+/* ---------- 關卡畫面 ---------- */
+function renderPlay(){
+  const G = UI.G; if (!G) return;
+  $("hudLv").textContent = `第 ${G.li + 1} 關｜${G.L.title}`;
+  const tag = $("hudTeam");
+  if (UI.mode === "team" && G.team != null){ tag.hidden = false; tag.className = "teamtag t" + G.team; tag.textContent = `輪到第 ${G.team + 1} 隊`; }
+  else tag.hidden = true;
+  $("quitBtn").textContent = UI.mode === "team" ? "結束比賽" : "回關卡選單";
+  $("cupStage").hidden = G.type !== "cups";
+  $("spotStage").hidden = G.type !== "spot";
+  if (G.type === "spot") renderSpot();
+  else { renderMission(); renderTools(); renderCups(); renderZoom(); renderLog(); }
+  renderHud();
+}
+function renderHud(){
+  const G = UI.G;
+  if (G.type === "spot") $("hudTests").textContent = `第 ${Math.min(G.round + 1, G.rounds.length)}／${G.rounds.length} 題`;
+  else { const lim = G.inst.cannot ? 2 : G.inst.min; $("hudTests").textContent = `檢驗 ${G.tests} 次（★★★：${lim} 次以內）`; }
+  const s = starsNow(G);
+  $("hudStars").innerHTML = `目前 <span class="stars">${starStr(s)}</span>（${s} 顆）`;
+}
+function renderMission(){
+  const G = UI.G, inst = G.inst;
+  const chips = inst.sols.map(s => `<span class="chip">${SOLS[s].name}</span>`).join("");
+  let task = "說出每一杯是<b>酸性、中性還是鹼性</b>。";
+  if (inst.needNames) task += "清單上有食鹽水和糖水，中性的杯子要說出<b>是哪一種</b>。";
+  if (inst.sols.includes("vinegar") && inst.sols.includes("citric")) task += "醋和檸檬酸水都在清單上，這兩杯只要說出「酸性」。";
+  if (inst.sols.includes("soda") && inst.sols.includes("soap")) task += "小蘇打水和肥皂水都在清單上，這兩杯只要說出「鹼性」。";
+  const tools = inst.tools.length === TOOL_ORDER.length ? "五種工具都可以用。" : `這一關只有：${inst.tools.map(t => TOOLS[t].name).join("、")}。`;
+  const m = inst.cannot ? 2 : inst.min;
+  $("mission").innerHTML = `<div class="cands"><b>本關的杯子（每種一杯）：</b>${chips}</div>` +
+    `<p class="task">${task}</p>` +
+    `<p class="rule">${tools}星星：檢驗 ${m} 次以內＝★★★；${m + 1}～${m + 2} 次＝★★；${m + 3} 次以上＝★。每答錯一次、每做一次不安全的動作，各扣 1 顆。</p>` +
+    `<details class="table"><summary>看結果對照表（課本的結果）</summary><div class="tablewrap">${resultTableHTML()}</div></details>`;
+}
+function toolName(t){ return TOOLS[t] ? TOOLS[t].name : TRAPS[t].name; }
+function renderTools(){
+  const G = UI.G, inst = G.inst;
+  $("toolbar").innerHTML = inst.tools.concat(["taste","sniff"]).map(t =>
+    `<button type="button" class="tool" data-tool="${t}" aria-pressed="${UI.sel === t}" ${G.finished ? "disabled" : ""}>${ICON[t]}<span>${toolName(t)}</span></button>`).join("");
+  $("ctrlBtn").hidden = !(inst.tools.includes("blue") || inst.tools.includes("red"));
+  $("ctrlBtn").disabled = G.finished;
+  $("claimBtn").disabled = G.finished;
+  if (!UI.selMsg) setSel(UI.sel ? `已選：${toolName(UI.sel)}。按杯子下面的「檢驗」。` : "先選一種工具，再按杯子下面的「檢驗」。");
+}
+function setSel(msg, warn){ const el = $("selLine"); el.textContent = msg; el.classList.toggle("warn", !!warn); }
+function swatch(tool, res){
+  const c = SWATCH[tool] && SWATCH[tool][res];
+  return c ? `<span class="sw${tool === "led" ? " round" : ""}" style="background:${c}" aria-hidden="true"></span>` : `<span class="sw" style="background:#fff" aria-hidden="true"></span>`;
+}
+function verdictHTML(G, c){
+  const C = G.cups[c], sid = G.inst.actual[c], truth = answerKey(G.inst, sid);
+  if (C.correct) return `<div class="verdict ok">✓ ${ANS_FULL[truth]}<span class="ev">${C.evid}</span><div class="why">${esc(C.why)}</div></div>`;
+  return `<div class="verdict no">✗ 你答「${ANS_LABEL[C.given]}」。這一杯是${SOLS[sid].name}（${CAT[SOLS[sid].cat]}）。<div class="why">${esc(C.why)}</div></div>`;
+}
+function renderCups(){
+  const G = UI.G, inst = G.inst, box = $("cups");
+  box.className = "cups n" + inst.n;
+  box.innerHTML = inst.actual.map((sid, c) => {
+    const C = G.cups[c], L = LETTERS[c], cloudy = SOLS[sid].look === "cloudy";
+    const own = G.obs.filter(o => o.cup === c);
+    const res = own.map(o => `<li>${swatch(o.tool, o.res)}<span><b>${TOOLS[o.tool].name}</b>：${RES_TEXT[o.tool][o.res]}</span></li>`).join("");
+    const label = C.done ? "已作答" : UI.sel ? `用「${toolName(UI.sel)}」檢驗${L}杯` : `檢驗${L}杯`;
+    const bottom = C.done ? verdictHTML(G, c) :
+      `<div class="ansrow" role="group" aria-label="${L}杯的答案">${answerOptions(inst).map(v => `<button type="button" class="ansbtn" data-ans="${v}" data-cup="${c}" ${G.finished ? "disabled" : ""}>${ANS_LABEL[v]}</button>`).join("")}</div>` +
+      `<p class="cupmsg" aria-live="polite">${esc(UI.cupMsg[c] || "")}</p>`;
+    return `<div class="cup${C.done ? (C.correct ? " ok" : " no") : ""}">` +
+      `<div class="cuphead"><span class="letter">${L}</span><span class="look">外觀：${cloudy ? "稍微混濁" : "透明"}</span></div>` +
+      `<button type="button" class="cupbtn${UI.sel && !C.done && !G.finished ? " ready" : ""}" data-test="${c}" ${C.done || G.finished ? "disabled" : ""}>${cupSVG(L, cloudy)}<span class="tl">${label}</span></button>` +
+      `<ul class="results" aria-label="${L}杯的檢驗結果">${res || `<li class="none">還沒有檢驗</li>`}</ul>${bottom}</div>`;
+  }).join("");
+}
+function zoomFor(c, tool, res){
+  const L = LETTERS[c], sid = UI.G.inst.actual[c], S = SOLS[sid];
+  let fig;
+  if (tool === "blue" || tool === "red") fig = qfig({ type:"litmus", items:[{ lab:L, res:S.cat }], paper:tool }, `${L}杯滴在${TOOLS[tool].name}上：${RES_TEXT[tool][res]}`);
+  else if (tool === "cab") fig = qfig({ type:"cabbage", juice:true, tubes:[{ lab:L, res:{ red:"acid", purple:"neutral", bluegreen:"base", green:"base-green" }[res] }] }, `${L}杯滴入紫色高麗菜汁：${RES_TEXT.cab[res]}`);
+  else if (tool === "led") fig = qfig({ type:"led", on: res === "on", lab:L }, `${L}杯的導電測試：${RES_TEXT.led[res]}`);
+  else fig = figSmell();
+  const extra = tool === "led" ? "<small>兩條電線分開放進水溶液；亮了就立刻拿出來。</small>" :
+    tool === "smell" ? "<small>搧聞是用來安全地聞氣味，只靠氣味不能確定酸鹼。</small>" :
+    tool === "cab" ? "<small>偏紅＝酸性，偏紫＝中性，偏藍或偏綠＝鹼性。</small>" : "";
+  return { fig, cap:`${L}杯｜${TOOLS[tool].name}：${RES_TEXT[tool][res]}${extra}` };
+}
+function zoomControl(){
+  const inst = UI.G.inst, paper = inst.tools.includes("blue") && inst.tools.includes("red") ? "both" : inst.tools.includes("blue") ? "blue" : "red";
+  const txt = paper === "both" ? "藍色、紅色石蕊試紙都不變色" : paper === "blue" ? "藍色石蕊試紙不變色" : "紅色石蕊試紙不變色";
+  return { fig: qfig({ type:"litmus", items:[{ name:"純水", res:"neutral" }], paper }, "純水沾溼的對照試紙：不變色"),
+           cap:`對照：純水沾溼的試紙｜${txt}（不算次數）<small>${CRIT_CONTROL}</small>` };
+}
+function renderZoom(){
+  const z = UI.zoom;
+  if (!z){ $("zoomFig").innerHTML = `<p class="note center">選一種工具、按一杯的「檢驗」，結果會放大在這裡。</p>`; $("zoomCap").textContent = ""; return; }
+  $("zoomFig").innerHTML = z.fig; $("zoomCap").innerHTML = z.cap;
+}
+function renderLog(){
+  const G = UI.G;
+  const items = G.log.filter(x => x.tool).map(x => `<li>${LETTERS[x.cup]}杯｜${TOOLS[x.tool].name}：${RES_TEXT[x.tool][x.res]}</li>`).join("");
+  $("logList").innerHTML = items || `<li class="none">還沒有紀錄</li>`;
+}
+/* 重畫後把焦點放回同一顆按鈕（鍵盤操作不會跳走） */
+function rerender(){
+  const a = document.activeElement;
+  let sel = null;
+  if (a && a.dataset){
+    for (const k of ["test","tool","ans","frame"]) if (a.dataset[k] != null){ sel = `[data-${k}="${a.dataset[k]}"]` + (a.dataset.cup != null && k === "ans" ? `[data-cup="${a.dataset.cup}"]` : ""); break; }
+  }
+  renderPlay();
+  if (sel){ const el = document.querySelector("#scr-play " + sel); if (el && !el.disabled) try{ el.focus({ preventScroll:true }); }catch(_){} }
+}
+
+/* ---------- 操作 ---------- */
+function selectTool(t){
+  const G = UI.G; if (!G || G.finished || UI.frozen) return;
+  UI.sel = UI.sel === t ? null : t;
+  UI.selMsg = false;
+  rerender();
+}
+function doTest(c){
+  const G = UI.G; if (!G || G.finished || UI.frozen) return;
+  if (!UI.sel){ UI.selMsg = true; setSel("先在上面選一種工具，再按「檢驗」。", true); Sound.soft(); return; }
+  const t = UI.sel, r = gUseTool(G, c, t);
+  if (!r.ok){ UI.selMsg = true; setSel(r.msg, true); return; }
+  if (r.trap){
+    UI.sel = null; UI.selMsg = false; Sound.bad(); rerender();
+    freeze(TRAPS[t].title, `<p>${esc(r.msg)}</p><p class="crit">${MUST_SAFE}</p><p>扣 1 顆星。</p>`, "wrong");
+    return;
+  }
+  UI.zoom = zoomFor(c, t, r.res); UI.cupMsg[c] = "";
+  if (r.repeat){ UI.selMsg = true; setSel(`${LETTERS[c]}杯已經用過「${toolName(t)}」了，結果一樣，這次不算次數。`); }
+  else { UI.selMsg = true; setSel(`${LETTERS[c]}杯｜${TOOLS[t].name}：${r.text}`); Sound.tick(); live(`${LETTERS[c]}杯，${TOOLS[t].name}：${r.text}`); }
+  rerender();
+}
+function doControl(){
+  const G = UI.G; if (!G || G.finished || UI.frozen || G.type !== "cups") return;
+  UI.zoom = zoomControl(); UI.selMsg = true; setSel("對照試紙看好了（不算次數）。"); rerender();
+}
+function doAnswer(c, v){
+  const G = UI.G; if (!G || G.finished || UI.frozen) return;
+  const r = gAnswer(G, c, v);
+  if (!r.ok) return;
+  const L = LETTERS[c];
+  if (r.result === "notEnough"){
+    UI.cupMsg[c] = r.untested ? "這一杯還沒有檢驗，也還推不出來。證據還不夠，再檢驗看看。（不算答錯）" : "證據還不夠，再檢驗看看。（不算答錯）";
+    Sound.soft(); rerender(); live(`${L}杯：證據還不夠，再檢驗看看。`);
+    if (r.smellOnly) freeze("停一下！只靠搧聞不能確定酸鹼", `<p class="crit">${CRIT_SMELL}</p><p>${L}杯目前只有搧聞的結果。證據還不夠，再檢驗看看。（這次不扣星）</p>`, "info");
+    return;
+  }
+  if (r.result === "guess"){
+    Sound.bad(); rerender();
+    freeze("硬猜算答錯，扣 1 顆星", `<p>證據不夠，就不能硬猜答案。</p><p>想一想：這一關的工具，能不能讓這幾杯出現不一樣的結果？如果怎麼測都一樣，就按「宣布：這些工具分不出來」。</p>`, "wrong");
+    return;
+  }
+  if (r.result === "correct"){
+    Sound.ok(); live(`${L}杯答對了：${ANS_FULL[r.answer]}，${r.evidence}。`); rerender();
+    if (G.finished) endSoon();
+    return;
+  }
+  if (r.result === "wrong"){
+    const sid = G.inst.actual[c];
+    Sound.bad(); rerender();
+    if (G.finished) UI.pendingEnd = true;
+    freeze("答錯了，扣 1 顆星", `<p>${L}杯是<b>${SOLS[sid].name}（${CAT[SOLS[sid].cat]}）</b>，要選「${ANS_LABEL[r.answer]}」。</p><p class="crit">證據：${esc(G.cups[c].why)}</p><p>這一杯不能再拿分了，繼續找其他杯。</p>`, "wrong");
+  }
+}
+function doClaim(){
+  const G = UI.G; if (!G || G.finished || UI.frozen || G.type !== "cups") return;
+  const r = gClaim(G);
+  if (r.result === "claimOk"){ Sound.ok(); rerender(); endSoon(); return; }
+  if (r.result === "claimWrong"){
+    Sound.bad(); rerender();
+    freeze("其實分得出來，扣 1 顆星", `<p>這一關用桌上的工具<b>分得出來</b>。</p><p>想一想：哪一種工具會讓這幾杯出現不一樣的結果？</p>`, "wrong");
+  }
+}
+function endSoon(){
+  const G = UI.G;
+  if (UI.quiet) return;
+  setTimeout(() => { if (UI.G === G && !UI.frozen) showEnd(); else if (UI.G === G) UI.pendingEnd = true; }, 900);
+}
+
+/* ---------- 抓錯關 ---------- */
+function renderSpot(){
+  const G = UI.G, r = UI.spotShow != null ? UI.spotShow : Math.min(G.round, G.rounds.length - 1), R = G.rounds[r];
+  $("spotNo").textContent = `第 ${r + 1} 題／共 ${G.rounds.length} 題　隊友的三格操作圖`;
+  $("spotCtx").textContent = R.ctx;
+  const badIdx = R.frames.findIndex(f => f.bad);
+  $("frames").innerHTML = R.frames.map((f, k) => {
+    let cls = "frame", mark = "";
+    if (R.picked != null){
+      if (k === badIdx){ cls += " bad"; mark = `<span class="mark">✗ 做錯的是這一格</span>`; }
+      if (k === R.picked) cls += R.ok ? " pickok" : " pickno";
+      if (k === R.picked && !R.ok) mark = `<span class="mark">你選的</span>`;
+    }
+    return `<button type="button" class="${cls}" data-frame="${k}" ${R.picked != null ? "disabled" : ""}><span class="fhead"><span class="letter sm">${LETTERS[k]}</span><span class="tagS">示意</span></span>${frameFig(f)}<span class="fcap">${esc(f.cap)}</span>${mark}</button>`;
+  }).join("");
+  if (R.picked != null){
+    const bad = R.frames[badIdx];
+    $("spotFb").innerHTML = `<div class="criterion"><div class="k">${R.ok ? "✓ 找到了！" : `做錯的是「${LETTERS[badIdx]}」`}</div><p>${esc(bad.why)}</p></div>`;
+    $("spotNext").hidden = false;
+    $("spotNext").textContent = G.finished ? "看結果 →" : "下一題 →";
+  } else { $("spotFb").innerHTML = ""; $("spotNext").hidden = true; }
+}
+function doSpot(k){
+  const G = UI.G; if (!G || UI.frozen || G.type !== "spot" || UI.spotShow != null) return;
+  const r = G.round, res = gSpot(G, r, k);
+  if (!res.ok) return;
+  UI.spotShow = r;
+  if (res.result === "correct"){ Sound.ok(); rerender(); return; }
+  Sound.bad(); rerender();
+  const R = G.rounds[r], bad = R.frames[res.bad];
+  freeze("不是這一格，扣 1 顆星", `<p>做錯的是「${LETTERS[res.bad]}」：${esc(bad.cap)}</p><p class="crit">${esc(bad.why)}</p>`, "wrong");
+}
+function spotNext(){
+  const G = UI.G; if (!G || UI.frozen) return;
+  UI.spotShow = null;
+  if (G.finished) showEnd(); else rerender();
+}
+
+/* ---------- 停格說明：畫面停 1.5 秒，寫出為什麼 ---------- */
+let frzTimer = null;
+function freeze(title, html, kind){
+  if (UI.quiet) return;
+  UI.frozen = true;
+  $("fzTitle").textContent = title;
+  $("fzMsg").innerHTML = html;
+  $("fzBox").className = "fbox " + (kind || "");
+  $("freeze").hidden = false;
+  try{ $("app").inert = true; }catch(_){}
+  const go = $("fzGo"), bar = $("fzBar");
+  go.disabled = true;
+  bar.style.transition = "none"; bar.style.width = "0%"; void bar.offsetWidth;
+  bar.style.transition = "width 1.5s linear"; bar.style.width = "100%";
+  clearTimeout(frzTimer);
+  frzTimer = setTimeout(() => { go.disabled = false; try{ go.focus(); }catch(_){} }, 1500);
+}
+function unfreeze(){
+  if ($("fzGo").disabled) return;
+  $("freeze").hidden = true; UI.frozen = false;
+  try{ $("app").inert = false; }catch(_){}
+  if (UI.pendingEnd){ UI.pendingEnd = false; showEnd(); }
+}
+
+/* ---------- 這一關的結果 ---------- */
+function proHint(G){
+  const inst = G.inst;
+  if (inst.cannot){
+    const same = inst.tools.map(t => `${TOOLS[t].name}：兩杯都「${RES_TEXT[t][TOOLS[t].res(SOLS[inst.sols[0]])]}」`).join("；");
+    const better = TOOL_ORDER.filter(t => !inst.tools.includes(t) && new Set(inst.sols.map(s => TOOLS[t].res(SOLS[s]))).size > 1).map(t => TOOLS[t].name).join("或");
+    return `這一關的工具，兩杯的結果都一樣（${same}），怎麼測都分不出來，所以要宣布「分不出來」。要分出來，得換成${better}。`;
+  }
+  const a = inst.solver.bestAction(inst.full);
+  if (!a) return "";
+  return `高手做法：第一步先用「${TOOLS[a.tool].name}」檢驗一杯，再看結果決定下一步；不管結果怎樣，最多 ${inst.min} 次就能全部確定。`;
+}
+function levelPoint(G){
+  const L = G.L;
+  if (!L.random) return { point:L.point, sub:L.sub };
+  const s = G.inst.sols;
+  if (s.includes("salt") && s.includes("sugar")) return { point:LEVELS[1].point, sub:"食鹽水和糖水同時出現，要靠 LED 分辨。" };
+  if (s.includes("soda") && s.includes("soap")) return { point:"小蘇打水偏藍綠、肥皂水偏綠，顏色不太一樣，但都是鹼性。", sub:"兩種鹼性的水溶液同時出現時，只要說出「鹼性」。" };
+  if (s.includes("vinegar") && s.includes("citric")) return { point:LEVELS[0].point, sub:"兩種酸性的水溶液同時出現時，只要說出「酸性」。" };
+  return { point:LEVELS[2].point, sub:"先想好哪一種工具一次能分出最多種，再動手。" };
+}
+function showEnd(){
+  const G = UI.G;
+  if (!G || !G.finished || G.endShown) return;
+  G.endShown = true;
+  if (UI.mode === "solo") saveBest(G.li, G.stars);
+  if (UI.mode === "team" && UI.team && !G.awarded && G.team != null){ UI.team.scores[G.team] += G.stars; G.awarded = true; }
+  renderEnd(); show("end");
+  if (G.stars > 0) Sound.win(); else Sound.over();
+}
+function renderEnd(){
+  const G = UI.G, s = G.stars;
+  $("endStars").innerHTML = `${starStr(s)}<span class="sr">${s} 顆星</span>`;
+  $("endTitle").textContent = s > 0 ? `第 ${G.li + 1} 關完成！拿到 ${s} 顆星` : `再挑戰一次！（第 ${G.li + 1} 關 0 顆星）`;
+  const lines = [];
+  if (G.type === "spot"){
+    lines.push(`抓錯 ${G.rounds.length} 題，選錯 ${G.wrong} 題 → ${s} 顆`);
+  } else {
+    const inst = G.inst, base = baseStars(G);
+    const lim = inst.cannot ? "答案是「分不出來」：2 次以內＝3 顆" : `這一關最少 ${inst.min} 次`;
+    lines.push(`檢驗 ${G.tests} 次（${lim}）→ ${base} 顆`);
+    if (G.wrong) lines.push(`答錯 ${G.wrong} 次 → 扣 ${G.wrong} 顆`);
+    if (G.traps) lines.push(`不安全的動作 ${G.traps} 次 → 扣 ${G.traps} 顆`);
+    if (!G.wrong && !G.traps) lines.push("沒有答錯，也沒有不安全的動作。");
+  }
+  $("endBreak").innerHTML = lines.map(x => `<li>${esc(x)}</li>`).join("");
+  if (G.type === "spot"){
+    $("endListTitle").textContent = "三格操作圖裡做錯的地方";
+    $("endCups").innerHTML = G.rounds.map((R, i) => {
+      const bad = R.frames.find(f => f.bad);
+      return `<li><span class="letter sm">${i + 1}</span><span class="what"><span class="${R.ok ? "ok" : "no"}">${R.ok ? "✓ 找到了" : "✗ 選錯了"}</span>　${esc(bad.cap)}<br>${esc(bad.why)}</span></li>`;
+    }).join("");
+    $("endHint").textContent = "";
+  } else {
+    const inst = G.inst;
+    $("endListTitle").textContent = "每一杯的答案";
+    $("endCups").innerHTML = inst.actual.map((sid, c) => {
+      const C = G.cups[c], name = `${SOLS[sid].name}（${CAT[SOLS[sid].cat]}）`;
+      let what;
+      if (inst.cannot){
+        const own = G.obs.filter(o => o.cup === c).map(o => `${TOOLS[o.tool].name}：${RES_TEXT[o.tool][o.res]}`).join("、");
+        what = `<b>${name}</b><br>${own ? "測到：" + esc(own) : "沒有檢驗"}`;
+      } else if (C.correct) what = `<b>${name}</b>　<span class="ok">✓ ${C.evid}</span><br>${esc(C.why)}`;
+      else what = `<b>${name}</b>　<span class="no">✗ 你答「${ANS_LABEL[C.given]}」</span><br>${esc(C.why)}`;
+      return `<li><span class="letter sm">${LETTERS[c]}</span><span class="what">${what}</span></li>`;
+    }).join("");
+    $("endHint").textContent = proHint(G);
+  }
+  const P = levelPoint(G);
+  $("endPoint").innerHTML = `${esc(P.point)}<small>${esc(P.sub)}</small>`;
+  const pred = $("endPred"), boardBox = $("endBoardBox");
+  if (UI.mode === "team" && UI.team){
+    const cur = UI.team.cur;
+    pred.hidden = false;
+    pred.innerHTML = cur ? `<p class="ptitle small">剛才全班的預測</p><p class="predrev">${esc(cur.P.q)}<br>全班最多人舉：<b>${cur.pick ? esc(cur.pick) : "（沒有記錄）"}</b>　答案：<b>${esc(cur.P.ans)}</b>${cur.pick ? (cur.pick === cur.P.ans ? "　✓ 猜對了" : "　✗ 和答案不一樣") : ""}<br>${esc(cur.P.why)}</p>` : "";
+    boardBox.hidden = false;
+    $("endBoard").innerHTML = boardHTML(null);
+    const T = UI.team, nextLi = T.start + Math.floor((T.turn + 1) / 2);
+    const nextTeam = nextLi < LEVELS.length ? teamFor(T, T.turn + 1) : null;
+    $("endBtns").innerHTML = (nextLi < LEVELS.length ? `<button type="button" class="btn green" id="endNextTurn">下一回合：第 ${nextTeam + 1} 隊${nextLi !== cur.li ? `（第 ${nextLi + 1} 關）` : ""} →</button>` : `<button type="button" class="btn green" id="endFinal">看比賽結果 →</button>`) +
+      `<button type="button" class="btn plain" id="endStop">結束比賽</button>`;
+  } else {
+    pred.hidden = true; boardBox.hidden = true;
+    $("endBtns").innerHTML = `<button type="button" class="btn" id="endRetry">再玩這一關（杯子重新排）</button>` +
+      (G.li < LEVELS.length - 1 ? `<button type="button" class="btn green" id="endNext">下一關 →</button>` : "") +
+      `<button type="button" class="btn plain" id="endMenu">回關卡選單</button>`;
+  }
+}
+
+/* ---------- 兩隊輪流 ---------- */
+function teamFor(T, turn){
+  const li = T.start + Math.floor(turn / 2);
+  const order = ((li - T.start) % 2 === 0) ? [0, 1] : [1, 0];
+  return order[turn % 2];
+}
+function startTeam(){
+  UI.mode = "team";
+  UI.team = { start:UI.startLevel, turn:0, scores:[0, 0], cur:null };
+  setHash("");
+  goPredict();
+}
+function goPredict(){
+  const T = UI.team, li = T.start + Math.floor(T.turn / 2);
+  if (li >= LEVELS.length){ showFinal(); return; }
+  const team = teamFor(T, T.turn), P = PRED[li][T.turn % 2];
+  T.cur = { li, team, P, pick:null };
+  $("pdRound").textContent = `第 ${T.turn + 1} 回合｜第 ${li + 1} 關：${LEVELS[li].title}`;
+  $("pdTurn").innerHTML = `等一下輪到 <span class="teamtag t${team}">第 ${team + 1} 隊</span> 上臺操作。全班先舉卡預測：`;
+  $("pdQ").textContent = P.q;
+  $("pdCards").innerHTML = P.cards.map(c => `<button type="button" class="card" data-card="${esc(c)}" aria-pressed="false">${esc(c)}</button>`).join("");
+  $("pdNote").textContent = "老師：點全班最多人舉的卡（只記下來，這一隊玩完再對答案）。";
+  $("pdGo").textContent = `開始：請第 ${team + 1} 隊派一人上臺`;
+  $("pdBoard").innerHTML = boardHTML(team);
+  show("predict");
+}
+function recordPred(card){
+  const T = UI.team; if (!T || !T.cur) return;
+  T.cur.pick = card;
+  document.querySelectorAll("#pdCards .card").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.card === card)));
+  $("pdNote").textContent = `記下來了：全班最多人舉「${card}」。`;
+}
+function showFinal(){
+  const T = UI.team || { scores:[0, 0] }, a = T.scores[0], b = T.scores[1];
+  $("fnTitle").textContent = a === b ? `平手！兩隊都是 ${a} 顆星` : `第 ${a > b ? 1 : 2} 隊獲勝！`;
+  $("fnBoard").innerHTML = boardHTML(null);
+  $("fnNote").textContent = "比賽結果不會存下來；單人關卡的最佳星星數才會存在這臺裝置。";
+  show("final");
+  Sound.win();
+}
+
+/* ---------- 事件 ---------- */
+document.addEventListener("click", e => {
+  const b = e.target.closest("button");
+  if (!b) return;
+  Sound.ensure();
+  const d = b.dataset;
+  if (d.mode){ UI.mode = d.mode; UI.clearArm = false; renderHome(); return; }
+  if (d.level != null){ startSolo(+d.level); return; }
+  if (d.start != null){ UI.startLevel = +d.start; renderHome(); return; }
+  if (d.tool){ selectTool(d.tool); return; }
+  if (d.test != null){ doTest(+d.test); return; }
+  if (d.ans){ doAnswer(+d.cup, d.ans); return; }
+  if (d.frame != null){ doSpot(+d.frame); return; }
+  if (d.card){ recordPred(d.card); return; }
+  switch (b.id){
+    case "sndBtn": setSound(!Sound.on, true); Sound.ensure(); break;
+    case "clearBest":
+      if (UI.clearArm){ const o = loadStore(); delete o.best; saveStore(o); UI.clearArm = false; }
+      else UI.clearArm = true;
+      renderHome(); break;
+    case "teamGo": startTeam(); break;
+    case "pdGo": beginGame(UI.team.cur.li, UI.team.cur.team); break;
+    case "pdStop": case "endStop": case "endFinal": showFinal(); break;
+    case "quitBtn": if (UI.mode === "team") showFinal(); else goHome(); break;
+    case "ctrlBtn": doControl(); break;
+    case "claimBtn": doClaim(); break;
+    case "spotNext": spotNext(); break;
+    case "fzGo": unfreeze(); break;
+    case "endRetry": startSolo(UI.G.li); break;
+    case "endNext": startSolo(UI.G.li + 1); break;
+    case "endMenu": goHome(); break;
+    case "endNextTurn": UI.team.turn++; goPredict(); break;
+    case "fnAgain": startTeam(); break;
+    case "fnHome": UI.team = null; goHome(); break;
+  }
+});
+
+/* ==========================================================
+   ⑤ 測試掛鉤（給驗收用；學生看不到）
+   ========================================================== */
+const TOOL_ALIAS = {};
+TOOL_ORDER.forEach(t => { TOOL_ALIAS[t] = t; TOOL_ALIAS[TOOLS[t].name] = t; });
+Object.keys(TRAPS).forEach(t => { TOOL_ALIAS[t] = t; TOOL_ALIAS[TRAPS[t].name] = t; });
+TOOL_ALIAS["LED"] = "led"; TOOL_ALIAS["藍色試紙"] = "blue"; TOOL_ALIAS["紅色試紙"] = "red"; TOOL_ALIAS["高麗菜汁"] = "cab";
+const ANS_ALIAS = { acid:"acid", neutral:"neutral", base:"base", salt:"salt", sugar:"sugar", cannot:"cannot",
+  "酸性":"acid", "中性":"neutral", "鹼性":"base", "食鹽水":"salt", "糖水":"sugar", "中性：食鹽水":"salt", "中性：糖水":"sugar", "分不出來":"cannot" };
+function cupIndex(x){
+  if (typeof x === "number") return x;
+  const i = LETTERS.indexOf(x);
+  if (i >= 0) return i;
+  return (x != null && x !== "" && !isNaN(+x)) ? +x : -1;
+}
+function snapshot(){
+  const G = UI.G; if (!G) return null;
+  const s = { level:G.li, no:G.li + 1, title:G.L.title, type:G.type, seed:G.seed, tests:G.tests, wrong:G.wrong, traps:G.traps,
+    finished:G.finished, stars:G.stars, starsNow:starsNow(G), team: G.team == null ? null : G.team };
+  if (G.type === "spot"){
+    s.round = G.round;
+    s.rounds = G.rounds.map(R => ({ ctx:R.ctx, frames:R.frames.map(f => ({ cap:f.cap, bad:!!f.bad })), picked:R.picked, ok:R.ok }));
+    return s;
+  }
+  const inst = G.inst;
+  return Object.assign(s, { candidates: inst.sols.map(x => SOLS[x].name), candidateIds: inst.sols.slice(), tools: inst.tools.slice(),
+    min: inst.min, cannot: inst.cannot, cannotDone: G.cannotDone, needNames: inst.needNames, options: answerOptions(inst), worlds: popcount(G.mask),
+    cups: inst.actual.map((sid, c) => ({ letter:LETTERS[c], sol:sid, name:SOLS[sid].name, look:SOLS[sid].look, answer:answerKey(inst, sid),
+      determined: inst.solver.determinedAns(G.mask, c), results: G.obs.filter(o => o.cup === c).map(o => ({ tool:o.tool, res:o.res, text:RES_TEXT[o.tool][o.res] })),
+      done:G.cups[c].done, correct:G.cups[c].correct, given:G.cups[c].given, evidence:G.cups[c].evid, why:G.cups[c].why })) });
+}
+function apiAfter(){
+  if (UI.quiet || !UI.G) return;
+  if (UI.G.finished && !UI.G.endShown) showEnd(); else if (!UI.G.finished) renderPlay();
+}
+window.DETECTIVE_API = {
+  levels: LEVELS.map((L, i) => ({ index:i, no:i + 1, title:L.title, type:L.type || "cups",
+    candidates: L.sols ? L.sols.map(s => SOLS[s].name) : null, random: L.random || 0,
+    tools: L.tools ? L.tools.map(t => TOOLS[t].name) : [], cannot: !!L.cannot })),
+  newGame(levelIndex, seed){
+    const G = createGame(levelIndex, seed == null ? newSeed() : seed);
+    UI.mode = "solo"; UI.team = null; UI.G = G; UI.sel = null; UI.selMsg = false; UI.zoom = null; UI.spotShow = null; UI.pendingEnd = false;
+    UI.cupMsg = G.type === "cups" ? G.inst.actual.map(() => "") : [];
+    if (!UI.quiet){ renderPlay(); show("play"); }
+    return snapshot();
+  },
+  useTool(cup, tool){
+    const G = UI.G; if (!G) return { ok:false, msg:"還沒開始" };
+    const r = gUseTool(G, cupIndex(cup), TOOL_ALIAS[tool] || tool);
+    apiAfter();
+    return r;
+  },
+  answer(cup, value){
+    const G = UI.G; if (!G) return { ok:false, result:"nogame" };
+    let r;
+    if (G.type === "spot") r = gSpot(G, cup == null ? G.round : cupIndex(cup), typeof value === "string" ? (LETTERS.includes(value) ? LETTERS.indexOf(value) : +value) : value);
+    else { const v = ANS_ALIAS[value] || value; r = v === "cannot" ? gClaim(G) : gAnswer(G, cupIndex(cup), v); }
+    apiAfter();
+    return r;
+  },
+  claimCannot(){ return this.answer(null, "cannot"); },
+  state: snapshot,
+  optimalAction(){
+    const G = UI.G; if (!G || G.finished) return null;
+    if (G.type === "spot") return { kind:"spot", round:G.round, frame:G.rounds[G.round].frames.findIndex(f => f.bad) };
+    const inst = G.inst;
+    if (inst.cannot) return { kind:"claim" };
+    for (let c = 0; c < inst.n; c++) if (!G.cups[c].done){ const a = inst.solver.determinedAns(G.mask, c); if (a !== null) return { kind:"answer", cup:c, value:a }; }
+    const a = inst.solver.bestAction(G.mask);
+    return a ? { kind:"tool", cup:a.cup, tool:a.tool } : null;
+  },
+  runBots,
+  minTests: minSummary,
+  setQuiet(b){ UI.quiet = !!b; }
+};
+
+/* ---------- 開始 ---------- */
+(function init(){
+  const o = loadStore();
+  setSound(o.sound !== false, false);
+  renderHome();
+  const m = /^#level-([1-8])$/.exec(location.hash || "");
+  if (m) startSolo(+m[1] - 1);
+})();
+})();
+</script>
+</body>
+</html>

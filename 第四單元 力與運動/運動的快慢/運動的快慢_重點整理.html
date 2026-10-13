@@ -1,0 +1,174 @@
+<!DOCTYPE html><html lang="zh-Hant"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>運動的快慢 重點整理</title><link rel="icon" href="../../image/icon.svg"><style>
+    :root{--c-ink:#2c2f31;--c-soft:#55606a;--c-bg:#fff9f0;--c-brand:#f5a623;--c-brandS:#e8890b;--c-brandSoft:#fff2d9;--c-no:#e5484d;--c-noSoft:#fdeaea;--radius:16px;
+      --font:"Noto Sans TC","PingFang TC","Microsoft JhengHei","微軟正黑體",system-ui,-apple-system,sans-serif;}
+    *{box-sizing:border-box;}
+    body{margin:0;font-family:var(--font);color:var(--c-ink);background:var(--c-bg);line-height:1.75;font-size:18px;}
+    .wrap{width:min(880px,92vw);margin:0 auto;}
+    .site-header{background:linear-gradient(135deg,var(--c-brand),var(--c-brandS));color:#fff;padding:24px 0;}
+    .site-header .wrap{display:flex;align-items:center;gap:14px;}
+    .site-header img{width:50px;height:50px;}
+    .site-header h1{margin:0;font-size:1.5rem;}
+    .site-header p{margin:2px 0 0;opacity:.92;font-size:.95rem;}
+    .breadcrumb{padding:14px 0;font-size:.95rem;}
+    .breadcrumb a{color:var(--c-brandS);text-decoration:none;margin-right:14px;}
+    .breadcrumb a:hover{text-decoration:underline;}
+    .keypoint{background:#fff;border:1px solid #ece3d6;border-left:5px solid var(--c-brand);border-radius:12px;
+      padding:14px 16px;margin:12px 0;box-shadow:0 6px 20px rgba(90,70,30,.08);}
+    .keypoint.danger{border-left-color:var(--c-no);background:var(--c-noSoft);}
+    .keypoint b{color:var(--c-brandS);}
+    .keypoint.danger b{color:var(--c-no);}
+    .keytab{width:100%;border-collapse:collapse;margin:14px 0;background:#fff;border-radius:12px;overflow:hidden;
+      box-shadow:0 6px 20px rgba(90,70,30,.08);}
+    .keytab th,.keytab td{border:1px solid #ece3d6;padding:10px 12px;text-align:center;}
+    .keytab th{background:var(--c-brandSoft);color:var(--c-brandS);}
+    .keytab td.l{text-align:left;}
+    h2{font-size:1.3rem;}
+    .toolbar{margin:18px 0;}
+    .btn{cursor:pointer;border:none;border-radius:999px;padding:10px 20px;font-family:inherit;font-size:1rem;font-weight:700;background:var(--c-brand);color:#fff;}
+    .btn:hover{background:var(--c-brandS);}
+    .site-footer{margin:40px 0 26px;text-align:center;color:var(--c-soft);font-size:.9rem;}
+    .site-footer a{color:var(--c-brandS);}
+    .print-title{display:none;}
+    /* 主表：第一欄是植物名 */
+    .keytab td.grp{font-weight:800;color:var(--c-brandS);background:#fffaf1;}
+    .keytab td.nw{white-space:nowrap;}
+    .nobr{white-space:nowrap;}
+    /* 三格階梯圖 */
+    .ladder{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;
+      background:#fff;border:1px solid #ece3d6;border-radius:12px;padding:16px;margin:14px 0;
+      box-shadow:0 6px 20px rgba(90,70,30,.08);}
+    .step{text-align:center;min-width:120px;}
+    .step .box{font-size:2rem;line-height:1.2;}
+    .step .nm{font-weight:800;color:var(--c-brandS);}
+    .step .ds{font-size:.85em;color:var(--c-soft);}
+    .step .ds b{color:var(--c-ink);font-size:1.15em;}
+    .arrow{font-size:1.6rem;color:var(--c-soft);}
+    /* 三格都放一段話：平均分寬、不換行成兩列 */
+    .ladder.wide{flex-wrap:nowrap;align-items:stretch;}
+    .ladder.wide .step{flex:1 1 0;min-width:0;}
+    .ladder.wide .arrow{flex:none;align-self:center;}
+    .nest-ttl{font-weight:700;margin:4px 0 6px;}
+    .nest{display:flex;gap:10px;flex-wrap:wrap;}
+    .fl{flex:1 1 0;min-width:0;background:#fff;border:2px solid var(--c-ink);border-radius:14px;padding:8px 10px;text-align:center;}
+    .fl-nm{font-weight:800;}
+    .pts{display:flex;justify-content:center;flex-wrap:wrap;gap:6px;margin:6px 0 4px;}
+    .pt{border:2px dashed var(--c-brandS);background:var(--c-brandSoft);color:#8a4f00;border-radius:8px;padding:0 8px;font-weight:800;white-space:nowrap;}
+    .fl-ds{font-size:.85em;color:var(--c-soft);line-height:1.5;}
+    .so{margin:10px 0 0;}
+    /* 兩招對照卡：維持＝實線、改良＝虛線（黑白印也分得出來） */
+    .fl.keep{border-color:var(--c-brandS);}
+    .fl.new{border-style:dashed;border-color:#2f7d4f;}
+    .fl.keep .fl-nm{color:var(--c-brandS);}
+    .fl.new .fl-nm{color:#2f7d4f;}
+    .fl .fl-ds{color:var(--c-ink);margin:2px 0 6px;}
+    .fl .fl-ds b{color:inherit;}
+    .fl .list{text-align:left;font-size:.9em;line-height:1.55;border-top:1px dashed #d9cdbb;padding-top:6px;}
+    /* 迷思清單、一般清單：開頭符號凸出來，第二行對齊文字 */
+    .nope,.list{margin:0;padding:0;list-style:none;}
+    .nope li,.list li{padding-left:1.6em;text-indent:-1.6em;margin:2px 0;}
+    .keypoint .lead{font-weight:700;margin-bottom:2px;}
+    .note{font-size:.88em;color:var(--c-soft);margin:4px 0 0;}
+    /* 課本以外的延伸段落：標題旁的小標籤 */
+    .tag{display:inline-block;font-size:.62em;font-weight:700;color:var(--c-soft);border:1px solid #cfc3b1;border-radius:999px;
+      padding:0 10px;margin-left:8px;vertical-align:middle;white-space:nowrap;}
+    .keypoint.soft{border-left-color:#b9ad9b;box-shadow:none;}
+    .keypoint.soft b{color:var(--c-ink);}
+    /* 給高能力學生的延伸小知識（次要） */
+    .extra{background:#f4f7ff;border:1px dashed #9db4e0;border-radius:12px;padding:12px 16px;margin:28px 0 14px;
+      font-size:.9em;color:#3f5488;}
+    .extra b{color:#2f4680;}
+    .extra .ttl{display:flex;flex-wrap:wrap;align-items:baseline;gap:0 10px;}
+    .extra .ttl small{font-size:.88em;color:#52679a;}
+    .extra ul{margin:4px 0 0;padding-left:1.2em;}
+    @media print{
+      @page{size:A4;margin:14mm;}
+      body{background:#fff;color:#000;font-size:11pt;line-height:1.5;}
+      .site-header,.breadcrumb,.toolbar,.site-footer{display:none!important;}
+      .keypoint,.keytab,.ladder,.extra{box-shadow:none;break-inside:avoid;}
+      /* 保留分類底色，黑白印也看得出虛線／實線 */
+      .keypoint.danger,.keytab th,.keytab td.grp,.pt,.extra{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+      .print-title{display:block;margin:0 0 4px;font-size:15pt;font-weight:800;}
+      .print-title small{font-size:9.5pt;font-weight:400;color:#555;margin-left:10px;}
+      /* 每個段落整段不跨頁 */
+      .sec{break-inside:avoid;}
+      h2{break-after:avoid;font-size:13pt;margin:.5em 0 .2em;}
+      p{margin:.3em 0;}
+      .keypoint{padding:5px 10px;margin:5px 0;}
+      .keytab{margin:5px 0;}
+      .keytab th,.keytab td{padding:2px 8px;}
+      .ladder{padding:4px 6px;margin:5px 0;}
+      .nope li,.list li{margin:0;}
+      .step .box{font-size:1.3rem;}
+      .step .ds{line-height:1.45;}
+      .nest-ttl{margin:2px 0 4px;}
+      .fl{padding:4px 8px;}
+      .pts{margin:4px 0 2px;}
+      .so{margin-top:6px;}
+      .note{margin:2px 0 0;}
+      .fl .fl-ds{margin:0 0 3px;}
+      .fl .list{padding-top:3px;line-height:1.45;}
+      .extra{padding:5px 14px;margin:6px 0 0;font-size:10pt;line-height:1.45;}
+    }
+
+    /* ===== RWD：手機 / 平板 / 筆電 / 75 吋觸控螢幕 ===== */
+    @media (max-width:640px){
+      body{font-size:16px;line-height:1.65;}
+      .wrap{width:94vw;}
+      .site-header{padding:16px 0;}
+      .site-header img{width:38px;height:38px;}
+      .site-header h1{font-size:1.22rem;}
+      .site-header p{font-size:.82rem;}
+      h2{font-size:1.1rem;}
+      .keypoint{padding:11px 12px;border-radius:10px;margin:9px 0;}
+      .keytab{font-size:.88em;}
+      .keytab th,.keytab td{padding:7px 5px;}
+      .keytab td.nw{white-space:normal;}
+      .btn{padding:12px 20px;}
+      .ladder{gap:6px;padding:12px;}
+      .ladder .step{min-width:96px;}
+      .arrow{font-size:1.2rem;}
+      /* 手機：三格改成直向，箭頭朝下 */
+      .ladder.v3{flex-direction:column;gap:2px;}
+      .ladder.v3 .arrow{transform:rotate(90deg);line-height:1;}
+      .ladder.wide{align-items:center;}
+      .ladder.wide .step{flex:0 0 auto;width:100%;max-width:26em;}
+      .nest{flex-direction:column;gap:8px;}
+      .fl{display:flex;flex-wrap:wrap;align-items:center;gap:2px 10px;text-align:left;padding:7px 10px;}
+      .pts{margin:0;justify-content:flex-start;}
+      .fl-ds{flex-basis:100%;}
+      .fl .list{flex-basis:100%;}
+      .tag{white-space:normal;}
+    }
+    @media (min-width:641px) and (max-width:1024px){ .wrap{width:94vw;} }
+    @media (min-width:1800px){
+      body{font-size:23px;}
+      .wrap{width:min(1250px,90vw);}
+      .site-header{padding:34px 0;}
+      .site-header img{width:70px;height:70px;}
+      .site-header h1{font-size:2rem;}
+      h2{font-size:1.6rem;}
+      .keypoint{padding:20px 24px;border-radius:16px;}
+      .keytab th,.keytab td{padding:15px 18px;}
+      .btn{font-size:1.15rem;padding:14px 28px;}
+      .ladder .step{min-width:180px;}
+      .ladder.wide .step{min-width:0;}
+      .ladder .step .box{font-size:3rem;}
+      .pt,.fl{border-width:3px;}
+      .nest{gap:18px;}
+      .fl{padding:14px 16px;}
+      .extra{padding:18px 24px;}
+    }
+    @media (min-width:2600px){
+      body{font-size:30px;}
+      .wrap{width:min(1750px,88vw);}
+      .site-header img{width:94px;height:94px;}
+      .site-header h1{font-size:2.6rem;}
+      h2{font-size:2.1rem;}
+      .keytab th,.keytab td{padding:20px 24px;}
+      .ladder .step{min-width:240px;}
+      .ladder.wide .step{min-width:0;}
+      .ladder .step .box{font-size:4rem;}
+      .pt,.fl{border-width:4px;}
+    }
+
+.qfig,.qchart{width:100%;height:auto;display:block}.diagram{max-width:500px;margin:8px auto}.btn,.breadcrumb a{min-height:44px;display:inline-flex;align-items:center}.keytab{table-layout:fixed}.keytab th,.keytab td{overflow-wrap:anywhere}.must-list{padding-left:1.5em}.sec{min-width:0}.credits{font-size:.85em;margin:20px 0;padding-top:12px;border-top:1px dashed #aaa}@media print{.credits{margin:6px 0;break-inside:avoid}.diagram{max-width:120mm}.keypoint li{margin:2px 0}.keypoint ol{margin:2px 0;padding-left:1.5em}}</style></head><body><header class="site-header"><div class="wrap"><img src="../../image/icon.svg" alt="站標"><div><h1>運動的快慢</h1><p>五年級自然｜第四單元 力與運動　課本 99–103 頁</p></div></div></header><nav class="breadcrumb wrap"><a href="../../index.html">← 回首頁</a><a href="運動的快慢_互動教材.html">← 回互動教材</a><a href="運動的快慢_學習單.html">學習單</a></nav><main class="wrap"><div class="toolbar"><button class="btn" onclick="window.print()">列印重點</button></div><div class="print-title">運動的快慢　重點整理<small>課本 99–103 頁</small></div><section class="sec"><h2>必會 3 句</h2><div class="keypoint"><ol class="must-list"><li>距離相同時，花的時間愈短，跑得愈快。</li><li>時間相同時，跑的距離愈長，跑得愈快。</li><li>速度＝距離÷時間；時速（公里／小時）是每小時移動幾公里。</li></ol></div></section><section class="sec"><h2>比快慢的兩種方法</h2><div class="keypoint"><table class="keytab"><thead><tr><th>固定時間，比距離</th><th>固定距離，比時間</th></tr></thead><tbody><tr><td class="l">小依這一組：每個人都跑 30 秒<br>小依 200、小洲 180、小凰 150 公尺<br>→ 小依跑得最遠，最快</td><td class="l">小南這一組：每個人都跑 100 公尺<br>小南 20、小美 18、小方 22 秒<br>→ 小美花的時間最短，最快</td></tr></tbody></table><p><b>比快慢，固定時間或固定距離其中一個就可以比；兩個都不一樣時，先算出速度再比。</b></p></div></section><section class="sec"><h2>🧮 速度＝距離÷時間</h2><div class="keypoint"><table class="keytab"><colgroup><col style="width:5.5em"><col></colgroup><tbody><tr><td class="grp">求速度</td><td class="l">速度＝距離÷時間<br>甲 60 公尺用 10 秒：60÷10＝6，每秒跑 6 公尺<br>乙 100 公尺用 20 秒：100÷20＝5，每秒跑 5 公尺 → 甲比較快</td></tr><tr><td class="grp">求距離</td><td class="l">距離＝速度×時間<br>每秒跑 6 公尺，跑 5 秒：6×5＝30 公尺</td></tr><tr><td class="grp">時速</td><td class="l">每 1 小時移動幾公里（公里／小時）<br>機車 2 小時騎 80 公里：80÷2＝40，時速 40 公里</td></tr><tr><td class="grp">半小時</td><td class="l">時速 80 公里走 30 分鐘：30 分鐘是半小時，只走 1 小時距離的一半<br>80÷2＝40 公里（不是 80×30）</td></tr></tbody></table><p><b>時速是每 1 小時走幾公里，不是總共走了多少公里。</b></p></div></section><section class="sec"><h2>📊 長條圖怎麼讀</h2><div class="ladder wide v3"><div class="step"><div class="nm">① 先看軸的名稱和單位</div><div class="ds">長條表示距離（公尺），還是時間（秒）？</div></div><div class="arrow">→</div><div class="step"><div class="nm">② 再比長條</div><div class="ds">距離的長條：愈長愈快<br>時間的長條：愈長愈慢</div></div><div class="arrow">→</div><div class="step"><div class="nm">③ 說出誰快</div><div class="ds">橫條、直條都一樣這樣讀</div></div></div><div class="keypoint"><p><b>看長條圖先看軸的名稱：長條代表跑相同距離所花的時間時，長條愈長，花的時間愈多，跑得愈慢。</b></p><p class="note">沒有寫軸的名稱和單位，就不知道長條是距離還是時間，沒辦法判斷誰快。</p></div></section><section class="sec"><h2>🐆 時速與動物的速度</h2><div class="keypoint"><p>公里／小時表示每小時跑幾公里，也稱為「時速」。</p><table class="keytab"><thead><tr><th>動物／人物</th><th>時速（公里／小時）</th></tr></thead><tbody><tr><td>蝸牛</td><td>0.011</td></tr><tr><td>博爾特（短跑選手）</td><td>39</td></tr><tr><td>犀牛</td><td>56</td></tr><tr><td>鴕鳥</td><td>72</td></tr><tr><td>羚羊</td><td>98</td></tr><tr><td>旗魚</td><td>109</td></tr><tr><td>印度豹</td><td>113</td></tr><tr><td>遊隼</td><td>322</td></tr></tbody></table><p class="note">課本 p.102–103，資料來源：英國《每日郵報》。高速火車的時速是 300 公里。</p><p><b>時速大的比較快：遊隼時速 322 公里，比時速 300 公里的高速火車快。</b></p></div></section><section class="sec"><h2>📷 測速相機</h2><div class="keypoint"><table class="keytab"><colgroup><col style="width:6.5em"><col></colgroup><tbody><tr><td class="grp">定點測速</td><td class="l">用雷達發出無線電波，再接收反射回來的無線電波，換算車速。</td></tr><tr><td class="grp">區間測速</td><td class="l">記下車子通過一段固定距離所花的時間，換算車速。<b>通過的時間愈短，速度愈快</b>（固定距離比時間）。</td></tr></tbody></table><p class="note">參考南一自然習作 P.43 學習塗鴉牆。</p></div></section><section class="sec"><h2>⚠️ 容易搞混</h2><div class="keypoint danger"><ul class="nope"><li>╳「速度＝時間÷距離」→ 速度＝距離÷時間。</li><li>╳「時間的長條最高，跑得最快」→ 長條表示跑相同距離的時間時，最高的跑得最慢。</li><li>╳「機車 2 小時騎 80 公里，時速是 80 公里」→ 時速是每 1 小時走幾公里：80÷2＝40 公里。</li><li>╳「時速 80 公里走 30 分鐘，就是 80×30」→ 30 分鐘是半小時：80÷2＝40 公里。</li><li>╳「跑得比較遠，就一定比較快」→ 時間相同才能只比距離；兩個都不一樣時，先算速度。</li></ul></div></section><section class="sec"><aside class="extra"><div class="ttl"><b>國中才會學・看看就好，不考</b></div><p>速度的單位可以互相換算（公尺／秒、公里／小時）。</p></aside></section><section class="sec"><h2>想多練習（自由練習，不是作業）</h2><div class="keypoint"><a href="../../題庫/index.html?exam=exam2">第二次評量線上題庫</a>：選「運動的快慢」練習。用眼 30 分鐘，要休息 10 分鐘。</div></section><footer class="credits">教學依據：<a href="https://reader.nani.com.tw/9200a013cbef8e66">南一自然課本，第 99–103 頁</a>；測速相機參考南一自然習作 P.43。動物時速為課本資料（來源：英國《每日郵報》）。</footer></main><script src="../../題庫/figures.js?v=20261006a"></script><script>document.querySelectorAll('[data-fig]').forEach(el=>{try{if(window.QFIG){el.innerHTML=QFIG.render(JSON.parse(el.dataset.fig))+'<figcaption class="note">示意：'+el.dataset.fallback+'</figcaption>';}}catch(e){el.textContent='示意圖未載入：'+el.dataset.fallback;}});</script></body></html>

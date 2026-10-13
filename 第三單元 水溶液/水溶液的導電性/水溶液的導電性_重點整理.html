@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>水溶液的導電性　重點整理</title>
+  <link rel="icon" href="../../image/icon.svg">
+  <style>
+    :root{--c-ink:#2c2f31;--c-soft:#55606a;--c-bg:#fff9f0;--c-brand:#f5a623;--c-brandS:#e8890b;--c-brandSoft:#fff2d9;--c-no:#e5484d;--c-noSoft:#fdeaea;--radius:16px;
+      --font:"Noto Sans TC","PingFang TC","Microsoft JhengHei","微軟正黑體",system-ui,-apple-system,sans-serif;}
+    *{box-sizing:border-box;}
+    body{margin:0;font-family:var(--font);color:var(--c-ink);background:var(--c-bg);line-height:1.75;font-size:18px;}
+    .wrap{width:min(880px,92vw);margin:0 auto;}
+    .site-header{background:linear-gradient(135deg,var(--c-brand),var(--c-brandS));color:#fff;padding:24px 0;}
+    .site-header .wrap{display:flex;align-items:center;gap:14px;}
+    .site-header img{width:50px;height:50px;}
+    .site-header h1{margin:0;font-size:1.5rem;}
+    .site-header p{margin:2px 0 0;opacity:.92;font-size:.95rem;}
+    .breadcrumb{padding:14px 0;font-size:.95rem;}
+    .breadcrumb a{color:var(--c-brandS);text-decoration:none;margin-right:14px;display:inline-block;padding:9px 0;min-height:44px;}
+    .breadcrumb a:hover{text-decoration:underline;}
+    .keypoint{background:#fff;border:1px solid #ece3d6;border-left:5px solid var(--c-brand);border-radius:12px;
+      padding:14px 16px;margin:12px 0;box-shadow:0 6px 20px rgba(90,70,30,.08);}
+    .keypoint.danger{border-left-color:var(--c-no);background:var(--c-noSoft);}
+    .keypoint b{color:var(--c-brandS);}
+    .keypoint.danger b{color:var(--c-no);}
+    .keytab{width:100%;border-collapse:collapse;margin:14px 0;background:#fff;border-radius:12px;overflow:hidden;
+      box-shadow:0 6px 20px rgba(90,70,30,.08);}
+    .keytab th,.keytab td{border:1px solid #ece3d6;padding:10px 12px;text-align:center;}
+    .keytab th{background:var(--c-brandSoft);color:var(--c-brandS);}
+    .keytab td.l{text-align:left;}
+    h2{font-size:1.3rem;}
+    .toolbar{margin:18px 0;}
+    .btn{cursor:pointer;border:none;border-radius:999px;padding:10px 20px;font-family:inherit;font-size:1rem;font-weight:700;background:var(--c-brand);color:#fff;min-height:44px;}
+    .btn:hover{background:var(--c-brandS);}
+    .site-footer{margin:40px 0 26px;text-align:center;color:var(--c-soft);font-size:.9rem;}
+    .site-footer a{color:var(--c-brandS);}
+    .print-title{display:none;}
+    .keytab td.grp{font-weight:800;color:var(--c-brandS);background:#fffaf1;}
+    .ladder{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;
+      background:#fff;border:1px solid #ece3d6;border-radius:12px;padding:16px;margin:14px 0;
+      box-shadow:0 6px 20px rgba(90,70,30,.08);}
+    .step{text-align:center;min-width:120px;}
+    .step .box{font-size:2rem;line-height:1.2;}
+    .step .nm{font-weight:800;color:var(--c-brandS);}
+    .step .ds{font-size:.85em;color:var(--c-soft);}
+    .step .ds b{color:var(--c-ink);font-size:1.15em;}
+    .arrow{font-size:1.6rem;color:var(--c-soft);}
+    .ladder.wide{flex-wrap:nowrap;align-items:stretch;}
+    .ladder.wide .step{flex:1 1 0;min-width:0;}
+    .ladder.wide .arrow{flex:none;align-self:center;}
+    .nope,.list{margin:0;padding:0;list-style:none;}
+    .nope li,.list li{padding-left:1.6em;text-indent:-1.6em;margin:2px 0;}
+    .note{font-size:.88em;color:var(--c-soft);margin:4px 0 0;}
+    .keypoint.soft{border-left-color:#b9ad9b;box-shadow:none;}
+    .keypoint.soft b{color:var(--c-ink);}
+    .extra{background:#f4f7ff;border:1px dashed #9db4e0;border-radius:12px;padding:12px 16px;margin:28px 0 14px;
+      font-size:.9em;color:#3f5488;}
+    .extra b{color:#2f4680;}
+    .extra .ttl{display:flex;flex-wrap:wrap;align-items:baseline;gap:0 10px;}
+    .extra .ttl small{font-size:.88em;color:#52679a;}
+
+    /* ===== 本課新增 ===== */
+    .must3{margin:0;padding-left:1.6em;}
+    .must3 li{margin:4px 0;font-weight:700;}
+    .step .num{display:inline-flex;align-items:center;justify-content:center;width:1.9em;height:1.9em;border-radius:50%;
+      border:2px solid var(--c-ink);font-weight:900;font-size:1.1rem;background:#fff;}
+    a.ext{color:var(--c-brandS);font-weight:700;}
+    .keytab td.on{font-weight:800;}
+    .keytab td.off{color:var(--c-soft);}
+    .keypoint.stop{border-left-color:var(--c-no);border:2px solid var(--c-no);background:#fff;}
+    .keypoint.stop b{color:#c0352f;}
+    .duo2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;margin-top:8px;}
+    .def{border:2px solid var(--c-ink);border-radius:12px;padding:6px 10px;background:#fff;}
+    .def .dt{font-weight:800;}
+    .def .dd{font-size:.9em;color:var(--c-soft);}
+
+    @media print{
+      @page{size:A4;margin:14mm;}
+      body{background:#fff;color:#000;font-size:11pt;line-height:1.5;}
+      .site-header,.breadcrumb,.toolbar,.site-footer{display:none!important;}
+      .keypoint,.keytab,.ladder,.extra{box-shadow:none;break-inside:avoid;}
+      .keypoint.danger,.keytab th,.keytab td.grp,.extra{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+      .print-title{display:block;margin:0 0 4px;font-size:15pt;font-weight:800;}
+      .print-title small{font-size:9.5pt;font-weight:400;color:#555;margin-left:10px;}
+      .sec{break-inside:avoid;}
+      h2{break-after:avoid;font-size:13pt;margin:.5em 0 .2em;}
+      p{margin:.3em 0;}
+      .keypoint{padding:5px 10px;margin:5px 0;}
+      .keytab{margin:5px 0;}
+      .keytab th,.keytab td{padding:2px 8px;}
+      .ladder{padding:4px 6px;margin:5px 0;}
+      .nope li,.list li{margin:0;}
+      .step .box{font-size:1.3rem;}
+      .step .ds{line-height:1.45;}
+      .note{margin:2px 0 0;}
+      .extra{padding:5px 14px;margin:6px 0 0;font-size:10pt;line-height:1.45;}
+      .must3 li{margin:1px 0;}
+      .def{padding:3px 8px;}
+    }
+
+    /* ===== RWD：手機 / 平板 / 筆電 / 75 吋觸控螢幕 ===== */
+    @media (max-width:640px){
+      body{font-size:16px;line-height:1.65;}
+      .wrap{width:94vw;}
+      .site-header{padding:16px 0;}
+      .site-header img{width:38px;height:38px;}
+      .site-header h1{font-size:1.22rem;}
+      .site-header p{font-size:.82rem;}
+      h2{font-size:1.1rem;}
+      .keypoint{padding:11px 12px;border-radius:10px;margin:9px 0;}
+      .keytab{font-size:.88em;}
+      .keytab th,.keytab td{padding:7px 5px;}
+      .btn{padding:12px 20px;}
+      .ladder{gap:6px;padding:12px;}
+      .ladder .step{min-width:96px;}
+      .arrow{font-size:1.2rem;}
+      .ladder.v3{flex-direction:column;gap:2px;}
+      .ladder.v3 .arrow{transform:rotate(90deg);line-height:1;}
+      .ladder.wide{align-items:center;}
+      .ladder.wide .step{flex:0 0 auto;width:100%;max-width:26em;}
+      .duo2{grid-template-columns:minmax(0,1fr);}
+    }
+    @media (min-width:641px) and (max-width:1024px){ .wrap{width:94vw;} }
+    @media (min-width:1800px){
+      body{font-size:23px;}
+      .wrap{width:min(1250px,90vw);}
+      .site-header{padding:34px 0;}
+      .site-header img{width:70px;height:70px;}
+      .site-header h1{font-size:2rem;}
+      h2{font-size:1.6rem;}
+      .keypoint{padding:20px 24px;border-radius:16px;}
+      .keytab th,.keytab td{padding:15px 18px;}
+      .btn{font-size:1.15rem;padding:14px 28px;}
+      .ladder .step{min-width:180px;}
+      .ladder.wide .step{min-width:0;}
+      .ladder .step .box{font-size:3rem;}
+      .extra{padding:18px 24px;}
+    }
+    @media (min-width:2600px){
+      body{font-size:30px;}
+      .wrap{width:min(1750px,88vw);}
+      .site-header img{width:94px;height:94px;}
+      .site-header h1{font-size:2.6rem;}
+      h2{font-size:2.1rem;}
+      .keytab th,.keytab td{padding:20px 24px;}
+      .ladder .step{min-width:240px;}
+      .ladder.wide .step{min-width:0;}
+      .ladder .step .box{font-size:4rem;}
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap">
+      <img src="../../image/icon.svg" alt="站標">
+      <div>
+        <h1>水溶液的導電性</h1>
+        <p>單元重點整理 · 五年級自然｜第三單元 水溶液　課本 78–79 頁</p>
+      </div>
+    </div>
+  </header>
+
+  <nav class="breadcrumb wrap">
+    <a href="../../index.html">← 回首頁</a><a href="水溶液的導電性_互動教材.html">← 回互動教材</a><a href="水溶液的導電性_學習單.html">📄 學習單</a>
+  </nav>
+
+  <main class="wrap">
+    <div class="toolbar"><button class="btn" onclick="window.print()">🖨️ 列印重點</button></div>
+    <div class="print-title">水溶液的導電性　重點整理<small>五年級自然｜第三單元 水溶液　課本 78–79 頁</small></div>
+
+    <section class="sec">
+      <h2>⭐ 必會 3 句</h2>
+      <div class="keypoint">
+        <ol class="must3">
+          <li><span class="must">LED 的長腳要接在電池正極出來的電線上，短腳接負極那一邊；LED 不是燈泡，是發光二極體。</span></li>
+          <li><span class="must">先確認 LED 電路正常、接法正確，再把兩條電線分開放進水溶液：LED 發亮，表示水溶液容易導電；不亮，表示不容易導電。</span></li>
+          <li><span class="must">酸性和鹼性水溶液容易導電；中性水溶液不一定，食鹽水容易導電，糖水不容易導電。</span></li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="sec">
+      <h2>💡 LED 小知識（課本 78 頁）</h2>
+      <div class="keypoint">
+        <ul class="list">
+          <li>📌 LED 並<b>不是燈泡</b>，是「<b>發光二極體</b>」的簡稱。生活中的例子：手電筒、交通號誌燈。</li>
+          <li>📌 優點：<b>體積小、用電省、使用壽命長</b>。</li>
+          <li>📌 <b>長腳</b>接電池<b>正極</b>出來的電線，<b>短腳</b>接負極那一邊；接反了 LED 不會亮。</li>
+        </ul>
+        <div class="duo2">
+          <div class="def"><div class="dt">⚡ 用電省</div><div class="dd">用比較少的電就能發光，同樣的電池可以用比較久。</div></div>
+          <div class="def"><div class="dt">⏳ 使用壽命長</div><div class="dd">LED 本身不容易壞，可以用很久才需要換新的。</div></div>
+        </div>
+        <p class="note">「用電省」和「使用壽命長」是兩件<b>不同</b>的事，不要搞混。</p>
+      </div>
+    </section>
+
+    <section class="sec">
+      <h2>🔌 導電測試的步驟（課本 79 頁）</h2>
+      <div class="ladder v3 wide">
+        <div class="step"><div class="box"><span class="num">1</span></div><div class="nm">配水溶液</div><div class="ds">材料和<b>純水</b>調配成水溶液，各 <b>20 毫升</b></div></div>
+        <div class="arrow">→</div>
+        <div class="step"><div class="box"><span class="num">2</span></div><div class="nm">先確認電路</div><div class="ds">兩條電線<b>分開</b>放進一杯食鹽水，LED 亮了＝電路正常</div></div>
+        <div class="arrow">→</div>
+        <div class="step"><div class="box"><span class="num">3</span></div><div class="nm">測試</div><div class="ds">兩條電線<b>分開</b>放進要測的水溶液，看 LED 亮不亮</div></div>
+        <div class="arrow">→</div>
+        <div class="step"><div class="box"><span class="num">4</span></div><div class="nm">拿出、沖洗</div><div class="ds">亮了<b>立刻拿出</b>；用純水沖洗並擦乾，再測下一杯</div></div>
+      </div>
+      <div class="keypoint">
+        <ul class="list">
+          <li>🔩 電線前端保留<b>較多裸露的銅線</b>：增加和水溶液的接觸面積。</li>
+          <li>✂️ 兩條電線<b>不可互相碰觸</b>：兩條電線在水溶液裡碰在一起時，電路直接接通，LED 會亮起來，這時的結果不能算。</li>
+          <li>⏱️ LED 發亮後<b>立刻</b>把銅線拿出來：以免電流過強，把 LED 燒壞。</li>
+          <li>🚿 每測完一種，用<b>純水沖洗</b>電線並<b>擦乾</b>：以免殘留的水溶液影響後面的結果。</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="sec">
+      <h2>🧪 示範結果（課本 79 頁）</h2>
+      <table class="keytab" aria-label="水溶液的導電測試結果">
+        <tr><th style="width:24%">水溶液</th><th>LED</th><th>導電性</th><th>酸鹼性</th></tr>
+        <tr><td class="grp">食鹽水</td><td class="on">發亮</td><td class="on">容易導電</td><td>中性</td></tr>
+        <tr><td class="grp">小蘇打水</td><td class="on">發亮</td><td class="on">容易導電</td><td>鹼性</td></tr>
+        <tr><td class="grp">肥皂水</td><td class="on">發亮</td><td class="on">容易導電</td><td>鹼性</td></tr>
+        <tr><td class="grp">醋</td><td class="on">發亮</td><td class="on">容易導電</td><td>酸性</td></tr>
+        <tr><td class="grp">糖水</td><td class="off">不亮</td><td class="off">不容易導電</td><td>中性</td></tr>
+      </table>
+      <div class="keypoint soft">🔍 <b>在電路正常、兩條電線分開的情況下：LED 發亮＝電路形成通路＝這杯水溶液容易導電；微微亮也算亮。不同水溶液的性質不同，LED 的亮度也可能不同。</b></div>
+    </section>
+
+    <section class="sec">
+      <h2>🧩 三種檢驗方法比一比（單元三統整）</h2>
+      <table class="keytab" aria-label="三種檢驗方法比較表">
+        <tr><th style="width:20%">檢驗方法</th><th>能知道什麼</th><th style="width:22%">食鹽水和糖水</th><th style="width:26%">醋、食鹽水、小蘇打水</th></tr>
+        <tr><td class="grp">石蕊試紙<br>（紅、藍兩種）</td><td class="l">酸鹼性：藍色試紙變紅色＝酸性；紅色試紙變藍色＝鹼性；都不變色＝中性</td><td>分不出來<br>（都不變色）</td><td>分得出來</td></tr>
+        <tr><td class="grp">紫色高麗菜汁</td><td class="l">酸鹼性：酸性偏紅、中性偏紫、鹼性偏藍或偏綠</td><td>分不出來<br>（都偏紫）</td><td>分得出來</td></tr>
+        <tr><td class="grp">LED 導電電路</td><td class="l">導電性：發亮＝容易導電；不亮＝不容易導電（看不出酸鹼性）</td><td><b>分得出來</b><br>（食鹽水發亮、糖水不亮）</td><td>分不出來<br>（三杯都發亮）</td></tr>
+      </table>
+      <div class="keypoint soft">🧩 <b>三種方法各有用處：石蕊試紙和紫色高麗菜汁看酸鹼性，LED 看導電性；食鹽水和糖水都是中性，只有 LED 分得出來。</b></div>
+    </section>
+
+    <section class="sec">
+      <h2>🛑 安全</h2>
+      <div class="keypoint stop">電線、LED <b>只接電池</b>，<b>絕對不碰插座</b>；手溼的時候<b>不碰</b>電器。<br>實驗室裡的東西<b>一律不嘗</b>；這個實驗由老師示範，回家<b>不做</b>。</div>
+    </section>
+
+    <section class="sec">
+      <h2>⚠️ 容易搞混的地方</h2>
+      <div class="keypoint danger">
+        <ul class="nope">
+          <li>❌「LED 的長腳、短腳可以隨便接」→ 不對！長腳要接電池<b>正極</b>出來的電線，接反了 LED 不會亮。</li>
+          <li>❌「兩條電線相碰，LED 亮了也算容易導電」→ 不對！電路直接接通，這時的結果<b>不能算</b>。</li>
+          <li>❌「中性的水溶液都不導電」→ 不對！食鹽水是中性，卻<b>容易導電</b>；中性的<b>不一定</b>。</li>
+          <li>❌「看 LED 亮不亮，就能判斷酸鹼」→ 不對！LED 只看<b>導電性</b>；酸鹼性要用石蕊試紙或紫色高麗菜汁。</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="sec">
+      <aside class="extra">
+        <div class="ttl"><b>🔭 國中才會學</b><small>看看就好，不考</small></div>
+        有些物質溶在水裡，會分成帶電的小粒子，水溶液才容易導電。
+      </aside>
+    </section>
+
+    <section class="sec">
+      <h2>🎯 想多練習</h2>
+      <div class="keypoint soft">自由練習，<b>不是作業</b>；用眼 30 分鐘要休息 10 分鐘。<br>
+        打開 <a class="ext" href="../../題庫/index.html?exam=exam2">第二次評量線上題庫</a> →「📚 主題練習」→ 選「<b>水溶液的導電性</b>」（課本 78–79）。<br>
+        <span class="note">「素養題組」裡的〈四杯沒貼名稱的水溶液〉〈第五組的測試紀錄〉〈小華的導電比較〉〈兩組的導電報告〉〈防災包裡的手電筒〉，也是這一課的內容。</span></div>
+    </section>
+
+  </main>
+
+  <footer class="site-footer"><div class="wrap"><a href="../../index.html">← 回首頁</a> · <a href="水溶液的導電性_互動教材.html">互動教材</a> · <a href="水溶液的導電性_學習單.html">學習單</a> · 豬豬的自然探索 · 教學依據：<a href="https://reader.nani.com.tw/9200a013cbef8e66" target="_blank" rel="noopener">南一自然課本，第 78–79 頁</a>（統整用到第 82–83 頁） · 本頁沒有照片，LED 亮不亮、顏色都寫成字</div></footer>
+</body>
+</html>

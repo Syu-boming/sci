@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>混合水溶液的酸鹼性　重點整理</title>
+  <link rel="icon" href="../../image/icon.svg">
+  <style>
+    :root{--c-ink:#2c2f31;--c-soft:#55606a;--c-bg:#fff9f0;--c-brand:#f5a623;--c-brandS:#e8890b;--c-brandSoft:#fff2d9;--c-no:#e5484d;--c-noSoft:#fdeaea;--radius:16px;
+      --font:"Noto Sans TC","PingFang TC","Microsoft JhengHei","微軟正黑體",system-ui,-apple-system,sans-serif;}
+    *{box-sizing:border-box;}
+    body{margin:0;font-family:var(--font);color:var(--c-ink);background:var(--c-bg);line-height:1.75;font-size:18px;}
+    .wrap{width:min(880px,92vw);margin:0 auto;}
+    .site-header{background:linear-gradient(135deg,var(--c-brand),var(--c-brandS));color:#fff;padding:24px 0;}
+    .site-header .wrap{display:flex;align-items:center;gap:14px;}
+    .site-header img{width:50px;height:50px;}
+    .site-header h1{margin:0;font-size:1.5rem;}
+    .site-header p{margin:2px 0 0;opacity:.92;font-size:.95rem;}
+    .breadcrumb{padding:14px 0;font-size:.95rem;}
+    .breadcrumb a{color:var(--c-brandS);text-decoration:none;margin-right:14px;display:inline-block;padding:9px 0;min-height:44px;}
+    .breadcrumb a:hover{text-decoration:underline;}
+    .keypoint{background:#fff;border:1px solid #ece3d6;border-left:5px solid var(--c-brand);border-radius:12px;
+      padding:14px 16px;margin:12px 0;box-shadow:0 6px 20px rgba(90,70,30,.08);}
+    .keypoint.danger{border-left-color:var(--c-no);background:var(--c-noSoft);}
+    .keypoint b{color:var(--c-brandS);}
+    .keypoint.danger b{color:var(--c-no);}
+    .keytab{width:100%;border-collapse:collapse;margin:14px 0;background:#fff;border-radius:12px;overflow:hidden;
+      box-shadow:0 6px 20px rgba(90,70,30,.08);}
+    .keytab th,.keytab td{border:1px solid #ece3d6;padding:10px 12px;text-align:center;}
+    .keytab th{background:var(--c-brandSoft);color:var(--c-brandS);}
+    .keytab td.l{text-align:left;}
+    h2{font-size:1.3rem;}
+    .toolbar{margin:18px 0;}
+    .btn{cursor:pointer;border:none;border-radius:999px;padding:10px 20px;font-family:inherit;font-size:1rem;font-weight:700;background:var(--c-brand);color:#fff;min-height:44px;}
+    .btn:hover{background:var(--c-brandS);}
+    .site-footer{margin:40px 0 26px;text-align:center;color:var(--c-soft);font-size:.9rem;}
+    .site-footer a{color:var(--c-brandS);}
+    .print-title{display:none;}
+    .keytab td.grp{font-weight:800;color:var(--c-brandS);background:#fffaf1;}
+    .nobr{white-space:nowrap;}
+    /* 階梯圖（步驟） */
+    .ladder{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;
+      background:#fff;border:1px solid #ece3d6;border-radius:12px;padding:16px;margin:14px 0;
+      box-shadow:0 6px 20px rgba(90,70,30,.08);}
+    .step{text-align:center;min-width:120px;}
+    .step .box{font-size:2rem;line-height:1.2;}
+    .step .nm{font-weight:800;color:var(--c-brandS);}
+    .step .ds{font-size:.85em;color:var(--c-soft);}
+    .step .ds b{color:var(--c-ink);font-size:1.15em;}
+    .arrow{font-size:1.6rem;color:var(--c-soft);}
+    /* 每格都放一段話：平均分寬、不換行成兩列 */
+    .ladder.wide{flex-wrap:nowrap;align-items:stretch;}
+    .ladder.wide .step{flex:1 1 0;min-width:0;}
+    .ladder.wide .arrow{flex:none;align-self:center;}
+    /* 迷思清單、一般清單：開頭符號凸出來，第二行對齊文字 */
+    .nope,.list{margin:0;padding:0;list-style:none;}
+    .nope li,.list li{padding-left:1.6em;text-indent:-1.6em;margin:2px 0;}
+    .note{font-size:.88em;color:var(--c-soft);margin:4px 0 0;}
+    .keypoint.soft{border-left-color:#b9ad9b;box-shadow:none;}
+    .keypoint.soft b{color:var(--c-ink);}
+    /* 補充框（次要） */
+    .extra{background:#f4f7ff;border:1px dashed #9db4e0;border-radius:12px;padding:12px 16px;margin:28px 0 14px;
+      font-size:.9em;color:#3f5488;}
+    .extra b{color:#2f4680;}
+    .extra .ttl{display:flex;flex-wrap:wrap;align-items:baseline;gap:0 10px;}
+    .extra .ttl small{font-size:.88em;color:#52679a;}
+    .extra ul{margin:4px 0 0;padding-left:1.2em;}
+
+    /* ===== 本課新增 ===== */
+    .must3{margin:0;padding-left:1.6em;}
+    .must3 li{margin:4px 0;font-weight:700;}
+    .step .num{display:inline-flex;align-items:center;justify-content:center;width:1.9em;height:1.9em;border-radius:50%;
+      border:2px solid var(--c-ink);font-weight:900;font-size:1.1rem;background:#fff;}
+    a.ext{color:var(--c-brandS);font-weight:700;}
+    /* 顏色：色塊旁一定有字（色弱、黑白列印也看得懂） */
+    .sw{display:inline-block;width:1.4em;height:1.4em;border-radius:6px;border:2px solid var(--c-ink);vertical-align:-.3em;margin-right:6px;
+      -webkit-print-color-adjust:exact;print-color-adjust:exact;}
+    .sw.red{background:#E2557F}.sw.pur{background:#8A5BB8}.sw.blu{background:#3A9AA8}
+    .cword{font-weight:800;}
+    /* 安全框 */
+    .keypoint.stop{border-left-color:var(--c-no);border-color:#f2b8b8;background:#fff5f5;}
+    .keypoint.stop b{color:#b42318;}
+    .keypoint.stop .list li{margin:3px 0;}
+    .keypoint.leaf{border-left-color:#5aa469;background:#f3faf3;}
+    .keypoint.leaf b{color:#2f7a3e;}
+
+    @media print{
+      @page{size:A4;margin:14mm;}
+      body{background:#fff;color:#000;font-size:11pt;line-height:1.5;}
+      .site-header,.breadcrumb,.toolbar,.site-footer{display:none!important;}
+      .keypoint,.keytab,.ladder,.extra{box-shadow:none;break-inside:avoid;}
+      .keypoint.danger,.keypoint.stop,.keypoint.leaf,.keytab th,.keytab td.grp,.extra{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+      .print-title{display:block;margin:0 0 4px;font-size:15pt;font-weight:800;}
+      .print-title small{font-size:9.5pt;font-weight:400;color:#555;margin-left:10px;}
+      /* 每個段落整段不跨頁 */
+      .sec{break-inside:avoid;}
+      h2{break-after:avoid;font-size:13pt;margin:.5em 0 .2em;}
+      p{margin:.3em 0;}
+      .keypoint{padding:5px 10px;margin:5px 0;}
+      .keytab{margin:5px 0;}
+      .keytab th,.keytab td{padding:2px 8px;}
+      .ladder{padding:4px 6px;margin:5px 0;}
+      .nope li,.list li{margin:0;}
+      .step .box{font-size:1.3rem;}
+      .step .ds{line-height:1.45;}
+      .note{margin:2px 0 0;}
+      .extra{padding:5px 14px;margin:6px 0 0;font-size:10pt;line-height:1.45;}
+      .must3 li{margin:1px 0;}
+    }
+
+    /* ===== RWD：手機 / 平板 / 筆電 / 75 吋觸控螢幕 ===== */
+    @media (max-width:640px){
+      body{font-size:16px;line-height:1.65;}
+      .wrap{width:94vw;}
+      .site-header{padding:16px 0;}
+      .site-header img{width:38px;height:38px;}
+      .site-header h1{font-size:1.22rem;}
+      .site-header p{font-size:.82rem;}
+      h2{font-size:1.1rem;}
+      .keypoint{padding:11px 12px;border-radius:10px;margin:9px 0;}
+      .keytab{font-size:.88em;}
+      .keytab th,.keytab td{padding:7px 5px;}
+      .btn{padding:12px 20px;}
+      .ladder{gap:6px;padding:12px;}
+      .ladder .step{min-width:96px;}
+      .arrow{font-size:1.2rem;}
+      /* 手機：步驟改成直向，箭頭朝下 */
+      .ladder.v3{flex-direction:column;gap:2px;}
+      .ladder.v3 .arrow{transform:rotate(90deg);line-height:1;}
+      .ladder.wide{align-items:center;}
+      .ladder.wide .step{flex:0 0 auto;width:100%;max-width:26em;}
+    }
+    @media (min-width:641px) and (max-width:1024px){ .wrap{width:94vw;} }
+    @media (min-width:1800px){
+      body{font-size:23px;}
+      .wrap{width:min(1250px,90vw);}
+      .site-header{padding:34px 0;}
+      .site-header img{width:70px;height:70px;}
+      .site-header h1{font-size:2rem;}
+      h2{font-size:1.6rem;}
+      .keypoint{padding:20px 24px;border-radius:16px;}
+      .keytab th,.keytab td{padding:15px 18px;}
+      .btn{font-size:1.15rem;padding:14px 28px;}
+      .ladder .step{min-width:180px;}
+      .ladder.wide .step{min-width:0;}
+      .ladder .step .box{font-size:3rem;}
+      .extra{padding:18px 24px;}
+    }
+    @media (min-width:2600px){
+      body{font-size:30px;}
+      .wrap{width:min(1750px,88vw);}
+      .site-header img{width:94px;height:94px;}
+      .site-header h1{font-size:2.6rem;}
+      h2{font-size:2.1rem;}
+      .keytab th,.keytab td{padding:20px 24px;}
+      .ladder .step{min-width:240px;}
+      .ladder.wide .step{min-width:0;}
+      .ladder .step .box{font-size:4rem;}
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap">
+      <img src="../../image/icon.svg" alt="站標">
+      <div>
+        <h1>混合水溶液的酸鹼性</h1>
+        <p>單元重點整理 · 五年級自然｜第三單元 水溶液　課本 76–77 頁</p>
+      </div>
+    </div>
+  </header>
+
+  <nav class="breadcrumb wrap">
+    <a href="../../index.html">← 回首頁</a><a href="混合水溶液的酸鹼性_互動教材.html">← 回互動教材</a><a href="混合水溶液的酸鹼性_學習單.html">📄 學習單</a>
+  </nav>
+
+  <main class="wrap">
+    <div class="toolbar"><button class="btn" onclick="window.print()">🖨️ 列印重點</button></div>
+    <div class="print-title">混合水溶液的酸鹼性　重點整理<small>五年級自然｜第三單元 水溶液　課本 76–77 頁</small></div>
+
+    <section class="sec">
+      <h2>⭐ 必會 3 句</h2>
+      <div class="keypoint">
+        <ol class="must3">
+          <li>酸性和鹼性水溶液混合後，可能是酸性、中性或鹼性。</li>
+          <li>混合後偏酸性，就加鹼性水溶液（如小蘇打水）；偏鹼性，就加酸性水溶液（如檸檬酸水），結果可能接近中性。</li>
+          <li>不小心碰到強酸或強鹼，要馬上用大量清水沖洗並盡快送醫，千萬不能用酸鹼混合的方式處理。</li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="sec">
+      <h2>🔀 混合後的三種可能，要怎麼調整？（課本 76 頁）</h2>
+      <table class="keytab">
+        <tr><th style="width:30%">滴入紫色高麗菜汁後</th><th style="width:24%">混合液是</th><th>要怎麼調整</th></tr>
+        <tr><td><span class="sw red" aria-hidden="true"></span><span class="cword">偏紅色</span></td><td class="grp">還偏酸</td><td class="l">一滴一滴加<b>小蘇打水</b>（鹼性）</td></tr>
+        <tr><td><span class="sw pur" aria-hidden="true"></span><span class="cword">偏紫色</span></td><td class="grp">接近中性</td><td class="l">停下來，不用再加</td></tr>
+        <tr><td><span class="sw blu" aria-hidden="true"></span><span class="cword">偏藍色或偏綠色</span></td><td class="grp">偏鹼</td><td class="l">一滴一滴加<b>檸檬酸水</b>（酸性）</td></tr>
+      </table>
+      <div class="ladder wide v3">
+        <div class="step"><div class="box"><span class="num">1</span></div><div class="nm">等量混合</div><div class="ds">檸檬酸水和小蘇打水各取等量倒在一起（放托盤、<b>不加蓋</b>）</div></div>
+        <div class="arrow">→</div>
+        <div class="step"><div class="box"><span class="num">2</span></div><div class="nm">看顏色</div><div class="ds">滴入紫色高麗菜汁，判斷<b>偏酸、接近中性或偏鹼</b></div></div>
+        <div class="arrow">→</div>
+        <div class="step"><div class="box"><span class="num">3</span></div><div class="nm">少量多次</div><div class="ds">加另一種水溶液，<b>一滴一滴</b>加、邊加邊攪拌</div></div>
+        <div class="arrow">→</div>
+        <div class="step"><div class="box"><span class="num">4</span></div><div class="nm">偏紫就停</div><div class="ds">加過頭就再加<b>另一種</b></div></div>
+      </div>
+      <div class="keypoint">💡 混合後是什麼性，要看兩種水溶液各加了多少；所以要少量多次地加，一邊加一邊看顏色。<br>
+        💡 用紫色高麗菜汁看：偏紅＝還偏酸，偏紫＝接近中性，偏藍或偏綠＝偏鹼。</div>
+      <p class="note">等量混合，<b>不一定</b>是中性。一次倒一大杯，可能加過頭（例如偏紅的混合液倒太多小蘇打水，變成偏藍綠）。色塊只是示意，顏色一律以字為準。</p>
+    </section>
+
+    <section class="sec">
+      <h2>🏠 生活中的應用（課本 77 頁）</h2>
+      <p>我們有時會利用酸性和鹼性水溶液互相作用，來降低物質的酸鹼性，或使其變成接近中性。</p>
+      <table class="keytab">
+        <tr><th style="width:24%">用到的東西</th><th style="width:16%">是什麼性</th><th>課本 77 頁的說法</th></tr>
+        <tr><td class="grp">胃藥</td><td>鹼性</td><td class="l">胃藥裡通常含有鹼性物質，胃酸過多時可服用胃藥。</td></tr>
+        <tr><td class="grp">檸檬酸</td><td>酸性</td><td class="l">將檸檬酸倒入水中一段時間，可去除熱水瓶的水垢。</td></tr>
+        <tr><td class="grp">鹼性牙膏</td><td>鹼性</td><td class="l">飲食後用鹼性牙膏刷牙，可以中和口中的酸性。</td></tr>
+        <tr><td class="grp">偏酸性的清潔劑</td><td>酸性</td><td class="l">使用偏酸性的清潔劑來清洗馬桶裡的鹼性汙垢。</td></tr>
+      </table>
+      <p class="note">💊 胃藥要依照醫師、藥師的指示使用。</p>
+    </section>
+
+    <section class="sec">
+      <h2>🛑 安全第一（課本 77 頁）</h2>
+      <div class="keypoint stop">
+        <ul class="list">
+          <li>🚿 不小心碰到強酸或強鹼 → 馬上用<b>大量清水沖洗</b>，並<b>盡快送醫</b>。</li>
+          <li>🚫 <b>千萬不能</b>用酸鹼混合的方式處理（例如沾到強鹼就倒醋），以免造成傷害。</li>
+          <li>🧴 <b>在家不可以自己把清潔劑混在一起用。</b></li>
+          <li>👀 使用前看清楚<b>成分、使用方法、注意事項</b>。</li>
+        </ul>
+      </div>
+      <div class="keypoint">💡 使用水溶液前，一定要看清楚成分、使用方法和注意事項。</div>
+    </section>
+
+    <section class="sec">
+      <h2>🌿 咬人貓（習作 30 頁）</h2>
+      <div class="keypoint leaf">咬人貓的焮毛斷裂時，會釋放酸性的物質（酒石酸、草酸），皮膚會刺痛、灼熱。<br>
+        正確處理：<b>用膠帶黏除焮毛 → 盡快用清水清洗 → 冰敷</b>，嚴重時就醫。<br>
+        民間用鹼性的東西「酸鹼中和」的方法，還需要再證實。</div>
+    </section>
+
+    <section class="sec">
+      <h2>⚠️ 容易搞混的地方</h2>
+      <div class="keypoint danger">
+        <ul class="nope">
+          <li>❌「酸性和鹼性混合後，一定會變中性」→ 不對！可能是酸性、中性或鹼性。</li>
+          <li>❌「等量混合，就一定是中性」→ 不對！要看兩種水溶液各加了多少，用指示劑檢驗才知道。</li>
+          <li>❌「偏鹼了，再加小蘇打水」→ 不對！偏鹼要加<b>檸檬酸水</b>（酸性）。</li>
+          <li>❌「沾到強酸或強鹼，用相反的酸鹼來處理」→ 不對！要用<b>大量清水沖洗</b>並盡快送醫。</li>
+          <li>❌「糖水可以把偏酸或偏鹼調回中性」→ 不對！糖水是<b>中性</b>，不是用來調整的。</li>
+          <li>❌「把食鹽溶在水裡、把海水晒乾，也是酸鹼互相作用」→ 不對！那是<b>溶解</b>和<b>蒸發</b>。</li>
+        </ul>
+      </div>
+    </section>
+
+    <aside class="extra sec">
+      <div class="ttl">🔭 <b>國中才會學</b><small>看看就好，不考</small></div>
+      <ul>
+        <li>國中會學更多酸和鹼互相作用的例子，有些還會產生氣體（例如今天檸檬酸水和小蘇打水倒在一起時看到的氣泡）。</li>
+      </ul>
+    </aside>
+
+    <section class="sec">
+      <h2>🎯 想多練習</h2>
+      <div class="keypoint soft">自由練習，<b>不是作業</b>；用眼 30 分鐘要休息 10 分鐘。<br>
+        打開 <a class="ext" href="../../題庫/index.html?exam=exam2">第二次評量線上題庫</a> →「📚 主題練習」→ 選「<b>混合水溶液的酸鹼性</b>」（課本 76–77）。<br>
+        <span class="note">「素養題組」裡的〈清潔劑瓶上的說明〉〈小安組的變色紀錄〉〈三組的混合結果〉，也是這一課的內容。</span></div>
+    </section>
+
+  </main>
+
+  <footer class="site-footer"><div class="wrap"><a href="../../index.html">← 回首頁</a> · <a href="混合水溶液的酸鹼性_互動教材.html">互動教材</a> · <a href="混合水溶液的酸鹼性_學習單.html">學習單</a> · 豬豬的自然探索 · 教學依據：<a href="https://reader.nani.com.tw/9200a013cbef8e66" target="_blank" rel="noopener">南一自然課本，第 76–77 頁</a>；習作第 29–30 頁 · 顏色表的色塊是示意</div></footer>
+</body>
+</html>

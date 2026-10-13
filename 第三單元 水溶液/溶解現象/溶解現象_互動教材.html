@@ -1,0 +1,1518 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>溶解現象｜食鹽溶解後去哪裡了？</title>
+<link rel="icon" href="../../image/icon.svg" type="image/svg+xml">
+<style>
+/* ==========================================================
+   溶解現象 — 樣式表
+   使用情境：教室 75 吋觸控螢幕，全班共用、學生輪流上臺操作；學生回家用手機、平板複習。
+   沿用〈植物與人類生活〉的調色盤與元件。照片一律是課本的真實照片；
+   讀數、虛擬實驗臺、蒸發時間軸是示意圖，畫面上都標「示意」。
+   白色字只放在深綠 #2E7D4F 上；顏色不用來暗示答案，有顏色的地方一律也寫成字。
+   ========================================================== */
+:root{
+  --bg:#FDF6EC;         /* 奶油底色 */
+  --ink:#1E1E1E;        /* 描邊近黑 */
+  --green:#58B159;
+  --green-dark:#2E7D4F; /* 深綠（唯一可以放白字的底色） */
+  --water:#4FB0E5;      /* 水滴藍 */
+  --water-dark:#2E86C1;
+  --sun:#FFC93C;        /* 陽光黃 */
+  --coral:#FF7F66;
+  --coral-dark:#E4574C;
+  --wrong:#E4574C;
+  --card:#FFFFFF;
+  --muted:#6B7A82;
+  --shadow:0 6px 18px rgba(46,86,110,.16);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  min-height:100vh;color:var(--ink);background:var(--bg);
+  font-family:-apple-system,"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif;
+  font-size:clamp(17px,1.9vw,22px);line-height:1.6;
+}
+figure{margin:0}
+#app{max-width:1240px;margin:0 auto;padding:12px 16px 40px}
+
+/* ---------- 頁首與站別導覽（老師可自由跳段） ---------- */
+.sitehead{margin-bottom:12px}
+.headrow{display:flex;align-items:center;gap:6px 16px;flex-wrap:wrap}
+.back{
+  display:inline-flex;align-items:center;min-height:44px;padding:4px 16px;
+  border:3px solid var(--ink);border-radius:999px;background:var(--card);color:var(--ink);
+  font-weight:800;text-decoration:none;box-shadow:0 3px 0 var(--ink);font-size:clamp(15px,1.4vw,18px);
+}
+.back:active{transform:translateY(2px);box-shadow:0 1px 0 var(--ink)}
+.sitehead h1{margin:0;font-size:clamp(22px,2.6vw,32px);font-weight:900;letter-spacing:.5px;line-height:1.25}
+.sitehead .sub{color:var(--muted);font-size:clamp(13px,1.35vw,17px);font-weight:700}
+/* 三件套互相連結 */
+.sibs{display:flex;gap:8px;flex-wrap:wrap;margin-left:auto}
+.sibs a{
+  display:inline-flex;align-items:center;min-height:44px;padding:2px 14px;border:2px solid var(--ink);border-radius:999px;
+  background:#FFFDF8;color:var(--ink);font-weight:800;text-decoration:none;font-size:clamp(14px,1.3vw,17px);
+}
+.stations{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.station-btn{
+  border:3px solid var(--ink);border-radius:999px;background:var(--card);color:var(--ink);
+  padding:8px 16px;font:inherit;font-size:clamp(15px,1.4vw,19px);font-weight:800;cursor:pointer;
+  box-shadow:0 3px 0 var(--ink);min-height:56px;line-height:1.25;
+}
+.station-btn.on{background:var(--green-dark);color:#fff}
+.station-btn:active{transform:translateY(2px);box-shadow:0 1px 0 var(--ink)}
+
+/* ---------- 畫面切換 ---------- */
+.screen{display:none;animation:fadeIn .4s ease}
+.screen.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.hidden{display:none !important}
+
+/* ---------- 通用卡片、按鈕 ---------- */
+.panel{
+  background:var(--card);border:3px solid var(--ink);border-radius:20px;
+  padding:16px 18px;box-shadow:var(--shadow);margin-bottom:14px;
+}
+.ptitle{font-weight:900;font-size:clamp(19px,2.2vw,27px);margin:0 0 10px}
+.btn{
+  border:3px solid var(--ink);border-radius:999px;background:var(--sun);color:var(--ink);
+  padding:12px 26px;font:inherit;font-weight:900;cursor:pointer;
+  box-shadow:0 4px 0 var(--ink);min-height:60px;
+}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--ink)}
+.btn.green{background:var(--green-dark);color:#fff}
+.btn.plain{background:var(--card)}
+.btn.small{min-height:48px;padding:6px 18px}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+/* 深綠按鈕停用時不可以變淡（白字會看不清）：改成米色底＋深灰字 */
+.btn.green[disabled]{opacity:1;background:#E6E1D6;color:#5B666C;box-shadow:0 4px 0 #9A9486}
+.btn[aria-pressed="true"]{box-shadow:0 0 0 5px var(--ink),0 4px 0 var(--ink)}
+.btnrow{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-top:14px}
+.btnrow.center{justify-content:center}
+.navrow{display:flex;justify-content:flex-end;gap:12px;flex-wrap:wrap;margin:0 0 12px}
+.ask{
+  background:#FFF6D8;border:3px dashed var(--sun);border-radius:16px;
+  padding:12px 16px;font-weight:800;font-size:clamp(18px,2.1vw,25px);text-align:center;
+}
+.ask.big{font-size:clamp(22px,2.6vw,40px);padding:16px}
+.lead{color:var(--muted);font-weight:700;margin:10px 0;font-size:clamp(15px,1.6vw,19px)}
+.cap{font-weight:800;margin-top:6px;font-size:clamp(14px,1.55vw,19px);line-height:1.45}
+.note{color:var(--muted);font-weight:700;font-size:clamp(13px,1.4vw,17px);line-height:1.45}
+.center{text-align:center}
+/* 給老師看的操作提示（放在舞臺面板外面，學生不必讀） */
+.teacher-tip{
+  margin:0 0 18px;font-size:clamp(13px,1.4vw,16px);color:var(--muted);
+  border-left:5px solid var(--sun);padding:6px 12px;background:#FFFCF2;border-radius:0 10px 10px 0;
+}
+.teacher-tip b.time{color:#7A5B00}
+.teacher-tip p{margin:4px 0}
+/* 照片載入失敗：中性的灰框 */
+.img-fallback{
+  display:flex !important;align-items:center;justify-content:center;text-align:center;line-height:1.35;
+  background:#F2EEE4;color:var(--muted);font-weight:800;font-size:clamp(12px,1.3vw,17px);
+  padding:8px;border:2px dashed #C9C2B4;overflow:hidden;overflow-wrap:anywhere;
+}
+
+/* 並排版面：橫向 ≥1024 時左右兩欄 */
+.duo{display:grid;grid-template-columns:minmax(0,1fr);gap:16px;align-items:start}
+@media (min-width:1024px) and (orientation:landscape){
+  .duo{grid-template-columns:minmax(0,1.15fr) minmax(0,1fr)}
+  .duo.mid{align-items:center}
+}
+.pair{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px;align-items:start}
+
+/* ---------- 照片框：比例＝照片原比例，所以百分比標籤不會跑位 ---------- */
+.fig{
+  position:relative;width:min(100%, calc(var(--mh,60vh) * var(--ar,4/3)));aspect-ratio:var(--ar,4/3);
+  margin:0 auto;border-radius:14px;background:#F2EEE4;box-shadow:0 0 0 3px var(--ink);
+}
+.fig > img,.fig > .img-fallback{
+  position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:14px;display:block;
+  -webkit-user-drag:none;user-select:none;
+}
+.figbox{padding:3px}
+/* 疊在照片上的名稱標籤 */
+.tag{
+  position:absolute;z-index:4;width:max-content;pointer-events:none;
+  background:rgba(255,255,255,.96);border:3px solid var(--ink);border-radius:12px;
+  padding:3px 10px;font-size:clamp(13px,1.35vw,19px);line-height:1.3;
+  box-shadow:0 3px 8px rgba(0,0,0,.28);animation:tagIn .35s ease;
+}
+.tag b{display:block;font-size:1.12em;font-weight:900}
+@keyframes tagIn{from{opacity:0;scale:.85}to{opacity:1;scale:1}}
+.pin{
+  position:absolute;z-index:3;width:18px;height:18px;border-radius:50%;
+  background:var(--sun);border:3px solid var(--ink);box-shadow:0 0 0 3px #fff;transform:translate(-50%,-50%);
+}
+
+/* ---------- 選項、回饋、判準 ---------- */
+.opts{display:flex;flex-wrap:wrap;gap:12px}
+.opts.col{flex-direction:column;align-items:stretch}
+.opts.col .opt{text-align:left}
+.opt{
+  border:3px solid var(--ink);border-radius:16px;background:var(--card);color:var(--ink);
+  padding:12px 24px;font:inherit;font-weight:900;cursor:pointer;
+  box-shadow:0 4px 0 var(--ink);min-height:62px;font-size:clamp(18px,2vw,25px);line-height:1.35;
+}
+.opt:active{transform:translateY(3px);box-shadow:0 1px 0 var(--ink)}
+.opt.ok{background:var(--green-dark);color:#fff}
+.opt.no{background:#FBE3E1;border-color:var(--wrong);color:#B03A30;text-decoration:line-through}
+.opt[disabled]{cursor:not-allowed}
+.opt.picked,.opt[aria-pressed="true"]{background:#FFF3C4;box-shadow:0 0 0 5px var(--sun),0 4px 0 var(--ink)}
+.steptag{
+  display:inline-block;background:#DDF0FA;color:var(--ink);border:3px solid var(--ink);
+  border-radius:999px;padding:2px 14px;font-weight:900;margin-bottom:8px;font-size:clamp(14px,1.5vw,19px);
+}
+.qtitle{font-weight:900;font-size:clamp(19px,2.2vw,27px);margin:0 0 12px}
+.feedback{margin-top:12px;font-weight:800;border-radius:14px}
+.feedback:empty{display:none}
+.feedback.hint{background:#FFF6D8;border:3px dashed var(--sun);padding:10px 14px}
+.feedback.good{background:#EAF7EE;border:3px solid var(--green-dark);color:var(--green-dark);padding:10px 14px}
+/* 判準卡 —— 課堂追問「你怎麼知道？」的素材，答對後一定要出現 */
+.criterion{
+  background:#EAF7EE;border:3px solid var(--green-dark);border-radius:18px;padding:12px 16px;margin-top:14px;
+}
+.criterion .k{font-weight:900;color:var(--green-dark);font-size:clamp(18px,2.1vw,25px)}
+.criterion .askagain{
+  margin-top:8px;font-size:clamp(13px,1.5vw,17px);color:var(--muted);font-weight:800;
+  border-top:2px dashed #B9D8C4;padding-top:8px;
+}
+.bigpoint{
+  background:#EAF7EE;border:3px solid var(--green-dark);border-radius:18px;
+  padding:14px 18px;font-weight:900;font-size:clamp(19px,2.3vw,28px);text-align:center;color:var(--green-dark);
+}
+.bigpoint b{text-decoration:underline;text-decoration-thickness:3px;text-underline-offset:5px}
+.bigpoint small{display:block;margin-top:6px;font-size:.7em;color:#2F5E43;font-weight:800}
+.bigpoint .must{display:block;font-size:.62em;color:#2F5E43;letter-spacing:1px;margin-bottom:2px}
+
+/* ==========================================================
+   開場
+   ========================================================== */
+.guessbox{margin-top:16px;text-align:center;background:#FFFDF8;border:3px solid var(--ink);border-radius:16px;padding:12px}
+.guessbox .g{font-size:clamp(19px,2.2vw,28px);font-weight:900}
+.guessbox .later{font-size:clamp(22px,2.8vw,36px);font-weight:900;color:var(--green-dark)}
+.headline{text-align:center;margin:0 0 12px;padding:6px 12px;border:3px solid var(--ink);border-radius:16px;background:#FFFDF8}
+.headline .hl-title{font-weight:900;font-size:clamp(22px,2.8vw,38px);color:#2E6EA6;letter-spacing:1px;line-height:1.3}
+.headline .hl-sub{display:inline-block;margin-top:6px;padding:2px 14px;border-radius:999px;background:#E3F1FA;font-weight:800;font-size:clamp(14px,1.5vw,19px)}
+.kidsay{
+  margin:12px 0 0;padding:6px 12px;border-left:5px solid var(--water);border-radius:0 10px 10px 0;
+  background:#F2F8FC;color:#34444C;font-weight:800;font-size:clamp(15px,1.6vw,20px);line-height:1.5;
+}
+.unitmap{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.unitmap li{border:3px solid var(--ink);border-radius:14px;padding:6px 12px;background:#fff;font-weight:800;line-height:1.35}
+.unitmap li b{display:inline-block;min-width:4.2em}
+.unitmap li.now{background:#FFF3C4}
+.unitmap li .today{display:inline-block;margin-left:8px;padding:0 10px;border-radius:999px;background:var(--green-dark);color:#fff;font-size:.85em}
+/* 安全規則：紅框＋文字（不只靠顏色） */
+.rulebox{
+  margin-top:12px;border:4px solid #B03A30;border-radius:16px;background:#FBE3E1;padding:10px 16px;
+  font-weight:900;text-align:center;font-size:clamp(19px,2.2vw,28px);color:#7A1F17;line-height:1.4;
+}
+
+/* ==========================================================
+   ① 秤秤看
+   ========================================================== */
+.stepcard{border:3px solid var(--ink);border-radius:16px;background:#FFFDF8;padding:10px 14px}
+.sc-title{font-weight:900;font-size:clamp(18px,2vw,24px);margin-bottom:2px}
+.steps{margin:0;padding-left:1.7em;font-weight:800;line-height:1.5}
+.steps li{margin:6px 0;padding-left:.2em}
+.steps li::marker{font-weight:900}
+.watch{margin-top:12px;background:#FFF6D8;border:3px dashed var(--sun);border-radius:14px;padding:8px 14px;font-weight:900;text-align:center}
+/* 電子秤照片上的品牌標誌：用和標籤底色相近的小色塊蓋住 */
+.logo-mask{
+  position:absolute;z-index:2;width:13.4%;height:3.3%;transform:translate(-50%,-50%) rotate(19deg);
+  background:#CFE1E2;border-radius:2px;pointer-events:none;
+}
+/* 同步填習作的紀錄板（老師或小助手在螢幕上輸入今天秤到的數字） */
+.recgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+@media(max-width:720px){.recgrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.rec{display:flex;flex-direction:column;align-items:center;justify-content:space-between;gap:4px;border:3px solid var(--ink);border-radius:14px;padding:8px;background:#fff;font-weight:900;text-align:center;line-height:1.3}
+.rec input{
+  width:100%;max-width:7em;min-height:56px;font:inherit;font-size:1.35em;font-weight:900;text-align:center;
+  border:3px solid var(--ink);border-radius:10px;background:#FFFDF8;color:var(--ink);padding:2px 4px;
+}
+.rec input:focus{outline:4px solid var(--water-dark);outline-offset:2px}
+.rec em{font-style:normal;color:var(--muted);font-size:.85em}
+.audit{margin-top:10px;font-weight:800;line-height:1.5}
+.audit:empty{display:none}
+.audit p{margin:4px 0;background:#F2F8FC;border-left:5px solid var(--water-dark);border-radius:0 10px 10px 0;padding:4px 10px}
+/* 老師課前試做的照片（檔案不存在時顯示虛線框） */
+.tphoto{position:relative;width:min(100%, calc(42vh * 4 / 3));aspect-ratio:4/3;margin:0 auto;border-radius:14px;background:#F2EEE4;border:3px dashed #C9C2B4;overflow:hidden}
+.tphoto img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#fff;display:block}
+.tph-empty{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;color:var(--muted);font-weight:800;padding:10px;font-size:clamp(15px,1.6vw,20px)}
+/* 示意圖（題庫 figures.js 或本頁自己畫的 SVG） */
+.qfig{width:100%;height:auto;display:block}
+.figcard{background:#FFFDF8;border:3px solid var(--ink);border-radius:16px;padding:6px;overflow:hidden}
+.figcard svg{display:block;width:100%;height:auto;max-height:48vh}   /* 太寬的圖不要撐破一屏：保持比例、置中 */
+.figfail{padding:14px;text-align:center;font-weight:800;color:var(--muted);background:#F2EEE4;border:2px dashed #C9C2B4;border-radius:12px;line-height:1.5}
+.shiyi{
+  display:inline-block;margin-left:10px;padding:0 12px;border:2px dashed var(--muted);border-radius:999px;
+  font-size:.62em;color:var(--muted);vertical-align:middle;font-weight:800;letter-spacing:1px;
+}
+.recall{margin-top:18px;border-top:3px dashed #C9C2B4;padding-top:16px}
+.recall .ask{margin-bottom:6px}
+/* 虛擬實驗臺 */
+.vbtns{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+@media(max-width:900px){.vbtns{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.vbtn{
+  border:3px solid var(--ink);border-radius:16px;background:var(--card);color:var(--ink);
+  padding:8px 12px;font:inherit;font-weight:900;cursor:pointer;min-height:64px;box-shadow:0 3px 0 var(--ink);
+  line-height:1.3;font-size:clamp(16px,1.7vw,21px);
+}
+.vbtn:active{transform:translateY(2px);box-shadow:0 1px 0 var(--ink)}
+.vbtn[aria-pressed="true"]{background:var(--green-dark);color:#fff}
+.vstage{margin-top:14px}
+/* 虛擬實驗臺、蒸發時間軸：每一張小圖排成格子 */
+.vfigs{display:grid;grid-template-columns:repeat(var(--n),minmax(0,1fr));gap:6px;max-width:calc(var(--n) * 280px);margin:0 auto}
+.vfigs svg,.evgrid svg{display:block;width:100%;height:auto}
+@media(max-width:640px){.vfigs.n3{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.evgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+@media(max-width:640px){
+  .evgrid{grid-template-columns:minmax(0,1fr)}
+  .evgrid .day:not(.cur){display:none}
+  .evgrid .day{width:100%;max-width:260px;margin:0 auto}
+}
+.vnote{text-align:center;color:var(--muted);font-weight:700;font-size:clamp(12px,1.2vw,15px);margin:4px 0 0}
+.vsetup{font-weight:800;margin:10px 0;line-height:1.5}
+.wrongsay{background:#FBE3E1;border:3px solid var(--wrong);border-radius:14px;padding:10px 14px;font-weight:900;margin:10px 0;color:#7A1F17}
+.wrongsay .lbl{display:inline-block;margin-right:6px;padding:0 10px;border-radius:999px;border:2px solid #B03A30;background:#fff;font-size:.85em}
+.vmore{margin-top:14px;border-top:3px dashed #C9C2B4;padding-top:14px}
+.vconc{background:#EAF7EE;border:3px solid var(--green-dark);border-radius:16px;padding:10px 14px;margin-top:12px;font-weight:900;color:var(--green-dark)}
+.vconc .star{margin-top:8px;color:var(--ink);font-weight:800;border-top:2px dashed #B9D8C4;padding-top:8px}
+
+/* ==========================================================
+   ② 溶質與溶劑
+   ========================================================== */
+.kbox{border:3px solid var(--ink);border-radius:16px;background:#FFFDF8;padding:10px 14px;font-weight:700;line-height:1.7}
+.kbox b{font-weight:900}
+.eqrow{display:flex;align-items:stretch;justify-content:center;gap:8px;flex-wrap:wrap}
+.eqcell{border:3px solid var(--ink);border-radius:14px;background:#fff;padding:8px 12px;text-align:center;min-width:5.6em;display:flex;flex-direction:column;justify-content:center;gap:2px;line-height:1.3}
+.eqn{font-weight:900;font-size:clamp(20px,2.4vw,30px)}
+.eqk{font-weight:900;color:var(--green-dark);font-size:clamp(17px,1.9vw,23px)}
+.eqcell small{color:var(--muted);font-weight:800;font-size:clamp(13px,1.3vw,16px)}
+.eqop{align-self:center;font-weight:900;font-size:clamp(24px,3vw,40px)}
+.qblock{margin-top:14px}
+.qblock .opts{margin-top:10px}
+
+/* ==========================================================
+   ③ 取回溶質
+   ========================================================== */
+.wq{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;padding:8px 0;border-bottom:2px dashed #E3DACB}
+.wq:last-child{border-bottom:0}
+.wqq{font-weight:900;flex:1 1 18em}
+.wqa{font-weight:900;color:var(--green-dark);flex-basis:100%}
+.whys{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+@media(max-width:1200px){.whys{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:640px){.whys{grid-template-columns:minmax(0,1fr)}}
+.why{border:3px solid var(--ink);border-radius:16px;background:#FFFDF8;padding:10px 12px;display:flex;flex-direction:column;gap:8px}
+.why .q{font-weight:900;line-height:1.45}
+.why .a{font-weight:900;color:var(--green-dark);line-height:1.45}
+.why .btn{align-self:center}
+
+/* ==========================================================
+   ④ 闖關驗收
+   ========================================================== */
+.quizbar{display:flex;align-items:center;gap:8px 14px;flex-wrap:wrap;
+  background:var(--card);border:3px solid var(--ink);border-radius:26px;padding:8px 18px;
+  box-shadow:var(--shadow);margin-bottom:14px;font-weight:900}
+.dots{display:flex;gap:8px}
+.dot{width:16px;height:16px;border-radius:50%;border:3px solid var(--ink);background:#fff}
+.dot.done{background:var(--green-dark)}
+.dot.now{background:var(--sun)}
+.qscore{margin-left:auto}
+.quizwrap{display:grid;grid-template-columns:minmax(0,1fr);gap:18px;align-items:start}
+@media (min-width:1024px) and (orientation:landscape){
+  .quizwrap{grid-template-columns:minmax(0,1fr) minmax(0,1.1fr)}
+}
+.quizwrap.nophoto{grid-template-columns:minmax(0,1fr)}
+.quizwrap.nophoto .qphoto{display:none}
+.result{text-align:center;padding:16px}
+.result .big{font-size:clamp(30px,5vw,58px);font-weight:900;color:var(--green-dark)}
+.rankline{font-weight:900;font-size:clamp(22px,2.8vw,36px);margin:6px 0}
+.ticket{
+  margin:14px auto;max-width:900px;background:#FFF6D8;border:3px dashed var(--sun);border-radius:16px;
+  padding:12px 16px;font-weight:800;font-size:clamp(18px,2.1vw,26px);text-align:left;line-height:1.8;
+}
+/* 第 ② 節最後：到下一課 */
+.nextlesson{text-align:center;border-color:var(--water-dark);background:#F2F8FC}
+.nextlesson .btn{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;font-size:clamp(19px,2.2vw,28px);text-align:center}
+
+/* ---------- 頁尾：照片來源 ---------- */
+.credits{
+  font-size:clamp(12px,1.2vw,15px);color:var(--muted);margin-top:20px;line-height:1.55;
+  border-top:2px dashed #D9CFBE;padding-top:12px;
+}
+.credits a{color:var(--muted)}
+.credits p{margin:4px 0}
+
+@media (prefers-reduced-motion:reduce){
+  .screen,.tag{animation:none}
+}
+
+  /* ===== RWD：手機 / 平板 / 筆電 / 75 吋觸控螢幕 ===== */
+  @media (max-width:1100px){
+    .station-btn{ padding:8px 10px; }
+  }
+  @media (max-width:640px){
+    #app{ padding:10px 10px 28px; }
+    .panel{ border-radius:14px; padding:12px 12px; }
+    .stations{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:6px; }
+    .station-btn{ padding:4px 4px; font-size:14px; min-height:52px; border-radius:16px; }
+    .btn{ padding:10px 18px; min-height:52px; }
+    .btn.small{ min-height:48px; }
+    .opt{ min-height:52px; padding:10px 14px; }
+    .quizbar{ border-radius:18px; }
+    .sibs{ margin-left:0; }
+    .pair{ gap:8px; }
+    .eqcell{ min-width:4.6em; padding:6px 8px; }
+  }
+  @media (min-width:1800px){
+    /* 按鈕與選項都是 font:inherit，放大 body 字級它們就跟著長大 */
+    body{ font-size:26px; }
+    #app{ max-width:1680px; padding:20px 30px 60px; }
+    .sitehead h1{ font-size:38px; }
+    .back{ min-height:64px; font-size:22px; padding:6px 24px; }
+    .sibs a{ min-height:60px; font-size:21px; padding:4px 20px; }
+    .station-btn{ min-height:72px; font-size:23px; padding:10px 26px; }
+    .btn{ min-height:80px; padding:16px 40px; }
+    .btn.small{ min-height:64px; padding:8px 24px; }
+    .opt{ min-height:84px; font-size:28px; }
+    .vbtn{ min-height:84px; font-size:25px; }
+    .tag{ font-size:22px; }
+    .cap{ font-size:22px; }
+    .ask{ font-size:30px; }
+    .steptag{ font-size:23px; }
+    .sitehead .sub{ font-size:21px; }
+    .ask.big{ font-size:46px; }
+    .qtitle,.ptitle{ font-size:32px; }
+    .bigpoint{ font-size:33px; }
+    .criterion .k{ font-size:30px; }
+    .note,.lead{ font-size:20px; }
+    .pin{ width:24px; height:24px; }
+    .teacher-tip{ font-size:19px; }
+    .credits{ font-size:16px; }
+    .kidsay{ font-size:24px; }
+    .headline .hl-title{ font-size:46px; }
+    .headline .hl-sub{ font-size:23px; }
+    .rulebox{ font-size:34px; }
+    .sc-title{ font-size:29px; }
+    .eqn{ font-size:36px; }
+    .eqk{ font-size:28px; }
+    .eqcell small{ font-size:19px; }
+    .eqop{ font-size:48px; }
+    .rec input{ min-height:72px; }
+    .tph-empty{ font-size:24px; }
+    .ticket{ font-size:30px; }
+    .nextlesson .btn{ font-size:32px; }
+    .vfigs{ max-width:calc(var(--n) * 380px); }
+    .vnote{ font-size:18px; }
+  }
+  @media (min-width:2600px){
+    body{ font-size:34px; }
+    #app{ max-width:2280px; padding:30px 40px 80px; }
+    .sitehead h1{ font-size:50px; }
+    .back{ min-height:84px; font-size:30px; }
+    .sibs a{ min-height:80px; font-size:28px; padding:6px 26px; }
+    .station-btn{ min-height:96px; font-size:30px; padding:14px 34px; }
+    .btn{ min-height:104px; padding:22px 52px; }
+    .btn.small{ min-height:84px; padding:10px 30px; }
+    .opt{ min-height:112px; font-size:36px; }
+    .vbtn{ min-height:110px; font-size:33px; }
+    .tag{ font-size:30px; }
+    .cap{ font-size:29px; }
+    .ask{ font-size:39px; }
+    .steptag{ font-size:30px; }
+    .sitehead .sub{ font-size:27px; }
+    .ask.big{ font-size:60px; }
+    .qtitle,.ptitle{ font-size:42px; }
+    .bigpoint{ font-size:43px; }
+    .criterion .k{ font-size:39px; }
+    .note,.lead{ font-size:26px; }
+    .pin{ width:32px; height:32px; }
+    .teacher-tip{ font-size:25px; }
+    .credits{ font-size:21px; }
+    .kidsay{ font-size:31px; }
+    .headline .hl-title{ font-size:60px; }
+    .headline .hl-sub{ font-size:30px; }
+    .rulebox{ font-size:44px; }
+    .sc-title{ font-size:38px; }
+    .eqn{ font-size:47px; }
+    .eqk{ font-size:37px; }
+    .eqcell small{ font-size:25px; }
+    .eqop{ font-size:62px; }
+    .rec input{ min-height:96px; }
+    .tph-empty{ font-size:31px; }
+    .ticket{ font-size:39px; }
+    .nextlesson .btn{ font-size:42px; }
+    .vfigs{ max-width:calc(var(--n) * 500px); }
+    .vnote{ font-size:24px; }
+  }
+
+/* 筆電（矮螢幕）：開場的選項要在第一屏附近看得到 */
+@media (min-width:1024px) and (max-height:760px){
+  .headline .hl-title{font-size:26px}
+  .headline .hl-sub{margin-top:2px}
+  #screen-open .ask.big{font-size:24px;padding:10px}
+  #screen-open .opt{min-height:52px;padding:8px 18px;font-size:18px}
+}
+@media (max-width:1023px),(orientation:portrait){
+  #qFig{--mh:34vh !important}
+  #peaFig{--mh:30vh !important}
+}
+</style>
+<script>
+/* 放在 head：圖片一出錯就能呼叫（不論主程式跑到哪裡） */
+function imgFallback(img){
+  const span=document.createElement("span");
+  span.className="img-fallback "+(img.className||"");
+  span.setAttribute("role","img");
+  const name=img.getAttribute("data-name")||img.getAttribute("alt")||"照片";
+  span.setAttribute("aria-label","照片載入失敗："+name);
+  span.textContent="📷 照片載入失敗："+name;
+  img.replaceWith(span);
+}
+/* 老師課前試做的照片：檔案還沒放進 photos/ 時，安靜地顯示虛線框，不出現破圖或錯誤訊息 */
+function teacherFallback(img){
+  const span=document.createElement("span");
+  span.className="tph-empty";
+  span.textContent="（老師課前試做的照片）";
+  img.replaceWith(span);
+}
+</script>
+</head>
+<body>
+<div id="app">
+
+  <header class="sitehead">
+    <div class="headrow">
+      <a class="back" href="../../index.html">← 回教材首頁</a>
+      <h1>溶解現象</h1>
+      <span class="sub">五年級自然｜第三單元 水溶液　課本 62–66 頁</span>
+      <span class="sibs"><a href="溶解現象_學習單.html">📝 學習單</a><a href="溶解現象_重點整理.html">📒 重點整理</a></span>
+    </div>
+    <nav class="stations" aria-label="站別">
+      <button class="station-btn on" data-go="open" aria-current="step">開場</button>
+      <button class="station-btn" data-go="weigh">① 秤秤看</button>
+      <button class="station-btn" data-go="words">② 溶質與溶劑</button>
+      <button class="station-btn" data-go="dry">③ 取回溶質</button>
+      <button class="station-btn" data-go="quiz">④ 闖關驗收</button>
+    </nav>
+  </header>
+
+  <!-- ==================== 開場　單元導入＋湯裡的食鹽去哪裡了？（課本 62–64 頁） ==================== -->
+  <section id="screen-open" class="screen active">
+    <div class="panel">
+      <div class="headline">
+        <div class="hl-title">第三單元　水溶液</div>
+        <div class="hl-sub">物質溶解在水中，就會形成水溶液（課本 62 頁）</div>
+      </div>
+      <div class="duo mid">
+        <figure class="figbox">
+          <div class="fig" id="peaFig" style="--mh:36vh"></div>
+          <figcaption class="cap center">蝶豆花泡的飲料：左邊一杯偏藍紫色、中間一杯是藍色、右邊一杯是紫紅色，旁邊放著切開的檸檬（課本 62–63 頁）</figcaption>
+        </figure>
+        <div>
+          <p class="ptitle">🔁 以前學過</p>
+          <div class="ask">紫色高麗菜汁、蝶豆花茶這些植物汁液，碰到酸性或鹼性的水溶液，會怎樣？</div>
+          <div class="btnrow center"><button class="btn plain" id="peaBtn">🔍 看答案</button></div>
+          <div class="bigpoint hidden" id="peaAns" aria-live="polite">會<b>變色</b>！<small>課本 62 頁的圖說：蝶豆花用純水泡是藍色；碰到酸，會變成深藍紫到偏紫紅；碰到鹼，會變成藍綠到綠色。</small></div>
+          <p class="ptitle" style="margin-top:14px">🗺️ 這個單元的三個活動</p>
+          <ol class="unitmap">
+            <li class="now"><b>活動 1</b>溶解現象<span class="today">今天</span></li>
+            <li><b>活動 2</b>水溶液的酸鹼性</li>
+            <li><b>活動 3</b>水溶液的導電性</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <p class="ptitle">🍲 煮湯的時候……（課本 64 頁）</p>
+      <div class="duo mid">
+        <figure class="figbox">
+          <div class="fig" id="soupFig" style="--mh:28vh"></div>
+          <figcaption class="cap center">煮湯時，在湯裡加入食鹽（課本 64 頁）</figcaption>
+        </figure>
+        <div>
+          <div class="ask big">最後在湯裡加入食鹽、攪拌以後，食鹽顆粒就不見了。<br><b>食鹽去哪裡了？</b></div>
+          <p class="lead">全班先舉「甲、乙、丙、丁」卡，再請一位同學上臺按。</p>
+          <div class="opts col" id="guessOpts"></div>
+          <div class="guessbox hidden" id="guessBox" aria-live="polite">
+            <div class="g">全班猜的是：「<span id="guessText"></span>」</div>
+            <div class="later">到「① 秤秤看」揭曉！</div>
+          </div>
+        </div>
+      </div>
+      <p class="kidsay">課本 64 頁的同學說：「我認為食鹽還在湯裡，因為以前學過鹽巴加到水中會溶解。」「我覺得喝喝看會不會鹹就知道了。」</p>
+      <div class="rulebox" role="note">🚫 實驗室裡的東西一律不嘗，我們用秤的！</div>
+    </div>
+    <div class="navrow"><button class="btn green" data-next="weigh">出發：① 秤秤看 →</button></div>
+    <div class="teacher-tip">
+      <p><b class="time">給老師｜開場 10 分鐘</b>（第 ① 節：暖身 3＋單元導入與煮湯預測 7）</p>
+      <p><b>學習目標</b>：①能用「重量」證明溶解在水中的食鹽沒有消失　②能說出食鹽水的溶質和溶劑　③能說出取回溶解物質的方法（讓水分蒸發），並舉曬鹽、熬紅糖的例子。必會 3 句在 ①②③ 站的綠色大框，低能力學生至少要能說出這 3 句。</p>
+      <p><b>暖身 3 分鐘</b>（以前學過：植物汁液變色、溶解）：先問「以前學過」那一題，全班口答後再按「看答案」；再問「把糖加進水裡攪拌，糖會怎樣？」（溶解，看不見糖的顆粒）。這 3 分鐘請 2–3 位小助手布置示範臺：電子秤、燒杯、量筒、放在紙上的食鹽、攪拌棒。</p>
+      <p><b>單元導入</b>：課本 62–63 頁，這個單元有三個活動，今天是活動 1。</p>
+      <p><b>食鹽去哪裡了？</b>先不判對錯：全班先舉卡（甲乙丙丁），再請一位同學上臺按，畫面只記下「全班猜的是：○○」，到 ① 站示範後回收（重新整理頁面會清掉）。</p>
+      <p>課本 64 頁有同學說「喝喝看會不會鹹」：請明講<b>實驗室裡的東西一律不嘗</b>，我們用秤的（家長檢核）。</p>
+      <p><b>兩節課的時間</b>：<br>⏱ ①｜暖身 3｜開場（單元導入＋煮湯預測）7｜① 步驟卡＋預測 4｜① 示範＋抓錯＋同步填習作 P.24 12｜① 虛擬「如果…會怎樣」4｜② 溶質與溶劑 7｜判準卡＋出場卡 3｜合計 40<br>⏱ ②｜暖身（溶質溶劑＋總重量）3｜③ 取回溶質 12｜④ 闖關 5｜〈溶解現象〉學習單 12｜〈水溶液的各種性質〉開場 4｜〈水溶液的各種性質〉搧聞練習 4｜合計 40</p>
+      <p>第 ② 節可以直接開這一頁的 <b>#dry</b>（網址最後加 #dry）。節數不夠時：闖關改成 2 題出場卡；虛擬實驗臺只看結果，不做「如果…會怎樣」。</p>
+      <p>請學生翻開課本 62 頁。</p>
+    </div>
+  </section>
+
+  <!-- ==================== ① 秤秤看（課本 65 頁） ==================== -->
+  <section id="screen-weigh" class="screen">
+    <div class="panel">
+      <p class="ptitle">⚖️ 怎麼證明食鹽還在水裡？用電子秤秤秤看（課本 65 頁）</p>
+      <div class="duo">
+        <div>
+          <div class="pair">
+            <figure class="figbox">
+              <div class="fig" id="wbFig" style="--mh:38vh"></div>
+              <figcaption class="cap center">溶解前（課本的照片）</figcaption>
+            </figure>
+            <figure class="figbox">
+              <div class="fig" id="waFig" style="--mh:38vh"></div>
+              <figcaption class="cap center">溶解後（課本的照片）</figcaption>
+            </figure>
+          </div>
+          <p class="note">課本 65 頁的照片：溶解前，電子秤上放著裝水的燒杯和放食鹽的紙；溶解後，食鹽已經倒進燒杯攪拌溶解，空的紙也放在秤上。照片裡螢幕上的數字太小、看不清楚，讀數請看下面的示意圖。</p>
+        </div>
+        <div>
+          <div class="stepcard">
+            <div class="sc-title">📋 步驟卡</div>
+            <ol class="steps">
+              <li>用量筒量 30 毫升的水，倒進燒杯。</li>
+              <li>電子秤先按「歸零」。</li>
+              <li>秤「水和燒杯」、秤「食鹽和紙」；再把兩樣一起放上秤，讀出溶解前的總重量。</li>
+              <li>把食鹽倒進水裡，攪拌到完全溶解，攪拌棒拿出來。</li>
+              <li>燒杯和空的紙一起放上秤，讀出溶解後的總重量。</li>
+            </ol>
+          </div>
+          <div class="watch">👀 看仔細：老師如果做錯一步，全班舉「╳」喊停！</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <p class="ptitle">✏️ 先預測：先寫在學習單的預測格，再舉卡</p>
+      <div class="ask">食鹽完全溶解後，<b>溶解後的總重量</b>和溶解前比，會怎樣？</div>
+      <div class="opts" id="predOpts" style="margin-top:12px;justify-content:center"></div>
+      <div class="guessbox hidden" id="predBox" aria-live="polite">
+        <div class="g">全班預測：「<span id="predText"></span>」</div>
+        <div class="later">看老師示範！</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <p class="ptitle">🔬 老師示範：全班同步填習作 24 頁</p>
+      <p class="lead">小助手唸數字 → 全班複誦 → 每個人寫進習作 24 頁的紀錄欄。也可以在下面的格子輸入今天秤到的數字，讓後排看清楚（重新整理會清掉）。</p>
+      <div class="recgrid">
+        <label class="rec"><span>水和燒杯</span><input id="r1" type="number" inputmode="decimal" step="any" placeholder="？" aria-label="水和燒杯的重量（公克重）"><em>公克重</em></label>
+        <label class="rec"><span>食鹽和紙</span><input id="r2" type="number" inputmode="decimal" step="any" placeholder="？" aria-label="食鹽和紙的重量（公克重）"><em>公克重</em></label>
+        <label class="rec"><span>溶解前的總重量</span><input id="r3" type="number" inputmode="decimal" step="any" placeholder="？" aria-label="溶解前的總重量（公克重）"><em>公克重</em></label>
+        <label class="rec"><span>溶解後的總重量</span><input id="r4" type="number" inputmode="decimal" step="any" placeholder="？" aria-label="溶解後的總重量（公克重）"><em>公克重</em></label>
+      </div>
+      <div class="audit" id="audit" aria-live="polite"></div>
+      <div class="duo mid" style="margin-top:14px">
+        <figure class="figbox">
+          <div class="tphoto" id="tpWeigh"></div>
+          <figcaption class="cap center">老師課前試做時拍的照片</figcaption>
+        </figure>
+        <div>
+          <div class="btnrow center"><button class="btn green" id="resultBtn">🔍 看示範結果</button></div>
+          <div class="hidden" id="resultBox">
+            <div class="figcard" id="resultFig"></div>
+            <p class="cap center">示意圖：習作 24 頁的參考數據，溶解前 78 公克重，溶解後 78 公克重</p>
+            <div class="feedback good" id="predCompare" aria-live="polite"></div>
+          </div>
+        </div>
+      </div>
+      <div class="hidden" id="weighCrit">
+        <div class="kbox" style="margin-top:14px">
+          <div class="sc-title">💬 課本 65 頁的討論</div>
+          <div class="wq">
+            <span class="wqq">1. 食鹽水和加鹽之前的水比，重量有什麼變化？</span>
+            <button class="btn plain small" data-reveal="wd1">看答案</button>
+            <span class="wqa hidden" id="wd1">變重了：「食鹽水和燒杯」比「水和燒杯」重，多了溶解進去的食鹽的重量。</span>
+          </div>
+          <div class="wq">
+            <span class="wqq">2. 溶解前「食鹽」和「水和燒杯」的重量加起來，和溶解後「食鹽水和燒杯」的總重量一樣嗎？</span>
+            <button class="btn plain small" data-reveal="wd2">看答案</button>
+            <span class="wqa hidden" id="wd2">一樣。習作 24 頁的參考數據：71＋7＝78，溶解後也是 78 公克重。</span>
+          </div>
+        </div>
+        <div class="criterion">
+          <div class="k">💡 看不見不等於消失。證據：溶解前「食鹽＋水＋燒杯」的總重量，和溶解後「食鹽水＋燒杯」的總重量一樣。</div>
+          <div class="askagain">👩‍🏫 老師追問：<b>你怎麼知道？</b>（溶解前是幾公克重？溶解後呢？）</div>
+        </div>
+        <div class="bigpoint" style="margin-top:14px"><span class="must">必會 1</span>食鹽溶解後看不見，但沒有消失：溶解前後的總重量一樣。</div>
+      </div>
+      <div class="recall hidden" id="recallBox">
+        <p class="ptitle">🔁 回到開場：湯裡的食鹽去哪裡了？</p>
+        <div class="ask" id="recallGuess"></div>
+        <div class="btnrow center"><button class="btn" id="recallBtn">🔍 揭曉答案</button></div>
+        <div class="bigpoint hidden" id="recallAns" aria-live="polite"></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <p class="ptitle">🧪 虛擬實驗臺：如果……會怎樣？<span class="shiyi">示意</span></p>
+      <p class="lead">按一個按鈕，看看做錯一步會得到什麼結論，再找出哪裡出錯。</p>
+      <div class="vbtns" id="vBtns"></div>
+      <div id="vStages"></div>
+      <div class="bigpoint hidden" id="vPoint" style="margin-top:14px">溶解前、後，放在秤上的東西要一樣：秤之前先<b>歸零</b>；<b>紙</b>和<b>攪拌棒</b>前後要一致；<b>食鹽</b>不要灑出來。</div>
+    </div>
+    <div class="navrow"><button class="btn green" data-next="words">下一站：② 溶質與溶劑 →</button></div>
+    <div class="teacher-tip">
+      <p><b class="time">給老師｜① 秤秤看 20 分鐘</b>（步驟卡＋預測 4｜示範＋抓錯＋同步填習作 P.24 12｜虛擬「如果…會怎樣」4）</p>
+      <p><b>器材</b>：電子秤（可歸零）、燒杯、量筒、食鹽約 7 公克重（放在一張紙上）、攪拌棒、淺盤 2 個。示範只用這些，沒有危險器材。</p>
+      <p><b>步驟</b>照課本 65 頁（上面的步驟卡）。<b>預測</b>：先寫在學習單的預測格，再舉卡（甲乙丙），按下全班多數的那一個，只記不判。</p>
+      <p><b>小助手</b> 2–3 人：按歸零、倒食鹽、攪拌、唸讀數 → 全班複誦 → 每人填習作 P.24 的紀錄欄（結論回家寫）。男女輪替，優先點平常比較被動的學生。</p>
+      <p><b>抓錯</b>（老師<b>正要</b>做錯時就讓全班舉 ╳ 喊停，再用正確做法）：①沒按歸零就要秤 → ╳ → 歸零重做　②秤溶解後的重量時，裝食鹽的紙沒放回秤上 → ╳ → 放回去重秤。高能力要說出後果：沒歸零，每個讀數都會多出空秤顯示的數字；少了紙，會以為變輕。</p>
+      <p><b>看得到</b>：示範一結束，放大「老師課前試做的照片」——照片請存成這個資料夾裡的 <b>photos/teacher-weigh.jpg</b>，就會出現在虛線框裡；小助手拿著燒杯和紙沿走道巡迴展示約 30 秒；每排一位觀察代表上前看秤的數字，回座位向同排報告。</p>
+      <p><b>數據審查員</b>（高能力）：檢查每個讀數合不合理——「水和燒杯」加「食鹽和紙」，等不等於溶解前的總重量？紀錄板輸入數字後會自動算給大家看。</p>
+      <p>示意圖的 78 是習作 P.24 的參考數據；習作請寫今天秤到的數字。按「看示範結果」後，會依序出現課本 65 頁的兩個討論題（討論 1 帶出「食鹽水比原來的水重」）、判準卡、必會 1，以及「回到開場」（回收開場的猜測）。</p>
+      <p><b>虛擬實驗臺</b>：請高能力學生上臺按一個按鈕並解說；「沒按歸零」那一題的數字照設計書：空秤顯示 2，溶解前把裝水的燒杯和放食鹽的紙一起放上秤、讀一次，溶解前後都讀成 80。時間不夠時只看結果，不做「如果…會怎樣」。</p>
+      <p><b>課前試做</b>：7 公克重的食鹽在 30 毫升水裡攪拌 1–2 分鐘可以完全溶解（先試一次）；電子秤放平、遠離電扇（風會讓數字跳）。</p>
+      <p><b>三層</b>：低＝預測只要圈、當小助手按歸零或倒食鹽；中＝說出證據「溶解前後都是 78」；高＝示範時當數據審查員、上臺操作虛擬實驗臺並解說。</p>
+      <p><b>跨主題</b>：「先歸零」在第四單元的彈簧秤還會再用到；可以先預告「用秤之前都要先歸零」。</p>
+    </div>
+  </section>
+
+  <!-- ==================== ② 溶質與溶劑（課本 64、82 頁） ==================== -->
+  <section id="screen-words" class="screen">
+    <div class="panel">
+      <p class="ptitle">🧪 小知識：溶質與溶劑（課本 64 頁）</p>
+      <div class="duo mid">
+        <div class="kbox">有些物質可以溶解在水中，變成<b>水溶液</b>。水溶液分為<b>溶質</b>與<b>溶劑</b>：<b>溶劑</b>可以溶解其他的物質，<b>溶質</b>是被溶解的物質。以食鹽水為例，被溶解的食鹽稱為溶質，水為溶劑。</div>
+        <div>
+          <div class="eqrow" role="img" aria-label="食鹽（溶質）加上水（溶劑）等於食鹽水（水溶液）">
+            <div class="eqcell"><span class="eqn">食鹽</span><span class="eqk">溶質</span><small>被溶解的</small></div>
+            <div class="eqop">＋</div>
+            <div class="eqcell"><span class="eqn">水</span><span class="eqk">溶劑</span><small>溶解其他物質的</small></div>
+            <div class="eqop">＝</div>
+            <div class="eqcell"><span class="eqn">食鹽水</span><span class="eqk">水溶液</span></div>
+          </div>
+          <p class="note center">課本 82 頁圖解筆記：水溶液＝溶質＋溶劑（水）</p>
+        </div>
+      </div>
+      <div class="qblock">
+        <div class="ask">糖水裡，被溶解的<b>糖</b>叫做什麼？</div>
+        <div id="wQ1"></div>
+        <div class="feedback" id="wF1" aria-live="polite"></div>
+      </div>
+      <div class="qblock">
+        <div class="ask">溶解其他物質的<b>水</b>叫做什麼？</div>
+        <div id="wQ2"></div>
+        <div class="feedback" id="wF2" aria-live="polite"></div>
+      </div>
+      <div class="hidden" id="wordsCrit">
+        <div class="criterion">
+          <div class="k">💡 被溶解的是溶質，溶解其他物質的是溶劑。</div>
+          <div class="askagain">👩‍🏫 老師追問：<b>你怎麼知道？</b>（糖水裡，是誰被溶解？是誰溶解了別人？）</div>
+        </div>
+        <div class="bigpoint" style="margin-top:14px"><span class="must">必會 2</span>食鹽水裡，食鹽是溶質，水是溶劑。</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <p class="ptitle">🎫 出場卡（第 ① 節最後）</p>
+      <p class="lead">第 1 題舉「○、╳」卡，第 2 題舉「甲、乙、丙」卡；先舉卡，再請一位同學上臺按。</p>
+      <div class="qblock">
+        <div class="ask">1. ○╳：食鹽溶解在水裡，就消失了。</div>
+        <div id="xQ1"></div>
+        <div class="feedback" id="xF1" aria-live="polite"></div>
+      </div>
+      <div class="qblock">
+        <div class="ask">2. 溶解前後的總重量：</div>
+        <div id="xQ2"></div>
+        <div class="feedback" id="xF2" aria-live="polite"></div>
+      </div>
+    </div>
+    <div class="navrow"><button class="btn green" data-next="dry">下一站：③ 取回溶質（第 ② 節）→</button></div>
+    <div class="teacher-tip">
+      <p><b class="time">給老師｜② 溶質與溶劑 10 分鐘</b>（溶質與溶劑 7｜判準卡＋出場卡 3）</p>
+      <p>課本 64 頁小知識＋82 頁圖解筆記「水溶液＝溶質＋溶劑（水）」。用兩個動作來記：<b>被溶解的</b>是溶質，<b>溶解別人的</b>是溶劑。常見迷思：溶質和溶劑弄反。</p>
+      <p>兩題都答對後出現判準卡，請一位同學唸出來，再全班一起唸「必會 2」。</p>
+      <p><b>出場卡</b>（第 ① 節最後）：第 1 題舉 ○╳ 卡，第 2 題舉甲乙丙卡。答錯的選項會停用，可以再試。</p>
+      <p><b>三層</b>：低＝看等式圖回答；中＝說出「糖被水溶解，所以糖是溶質」；高＝說出學習單第二題（檸檬酸水、小蘇打水）的溶質和溶劑。</p>
+      <p>第 ① 節結束時，在窗邊<b>不會被打翻的地方</b>放一盤食鹽水，讓學生之後幾天自己看（第 ② 節用）。</p>
+    </div>
+  </section>
+
+  <!-- ==================== ③ 取回溶質（課本 66 頁） ==================== -->
+  <section id="screen-dry" class="screen">
+    <div class="panel">
+      <p class="ptitle">⏰ 第 ② 節暖身</p>
+      <div class="wq">
+        <span class="wqq">① 食鹽水裡，溶質是什麼？溶劑是什麼？</span>
+        <button class="btn plain small" data-reveal="wa1">看答案</button>
+        <span class="wqa hidden" id="wa1">溶質是食鹽，溶劑是水。</span>
+      </div>
+      <div class="wq">
+        <span class="wqq">② 溶解前的總重量是 78 公克重。食鹽完全溶解後，總重量是多少公克重？</span>
+        <button class="btn plain small" data-reveal="wa2">看答案</button>
+        <span class="wqa hidden" id="wa2">還是 78 公克重：食鹽沒有消失，還在水裡。</span>
+      </div>
+    </div>
+
+    <div class="panel">
+      <p class="ptitle">☀️ 溶解在水裡的食鹽，還能變回食鹽顆粒嗎？（課本 66 頁）</p>
+      <div class="duo">
+        <div>
+          <div class="stepcard">
+            <div class="sc-title">📋 小明查到的做法</div>
+            <ol class="steps">
+              <li>把實驗後的食鹽水，倒進面積較大的平面容器裡。</li>
+              <li>放在通風處，觀察水分蒸發後，容器表面的樣子。</li>
+            </ol>
+          </div>
+          <figure class="figbox" style="margin-top:12px">
+            <div class="tphoto" id="tpDry"></div>
+            <figcaption class="cap center">老師課前放在窗邊、已經曬乾的食鹽水盤子（課前拍的照片）</figcaption>
+          </figure>
+        </div>
+        <div>
+          <p class="ptitle">📅 一天一天看<span class="shiyi">示意</span></p>
+          <div class="figcard" id="evapFig"></div>
+          <div class="btnrow center">
+            <button class="btn plain" id="dayPrev">← 前一天</button>
+            <button class="btn" id="dayNext">下一天 →</button>
+          </div>
+        </div>
+      </div>
+      <div class="qblock">
+        <div class="ask">盤子上的白色顆粒是什麼？跑掉的是什麼？</div>
+        <div id="dryQ"></div>
+        <div class="feedback" id="dryFeed" aria-live="polite"></div>
+      </div>
+      <div class="criterion hidden" id="dryCrit">
+        <div class="k">💡 蒸發時跑掉的只有水，溶解的食鹽會留下來。</div>
+        <div class="askagain">👩‍🏫 老師追問：<b>你怎麼知道？</b>（盤子裡本來倒的是什麼？現在剩下什麼？）</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <p class="ptitle">🤔 想一想：為什麼要這樣做？可以用別的方法嗎？</p>
+      <div class="whys">
+        <div class="why">
+          <div class="q">為什麼要用「面積較大的平面容器」？</div>
+          <button class="btn plain small" data-reveal="why1">看答案</button>
+          <div class="a hidden" id="why1">水面比較大，水分比較容易蒸發。</div>
+        </div>
+        <div class="why">
+          <div class="q">為什麼要放在「通風處」？</div>
+          <button class="btn plain small" data-reveal="why2">看答案</button>
+          <div class="a hidden" id="why2">通風的地方，水分蒸發得比較快；放在密閉的地方，蒸發得比較慢。</div>
+        </div>
+        <div class="why">
+          <div class="q">下雨天、天氣潮溼的時候，會怎樣？</div>
+          <button class="btn plain small" data-reveal="why3">看答案</button>
+          <div class="a hidden" id="why3">水分蒸發得比較慢，要等比較多天，才看得到食鹽。</div>
+        </div>
+        <div class="why">
+          <div class="q">可以用濾紙，把溶解在水裡的食鹽濾出來嗎？</div>
+          <button class="btn plain small" data-reveal="why4">看答案</button>
+          <div class="a hidden" id="why4">不行：溶解的食鹽會跟著水通過濾紙。要讓水分蒸發，才能取回食鹽。</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <p class="ptitle">🧂 生活中：把溶解在水裡的物質取出來（課本 66 頁）</p>
+      <div class="pair">
+        <figure class="figbox">
+          <div class="fig" id="seaFig" style="--mh:32vh"></div>
+          <figcaption class="cap center">曬鹽：日晒讓海水的水分蒸發（課本 66 頁）</figcaption>
+        </figure>
+        <figure class="figbox">
+          <div class="fig" id="sugarFig" style="--mh:32vh"></div>
+          <figcaption class="cap center">熬紅糖：高溫熬煮甘蔗汁，讓水分蒸發（課本 66 頁）</figcaption>
+        </figure>
+      </div>
+      <div class="ask" style="margin-top:14px">這兩個例子，跑掉的都是什麼？留下來的是什麼？</div>
+      <div class="btnrow center"><button class="btn" id="lifeBtn">🔍 看答案</button></div>
+      <div class="feedback good hidden" id="lifeAns" aria-live="polite">跑掉的都是<b>水分</b>；曬鹽留下<b>鹽</b>，熬煮甘蔗汁留下<b>紅糖</b>。</div>
+      <div class="bigpoint hidden" id="dryPoint" style="margin-top:14px"><span class="must">必會 3</span>讓水分蒸發，就能取回溶解在水裡的物質，例如曬鹽、熬紅糖。</div>
+    </div>
+    <div class="navrow"><button class="btn green" data-next="quiz">下一站：④ 闖關驗收 →</button></div>
+    <div class="teacher-tip">
+      <p><b class="time">給老師｜③ 取回溶質 15 分鐘</b>（第 ② 節：暖身 3＋取回溶質 12）</p>
+      <p><b>暖身</b>（溶質溶劑＋總重量）：用最上面兩題，全班口答或舉卡，再按「看答案」。這 3 分鐘小助手把曬乾的盤子拿出來。</p>
+      <p><b>課前試做</b>：課前 3–5 天，在窗邊放一淺盤約 10 毫升的食鹽水（天氣潮溼要更久）。上課時請各排觀察代表上前看盤子，再由小助手巡迴展示。照片請存成這個資料夾裡的 <b>photos/teacher-dry.jpg</b>，就會出現在左邊的虛線框裡。</p>
+      <p>第 ① 節放在窗邊的那一盤：請學生看看水剩多少、有沒有白色顆粒（可能還沒乾，正好說明蒸發需要時間）。蒸發時間軸是示意圖，實際要幾天看天氣和水量。</p>
+      <p>提問「盤子上的白色顆粒是什麼？跑掉的是什麼？」→ 只有水跑掉。題庫常見迷思：用濾紙過濾可以分出食鹽（不行，溶解的食鹽會跟著水通過濾紙；「想一想」第 4 張卡）、食鹽跟著水蒸發、密閉的地方蒸發比較快。對應的素養題組：〈晾在窗邊的食鹽水〉、〈泳衣上的白色痕跡〉。</p>
+      <p><b>家長檢核</b>：食鹽水盤放在不會被打翻的地方；熬煮甘蔗汁只看照片，教室裡不加熱。</p>
+      <p><b>三層</b>：低＝看盤子說出「白色的是食鹽」；中＝說出「跑掉的是水分」；高＝說明面積大、通風為什麼比較快（學習單 ★★）。</p>
+    </div>
+  </section>
+
+  <!-- ==================== ④ 闖關驗收 ==================== -->
+  <section id="screen-quiz" class="screen">
+    <div class="quizbar">
+      <span id="qprog">第 1 / 3 題</span>
+      <span class="dots" id="dots"></span>
+      <span class="qscore">⭐ <span id="score">0</span> / 6 分</span>
+      <span id="rank">🧂 溶解小學徒</span>
+    </div>
+
+    <div class="panel" id="quizPanel">
+      <div class="quizwrap" id="quizwrap">
+        <div class="qphoto" id="qphoto"></div>
+        <div>
+          <div id="step1">
+            <span class="steptag">第 1 層｜選答案</span>
+            <p class="qtitle" id="q1title"></p>
+            <div id="q1opts"></div>
+            <div class="feedback" id="q1feed" aria-live="polite"></div>
+          </div>
+          <div id="step2" class="hidden" style="margin-top:16px">
+            <span class="steptag">第 2 層｜你怎麼知道？</span>
+            <p class="qtitle">選一個最好的理由：</p>
+            <div id="q2opts"></div>
+            <div class="feedback" id="q2feed" aria-live="polite"></div>
+          </div>
+          <div id="criterion" class="criterion hidden">
+            <div class="k" id="criterionText"></div>
+            <div class="askagain">👩‍🏫 老師追問：<b>你怎麼知道？</b>（請一位同學用上面這句話說說看）</div>
+          </div>
+          <div class="btnrow">
+            <button class="btn green hidden" id="nextBtn">下一題 →</button>
+            <button class="btn plain small" id="skipBtn">⏭ 跳過這一題</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel hidden" id="quizResult">
+      <div class="result">
+        <div class="big" id="finalScore"></div>
+        <p class="rankline" id="finalRank"></p>
+        <p class="lead" id="skipNote"></p>
+        <div class="ticket"><b>出場單</b>（寫在學習單最下面）：我原本以為＿＿＿＿，現在知道＿＿＿＿，證據是＿＿＿＿。</div>
+        <button class="btn" id="againBtn">↺ 再挑戰一次</button>
+      </div>
+    </div>
+
+    <div class="panel nextlesson">
+      <p class="ptitle">➡️ 第 ② 節最後 8 分鐘：下一課〈水溶液的各種性質〉</p>
+      <a class="btn green" id="nextLesson" href="../水溶液的各種性質/水溶液的各種性質_互動教材.html#open">前往〈水溶液的各種性質〉開場 →</a>
+      <p class="note" style="margin-top:10px">先看開場（4 分鐘），再全班一起練搧聞（4 分鐘）。</p>
+    </div>
+    <div class="teacher-tip">
+      <p><b class="time">給老師｜④ 闖關驗收 5 分鐘</b></p>
+      <p><b>課堂做第 1、3 題，第 2 題在家複習</b>：做完第 1 題後按「跳過這一題」到第 3 題。每題先給 15 秒想，全班舉卡（甲乙丙），再請一位同學上臺按；第 2 層「你怎麼知道？」請不同的同學說理由。答錯的選項會停用，可以再試，分數減半。</p>
+      <p>闖關之後寫〈溶解現象〉學習單 12 分鐘：<b>全班必做</b>＝預測格（第 ① 節已寫）、一、三；其餘依時間做，★、★★ 給先寫完的人；沒寫完的選做題不帶回家。學習單上課寫完，回家只寫習作 P.24 的結論。</p>
+      <p><b>學習單三層</b>：低＝預測只要圈、「一、必會 3 句」看詞語框填空；中＝「三」小表格找出丙組、說出原因；高＝★ 誰說得對、★★ 哪一盤先看到食鹽。</p>
+      <p><b>最後 8 分鐘</b>：按上面的按鈕到〈水溶液的各種性質〉（會直接開在它的「開場」站，網址 #open），做開場 4 分鐘；再按那一頁上方的「① 安全的觀察」（#safe），全班練搧聞 4 分鐘（手上不拿東西）。</p>
+      <p>誘答來自題庫的迷思：食鹽溶解後就沒有重量、溶質和溶劑弄反、鹽跟著水一起蒸發。</p>
+    </div>
+  </section>
+
+  <!-- ==================== 頁尾：教學依據與照片來源 ==================== -->
+  <footer class="credits" id="credits">
+    <p><b>教學依據：</b><a href="https://reader.nani.com.tw/9200a013cbef8e66" target="_blank" rel="noopener">南一自然課本，第 62–66 頁</a>（閱讀器可能需要登入）；另引用課本第 82 頁圖解筆記、習作第 24 頁的參考數據。</p>
+    <p>本頁照片取自南一版自然五上課本第 62–66 頁：蝶豆花泡的飲料（第 62–63 頁）、煮湯加鹽（第 64 頁）、電子秤溶解前後（第 65 頁，電子秤上的品牌標誌已遮住）、曬鹽場和熬煮甘蔗汁（第 66 頁）。</p>
+    <p>示意畫面：① 站的電子秤讀數圖與「如果…會怎樣」虛擬實驗臺、③ 站的蒸發時間軸、④ 闖關第 1 題的電子秤圖，都是示意圖，不是真實照片。「老師課前試做的照片」由老師上課前自己拍攝。</p>
+  </footer>
+
+</div>
+
+<script src="../../題庫/figures.js?v=20261006a"></script>
+<script>
+/* ==========================================================
+   溶解現象 — 程式
+   科學內容（照課本 p.62–66、p.82、習作 P.24，不可講錯）：
+   食鹽溶解後看不見，但沒有消失：溶解前「食鹽＋水＋燒杯」的總重量＝溶解後「食鹽水＋燒杯」的總重量。
+   被溶解的是溶質、溶解其他物質的是溶劑（食鹽水：食鹽是溶質、水是溶劑）。
+   讓水分蒸發可以取回溶解的物質（面積大的平面容器、通風處）；曬鹽、熬紅糖。跑掉的只有水。
+   電子秤要先歸零；紙、攪拌棒溶解前後要一致；食鹽不要灑出來。
+   ========================================================== */
+const $=id=>document.getElementById(id);
+
+/* ---------- 照片清單：題庫已裁好的課本照片（尺寸＝檔案的真實像素，標籤百分比量在這個尺寸上） ---------- */
+const PHOTO_DIR="../../題庫/photos/u3/";
+const PHOTOS={
+  "pea-tea":      [900, 638, "蝶豆花泡的飲料（課本 62–63 頁）"],
+  "salt-soup":    [585, 236, "煮湯時，在湯裡加入食鹽（課本 64 頁）"],
+  "weigh-before": [328, 389, "溶解前：電子秤上放著裝水的燒杯和放食鹽的紙（課本 65 頁）"],
+  "weigh-after":  [328, 389, "溶解後：食鹽倒進燒杯攪拌溶解，空的紙也放在秤上（課本 65 頁）"],
+  "sea-salt":     [738, 466, "海邊的曬鹽場（課本 66 頁）"],
+  "brown-sugar":  [362, 422, "高溫熬煮甘蔗汁做紅糖（課本 66 頁）"]
+};
+function imgTag(id,name){
+  const n=name||PHOTOS[id][2];
+  /* lazy：還沒切到的站別不載入照片（教室電腦記憶體吃緊時會卡） */
+  return `<img src="${PHOTO_DIR}${id}.jpg" alt="${n}" data-name="${n}" draggable="false" loading="lazy" decoding="async" onerror="imgFallback(this)">`;
+}
+/* 照片框：設定原比例後放進照片（同時清掉舊的標籤） */
+function renderFig(el,id,name){
+  const p=PHOTOS[id];
+  el.style.setProperty("--ar",`${p[0]} / ${p[1]}`);
+  el.innerHTML=imgTag(id,name);
+  maskLogo(el,id);
+  return el;
+}
+/* 電子秤照片上的品牌標誌（不出品牌）：中心位置量在 328×389 的照片上 */
+const LOGO_MASK={"weigh-before":[105,248.5],"weigh-after":[105,241.5]};
+function maskLogo(el,id){
+  const m=LOGO_MASK[id]; if(!m) return;
+  const d=document.createElement("span");
+  d.className="logo-mask"; d.setAttribute("aria-hidden","true");
+  d.style.left=(m[0]/PHOTOS[id][0]*100)+"%"; d.style.top=(m[1]/PHOTOS[id][1]*100)+"%";
+  el.appendChild(d);
+}
+/* 疊在照片上的標籤。place：r 右、l 左、b 下、t 上；自動加一個小圓點標出位置。 */
+function addTag(fig,x,y,html,place,opt){
+  opt=opt||{};
+  const off="14px";
+  const t=document.createElement("div");
+  t.className="tag"; t.innerHTML=html;
+  const s=t.style, m=Math.min(x,100-x);
+  switch(place){
+    case "r": s.left=`calc(${x}% + ${off})`; s.top=y+"%"; s.transform="translateY(-50%)"; s.maxWidth=`calc(${100-x}% - ${off} - 4px)`; break;
+    case "l": s.right=`calc(${100-x}% + ${off})`; s.top=y+"%"; s.transform="translateY(-50%)"; s.maxWidth=`calc(${x}% - ${off} - 4px)`; break;
+    case "t": s.left=x+"%"; s.bottom=`calc(${100-y}% + ${off})`; s.transform="translateX(-50%)"; s.maxWidth=`calc(${2*m}% - 8px)`; break;
+    default:  s.left=x+"%"; s.top=`calc(${y}% + ${off})`; s.transform="translateX(-50%)"; s.maxWidth=`calc(${2*m}% - 8px)`;
+  }
+  if(opt.mw) s.maxWidth=opt.mw+"%";
+  const d=document.createElement("span");
+  d.className="pin"; d.style.left=x+"%"; d.style.top=y+"%";
+  fig.appendChild(d);
+  fig.appendChild(t);
+  return t;
+}
+/* 老師課前試做的照片：放在這個資料夾的 photos/ 裡；沒有檔案時由 teacherFallback 換成虛線框 */
+function teacherPhoto(el,file){
+  el.innerHTML=`<img src="photos/${file}" alt="老師課前試做的照片" loading="lazy" decoding="async" onerror="teacherFallback(this)">`;
+}
+/* 題庫示意圖：figures.js 讀不到時顯示文字說明，不讓整頁壞掉 */
+function qfig(p,alt){
+  try{
+    if(window.QFIG && typeof window.QFIG.render==="function"){
+      const s=window.QFIG.render(p);
+      if(s) return s;
+    }
+  }catch(_){}
+  return `<div class="figfail">（示意圖暫時載入不了）<br>${alt}</div>`;
+}
+/* 通用選擇題：答錯的選項標示並停用、可再試；答對就全部停用 */
+function choiceQ(host,opts,ans,onRight,onWrong,cls){
+  const box=document.createElement("div");
+  box.className="opts"+(cls?" "+cls:"");
+  opts.forEach(o=>{
+    const b=document.createElement("button");
+    b.type="button"; b.className="opt"; b.textContent=o;
+    b.addEventListener("click",()=>{
+      if(o===ans){
+        b.classList.add("ok");
+        box.querySelectorAll(".opt").forEach(x=>x.disabled=true);
+        if(onRight) onRight();
+      }else{
+        b.classList.add("no"); b.disabled=true;
+        if(onWrong) onWrong(o);
+      }
+    });
+    box.appendChild(b);
+  });
+  host.appendChild(box);
+  return box;
+}
+/* 只記不判的投票（開場猜測、示範前預測）：按下的那一個標示起來，可以改 */
+function voteQ(host,opts,onPick){
+  opts.forEach(g=>{
+    const b=document.createElement("button");
+    b.type="button"; b.className="opt"; b.textContent=g; b.setAttribute("aria-pressed","false");
+    b.addEventListener("click",()=>{
+      host.querySelectorAll(".opt").forEach(x=>{ x.classList.toggle("picked",x===b); x.setAttribute("aria-pressed",String(x===b)); });
+      onPick(g);
+    });
+    host.appendChild(b);
+  });
+}
+/* 「看答案」按鈕：按了顯示答案、按鈕收起來 */
+document.querySelectorAll("[data-reveal]").forEach(b=>b.addEventListener("click",()=>{
+  $(b.dataset.reveal).classList.remove("hidden");
+  b.classList.add("hidden");
+}));
+
+/* ---------- 站別切換（可自由跳；網址加 #weigh 之類可直接開到某一站） ---------- */
+const STATIONS=["open","weigh","words","dry","quiz"];
+window.addEventListener("hashchange",()=>{
+  const h=location.hash.slice(1);
+  if(STATIONS.includes(h) && !$("screen-"+h).classList.contains("active")) go(h,false);
+});
+function go(name,smooth){
+  if(STATIONS.indexOf(name)<0) name="open";
+  document.querySelectorAll(".station-btn").forEach(b=>{
+    const on=b.dataset.go===name;
+    b.classList.toggle("on",on);
+    if(on) b.setAttribute("aria-current","step"); else b.removeAttribute("aria-current");
+  });
+  document.querySelectorAll(".screen").forEach(s=>s.classList.toggle("active",s.id==="screen-"+name));
+  try{ history.replaceState(null,"","#"+name); }catch(_){}
+  if(name==="weigh") updateRecall();
+  window.scrollTo({top:0,behavior:smooth?"smooth":"auto"});
+}
+document.querySelectorAll(".station-btn").forEach(b=>b.addEventListener("click",()=>go(b.dataset.go,true)));
+document.querySelectorAll("[data-next]").forEach(b=>b.addEventListener("click",()=>go(b.dataset.next,true)));
+
+/* ==========================================================
+   開場　以前學過＋湯裡的食鹽去哪裡了？（只記在記憶體，不判對錯；① 站回收）
+   ========================================================== */
+renderFig($("peaFig"),"pea-tea");
+renderFig($("soupFig"),"salt-soup");
+$("peaBtn").addEventListener("click",()=>{ $("peaAns").classList.remove("hidden"); $("peaBtn").classList.add("hidden"); });
+const GUESSES=["甲　消失了","乙　還在湯裡，只是看不見","丙　變成水了","丁　跑到空氣裡了"];
+const GUESS_RIGHT=GUESSES[1];
+let classGuess=null;
+voteQ($("guessOpts"),GUESSES,g=>{
+  classGuess=g;
+  $("guessText").textContent=g;
+  $("guessBox").classList.remove("hidden");
+  updateRecall();
+});
+
+/* ==========================================================
+   ① 秤秤看：預測 → 示範 → 結果（示意圖）→ 回收開場 → 虛擬實驗臺
+   ========================================================== */
+renderFig($("wbFig"),"weigh-before");
+renderFig($("waFig"),"weigh-after");
+teacherPhoto($("tpWeigh"),"teacher-weigh.jpg");
+const PREDS=["甲　變輕","乙　不變","丙　變重"];
+const PRED_RIGHT=PREDS[1];
+let classPred=null, resultShown=false;
+voteQ($("predOpts"),PREDS,g=>{
+  classPred=g;
+  $("predText").textContent=g;
+  $("predBox").classList.remove("hidden");
+  if(resultShown) showPredCompare();
+});
+function showPredCompare(){
+  const el=$("predCompare");
+  if(!classPred){ el.innerHTML="結果：溶解後的總重量<b>不變</b>，和溶解前一樣是 78 公克重。"; return; }
+  el.innerHTML = classPred===PRED_RIGHT
+    ? `🎉 全班預測「${classPred}」，預測對了！溶解前後都是 78 公克重。`
+    : `全班預測「${classPred}」；結果是<b>不變</b>：溶解前後都是 78 公克重。`;
+}
+$("resultBtn").addEventListener("click",()=>{
+  resultShown=true;
+  $("resultFig").innerHTML=qfig({type:"weigh",items:[{lab:"前",state:"before",g:78},{lab:"後",state:"after",g:78}]},
+    "溶解前：電子秤顯示 78 公克重（燒杯裡是水，食鹽在紙上）；溶解後：電子秤顯示 78 公克重（食鹽已攪拌溶解，空的紙也在秤上）。");
+  $("resultBox").classList.remove("hidden");
+  $("resultBtn").classList.add("hidden");
+  showPredCompare();
+  $("weighCrit").classList.remove("hidden");
+  $("recallBox").classList.remove("hidden");
+  updateRecall();
+});
+
+/* 紀錄板＋數據審查員：輸入今天秤到的數字，自動檢查合不合理 */
+function num(id){ const v=$(id).value.trim(); if(v==="") return null; const n=Number(v); return isFinite(n)?n:null; }
+function r1(n){ return Math.round(n*10)/10; }
+function audit(){
+  const a=num("r1"), b=num("r2"), before=num("r3"), after=num("r4");
+  const out=[];
+  if(a!=null && b!=null){
+    const s=r1(a+b);
+    let t=`🔎 數據審查員：水和燒杯＋食鹽和紙＝${r1(a)}＋${r1(b)}＝${s} 公克重`;
+    if(before!=null) t += r1(before)===s ? "，和溶解前的總重量一樣 ✓" : `，和溶解前的總重量差 ${r1(Math.abs(before-s))} 公克重，再檢查一次。`;
+    out.push(t);
+  }
+  if(before!=null && after!=null){
+    const d=r1(after-before);
+    out.push(d===0 ? `溶解前 ${r1(before)}、溶解後 ${r1(after)} 公克重：一樣重 ✓`
+      : `溶解前 ${r1(before)}、溶解後 ${r1(after)} 公克重：差 ${Math.abs(d)} 公克重。檢查看看：有沒有先歸零？紙和攪拌棒前後一樣嗎？食鹽有沒有灑出來？`);
+  }
+  $("audit").innerHTML=out.map(t=>`<p>${t}</p>`).join("");
+}
+["r1","r2","r3","r4"].forEach(id=>$(id).addEventListener("input",audit));
+
+/* ---------- 回收開場的猜測 ---------- */
+let recallShown=false;
+function updateRecall(){
+  $("recallGuess").textContent = classGuess ? `開場時全班猜的是：「${classGuess}」` : "開場時還沒有投票，直接來看答案。";
+  $("recallGuess").classList.toggle("hidden",recallShown);
+  if(!recallShown) return;
+  const head = !classGuess ? "答案是："
+    : classGuess===GUESS_RIGHT ? "🎉 全班猜對了！" : `開場時全班猜「${classGuess}」。答案是：`;
+  $("recallAns").innerHTML = head
+    + "食鹽<b>還在湯裡，只是看不見</b>——溶解前後的總重量一樣，表示食鹽沒有消失。"
+    + "<small>在實驗室裡，我們不用嘴巴嘗，而是用電子秤找證據。</small>";
+}
+$("recallBtn").addEventListener("click",()=>{
+  recallShown=true;
+  $("recallAns").classList.remove("hidden");
+  $("recallBtn").classList.add("hidden");
+  updateRecall();
+});
+
+/* ---------- 虛擬實驗臺的電子秤示意圖
+   畫法比照題庫 figures.js 的 weigh（同樣的秤、燒杯、紙），另外能畫：空秤、紙留在桌上、攪拌棒、灑出來的食鹽。
+   panels:[{t:標題, n:說明, g:螢幕數字, k:"empty"|"before"|"after"|"nopaper"|"rod"|"spill"}] ---------- */
+const svgEsc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const svgT=(x,y,s,o)=>{ o=o||{}; return `<text x="${x}" y="${y}" font-size="${o.size||16}" font-weight="${o.w||700}" fill="${o.fill||"#1E1E1E"}" text-anchor="${o.anchor||"middle"}" dominant-baseline="middle" stroke="#fff" stroke-width="4" stroke-linejoin="round" paint-order="stroke">${svgEsc(s)}</text>`; };
+const SVG_FONT='font-family="Microsoft JhengHei,PingFang TC,Noto Sans TC,sans-serif"';
+/* 每一臺秤各畫一張小圖，排成格子：手機上自動換行，字才不會太小 */
+function scaleScene(panels){
+  return `<div class="vfigs n${panels.length}" style="--n:${panels.length}">${panels.map((p,i)=>scalePanel(p,i===panels.length-1)).join("")}</div>`
+    +`<p class="vnote">（示意圖：螢幕數字的單位是公克重）</p>`;
+}
+function scalePanel(p,last){
+  const W=230, H=270, esc=svgEsc, T=svgT;
+  let b=`<rect width="${W}" height="${H}" fill="#FFFDF8"/>`;
+  b+=`<rect x="0" y="198" width="${W}" height="8" fill="#E2D3BC"/>`;
+  if(last) b+=T(W-4,216,"桌面",{size:13,w:400,fill:"#6B7A82",anchor:"end"});
+  {
+    const x=6, cw=160, cx=x+cw/2;
+    /* 秤 */
+    b+=`<path d="M${x+12} 198 L${x+24} 148 H${x+cw-24} L${x+cw-12} 198 Z" fill="#D7DBDE" stroke="#1E1E1E" stroke-width="2"/>`;
+    b+=`<rect x="${x+20}" y="140" width="${cw-40}" height="10" rx="4" fill="#B9C0C5" stroke="#1E1E1E" stroke-width="2"/>`;
+    b+=`<rect x="${cx-38}" y="160" width="76" height="30" rx="3" fill="#2F3B2F"/>`
+      +`<text x="${cx}" y="176" font-size="23" font-weight="700" fill="#9CFF8A" text-anchor="middle" dominant-baseline="middle" font-family="Consolas,monospace">${esc(p.g)}</text>`;
+    if(p.k!=="empty"){
+      /* 燒杯（溶解前是水，溶解後是食鹽水，都是透明的） */
+      const bx=x+28, bw=56;
+      b+=`<rect x="${bx}" y="98" width="${bw}" height="42" fill="#CFE8F6"/>`
+        +`<path d="M${bx} 72 V140 H${bx+bw} V72" fill="none" stroke="#1E1E1E" stroke-width="2.5"/>`;
+      const beakerLabel=T(bx+bw/2,121,p.k==="before"?"水":"食鹽水",{size:16});   /* 最後才畫，才不會被攪拌棒蓋住 */
+      /* 紙（粉紅色的紙）：溶解前上面有食鹽；溶解後是空的；nopaper＝紙留在桌上，沒有放回秤上 */
+      if(p.k==="nopaper"){
+        b+=`<path d="M${x+170} 197 L${x+175} 190 H${x+207} L${x+212} 197 Z" fill="#F7C6D9" stroke="#1E1E1E" stroke-width="1.5"/>`+T(x+191,177,"紙",{size:17});
+      }else{
+        b+=`<path d="M${x+94} 139 L${x+100} 130 H${x+134} L${x+140} 139 Z" fill="#F7C6D9" stroke="#1E1E1E" stroke-width="1.5"/>`;
+        if(p.k==="before") b+=`<path d="M${x+105} 132 Q${x+117} 112 ${x+129} 132 Z" fill="#fff" stroke="#999" stroke-width="1.5"/>`+T(x+117,101,"食鹽",{size:16});
+      }
+      /* 攪拌棒留在燒杯裡：從杯底斜靠在右邊杯口，上端伸出杯外 */
+      if(p.k==="rod"){
+        const x1=bx+14, y1=136, x2=bx+77, y2=40;
+        b+=`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#1E1E1E" stroke-width="8" stroke-linecap="round"/>`
+          +`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#C9D1D5" stroke-width="4" stroke-linecap="round"/>`
+          +T(x2+38,38,"攪拌棒",{size:17});
+      }
+      /* 灑在秤外面的食鹽 */
+      if(p.k==="spill"){
+        [[172,195],[179,192],[186,195],[193,193],[200,196],[183,197],[196,197]].forEach(([dx,dy])=>{
+          b+=`<circle cx="${x+dx}" cy="${dy}" r="3" fill="#fff" stroke="#777" stroke-width="1.2"/>`; });
+        b+=T(x+188,175,"食鹽",{size:17});
+      }
+      b+=beakerLabel;
+    }
+    b+=T(cx,236,p.t,{size:22,w:900});
+    if(p.n) b+=T(cx,261,p.n,{size:16,w:700,fill:"#34444C"});
+  }
+  return `<svg class="qfig" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(p.t+"：電子秤顯示 "+p.g+" 公克重"+(p.n?"，"+p.n:""))}" xmlns="http://www.w3.org/2000/svg" ${SVG_FONT}>${b}</svg>`;
+}
+
+/* 四個「如果…會怎樣」：數字照設計書；②③④ 的數字是示意 */
+const VLAB=[
+  {k:"zero", btn:"① 沒按歸零",
+   panels:[{t:"空秤",n:"什麼都沒放",g:2,k:"empty"},{t:"溶解前",n:"燒杯和紙一起秤",g:80,k:"before"},{t:"溶解後",n:"燒杯和空的紙",g:80,k:"after"}],
+   setup:"空的電子秤顯示 2，可是沒有按歸零。溶解前把裝水的燒杯和放食鹽的紙一起放上秤、讀一次；溶解後，燒杯和空的紙一起秤。",
+   say:"溶解前、後的總重量都是 80 公克重。",
+   opts:["食鹽溶解後，變重了 2 公克重","電子秤沒有先歸零，每個讀數都多了空秤顯示的 2","攪拌的時候，水變多了"], ans:1,
+   hint:"看看第一臺：什麼都沒放的電子秤，螢幕卻顯示幾？",
+   explain:"沒歸零時，每個讀數都會多出空秤顯示的數字。"},
+  {k:"paper", btn:"② 紙沒放回去",
+   panels:[{t:"溶解前",n:"燒杯和紙一起秤",g:78,k:"before"},{t:"溶解後",n:"紙留在桌上",g:77,k:"nopaper"}],
+   setup:"溶解前，裝水的燒杯和放食鹽的紙一起秤；溶解後，只把燒杯放在秤上，空的紙留在桌上。",
+   say:"溶解後變輕了 1 公克重，有一些食鹽消失了。",
+   opts:["食鹽溶解後，真的會變輕","電子秤壞掉了","裝食鹽的紙沒有放回秤上，少秤了紙的重量"], ans:2,
+   hint:"比一比兩臺秤上放的東西：溶解後少了什麼？",
+   explain:"溶解前秤了紙，溶解後也要把紙放回秤上；少掉的 1 公克重是紙的重量。"},
+  {k:"rod", btn:"③ 攪拌棒留在杯子裡",
+   panels:[{t:"溶解前",n:"燒杯和紙一起秤",g:78,k:"before"},{t:"溶解後",n:"攪拌棒還在杯子裡",g:84,k:"rod"}],
+   setup:"溶解後，攪拌棒沒有拿出來，留在燒杯裡一起秤。",
+   say:"溶解後變重了 6 公克重，食鹽溶解會讓水變重。",
+   opts:["攪拌棒留在燒杯裡，多秤了攪拌棒的重量","攪拌以後，食鹽變重了","攪拌太久，水變多了"], ans:0,
+   hint:"比一比兩臺秤上放的東西：溶解後多了什麼？",
+   explain:"溶解前沒有秤攪拌棒，溶解後也不能把它留在杯子裡；多出來的 6 公克重是攪拌棒的重量。"},
+  {k:"spill", btn:"④ 食鹽灑出來",
+   panels:[{t:"溶解前",n:"燒杯和紙一起秤",g:78,k:"before"},{t:"溶解後",n:"有食鹽灑在秤外面",g:75,k:"spill"}],
+   setup:"把紙上的食鹽倒進燒杯時，有一些灑到電子秤外面的桌上。",
+   say:"溶解後變輕了 3 公克重，有一些食鹽溶解後消失了。",
+   opts:["食鹽溶解後，就沒有重量了","紙在溶解後變輕了","有一些食鹽灑在秤外面，沒有秤到"], ans:2,
+   hint:"看看秤的旁邊：桌上有什麼？",
+   explain:"灑在秤外面的食鹽沒有被秤到，讀數才變少——不是食鹽消失了。倒的時候要小心。"}
+];
+const vDone=new Set();
+function buildVlab(){
+  VLAB.forEach((v,i)=>{
+    const btn=document.createElement("button");
+    btn.type="button"; btn.className="vbtn"; btn.textContent=v.btn; btn.setAttribute("aria-pressed","false");
+    btn.addEventListener("click",()=>showV(i));
+    $("vBtns").appendChild(btn);
+    const st=document.createElement("div");
+    st.className="vstage hidden"; st.id="vs-"+v.k;
+    st.innerHTML=`<div class="figcard">${scaleScene(v.panels)}</div>
+      <p class="vsetup">${v.setup}</p>
+      <div class="wrongsay"><span class="lbl">這一組寫下的結論</span>「${v.say}」</div>
+      <div class="ask">哪裡出錯？</div>
+      <div class="vq" style="margin-top:12px"></div>
+      <div class="feedback" aria-live="polite"></div>
+      <div class="vmore hidden"></div>`;
+    $("vStages").appendChild(st);
+    const fb=st.querySelector(".feedback");
+    choiceQ(st.querySelector(".vq"),v.opts,v.opts[v.ans],
+      ()=>{
+        fb.className="feedback good"; fb.textContent="✅ 找到了！"+v.explain;
+        vDone.add(i); markV();
+        if(v.k==="zero") buildZeroMore(st.querySelector(".vmore"));
+        if(vDone.size===VLAB.length) $("vPoint").classList.remove("hidden");
+      },
+      ()=>{ fb.className="feedback hint"; fb.textContent="🤔 再想想（不扣分）："+v.hint; },
+      "col");
+  });
+}
+function showV(i){
+  VLAB.forEach((v,j)=>{ $("vs-"+v.k).classList.toggle("hidden",j!==i); });
+  $("vBtns").querySelectorAll(".vbtn").forEach((b,j)=>b.setAttribute("aria-pressed",String(j===i)));
+}
+function markV(){
+  $("vBtns").querySelectorAll(".vbtn").forEach((b,j)=>{ b.textContent=VLAB[j].btn+(vDone.has(j)?" ✓":""); });
+}
+/* ① 沒按歸零：再追問「真正的重量是多少？結論會變嗎？」 */
+function buildZeroMore(host){
+  host.classList.remove("hidden");
+  host.innerHTML=`<div class="ask">那麼，真正的重量是多少？</div>
+    <div class="zq" style="margin-top:12px"></div>
+    <div class="feedback" aria-live="polite"></div>
+    <div class="vconc hidden">結論會變嗎？<b>不會</b>：溶解前、後都多算了 2，扣掉以後都是 78 公克重，還是一樣重。可是寫下來的每個重量都錯了，所以秤之前一定要先歸零。
+      <div class="star">★ 想一想：如果沒歸零，又把「水和燒杯」「食鹽和紙」<b>分開</b>秤，再加起來，會怎樣？
+        <button class="btn plain small" type="button">看答案</button>
+        <span class="hidden">兩個讀數各多 2，加起來多 4：73＋9＝82；溶解後卻是 80，就會誤以為溶解後變輕了！</span></div>
+    </div>`;
+  const fb=host.querySelector(".feedback");
+  choiceQ(host.querySelector(".zq"),
+    ["溶解前、後都是 80 公克重","溶解前、後都是 78 公克重","溶解前、後都是 82 公克重"],
+    "溶解前、後都是 78 公克重",
+    ()=>{ fb.className="feedback good"; fb.textContent="✅ 對！80－2＝78。"; host.querySelector(".vconc").classList.remove("hidden"); },
+    ()=>{ fb.className="feedback hint"; fb.textContent="🤔 再想想（不扣分）：每個讀數都多了空秤顯示的 2，要加還是要減？"; },
+    "col");
+  const sb=host.querySelector(".star button");
+  sb.addEventListener("click",()=>{ sb.nextElementSibling.classList.remove("hidden"); sb.classList.add("hidden"); });
+}
+buildVlab();
+
+/* ==========================================================
+   ② 溶質與溶劑＋出場卡
+   ========================================================== */
+let wordsOk=0;
+function wordsCheck(){ wordsOk++; if(wordsOk>=2) $("wordsCrit").classList.remove("hidden"); }
+choiceQ($("wQ1"),["甲　溶劑","乙　水溶液","丙　溶質"],"丙　溶質",
+  ()=>{ $("wF1").className="feedback good"; $("wF1").textContent="✅ 答對了！糖被水溶解，所以糖是溶質。"; wordsCheck(); },
+  o=>{ $("wF1").className="feedback hint";
+       $("wF1").textContent = o.includes("溶劑") ? "🤔 再想想（不扣分）：溶劑是「溶解別人的」。糖是溶解別人，還是被溶解？"
+                                                 : "🤔 再想想（不扣分）：水溶液是溶解以後的整杯糖水；只看被溶解的「糖」，叫做什麼？"; });
+choiceQ($("wQ2"),["甲　溶劑","乙　溶質","丙　水溶液"],"甲　溶劑",
+  ()=>{ $("wF2").className="feedback good"; $("wF2").textContent="✅ 答對了！水溶解了糖，所以水是溶劑。"; wordsCheck(); },
+  o=>{ $("wF2").className="feedback hint";
+       $("wF2").textContent = o.includes("溶質") ? "🤔 再想想（不扣分）：溶質是「被溶解的」。水是被溶解，還是溶解了別人？"
+                                                 : "🤔 再想想（不扣分）：水溶液是整杯糖水；只看溶解別人的「水」，叫做什麼？"; });
+let exitOk=0;
+choiceQ($("xQ1"),["○　對","╳　不對"],"╳　不對",
+  ()=>{ $("xF1").className="feedback good"; $("xF1").textContent="✅ 答對了！食鹽溶解後看不見，但沒有消失。"; exitDone(); },
+  ()=>{ $("xF1").className="feedback hint"; $("xF1").textContent="🤔 再想想（不扣分）：溶解前後的總重量一樣，食鹽還在不在水裡？"; });
+choiceQ($("xQ2"),["甲　變輕","乙　不變","丙　變重"],"乙　不變",
+  ()=>{ $("xF2").className="feedback good"; $("xF2").textContent="✅ 答對了！溶解前後的總重量一樣。"; exitDone(); },
+  ()=>{ $("xF2").className="feedback hint"; $("xF2").textContent="🤔 再想想（不扣分）：回想 ① 站的示意圖，溶解前、後各是幾公克重？"; });
+function exitDone(){ exitOk++; if(exitOk>=2){ $("xF2").textContent+="　🎫 出場卡完成！"; } }
+
+/* ==========================================================
+   ③ 取回溶質：老師的盤子、蒸發時間軸（示意）、為什麼、曬鹽與熬紅糖
+   ========================================================== */
+teacherPhoto($("tpDry"),"teacher-dry.jpg");
+/* 淺盤的側面示意圖：第 1、2、3 天各一張小圖（還沒按到的天數先畫「？」，讓全班先猜；手機上只顯示目前這一天） */
+const EVAP_DAYS=[
+  {t:"第 1 天", water:20, salt:0, n:["水還很多"]},
+  {t:"第 2 天", water:9,  salt:1, n:["水變少，","開始出現白色顆粒"]},
+  {t:"第 3 天", water:0,  salt:2, n:["水不見了，","留下白色的食鹽"]}
+];
+function evapDaySVG(d,hidden){
+  const W=200, H=250, T=svgT, cx=100;
+  let b=`<rect width="${W}" height="${H}" fill="#FFFDF8"/>`+T(cx,22,d.t,{size:22,w:900});
+  if(hidden){
+    b+=`<rect x="22" y="44" width="156" height="146" rx="12" fill="#F2EEE4" stroke="#C9C2B4" stroke-width="2" stroke-dasharray="6 5"/>`
+      +T(cx,116,"？",{size:46,w:900,fill:"#6B7A82"})+T(cx,214,"先猜猜看",{size:18,fill:"#6B7A82"});
+    return `<svg class="qfig" viewBox="0 0 ${W} ${H}" role="img" aria-label="${d.t}：還沒揭曉，先猜猜看" xmlns="http://www.w3.org/2000/svg" ${SVG_FONT}>${b}</svg>`;
+  }
+  /* 往上跑的水分（波浪線） */
+  if(d.water>0){
+    for(let k=0;k<3;k++){ const wx=cx-32+k*32;
+      b+=`<path d="M${wx} 138 q -6 -9 0 -18 q 6 -9 0 -18 q -6 -9 0 -18" fill="none" stroke="#2E86C1" stroke-width="2.5" stroke-linecap="round" opacity="${d.water>10?1:.6}"/>`; }
+    b+=T(cx,58,"水分蒸發",{size:16,fill:"#2E86C1"});
+  }
+  /* 淺盤（側面）：上寬下窄 */
+  const top=150, bot=180, L0=28, R0=172, L1=46, R1=154;
+  const wallX=(y,left)=>{ const f=(y-top)/(bot-top); return left? L0+(L1-L0)*f : R0+(R1-R0)*f; };
+  if(d.water>0){
+    const wy=bot-d.water;
+    b+=`<path d="M${wallX(wy,true)} ${wy} H${wallX(wy,false)} L${R1} ${bot} H${L1} Z" fill="#BFE3F7"/>`
+      +`<line x1="${wallX(wy,true)}" y1="${wy}" x2="${wallX(wy,false)}" y2="${wy}" stroke="#2E86C1" stroke-width="2"/>`;
+  }
+  /* 食鹽顆粒（白色小方塊、灰色外框） */
+  const crystals = d.salt===1 ? [[52,174],[60,176],[140,174],[132,176],[96,177]]
+                 : d.salt===2 ? Array.from({length:16},(_,k)=>[50+k*6.4,(k%2?172:175)]).concat([[62,168],[84,169],[110,168],[134,169]]) : [];
+  crystals.forEach(([dx,dy])=>{ b+=`<rect x="${dx-2.6}" y="${dy-2.6}" width="5.2" height="5.2" fill="#fff" stroke="#777" stroke-width="1"/>`; });
+  b+=`<path d="M${L0} ${top} L${L1} ${bot} H${R1} L${R0} ${top}" fill="none" stroke="#1E1E1E" stroke-width="3" stroke-linejoin="round"/>`;
+  if(d.salt===2) b+=T(cx,144,"白色的食鹽",{size:16});
+  d.n.forEach((line,k)=>{ b+=T(cx,d.n.length>1?206+k*24:214,line,{size:18}); });
+  return `<svg class="qfig" viewBox="0 0 ${W} ${H}" role="img" aria-label="${d.t}：${d.n.join("")}" xmlns="http://www.w3.org/2000/svg" ${SVG_FONT}>${b}</svg>`;
+}
+function evapSVG(upto){
+  return `<div class="evgrid">${EVAP_DAYS.map((d,i)=>`<div class="day${i===upto?" cur":""}">${evapDaySVG(d,i>upto)}</div>`).join("")}</div>`
+    +`<p class="vnote">（示意圖：實際要幾天，看天氣和水量）</p>`;
+}
+let evapDay=0;
+function renderEvap(){
+  $("evapFig").innerHTML=evapSVG(evapDay);
+  $("dayPrev").disabled=evapDay===0;
+  $("dayNext").disabled=evapDay===2;
+}
+$("dayNext").addEventListener("click",()=>{ if(evapDay<2){ evapDay++; renderEvap(); } });
+$("dayPrev").addEventListener("click",()=>{ if(evapDay>0){ evapDay--; renderEvap(); } });
+renderEvap();
+choiceQ($("dryQ"),
+  ["白色顆粒是灰塵；食鹽跟著水一起跑掉了","白色顆粒是食鹽；跑掉的只有水","白色顆粒是水變成的；跑掉的是食鹽"],
+  "白色顆粒是食鹽；跑掉的只有水",
+  ()=>{ $("dryFeed").className="feedback good"; $("dryFeed").textContent="✅ 答對了！"; $("dryCrit").classList.remove("hidden"); },
+  o=>{ $("dryFeed").className="feedback hint";
+       $("dryFeed").textContent = o.startsWith("白色顆粒是灰塵")
+         ? "🤔 再想想（不扣分）：盤子裡本來倒的是食鹽水。食鹽如果跟著水跑掉，盤子上還會留下這麼多白色顆粒嗎？"
+         : "🤔 再想想（不扣分）：水會變成食鹽嗎？水分蒸發時，跑到空氣裡的是什麼？"; },
+  "col");
+renderFig($("seaFig"),"sea-salt");
+renderFig($("sugarFig"),"brown-sugar");
+$("lifeBtn").addEventListener("click",()=>{
+  $("lifeAns").classList.remove("hidden");
+  $("dryPoint").classList.remove("hidden");
+  $("lifeBtn").classList.add("hidden");
+  addTag($("seaFig"),83,56,"<b>留下來的鹽</b>","b");
+  addTag($("sugarFig"),58,58,"<b>愈熬愈濃的甘蔗汁</b>","t");
+});
+
+/* ==========================================================
+   ④ 闖關驗收　兩層：先選答案，再選「你怎麼知道？」
+   ★ 答對後一定要顯示「判準」，那是老師追問的素材。
+   ========================================================== */
+const QUIZ=[
+  {fig:{type:"weigh",items:[{lab:"前",state:"before",g:78},{lab:"後",state:"after",g:null}]},
+   figCap:"示意圖：溶解前 78 公克重；溶解後的讀數是「？」",
+   figAlt:"溶解前：電子秤顯示 78 公克重；溶解後：讀數是「？」（食鹽已攪拌溶解，空的紙也在秤上）。",
+   q:"看圖：溶解前的讀數是 78 公克重。食鹽倒進燒杯、攪拌到完全溶解後，燒杯和空的紙一起放回秤上。溶解後的讀數最可能是多少？",
+   opts:["甲　72 公克重","乙　78 公克重","丙　84 公克重"], ans:"乙　78 公克重",
+   r:["食鹽溶解後看不見，就沒有重量了","攪拌以後水會變多，所以變重","食鹽沒有消失，還在水裡，所以總重量一樣"],
+   rAns:"食鹽沒有消失，還在水裡，所以總重量一樣",
+   why:"看不見不等於消失。證據：溶解前「食鹽＋水＋燒杯」的總重量，和溶解後「食鹽水＋燒杯」的總重量一樣。"},
+  {q:"食鹽水裡，哪一個是溶質？",
+   opts:["甲　食鹽","乙　水","丙　食鹽水"], ans:"甲　食鹽",
+   r:["溶質是被溶解的物質，食鹽被水溶解了","溶質是可以溶解其他物質的那一個","溶質就是溶解以後的整杯水溶液"],
+   rAns:"溶質是被溶解的物質，食鹽被水溶解了",
+   why:"被溶解的是溶質，溶解其他物質的是溶劑。"},
+  {photo:"sea-salt",
+   q:"曬鹽是讓海水裡的什麼跑掉？",
+   opts:["甲　鹽","乙　海水裡的沙","丙　水分"], ans:"丙　水分",
+   r:["鹽和水分一起蒸發，所以鹽田會變乾","鹽留在鹽田上，所以才能收集起來","太陽把海水直接變成了鹽"],
+   rAns:"鹽留在鹽田上，所以才能收集起來",
+   why:"蒸發時跑掉的只有水，溶解的食鹽會留下來。"}
+];
+const MAX_SCORE=QUIZ.length*2;
+const RANKS=[{s:0,t:"🧂 溶解小學徒"},{s:3,t:"🔬 小科學家"},{s:5,t:"🏅 溶解偵探！"}];
+let qi=0, score=0, tries=0, skipped=0;
+function fmt(n){ return Number.isInteger(n)?String(n):n.toFixed(1); }
+function rankOf(s){ let r=RANKS[0]; RANKS.forEach(x=>{ if(s>=x.s) r=x; }); return r.t; }
+function renderDots(){
+  $("dots").innerHTML="";
+  QUIZ.forEach((_,i)=>{
+    const d=document.createElement("span");
+    d.className="dot"+(i<qi?" done":i===qi?" now":"");
+    $("dots").appendChild(d);
+  });
+}
+function renderQPhoto(q){
+  const box=$("qphoto"); box.innerHTML="";
+  $("quizwrap").classList.toggle("nophoto",!(q.photo||q.fig));
+  if(q.photo){
+    box.innerHTML=`<figure class="figbox"><div class="fig" id="qFig" style="--mh:50vh"></div>
+      <figcaption class="cap center">${PHOTOS[q.photo][2]}</figcaption></figure>`;
+    renderFig($("qFig"),q.photo);
+  }else if(q.fig){
+    box.innerHTML=`<figure class="figbox"><div class="figcard">${qfig(q.fig,q.figAlt)}</div>
+      <figcaption class="cap center">${q.figCap}</figcaption></figure>`;
+  }
+}
+function renderQ(){
+  const q=QUIZ[qi]; tries=0;
+  $("qprog").textContent=`第 ${qi+1} / ${QUIZ.length} 題`;
+  renderDots();
+  renderQPhoto(q);
+  $("q1title").textContent=q.q;
+  ["q1opts","q2opts"].forEach(id=>$(id).innerHTML="");
+  ["q1feed","q2feed"].forEach(id=>{ $(id).className="feedback"; $(id).textContent=""; });
+  $("step2").classList.add("hidden");
+  $("criterion").classList.add("hidden");
+  $("nextBtn").classList.add("hidden");
+  $("skipBtn").classList.remove("hidden");
+  choiceQ($("q1opts"),q.opts,q.ans,
+    ()=>{ addScore(); $("q1feed").className="feedback good"; $("q1feed").textContent="✅ 答對了！再說說你怎麼知道。"; $("step2").classList.remove("hidden");
+          $("step2").scrollIntoView({behavior:"smooth",block:"nearest"}); },
+    ()=>{ tries++; $("q1feed").className="feedback hint"; $("q1feed").textContent="🤔 再想想看，還可以再試。"; },
+    "col");
+  choiceQ($("q2opts"),q.r,q.rAns,
+    ()=>{
+      addScore();
+      $("q2feed").className="feedback"; $("q2feed").textContent="";
+      $("criterionText").textContent="💡 "+q.why;
+      $("criterion").classList.remove("hidden");
+      $("skipBtn").classList.add("hidden");
+      $("nextBtn").textContent= qi+1<QUIZ.length ? "下一題 →" : "看結果 →";
+      $("nextBtn").classList.remove("hidden");
+      $("nextBtn").scrollIntoView({behavior:"smooth",block:"nearest"});   /* 判準卡在按鈕正上方，一起帶進畫面 */
+    },
+    ()=>{ tries++; $("q2feed").className="feedback hint"; $("q2feed").textContent="🤔 這個理由說不通，再選一次。"; },
+    "col");
+}
+function addScore(){
+  score += tries===0 ? 1 : 0.5;   /* 答錯再試，分數減半 */
+  tries=0;
+  $("score").textContent=fmt(score);
+  $("rank").textContent=rankOf(score);
+}
+function nextQ(){
+  qi++;
+  if(qi>=QUIZ.length) showResult();
+  else{ renderQ(); $("quizPanel").scrollIntoView({behavior:"smooth",block:"nearest"}); }
+}
+$("nextBtn").addEventListener("click",nextQ);
+/* 跳過：課堂只做第 1、3 題時用（不計分） */
+$("skipBtn").addEventListener("click",()=>{ skipped++; nextQ(); });
+function showResult(){
+  renderDots();
+  $("qprog").textContent="完成！";
+  $("quizPanel").classList.add("hidden");
+  $("quizResult").classList.remove("hidden");
+  $("finalScore").textContent=`總分 ${fmt(score)} / ${MAX_SCORE}`;
+  $("finalRank").textContent=rankOf(score);
+  $("skipNote").textContent= skipped ? `跳過 ${skipped} 題，回家可以按「再挑戰一次」做完。` : "";
+  $("quizResult").scrollIntoView({behavior:"smooth",block:"start"});
+}
+$("againBtn").addEventListener("click",()=>{
+  qi=0; score=0; skipped=0; $("score").textContent="0"; $("rank").textContent=RANKS[0].t;
+  $("quizResult").classList.add("hidden");
+  $("quizPanel").classList.remove("hidden");
+  renderQ();
+  $("quizPanel").scrollIntoView({block:"start"});
+});
+renderQ();
+
+/* ---------- 開頁：網址有 #站名 就直接跳過去 ---------- */
+(function(){
+  const h=(location.hash||"").replace("#","");
+  if(STATIONS.indexOf(h)>0) go(h,false);
+})();
+</script>
+</body>
+</html>

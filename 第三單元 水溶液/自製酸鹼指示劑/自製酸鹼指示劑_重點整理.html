@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>自製酸鹼指示劑　重點整理</title>
+  <link rel="icon" href="../../image/icon.svg">
+  <style>
+    :root{--c-ink:#2c2f31;--c-soft:#55606a;--c-bg:#fff9f0;--c-brand:#f5a623;--c-brandS:#e8890b;--c-brandSoft:#fff2d9;--c-no:#e5484d;--c-noSoft:#fdeaea;--radius:16px;
+      --font:"Noto Sans TC","PingFang TC","Microsoft JhengHei","微軟正黑體",system-ui,-apple-system,sans-serif;}
+    *{box-sizing:border-box;}
+    body{margin:0;font-family:var(--font);color:var(--c-ink);background:var(--c-bg);line-height:1.75;font-size:18px;}
+    .wrap{width:min(880px,92vw);margin:0 auto;}
+    .site-header{background:linear-gradient(135deg,var(--c-brand),var(--c-brandS));color:#fff;padding:24px 0;}
+    .site-header .wrap{display:flex;align-items:center;gap:14px;}
+    .site-header img{width:50px;height:50px;}
+    .site-header h1{margin:0;font-size:1.5rem;}
+    .site-header p{margin:2px 0 0;opacity:.92;font-size:.95rem;}
+    .breadcrumb{padding:14px 0;font-size:.95rem;}
+    .breadcrumb a{color:var(--c-brandS);text-decoration:none;margin-right:14px;display:inline-block;padding:9px 0;min-height:44px;}
+    .breadcrumb a:hover{text-decoration:underline;}
+    .keypoint{background:#fff;border:1px solid #ece3d6;border-left:5px solid var(--c-brand);border-radius:12px;
+      padding:14px 16px;margin:12px 0;box-shadow:0 6px 20px rgba(90,70,30,.08);}
+    .keypoint.danger{border-left-color:var(--c-no);background:var(--c-noSoft);}
+    .keypoint b{color:var(--c-brandS);}
+    .keypoint.danger b{color:var(--c-no);}
+    .keytab{width:100%;border-collapse:collapse;margin:14px 0;background:#fff;border-radius:12px;overflow:hidden;
+      box-shadow:0 6px 20px rgba(90,70,30,.08);}
+    .keytab th,.keytab td{border:1px solid #ece3d6;padding:10px 12px;text-align:center;}
+    .keytab th{background:var(--c-brandSoft);color:var(--c-brandS);}
+    .keytab td.l{text-align:left;}
+    h2{font-size:1.3rem;}
+    .toolbar{margin:18px 0;}
+    .btn{cursor:pointer;border:none;border-radius:999px;padding:10px 20px;font-family:inherit;font-size:1rem;font-weight:700;background:var(--c-brand);color:#fff;min-height:44px;}
+    .btn:hover{background:var(--c-brandS);}
+    .site-footer{margin:40px 0 26px;text-align:center;color:var(--c-soft);font-size:.9rem;}
+    .site-footer a{color:var(--c-brandS);}
+    .print-title{display:none;}
+    .keytab td.grp{font-weight:800;color:var(--c-brandS);background:#fffaf1;}
+    .nobr{white-space:nowrap;}
+    /* 階梯圖（步驟） */
+    .ladder{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;
+      background:#fff;border:1px solid #ece3d6;border-radius:12px;padding:16px;margin:14px 0;
+      box-shadow:0 6px 20px rgba(90,70,30,.08);}
+    .step{text-align:center;min-width:120px;}
+    .step .box{font-size:2rem;line-height:1.2;}
+    .step .nm{font-weight:800;color:var(--c-brandS);}
+    .step .ds{font-size:.85em;color:var(--c-soft);}
+    .step .ds b{color:var(--c-ink);font-size:1.15em;}
+    .arrow{font-size:1.6rem;color:var(--c-soft);}
+    /* 每格都放一段話：平均分寬、不換行成兩列 */
+    .ladder.wide{flex-wrap:nowrap;align-items:stretch;}
+    .ladder.wide .step{flex:1 1 0;min-width:0;}
+    .ladder.wide .arrow{flex:none;align-self:center;}
+    /* 迷思清單、一般清單：開頭符號凸出來，第二行對齊文字 */
+    .nope,.list{margin:0;padding:0;list-style:none;}
+    .nope li,.list li{padding-left:1.6em;text-indent:-1.6em;margin:2px 0;}
+    .note{font-size:.88em;color:var(--c-soft);margin:4px 0 0;}
+    .keypoint.soft{border-left-color:#b9ad9b;box-shadow:none;}
+    .keypoint.soft b{color:var(--c-ink);}
+    /* 補充框（次要） */
+    .extra{background:#f4f7ff;border:1px dashed #9db4e0;border-radius:12px;padding:12px 16px;margin:28px 0 14px;
+      font-size:.9em;color:#3f5488;}
+    .extra b{color:#2f4680;}
+    .extra .ttl{display:flex;flex-wrap:wrap;align-items:baseline;gap:0 10px;}
+    .extra .ttl small{font-size:.88em;color:#52679a;}
+    .extra ul{margin:4px 0 0;padding-left:1.2em;}
+
+    /* ===== 本課新增 ===== */
+    .must3{margin:0;padding-left:1.6em;}
+    .must3 li{margin:4px 0;font-weight:700;}
+    .step .num{display:inline-flex;align-items:center;justify-content:center;width:1.9em;height:1.9em;border-radius:50%;
+      border:2px solid var(--c-ink);font-weight:900;font-size:1.1rem;background:#fff;}
+    .step.cur .num{background:var(--c-brandSoft);}
+    a.ext{color:var(--c-brandS);font-weight:700;}
+    /* 顏色表：色塊旁一定有字（色弱、黑白列印也看得懂） */
+    .sw{display:inline-block;width:1.4em;height:1.4em;border-radius:6px;border:2px solid var(--c-ink);vertical-align:-.3em;margin-right:6px;
+      -webkit-print-color-adjust:exact;print-color-adjust:exact;}
+    .sw.red{background:#E2557F}.sw.pur{background:#8A5BB8}.sw.blu{background:#3A9AA8}.sw.grn{background:#5AAA4A}
+    .cword{font-weight:800;}
+    /* 其他植物汁液：課本 80 頁照片（小圖，不放大超過 1.5 倍） */
+    .ptab td{vertical-align:middle;}
+    .ptab .strip img{display:block;width:100%;max-width:500px;height:auto;margin:0 auto;border-radius:6px;}
+    .ptab .pn{font-weight:800;white-space:nowrap;}
+    .ptab .pd{font-size:.88em;color:var(--c-soft);text-align:left;}
+    .img-fallback{display:block;font-size:.8em;color:var(--c-soft);border:1px dashed #cfc3b1;border-radius:6px;padding:4px;}
+    /* pH 數線（示意） */
+    .phfig{margin:10px auto 0;max-width:760px;}
+    .phfig svg{display:block;width:100%;height:auto;border:1px solid #ece3d6;border-radius:10px;background:#FFFDF8;}
+    .phfig figcaption{font-size:.85em;color:var(--c-soft);text-align:center;}
+    .phtab td.l{line-height:1.6;}
+
+    @media print{
+      @page{size:A4;margin:14mm;}
+      body{background:#fff;color:#000;font-size:11pt;line-height:1.5;}
+      .site-header,.breadcrumb,.toolbar,.site-footer{display:none!important;}
+      .keypoint,.keytab,.ladder,.extra{box-shadow:none;break-inside:avoid;}
+      .keypoint.danger,.keytab th,.keytab td.grp,.extra{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+      .print-title{display:block;margin:0 0 4px;font-size:15pt;font-weight:800;}
+      .print-title small{font-size:9.5pt;font-weight:400;color:#555;margin-left:10px;}
+      /* 每個段落整段不跨頁 */
+      .sec{break-inside:avoid;}
+      h2{break-after:avoid;font-size:13pt;margin:.5em 0 .2em;}
+      p{margin:.3em 0;}
+      .keypoint{padding:5px 10px;margin:5px 0;}
+      .keytab{margin:5px 0;}
+      .keytab th,.keytab td{padding:2px 8px;}
+      .ladder{padding:4px 6px;margin:5px 0;}
+      .nope li,.list li{margin:0;}
+      .step .box{font-size:1.3rem;}
+      .step .ds{line-height:1.45;}
+      .note{margin:2px 0 0;}
+      .extra{padding:5px 14px;margin:6px 0 0;font-size:10pt;line-height:1.45;}
+      .must3 li{margin:1px 0;}
+      .ptab .strip img{max-width:62mm;}
+      .phfig{max-width:150mm;margin-top:4px;}
+    }
+
+    /* ===== RWD：手機 / 平板 / 筆電 / 75 吋觸控螢幕 ===== */
+    @media (max-width:640px){
+      body{font-size:16px;line-height:1.65;}
+      .wrap{width:94vw;}
+      .site-header{padding:16px 0;}
+      .site-header img{width:38px;height:38px;}
+      .site-header h1{font-size:1.22rem;}
+      .site-header p{font-size:.82rem;}
+      h2{font-size:1.1rem;}
+      .keypoint{padding:11px 12px;border-radius:10px;margin:9px 0;}
+      .keytab{font-size:.88em;}
+      .keytab th,.keytab td{padding:7px 5px;}
+      .btn{padding:12px 20px;}
+      .ladder{gap:6px;padding:12px;}
+      .ladder .step{min-width:96px;}
+      .arrow{font-size:1.2rem;}
+      /* 手機：步驟改成直向，箭頭朝下 */
+      .ladder.v3{flex-direction:column;gap:2px;}
+      .ladder.v3 .arrow{transform:rotate(90deg);line-height:1;}
+      .ladder.wide{align-items:center;}
+      .ladder.wide .step{flex:0 0 auto;width:100%;max-width:26em;}
+      /* 植物汁液表：手機上色塊照片換到名稱下面 */
+      .ptab tr{display:grid;grid-template-columns:minmax(0,1fr);}
+      .ptab tr:first-child{display:none;}
+      .ptab td{border-width:0 0 1px;}
+      .ptab .pd{text-align:center;}
+    }
+    @media (min-width:641px) and (max-width:1024px){ .wrap{width:94vw;} }
+    @media (min-width:1800px){
+      body{font-size:23px;}
+      .wrap{width:min(1250px,90vw);}
+      .site-header{padding:34px 0;}
+      .site-header img{width:70px;height:70px;}
+      .site-header h1{font-size:2rem;}
+      h2{font-size:1.6rem;}
+      .keypoint{padding:20px 24px;border-radius:16px;}
+      .keytab th,.keytab td{padding:15px 18px;}
+      .btn{font-size:1.15rem;padding:14px 28px;}
+      .ladder .step{min-width:180px;}
+      .ladder.wide .step{min-width:0;}
+      .ladder .step .box{font-size:3rem;}
+      .extra{padding:18px 24px;}
+      .ptab .strip img{max-width:535px;}
+      .phfig{max-width:1100px;}
+    }
+    @media (min-width:2600px){
+      body{font-size:30px;}
+      .wrap{width:min(1750px,88vw);}
+      .site-header img{width:94px;height:94px;}
+      .site-header h1{font-size:2.6rem;}
+      h2{font-size:2.1rem;}
+      .keytab th,.keytab td{padding:20px 24px;}
+      .ladder .step{min-width:240px;}
+      .ladder.wide .step{min-width:0;}
+      .ladder .step .box{font-size:4rem;}
+      .phfig{max-width:1500px;}
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap">
+      <img src="../../image/icon.svg" alt="站標">
+      <div>
+        <h1>自製酸鹼指示劑</h1>
+        <p>單元重點整理 · 五年級自然｜第三單元 水溶液　課本 74–75、80 頁</p>
+      </div>
+    </div>
+  </header>
+
+  <nav class="breadcrumb wrap">
+    <a href="../../index.html">← 回首頁</a><a href="自製酸鹼指示劑_互動教材.html">← 回互動教材</a><a href="自製酸鹼指示劑_學習單.html">📄 學習單</a>
+  </nav>
+
+  <main class="wrap">
+    <div class="toolbar"><button class="btn" onclick="window.print()">🖨️ 列印重點</button></div>
+    <div class="print-title">自製酸鹼指示劑　重點整理<small>五年級自然｜第三單元 水溶液　課本 74–75、80 頁</small></div>
+
+    <section class="sec">
+      <h2>⭐ 必會 3 句</h2>
+      <div class="keypoint">
+        <ol class="must3">
+          <li>紫色高麗菜汁遇到酸性水溶液偏紅色，遇到中性偏紫色，遇到鹼性偏藍色或綠色。</li>
+          <li>紫色高麗菜、紅鳳菜、蝶豆花含有花青素，遇到酸性或鹼性水溶液，顏色會產生變化。</li>
+          <li>植物汁液遇到酸鹼的顏色變化有規律，就可以當作酸鹼指示劑。</li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="sec">
+      <h2>🔬 科學探究的步驟（課本 74 頁）</h2>
+      <div class="ladder v3 wide">
+        <div class="step"><div class="box"><span class="num">1</span></div><div class="nm">觀察</div><div class="ds">紫色高麗菜沙拉加醋，發現<b>紫色高麗菜會變色</b></div></div>
+        <div class="arrow">→</div>
+        <div class="step"><div class="box"><span class="num">2</span></div><div class="nm">提問</div><div class="ds">顏色變化<b>能不能用來辨認</b>醋或其他調味料的酸鹼性？</div></div>
+        <div class="arrow">→</div>
+        <div class="step"><div class="box"><span class="num">3</span></div><div class="nm">蒐集資料</div><div class="ds">上網查「植物汁液變色」：紫色高麗菜、紅鳳菜、蝶豆花含有<b>花青素</b></div></div>
+        <div class="arrow">→</div>
+        <div class="step"><div class="box"><span class="num">4</span></div><div class="nm">假設</div><div class="ds">做實驗<b>之前</b>先猜：植物汁液遇到酸鹼，會有<b>規律</b>的顏色變化</div></div>
+        <div class="arrow">→</div>
+        <div class="step"><div class="box"><span class="num">5</span></div><div class="nm">實驗</div><div class="ds">把紫色高麗菜汁滴進<b>不同酸鹼</b>的水溶液，觀察顏色</div></div>
+        <div class="arrow">→</div>
+        <div class="step"><div class="box"><span class="num">6</span></div><div class="nm">結論</div><div class="ds">看了結果<b>之後</b>說：顏色變化不同，但<b>都有規律</b>，可以當酸鹼指示劑</div></div>
+      </div>
+      <div class="keypoint">🥬 <b>紫色高麗菜汁的做法</b>（課本 74 頁）：① 把紫色高麗菜剝成小碎片 → ② 小碎片泡在<b>熱的純水</b>裡約 10 分鐘 → ③ 過濾汁液。<br>
+        過濾去掉的是<b>菜渣</b>；花青素是<b>水溶性色素</b>，會溶在水中，留在汁液裡。</div>
+      <p class="note">⚠️ 熱水只由老師處理；高麗菜汁雖然是用食物做的，實驗用的東西<b>一律不嘗</b>。這個實驗由老師在課堂示範，回家不用做。</p>
+    </section>
+
+    <section class="sec">
+      <h2>🎨 紫色高麗菜汁的顏色表（課本 75 頁）</h2>
+      <table class="keytab">
+        <tr><th style="width:22%">酸鹼性</th><th style="width:36%">滴入紫色高麗菜汁後</th><th>例子（石蕊試紙測過）</th></tr>
+        <tr><td class="grp">酸性</td><td><span class="sw red" aria-hidden="true"></span><span class="cword">偏紅色</span></td><td>醋、檸檬酸水</td></tr>
+        <tr><td class="grp">中性</td><td><span class="sw pur" aria-hidden="true"></span><span class="cword">偏紫色</span></td><td>食鹽水、糖水</td></tr>
+        <tr><td class="grp">鹼性</td><td><span class="sw blu" aria-hidden="true"></span><span class="cword">偏藍色</span>或<span class="sw grn" aria-hidden="true" style="margin-left:6px"></span><span class="cword">綠色</span></td><td>小蘇打水（偏藍綠）、肥皂水（偏綠）</td></tr>
+      </table>
+      <div class="keypoint">💡 紫色高麗菜汁：偏紅色＝酸性，偏紫色＝中性，偏藍色或綠色＝鹼性。<br>
+        💡 小蘇打水偏藍綠、肥皂水偏綠，顏色不太一樣，但都是鹼性。</div>
+      <p class="note">🔍 先用<b>已經知道酸鹼性</b>的水溶液找出顏色的規律，再拿去判斷不知道的水溶液。色塊只是示意，真正的顏色請看課本 75 頁的照片。</p>
+    </section>
+
+    <section class="sec">
+      <h2>🌿 其他植物汁液（課本 80 頁）</h2>
+      <table class="keytab ptab">
+        <tr><th style="width:22%">植物汁液</th><th>從酸性（左）到鹼性（右）的顏色</th></tr>
+        <tr><td><div class="pn">紫色高麗菜汁</div><div class="pd">偏紅 → 偏紫 → 偏藍或綠</div></td><td class="strip"><img src="photos/p80-row-cabbage.jpg" alt="紫色高麗菜汁從酸性到鹼性的顏色" loading="lazy" onerror="this.outerHTML='&lt;span class=&quot;img-fallback&quot;&gt;（照片：課本 80 頁）&lt;/span&gt;'"></td></tr>
+        <tr><td><div class="pn">紅鳳菜汁</div><div class="pd">和紫色高麗菜汁不一樣，但有規律</div></td><td class="strip"><img src="photos/p80-row-gynura.jpg" alt="紅鳳菜汁從酸性到鹼性的顏色" loading="lazy" onerror="this.outerHTML='&lt;span class=&quot;img-fallback&quot;&gt;（照片：課本 80 頁）&lt;/span&gt;'"></td></tr>
+        <tr><td><div class="pn">蝶豆花花瓣汁</div><div class="pd">偏紫紅 → 藍色 → 偏藍綠到綠（課本 62 頁）</div></td><td class="strip"><img src="photos/p80-row-pea.jpg" alt="蝶豆花花瓣汁從酸性到鹼性的顏色" loading="lazy" onerror="this.outerHTML='&lt;span class=&quot;img-fallback&quot;&gt;（照片：課本 80 頁）&lt;/span&gt;'"></td></tr>
+        <tr><td><div class="pn">火龍果果皮汁</div><div class="pd">顏色變化也不一樣，但有規律</div></td><td class="strip"><img src="photos/p80-row-dragonfruit.jpg" alt="火龍果果皮汁從酸性到鹼性的顏色" loading="lazy" onerror="this.outerHTML='&lt;span class=&quot;img-fallback&quot;&gt;（照片：課本 80 頁）&lt;/span&gt;'"></td></tr>
+        <tr><td><div class="pn">葡萄果皮汁</div><div class="pd">顏色變化也不一樣，但有規律</div></td><td class="strip"><img src="photos/p80-row-grape.jpg" alt="葡萄果皮汁從酸性到鹼性的顏色" loading="lazy" onerror="this.outerHTML='&lt;span class=&quot;img-fallback&quot;&gt;（照片：課本 80 頁）&lt;/span&gt;'"></td></tr>
+      </table>
+      <div class="keypoint">💡 p.80 的這幾種植物汁液，遇到酸鹼的顏色變化不一樣，但都有規律，所以都能當酸鹼指示劑；看不出顏色變化的汁液，不適合當酸鹼指示劑。</div>
+      <p class="note">例如白蘿蔔汁沒有顏色，滴進酸性或鹼性水溶液都看不出變化，不適合。不同汁液滴進同一杯，顏色不一樣，<b>不是</b>汁液壞了。</p>
+    </section>
+
+    <section class="sec">
+      <h2>📏 用 pH 值表示酸鹼（課本 80 頁）</h2>
+      <div class="keypoint">💡 pH 值小於 7 是酸性，等於 7 是中性，大於 7 是鹼性。</div>
+      <figure class="phfig">
+        <svg viewBox="0 0 760 130" role="img" aria-label="pH 值數線示意圖：0 到 14，小於 7 是酸性，等於 7 是中性，大於 7 是鹼性" xmlns="http://www.w3.org/2000/svg" font-family="Microsoft JhengHei,PingFang TC,Noto Sans TC,sans-serif">
+          <rect width="760" height="130" fill="#FFFDF8"/>
+          <rect x="30" y="34" width="700" height="14" rx="7" fill="#EDE7DA" stroke="#1E1E1E" stroke-width="2"/>
+          <g stroke="#1E1E1E" stroke-width="2">
+            <line x1="30" y1="34" x2="30" y2="56"/><line x1="80" y1="34" x2="80" y2="56"/><line x1="130" y1="34" x2="130" y2="56"/><line x1="180" y1="34" x2="180" y2="56"/><line x1="230" y1="34" x2="230" y2="56"/>
+            <line x1="280" y1="34" x2="280" y2="56"/><line x1="330" y1="34" x2="330" y2="56"/><line x1="380" y1="34" x2="380" y2="56"/><line x1="430" y1="34" x2="430" y2="56"/><line x1="480" y1="34" x2="480" y2="56"/>
+            <line x1="530" y1="34" x2="530" y2="56"/><line x1="580" y1="34" x2="580" y2="56"/><line x1="630" y1="34" x2="630" y2="56"/><line x1="680" y1="34" x2="680" y2="56"/><line x1="730" y1="34" x2="730" y2="56"/>
+          </g>
+          <circle cx="380" cy="41" r="10" fill="#fff" stroke="#1E1E1E" stroke-width="3"/>
+          <g font-size="19" font-weight="700" fill="#1E1E1E" text-anchor="middle">
+            <text x="30" y="74">0</text><text x="80" y="74">1</text><text x="130" y="74">2</text><text x="180" y="74">3</text><text x="230" y="74">4</text><text x="280" y="74">5</text><text x="330" y="74">6</text><text x="380" y="74">7</text>
+            <text x="430" y="74">8</text><text x="480" y="74">9</text><text x="530" y="74">10</text><text x="580" y="74">11</text><text x="630" y="74">12</text><text x="680" y="74">13</text><text x="730" y="74">14</text>
+          </g>
+          <path d="M30 84 V92 H364 V84" fill="none" stroke="#1E1E1E" stroke-width="2"/>
+          <path d="M396 84 V92 H730 V84" fill="none" stroke="#1E1E1E" stroke-width="2"/>
+          <g font-size="21" font-weight="900" fill="#1E1E1E" text-anchor="middle">
+            <text x="197" y="116">酸性：小於 7</text><text x="380" y="116">中性</text><text x="563" y="116">鹼性：大於 7</text>
+          </g>
+          <text x="380" y="22" font-size="15" text-anchor="middle" fill="#4A5960">pH 值（示意圖，數線不代表顏色）</text>
+        </svg>
+        <figcaption>pH 值數線的示意圖（不是照片）</figcaption>
+      </figure>
+      <table class="keytab phtab">
+        <tr><th style="width:24%">酸鹼性</th><th>課本 80 頁的例子（pH 值）</th></tr>
+        <tr><td class="grp">酸性<br><small>小於 7</small></td><td class="l">鹽酸 約 1、檸檬 約 2、可樂 約 2.5、食用醋 約 3、蘋果汁 約 3.5、酸雨 約 4.5</td></tr>
+        <tr><td class="grp">中性<br><small>等於 7</small></td><td class="l">純水 7</td></tr>
+        <tr><td class="grp">鹼性<br><small>大於 7</small></td><td class="l">小蘇打溶液 約 8.5、漂白水 約 11.5、飽和石灰水 約 12.5</td></tr>
+      </table>
+      <p class="note">🥤 甜甜的可樂、蘋果汁，pH 值都小於 7，是<b>酸性</b>。鹽酸、漂白水很危險，只看數線，不拿來做實驗。</p>
+    </section>
+
+    <section class="sec">
+      <h2>⚠️ 容易搞混的地方</h2>
+      <div class="keypoint danger">
+        <ul class="nope">
+          <li>❌「紫色高麗菜汁的顏色是葉綠素造成的」→ 不對！是<b>花青素</b>（水溶性色素）。</li>
+          <li>❌「過濾是為了把花青素去掉」→ 不對！過濾去掉的是<b>菜渣</b>，花青素留在汁液裡。</li>
+          <li>❌「小蘇打水偏藍綠、肥皂水偏綠，顏色不完全一樣，所以酸鹼性不同」→ 不對！兩杯<b>都是鹼性</b>。</li>
+          <li>❌「甜的飲料都是中性」→ 不對！可樂、蘋果汁是<b>酸性</b>。</li>
+        </ul>
+      </div>
+    </section>
+
+    <aside class="extra sec">
+      <div class="ttl">📒 <b>習作補充（P.33 學習塗鴉牆）</b><small>看看就好</small></div>
+      <ul>
+        <li><b>廣用試紙</b>可以對照<b>色度表</b>，判讀 pH 值。</li>
+        <li>它的顏色規則和紫色高麗菜汁<b>不一樣</b>：廣用試紙中性是綠色系，紫色高麗菜汁中性是偏紫。不要混在一起。</li>
+      </ul>
+    </aside>
+
+    <section class="sec">
+      <h2>🎯 想多練習</h2>
+      <div class="keypoint soft">自由練習，<b>不是作業</b>；用眼 30 分鐘要休息 10 分鐘。<br>
+        打開 <a class="ext" href="../../題庫/index.html?exam=exam2">第二次評量線上題庫</a> →「📚 主題練習」→ 選「<b>自製酸鹼指示劑</b>」（課本 74–75、80）。<br>
+        <span class="note">「素養題組」裡的〈小芸的蝶豆花實驗〉〈小翔整理的 pH 值〉，也是這一課的內容。</span></div>
+    </section>
+
+  </main>
+
+  <footer class="site-footer"><div class="wrap"><a href="../../index.html">← 回首頁</a> · <a href="自製酸鹼指示劑_互動教材.html">互動教材</a> · <a href="自製酸鹼指示劑_學習單.html">學習單</a> · 豬豬的自然探索 · 教學依據：<a href="https://reader.nani.com.tw/9200a013cbef8e66" target="_blank" rel="noopener">南一自然課本，第 74–75、80 頁</a> · 植物汁液顏色照片：課本第 80 頁 · 顏色表的色塊、pH 值數線是示意圖</div></footer>
+</body>
+</html>

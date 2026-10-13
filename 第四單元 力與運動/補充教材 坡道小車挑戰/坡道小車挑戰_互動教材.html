@@ -1,0 +1,251 @@
+<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>坡道小車挑戰｜互動教材</title><link rel="icon" href="../../image/icon.svg"><style>
+/* ==========================================================
+   坡道小車挑戰 — 樣式表
+   使用情境：教室 75 吋觸控螢幕、學生的手機都要能玩。
+   沿用第二單元遊戲的調色盤與 overlay 結構。
+   ========================================================== */
+:root{
+  --bg:#FDF6EC; --ink:#1E1E1E;
+  --green:#58B159; --green-dark:#2E7D4F;
+  --water:#4FB0E5; --water-dark:#2E86C1;
+  --sun:#FFC93C; --coral:#FF7F66; --coral-dark:#E4574C;
+  --card:#FFFFFF; --muted:#6B7A82;
+  --shadow:0 6px 18px rgba(46,86,110,.16);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  min-height:100vh;color:var(--ink);background:var(--bg);
+  font-family:-apple-system,"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif;
+  font-size:clamp(16px,1.7vw,21px);line-height:1.6;
+}
+#app{max-width:1240px;margin:0 auto;padding:10px 14px 34px}
+
+/* ---------- 頁首 ---------- */
+.sitehead{margin-bottom:10px}
+.headrow{display:flex;align-items:center;gap:6px 14px;flex-wrap:wrap}
+.back{
+  display:inline-flex;align-items:center;min-height:44px;padding:4px 16px;
+  border:3px solid var(--ink);border-radius:999px;background:var(--card);color:var(--ink);
+  font-weight:800;text-decoration:none;box-shadow:0 3px 0 var(--ink);font-size:clamp(14px,1.3vw,17px);
+}
+.back:active{transform:translateY(2px);box-shadow:0 1px 0 var(--ink)}
+.sitehead h1{margin:0;font-size:clamp(21px,2.5vw,31px);font-weight:900;letter-spacing:.5px}
+.sitehead .sub{color:var(--muted);font-size:clamp(13px,1.3vw,17px);font-weight:700}
+
+/* ---------- HUD ---------- */
+#hud{
+  display:flex;align-items:center;gap:8px 14px;flex-wrap:wrap;
+  background:var(--card);border:3px solid var(--ink);border-radius:22px;padding:6px 16px;
+  box-shadow:var(--shadow);margin-bottom:10px;font-weight:900;min-height:56px;
+}
+#hud .pill{background:#FFF6D8;border:2px solid var(--sun);border-radius:999px;padding:2px 12px;font-size:.88em}
+#hud .grow{margin-left:auto;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+#usedChain{display:flex;gap:4px;font-size:.9em;letter-spacing:1px;min-height:1.4em}
+#usedChain .u{border:2px solid var(--ink);border-radius:8px;padding:0 6px;background:#fff}
+#sndBtn{
+  border:3px solid var(--ink);border-radius:999px;background:var(--card);
+  font:inherit;font-weight:900;cursor:pointer;padding:2px 12px;min-height:40px;
+}
+
+/* ---------- 舞台 ---------- */
+#stage{position:relative;border:3px solid var(--ink);border-radius:20px;overflow:hidden;box-shadow:var(--shadow);background:#BFE3F5}
+#cv{display:block;width:100%;height:clamp(280px,50vh,470px);touch-action:manipulation}
+.overlay{
+  position:absolute;inset:0;display:none;background:rgba(253,246,236,.94);
+  padding:14px;overflow:auto;
+}
+.overlay.on{display:flex}
+.sheet{margin:auto;width:min(100%,860px);text-align:center}
+/* 開始畫面在筆電舞台上排成一欄會把「出發」擠到捲軸下面：橫的螢幕改左右兩欄 */
+@media (min-width:900px) and (orientation:landscape){
+  #scrTitle .cols{display:grid;grid-template-columns:minmax(0,.92fr) minmax(0,1.08fr);gap:16px;align-items:start;text-align:left}
+  #scrTitle .cols h2{text-align:center}
+  #scrTitle .seeds{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+  #scrTitle .seed{padding:5px}
+  #scrTitle .seed canvas{width:46px;height:40px}
+  #scrTitle .howto{font-size:clamp(13px,1.25vw,16px);line-height:1.5;padding:8px 12px}
+  #scrTitle .howto p{margin:3px 0}
+}
+.sheet h2{margin:0 0 6px;font-size:clamp(22px,2.7vw,36px)}
+.sheet p{margin:6px 0}
+.howto{
+  background:#FFF6D8;border:3px dashed var(--sun);border-radius:14px;padding:10px 14px;
+  text-align:left;font-weight:800;font-size:clamp(14px,1.45vw,18px);line-height:1.65;
+}
+.howto b{color:#7A5B00}
+.btn{
+  border:3px solid var(--ink);border-radius:999px;background:var(--sun);color:var(--ink);
+  padding:10px 24px;font:inherit;font-weight:900;cursor:pointer;
+  box-shadow:0 4px 0 var(--ink);min-height:56px;
+}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--ink)}
+.btn.green{background:var(--green-dark);color:#fff}
+.btn.ghost{background:var(--card)}
+.btn.sm{min-height:44px;padding:6px 16px;font-size:.88em}
+.pickrow{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:12px}
+
+/* 選種子 */
+.seeds{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:10px 0}
+.seed{
+  border:3px solid var(--ink);border-radius:16px;background:var(--card);padding:8px;
+  font:inherit;font-weight:800;cursor:pointer;box-shadow:0 4px 0 var(--ink);text-align:center;
+}
+.seed:active{transform:translateY(3px);box-shadow:0 1px 0 var(--ink)}
+.seed.on{background:var(--green-dark);color:#fff}
+.seed[disabled]{opacity:1;background:#EDE8DE;color:#8A8578;cursor:not-allowed;box-shadow:0 4px 0 #B6AF9F}
+.seed canvas{display:block;margin:0 auto;width:62px;height:52px}
+.seed .nm{font-size:clamp(15px,1.5vw,19px);font-weight:900;margin-top:2px}
+.seed .ab{font-size:clamp(12px,1.2vw,15px);font-weight:700;line-height:1.45;margin-top:3px}
+.seed.on .ab{color:#E6F6EA}
+.seed .lock{font-size:clamp(12px,1.2vw,15px);font-weight:800}
+
+/* 結算 */
+.final{font-size:clamp(20px,2.3vw,30px);font-weight:900;margin:6px 0}
+.final .big{font-size:1.5em;color:var(--green-dark)}
+.landing{border:3px solid var(--ink);border-radius:14px;padding:8px 14px;display:inline-block;background:#fff;font-weight:900}
+.review{
+  background:#fff;border:3px solid var(--ink);border-radius:14px;padding:8px 12px;margin:10px 0;
+  text-align:left;font-size:clamp(13px,1.35vw,17px);font-weight:700;line-height:1.6;
+}
+.unlock{font-weight:900;color:var(--green-dark)}
+.namerow{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:10px}
+.namerow input{
+  border:3px solid var(--ink);border-radius:12px;padding:6px 12px;font:inherit;font-weight:800;
+  width:9em;min-height:44px;
+}
+table.lb{border-collapse:collapse;margin:10px auto 0;font-size:clamp(13px,1.35vw,17px);min-width:min(100%,380px)}
+table.lb td,table.lb th{border:2px solid var(--ink);padding:3px 10px;font-weight:800}
+table.lb th{background:#FFF6D8}
+
+/* 給老師 */
+.tip{
+  margin:14px 0 0;font-size:clamp(13px,1.35vw,16px);color:var(--muted);
+  border-left:5px solid var(--sun);padding:6px 12px;background:#FFFCF2;border-radius:0 10px 10px 0;
+}
+.tip p{margin:4px 0}
+.tip b{color:#7A5B00}
+
+/* ---------- RWD：手機 / 平板 / 筆電 / 75 吋觸控螢幕 ---------- */
+@media (max-width:640px){
+  #app{padding:8px 8px 24px}
+  #cv{height:clamp(300px,54vh,430px)}
+  #hud{border-radius:16px;padding:6px 10px;font-size:.92em}
+  .seeds{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .seed canvas{width:52px;height:44px}
+}
+@media (min-width:1800px){
+  body{font-size:25px}
+  #app{max-width:1680px;padding:18px 26px 52px}
+  .sitehead h1{font-size:37px}
+  .back{min-height:62px;font-size:21px}
+  #cv{height:clamp(360px,54vh,660px)}
+  #hud{min-height:74px;border-radius:30px}
+  .btn{min-height:76px;padding:14px 36px}
+  .btn.sm{min-height:56px}
+  .seed canvas{width:86px;height:72px}
+  .namerow input{min-height:62px}
+  .tip{font-size:19px}
+}
+@media (min-width:2600px){
+  body{font-size:33px}
+  #app{max-width:2280px;padding:26px 36px 70px}
+  .sitehead h1{font-size:49px}
+  .back{min-height:80px;font-size:29px}
+  #cv{height:clamp(480px,58vh,900px)}
+  .btn{min-height:100px;padding:20px 48px}
+  .seed canvas{width:118px;height:98px}
+  .tip{font-size:25px}
+}
+
+#cv{height:clamp(260px,38vh,430px);width:100%;touch-action:manipulation}#stage{background:#d7edf4}.conditions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.conditions select,.conditions input{font:inherit;min-height:44px;border:2px solid #333;border-radius:8px;max-width:100%;padding:4px}.height-pick{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px;margin:10px 0}.height-pick .btn{padding:6px 2px;min-width:0;min-height:44px}.height-pick .on{background:#2e7d4f;color:white}.btn:disabled{opacity:.55;cursor:default}.mission{border:3px solid #333;border-radius:12px;background:white;padding:8px;margin:8px 0}.energy-total{display:flex;height:44px;border:3px solid #333;overflow:hidden;margin:10px 0}.energy-total span{display:flex;justify-content:center;align-items:center;font-weight:900;white-space:nowrap}.energy-legend{display:flex;gap:14px;flex-wrap:wrap;font-weight:800}.telemetry{background:white;border:2px solid #333;padding:8px;border-radius:12px;margin:8px 0;overflow-wrap:anywhere}.history-wrap{max-width:100%;overflow:auto}table.lb{width:100%;min-width:0;table-layout:fixed}table.lb td,table.lb th{overflow-wrap:anywhere;padding:4px}#turn{border-left:8px solid #286b8b;padding-left:10px}#sndBtn{min-height:44px}.credits{font-size:.85em;border-top:1px dashed #888;margin-top:18px;padding-top:8px}.teacher-tip{border-left:5px solid #ffc93c;background:#fffcf2;padding:8px 12px;margin:15px 0}.overlay .sheet{padding:5px}.overlay p{overflow-wrap:anywhere}#scrHold .sheet{background:white;border:3px solid #333;border-radius:12px;padding:12px}#task{font-weight:900}button{max-width:100%;overflow-wrap:anywhere}@media(max-width:640px){.height-pick{grid-template-columns:repeat(4,minmax(0,1fr))}table.lb{font-size:13px}.energy-total{font-size:13px}.sheet h2{font-size:24px}.sheet p{font-size:16px}#app{padding:8px}.sitehead .sub{display:block}}@media(min-width:1800px){#app{max-width:1900px}.teacher-tip{font-size:24px}.conditions select,.conditions input{font-size:30px}.height-pick .btn{min-height:64px}}.energy-total span{min-width:0;overflow:hidden;flex-shrink:0}details>summary{cursor:pointer;min-height:44px;padding:8px 4px;font-weight:800}.class-observe{border-left:5px solid #286b8b;background:#f2f8fc;padding:8px 12px;margin:12px 0}.class-observe p{margin:6px 0}.class-task{margin:6px 0;font-weight:500}
+/* 操作同學按「放手」時要同時看得到整條斜坡：星星與音效併進標題列，說明文字移到按鈕下面 */
+.headrow #hud{margin:0 0 0 auto;min-height:0;border:0;box-shadow:none;background:none;padding:0;font-size:.85em}
+.mission{margin:6px 0}.mission #turn{margin:2px 0}.mission .class-task{margin:4px 0 0}
+.sitehead{margin-bottom:4px}.sitehead .sub{margin:4px 0 0}
+.lvpick{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:10px}
+.telemetry:empty{display:none}
+.class-observe .say{background:#fff;border:2px dashed #286b8b;border-radius:10px;padding:4px 10px}</style></head><body><div id="app"><header class="sitehead"><div class="headrow"><a class="back" href="../../index.html">← 回教材首頁</a><a class="back" href="../能量轉換與能量守恆/能量轉換與能量守恆_互動教材.html#unit">← 回單元統整</a><h1>坡道小車挑戰</h1><div id="hud"><span id="bestStars"></span><div class="grow"><button id="sndBtn" type="button">音效：開</button></div></div></div><p class="sub">五年級自然｜第四單元 力與運動　課本 96–105 頁</p></header><div class="mission"><div id="task"></div><div id="turn"></div><p id="classTask" class="class-task"></p></div><div id="stage"><canvas id="cv" aria-label="坡道小車示意：整條斜坡、地面與130到150公分目標區">坡道示意；用下方紀錄表閱讀結果。</canvas><div id="scrTitle" class="overlay on"><div class="sheet"><h2>坡道小車挑戰</h2><p>兩隊輪流：玩家1（藍色）、玩家2（棕色）。</p><p>每一次：①操作同學選起點高度和地面　②全班先預測　③放手。</p><p>小車<b>沒有裝電池，只能放手、不能推</b>，靠從斜坡溜下來跑。</p><button class="btn green" id="startBtn">開始第1關</button><div class="lvpick" aria-label="選關卡"><button class="btn ghost sm" data-level="2">第2關</button><button class="btn ghost sm" data-level="3">第3關</button><button class="btn ghost sm" data-level="4">第4關</button><button class="btn ghost sm" data-level="5">第5關</button></div></div></div><div id="scrOver" class="overlay"><div class="sheet"><h2 id="overTitle"></h2><p id="overReview"></p><button id="nextLevel" class="btn green">下一關</button><button id="retryLevel" class="btn">再挑戰這關</button><button id="allAgain" class="btn ghost">從第1關開始</button></div></div><div id="scrHold" class="overlay"><div class="sheet"><h2>停格想一想</h2><p id="holdText"></p><button id="continueHold" class="btn green">看完了，繼續</button></div></div></div><div class="height-pick"><button class="btn ghost" data-height="10" aria-pressed="false">10公分</button><button class="btn ghost" data-height="15" aria-pressed="false">15公分</button><button class="btn ghost" data-height="20" aria-pressed="false">20公分</button><button class="btn ghost" data-height="25" aria-pressed="false">25公分</button><button class="btn ghost" data-height="30" aria-pressed="false">30公分</button><button class="btn ghost" data-height="35" aria-pressed="false">35公分</button><button class="btn ghost" data-height="40" aria-pressed="false">40公分</button></div><div class="conditions"><label>地面 <select id="surface"><option value="floor">光滑地板</option><option value="towel">鋪毛巾</option></select></label><label id="predictionBox">預測起點20公分會跑 <input id="prediction" type="number" min="0" max="500" step="1" aria-label="預測滑行距離">公分</label><button id="release" class="btn green">放手（不推）</button><button id="pause" class="btn ghost">暫停看能量</button><button id="advance" class="btn">換下一隊／看回合結果</button></div><p class="sub"><span id="legendZone">示意圖｜橙色＝目標區（130–150公分）；藍色＝測速區（坡底後50公分）。</span>看小車中間的白線停在哪裡。同樣的條件，每次結果也會有一點差異。光滑地板也有摩擦力，小車會停下來。</p><div class="energy-total" id="energyTotal"><span id="potential" style="background:#f4cf62">位能</span><span id="kinetic" style="background:#88c4df">動能</span><span id="heat" style="background:#efa46c">熱能</span></div><div class="energy-legend"><span>黃色＝位能</span><span>藍色＝動能</span><span>橙色＝熱能</span></div><p class="sub">能量條（示意）：同一次放手，三條加起來的總長不變；起點愈高，總長愈長。</p><div id="telemetry" class="telemetry" aria-live="polite"></div><div id="roundResult" class="telemetry" aria-live="polite"></div><div id="history" class="history-wrap"></div><details class="class-observe"><summary>說說看：用紀錄表說理由（★ 想多一步）</summary><p><b>說理由：</b>看紀錄表，照著說：</p><p class="say">「我看到起點＿＿公分、地面＿＿，停在＿＿公分，所以下次＿＿。」</p><p><b>★</b> 第3關：為什麼不能同時改起點高度和地面？</p><p><b>★</b> 第5關：「通過50公分的時間」是固定距離比時間；「離坡1秒跑的距離」是固定什麼、比什麼？</p><p><b>★★</b> 起點10公分、鋪毛巾時，紀錄表為什麼寫「量不到」？</p><p><b>★★</b> 用能量條說一說：小車在起點、坡底、停下來時，位能、動能、熱能怎麼變？</p></details><p id="storageNote"></p><button id="resetStars" class="btn ghost sm">重設本裝置星星紀錄</button><details class="teacher-tip"><summary>給老師｜㉑試玩15分鐘，收束5分鐘</summary><p><b>流程：</b>每回合玩家1、2各派一人上臺：選條件 → 全班舉手指預測 → 放手。兩隊都放過才算一回合，每關最多3回合；不做即時對戰、不排學生名次。坐在座位的同學照畫面「全班：」那一行做。</p><p><b>各關通關條件：</b>第1、2關停進目標區（第1關15公分；第2關35公分（約140公分，在目標區中間；30公分約120、40公分約160都進不去），每次有±2%差異；萬一只差幾公分，畫面會提示「同樣的起點再試一次」）。第3關各隊兩次只改起點高度。第4關預測和20公分實測相差5公分以內（規律推算約186公分）；猜不準也可以放手，下一回合修正。第5關選40公分起點。第3～5關不比目標區。沒通關也可按「先玩下一關」。</p><p><b>第5關參考（光滑地板，示意）：</b>通過50公分的時間 10公分約1.0秒、15約0.7、20約0.6、25～35約0.5、40約0.4秒。25～35公分四捨五入後一樣，可請學生改看「離坡1秒跑的距離」。起點10公分＋鋪毛巾只跑約37公分，沒跑完測速區，紀錄表寫「量不到」，不給假時間。</p><p><b>跳關：</b>開始畫面選關，或網址後面加 #level-3（1～5）。<b>收束：</b>兩隊各選一筆紀錄，用起點高度、快慢、摩擦力、位能→動能→熱能說明。</p><p>課前試玩各關；這是示意，不派回家做斜坡實驗。用眼30分鐘休息10分鐘。星星只存在這臺裝置。</p></details><footer class="credits">教學依據：<a href="https://reader.nani.com.tw/9200a013cbef8e66">南一自然課本，第 96–105 頁</a>。本頁沒有使用課本照片；畫布與能量條均為製作示意。</footer></div><script src="../../題庫/figures.js?v=20261006a"></script><script id="ramp-model">/* Embedded pure, deterministic model. Distances are centimetres; time seconds. */
+const RAMP_HEIGHTS=[10,15,20,25,30,35,40];
+function rampRandom(seed){let x=seed>>>0||1;x^=x<<13;x^=x>>>17;x^=x<<5;return {seed:x>>>0,value:(x>>>0)/4294967296};}
+/* 毛巾：滑行距離約為地板的 43%（35 公分起點約 140 公分，落在目標區正中間）；減速度＝20÷0.43，讓 v0²÷(2a) 剛好等於滑行距離 */
+const TOWEL_RATIO=.43;
+function createRun(height,surface,seed){const r=rampRandom(seed),floorDistance=9.3*height*(1+(r.value*2-1)*.02),distance=floorDistance*(surface==='towel'?TOWEL_RATIO:1),v0=Math.sqrt(40*floorDistance),a=surface==='towel'?20/TOWEL_RATIO:20,rampTime=2*Math.hypot(80,height)/v0,stopTime=v0/a;const run={height,surface,seed:r.seed,distance,v0,a,rampTime,stopTime,t:0};run.t50=distance>=50?(v0-Math.sqrt(v0*v0-100*a))/a:null;run.oneSecond=groundDistance(run,1);return run;}
+function groundDistance(run,t){const q=Math.max(0,Math.min(t,run.stopTime));return Math.min(run.distance,run.v0*q-.5*run.a*q*q);}
+function rampState(run){if(run.t<run.rampTime){const u=(run.t/run.rampTime)**2;return {ramp:true,u,x:0,p:1-u,k:u,h:0,done:false};}const done=run.t>=run.rampTime+run.stopTime,t=done?run.stopTime:run.t-run.rampTime,x=done?run.distance:groundDistance(run,t),u=x/run.distance;return {ramp:false,u,x,p:0,k:1-u,h:u,done};}
+function step(run,dt){run.t=Math.min(run.rampTime+run.stopTime,run.t+Math.max(0,dt));return rampState(run);}
+function shownDistance(run){return Math.round(run.distance);}
+function targetGap(run){const d=shownDistance(run);return d<130?130-d:d>150?d-150:0;}
+function inTarget(run){return targetGap(run)===0;}
+globalThis.RAMP_MODEL={RAMP_HEIGHTS,rampRandom,createRun,groundDistance,rampState,step,shownDistance,targetGap,inTarget};
+</script><script>const $=id=>document.getElementById(id),cv=$('cv'),ctx=cv.getContext('2d'),KEY='ramp-car-v1',COLORS=['#286b8b','#ad5a2f'];
+function readBest(){try{const b=JSON.parse(localStorage.getItem(KEY)||'null');if(b&&Array.isArray(b.stars)&&b.stars.length===2&&b.stars.every(a=>Array.isArray(a)&&a.length===5&&a.every(n=>Number.isInteger(n)&&n>=0&&n<=3)))return {stars:b.stars,sound:b.sound!==false};}catch(_){}return {stars:[Array(5).fill(0),Array(5).fill(0)],sound:true};}
+let BEST=readBest(),audioContext=null;
+function saveBest(){try{localStorage.setItem(KEY,JSON.stringify(BEST));$('storageNote').textContent='這臺裝置保留各隊每關最佳星星數。';}catch(_){$('storageNote').textContent='這臺裝置未能儲存，仍可完成本次遊戲。';}}
+function beep(good){if(!BEST.sound)return;try{audioContext??=new(window.AudioContext||window.webkitAudioContext)();audioContext.resume().catch(()=>{});const osc=audioContext.createOscillator(),gain=audioContext.createGain();osc.frequency.value=good?660:220;gain.gain.setValueAtTime(.04,audioContext.currentTime);gain.gain.exponentialRampToValueAtTime(.001,audioContext.currentTime+.15);osc.connect(gain);gain.connect(audioContext.destination);osc.start();osc.stop(audioContext.currentTime+.15);}catch(_){} }
+const GAME={level:1,player:0,round:1,phase:'title',height:20,surface:'floor',run:null,paused:false,freeze:0,seed:(Date.now()>>>0)||1,records:[[],[]],passed:[false,false],mistakes:[0,0],prediction:null};
+const TASKS=['光滑地板：選起點高度，讓小車停在目標區（130–150公分）。','鋪毛巾：讓小車停在同一個目標區（130–150公分）。','起點高度會不會影響距離？每隊放兩次：只改起點高度，地面不變。','起點15、25、35公分，約跑140、233、326公分。起點20公分會跑多遠？預測和實測相差5公分以內就過關。','光滑地板：選一個起點，讓小車通過測速區（坡底後50公分）的時間最短。'];
+const LEVEL_END=['光滑地板上，起點愈高，小車跑得愈遠；起點15公分約停在140公分。','鋪毛巾時摩擦力比較大，小車跑得比較近，要從更高的起點出發。','只改起點高度、地面不變，才看得出高度的影響：起點愈高，跑得愈遠。','起點每高10公分，約多跑93公分；起點20公分約跑186公分。每次會有一點差異。','固定距離比時間：起點40公分通過50公分的時間最短，最快。起點愈高，小車到坡底愈快。'];
+const LEVEL_HINT=['看上次停在哪裡：太近就選高一點的起點，太遠就選低一點。','看上次停在哪裡：太近就選高一點的起點，太遠就選低一點。','地面保持相同，只改起點高度。','20公分在15和25的正中間，距離也大約在140和233的正中間。','起點愈高，小車到坡底會愈快還是愈慢？'];
+function showOverlay(id,on){$(id).classList.toggle('on',on);}
+const CLASS_TASKS=['放手前，每人舉手指預測：1指＝太近、2指＝進區、3指＝太遠。跑完說：下次起點要高一點還是低一點？','放手前，舉手指預測：1指＝太近、2指＝進區、3指＝太遠。想一想：同樣的起點，毛巾上會跑得比地板近還是遠？','第二次放手前，舉手指預測：1指＝比第一次近、3指＝比第一次遠。跑完說：這一隊只改了哪一個條件？','每人先在紙上寫下自己的預測（幾公分），全隊選一個數字讓操作同學輸入。跑完比一比：預測和實測差多少？','放手前，和紀錄表上一筆比，舉手指預測：1指＝比較慢、3指＝比較快（第一筆不用比）。跑完讀紀錄表：通過50公分的時間愈短愈快；離坡1秒跑得愈遠愈快。'];
+function controls(){const locked=GAME.phase!=='ready'||GAME.freeze>0;document.querySelectorAll('[data-height]').forEach(b=>{b.disabled=locked;b.classList.toggle('on',+b.dataset.height===GAME.height);b.setAttribute('aria-pressed',String(+b.dataset.height===GAME.height));});$('surface').disabled=locked||GAME.level!==3;$('prediction').disabled=locked;$('release').disabled=locked;$('pause').disabled=GAME.phase!=='running';$('pause').textContent=GAME.paused?'繼續滑行':'暫停看能量';$('advance').hidden=GAME.phase!=='finished';$('advance').disabled=GAME.freeze>0;$('predictionBox').hidden=GAME.level!==4;$('legendZone').textContent=GAME.level<=2?'示意圖｜橙色＝目標區（130–150公分）；藍色＝測速區（坡底後50公分）。':'示意圖｜藍色＝測速區（坡底後50公分）。'+(GAME.level===4?'紫色虛線＝你的預測。':'');$('task').textContent='第'+GAME.level+'關｜'+TASKS[GAME.level-1];$('turn').textContent='第'+GAME.round+'回合｜輪到玩家'+(GAME.player+1)+(GAME.player===0?'（藍色）':'（棕色）')+'：①選條件　②全班預測　③放手';$('turn').style.borderColor=COLORS[GAME.player];$('classTask').textContent='全班：'+CLASS_TASKS[GAME.level-1];$('advance').textContent=GAME.player===0?'換玩家2（棕色）':'看這一回合結果';$('sndBtn').textContent=BEST.sound?'音效：開':'音效：關';$('sndBtn').setAttribute('aria-pressed',String(BEST.sound));$('surface').value=GAME.surface;$('bestStars').textContent='玩家1（藍色） '+BEST.stars[0].reduce((a,n)=>a+n,0)+'顆星；玩家2（棕色） '+BEST.stars[1].reduce((a,n)=>a+n,0)+'顆星';}
+function startLevel(n){try{history.replaceState(null,'','#level-'+n);}catch(_){}GAME.level=n;GAME.player=0;GAME.round=1;GAME.phase='ready';GAME.height=20;GAME.surface=n===2?'towel':'floor';GAME.run=null;GAME.paused=false;GAME.freeze=0;GAME.records=[[],[]];GAME.passed=[false,false];GAME.mistakes=[0,0];GAME.prediction=null;$('prediction').value='';$('telemetry').textContent='不裝電池的玩具車：只能放手，不能推。';$('roundResult').textContent='';$('history').innerHTML='';for(const id of ['scrTitle','scrOver','scrHold'])showOverlay(id,false);controls();draw();}
+function mistake(text,count=true){if(count)GAME.mistakes[GAME.player]++;GAME.freeze=1;$('holdText').textContent=text;showOverlay('scrHold',true);beep(false);controls();}
+function release(){
+ if(GAME.phase!=='ready'||GAME.freeze>0)return;
+ const previous=GAME.records[GAME.player].at(-1);
+ if(GAME.level===3&&previous){
+  if(previous.surface!==GAME.surface){mistake(previous.height!==GAME.height?'起點高度和地面同時改了，分不出距離改變是高度還是地面造成的。地面保持和第一次相同，只改起點高度。':'這次改了地面、沒改起點高度，看不出高度的影響。地面保持和第一次相同，只改起點高度。');return;}
+  if(previous.height===GAME.height){mistake('起點高度和第一次一樣，比不出高度的影響。換一個起點高度，地面不變。');return;}
+ }
+ if(GAME.level===4){
+  const raw=$('prediction').value.trim(),value=Number(raw);
+  if(raw===''||!Number.isFinite(value)||!Number.isInteger(value)||value<0||value>500){mistake('先在預測格填一個整數（0到500公分），再放手。猜不準也沒關係，跑完再修正。',false);return;}
+  GAME.prediction=value;
+ }
+ GAME.run=createRun(GAME.height,GAME.surface,GAME.seed);GAME.seed=GAME.run.seed;GAME.phase='running';GAME.paused=false;controls();draw();
+}
+function finish(){
+ const run=GAME.run,p=GAME.player,record={height:run.height,surface:run.surface,distance:shownDistance(run),gap:targetGap(run),time:run.t50===null?null:Number(run.t50.toFixed(1)),oneSecond:Math.round(run.oneSecond),prediction:GAME.prediction};
+ GAME.records[p].push(record);
+ let pass=false;
+ if(GAME.level<=2)pass=inTarget(run);
+ else if(GAME.level===3)pass=GAME.records[p].length>=2;
+ else if(GAME.level===4)pass=run.height===20&&run.surface==='floor'&&Math.abs(record.prediction-record.distance)<=5;
+ else pass=run.height===40&&run.surface==='floor';
+ GAME.passed[p]||=pass;
+ if(pass){
+  const stars=Math.max(1,3-(GAME.records[p].length-(GAME.level===3?2:1))-GAME.mistakes[p]);
+  BEST.stars[p][GAME.level-1]=Math.max(BEST.stars[p][GAME.level-1],stars);saveBest();beep(true);
+ }else{
+  const firstOfThree=GAME.level===3&&GAME.records[p].length===1;
+  if(!firstOfThree)beep(false);GAME.freeze=1;
+  if(GAME.level<=2)$('holdText').textContent=record.gap<=3?'停在'+record.distance+'公分，只差'+record.gap+'公分！同樣的起點，每次結果會有一點差異，可以再試一次。':record.distance<130?'停得太近。地面不變，下次選更高的起點。':'停得太遠。地面不變，下次選更低的起點。';
+  else if(GAME.level===3)$('holdText').textContent='第一筆紀錄完成。下一次：地面不變，只改起點高度。';
+  else if(GAME.level===4)$('holdText').textContent=run.height!==20?'這次不是起點20公分，還不能驗證你的預測。下一次選起點20公分放手看看。':'預測'+record.prediction+'公分，實測'+record.distance+'公分，相差'+Math.abs(record.prediction-record.distance)+'公分。提示：'+LEVEL_HINT[3]+'下次修正預測再試。';
+  else $('holdText').textContent='這次起點'+run.height+'公分，通過50公分用了'+record.time.toFixed(1)+'秒。還能更快嗎？比一比紀錄表的時間：時間愈短愈快。';
+  showOverlay('scrHold',true);
+ }
+ GAME.phase='finished';
+ const predictionNote=GAME.level===4?(run.height===20?'預測 '+record.prediction+'公分；實測和預測相差 '+Math.abs(record.prediction-record.distance)+'公分。':'預測（起點20公分）'+record.prediction+'公分；這次起點'+run.height+'公分，還不能比。'):'';
+ $('telemetry').textContent=predictionNote+'停下距離 '+record.distance+'公分；'+(record.time===null?'沒有跑完 50 公分，這一段量不到通過時間':'通過50公分：'+record.time.toFixed(1)+'秒')+'；離開斜坡後1秒跑了 '+record.oneSecond+'公分。';
+ renderHistory();controls();
+}
+function renderHistory(){
+ $('history').innerHTML='<table class="lb"><thead><tr><th>玩家</th><th>起點／地面</th><th>停下'+(GAME.level===4?'／原預測':'')+'</th><th>50公分時間</th><th>離坡1秒距離</th></tr></thead><tbody>'+GAME.records.flatMap((rs,p)=>rs.map(r=>'<tr><td>玩家'+(p+1)+(p===0?'藍色':'棕色')+'</td><td>'+r.height+'公分／'+(r.surface==='floor'?'光滑地板':'毛巾')+'</td><td>'+r.distance+'公分'+(GAME.level===4?'<br>預測：'+r.prediction+'公分'+(r.height===20?'<br>相差'+Math.abs(r.prediction-r.distance)+'公分':'<br>不是起點20，還不能比'):'')+'</td><td>'+(r.time===null?'未跑完，量不到':r.time.toFixed(1)+'秒')+'</td><td>'+r.oneSecond+'公分</td></tr>')).join('')+'</tbody></table>';
+}
+function roundSummary(){return '第'+GAME.round+'回合｜'+roundText();}
+function roundText(){
+ const latest=GAME.records.map(rs=>rs.at(-1));
+ if(GAME.level<=2){const [a,b]=latest;return '本回合兩隊已完成：玩家1距目標 '+a.gap+'公分，玩家2 '+b.gap+'公分；'+(a.gap===b.gap?'一樣接近。':a.gap<b.gap?'玩家1較接近。':'玩家2較接近。');}
+ if(GAME.level===3)return GAME.records.map((rs,p)=>{const last=rs.at(-1),prev=rs.at(-2);return '玩家'+(p+1)+'：'+(prev?'起點'+prev.height+'→'+last.height+'公分；地面'+(prev.surface===last.surface?'相同':'不同')+'；停在'+prev.distance+'→'+last.distance+'公分。':'第一筆：起點'+last.height+'公分、'+(last.surface==='floor'?'光滑地板':'毛巾')+'，停在'+last.distance+'公分；下一次只改起點高度。');}).join(' ');
+ if(GAME.level===4)return latest.map((r,p)=>'玩家'+(p+1)+'：預測起點20公分跑'+r.prediction+'公分；'+(r.height===20?'實測'+r.distance+'公分，相差'+Math.abs(r.prediction-r.distance)+'公分。':'這次起點'+r.height+'公分，跑了'+r.distance+'公分，還不能比。')).join(' ');
+ const text=latest.map((r,p)=>'玩家'+(p+1)+'：固定50公分'+(r.time===null?'未跑完':r.time.toFixed(1)+'秒')+'；離坡1秒跑'+r.oneSecond+'公分。').join(' ');
+ return text+(latest[0].height===latest[1].height?'兩隊起點一樣高，快慢差不多。':latest[0].time===latest[1].time?'通過時間看起來一樣，再比離坡1秒跑的距離：跑得愈遠愈快。':'固定距離比時間，固定時間比距離。');
+}
+function advance(){if(GAME.phase!=='finished'||GAME.freeze>0)return;if(GAME.player===0){GAME.player=1;GAME.phase='ready';GAME.run=null;GAME.prediction=null;$('prediction').value='';controls();draw();return;}$('roundResult').textContent=roundSummary();if(GAME.passed.every(Boolean)||GAME.round>=3){GAME.phase='over';$('overTitle').textContent=GAME.passed.every(Boolean)?'第'+GAME.level+'關，兩隊都完成了！':'這一關再試一次';const done=GAME.passed.every(Boolean);$('overReview').textContent=done?LEVEL_END[GAME.level-1]:'3回合用完了。提示：'+LEVEL_HINT[GAME.level-1];$('nextLevel').hidden=GAME.level===5;$('nextLevel').textContent=done?'下一關':'先玩下一關';showOverlay('scrOver',true);controls();return;}GAME.round++;GAME.player=0;GAME.phase='ready';GAME.run=null;GAME.prediction=null;$('prediction').value='';controls();draw();}
+function gameStep(dt){if(GAME.freeze>0)return;if(GAME.phase==='running'&&!GAME.paused){const state=step(GAME.run,dt);if(state.done)finish();}draw();}
+function draw(){const w=cv.clientWidth,h=cv.clientHeight;if(!w||!h)return;const dpr=Math.min(2,devicePixelRatio||1);if(cv.width!==Math.round(w*dpr)||cv.height!==Math.round(h*dpr)){cv.width=Math.round(w*dpr);cv.height=Math.round(h*dpr);}ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);ctx.fillStyle='#d7edf4';ctx.fillRect(0,0,w,h);const X=x=>x/560*w,ground=h*.67,top=ground-GAME.height/40*h*.4,run=GAME.run,state=run?rampState(run):{ramp:true,u:0,x:0,p:1,k:0,h:0},size=Math.max(13,w*.025);ctx.lineWidth=Math.max(3,w*.005);ctx.strokeStyle='#785e41';ctx.beginPath();ctx.moveTo(X(40),top);ctx.lineTo(X(140),ground);ctx.lineTo(X(550),ground);ctx.stroke();ctx.fillStyle=GAME.surface==='towel'?'#aac4d1':'#eee4d0';ctx.fillRect(X(140),ground+3,X(410),h*.08);if(GAME.level<=2){ctx.fillStyle='#f1ab67';ctx.fillRect(X(270),ground-h*.05,X(20),h*.13);ctx.strokeStyle='#a8551a';ctx.lineWidth=2;ctx.setLineDash([6,4]);ctx.beginPath();for(const d of [130,150]){ctx.moveTo(X(140+d),ground-h*.16);ctx.lineTo(X(140+d),ground+h*.08);}ctx.stroke();ctx.setLineDash([]);}ctx.fillStyle='#8fc3d7';ctx.fillRect(X(140),ground+h*.09,X(50),h*.1);ctx.fillStyle='#1e1e1e';ctx.strokeStyle='#785e41';ctx.lineWidth=1.5;const rulerFont=Math.max(10,Math.min(18,h*.055,w*.032));ctx.font='700 '+rulerFont+'px Microsoft JhengHei,sans-serif';ctx.textAlign='center';ctx.beginPath();for(let d=0;d<=400;d+=50){ctx.moveTo(X(140+d),ground+3);ctx.lineTo(X(140+d),ground+3+h*(d%100?.02:.035));}ctx.stroke();for(const d of [100,200,300,400])ctx.fillText(d===400?'400公分':String(d),X(140+d)+(d===400?-rulerFont*1.4:0),ground+h*.075);ctx.font='700 '+Math.max(13,Math.min(28,w*.021))+'px Microsoft JhengHei,sans-serif';if(GAME.level<=2)ctx.fillText('目標區',X(280),ground-h*.19);ctx.fillText('測速50公分',X(170),ground+h*.26);const predRaw=GAME.level===4?$('prediction').value.trim():'',pred=Number(predRaw);if(predRaw!==''&&pred>=0&&pred<=400){ctx.strokeStyle='#5b2a86';ctx.lineWidth=3;ctx.setLineDash([8,5]);ctx.beginPath();ctx.moveTo(X(140+pred),ground-h*.2);ctx.lineTo(X(140+pred),ground+3);ctx.stroke();ctx.setLineDash([]);ctx.fillText('預測'+pred+'公分',X(140+pred),ground-h*.23);}ctx.textAlign='left';ctx.fillText('起點'+GAME.height+'公分',X(15),Math.max(25,top-12));ctx.fillText(GAME.surface==='towel'?'鋪毛巾（藍灰色）':'光滑地板（米色）',X(250),ground+h*.3);const cx=state.ramp?X(40+100*state.u):X(140+state.x),cy=state.ramp?top+(ground-top)*state.u:ground;ctx.fillStyle=COLORS[GAME.player];ctx.fillRect(cx-size,cy-size*.85,size*2,size*.75);ctx.strokeStyle='white';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(cx,cy-size*.8);ctx.lineTo(cx,cy+size*.3);ctx.stroke();ctx.fillStyle='#333';for(const dx of [-size*.55,size*.55]){ctx.beginPath();ctx.arc(cx+dx,cy,size*.25,0,Math.PI*2);ctx.fill();}const total=(run?run.height:GAME.height)/40*100;$('energyTotal').style.width=total+'%';$('potential').style.width=(state.p*100)+'%';$('kinetic').style.width=(state.k*100)+'%';$('heat').style.width=(state.h*100)+'%';window.RAMP_DRAW_BOUNDS={start:X(40)-size,end:X(520)+size,bottom:ground+h*.3,width:w,height:h};}
+$('continueHold').onclick=()=>{GAME.freeze=0;showOverlay('scrHold',false);controls();draw();};$('startBtn').onclick=()=>startLevel(1);$('release').onclick=release;$('advance').onclick=advance;$('pause').onclick=()=>{GAME.paused=!GAME.paused;controls();};$('nextLevel').onclick=()=>startLevel(GAME.level+1);$('retryLevel').onclick=()=>startLevel(GAME.level);$('allAgain').onclick=()=>startLevel(1);$('sndBtn').onclick=()=>{BEST.sound=!BEST.sound;saveBest();controls();};$('surface').onchange=()=>{GAME.surface=$('surface').value;draw();};$('prediction').oninput=draw;document.querySelectorAll('[data-level]').forEach(b=>b.onclick=()=>startLevel(+b.dataset.level));document.querySelectorAll('[data-height]').forEach(b=>b.onclick=()=>{GAME.height=+b.dataset.height;controls();draw();});$('resetStars').onclick=()=>{BEST.stars=[Array(5).fill(0),Array(5).fill(0)];saveBest();controls();};window.addEventListener('resize',draw);document.addEventListener('visibilitychange',()=>{if(document.hidden&&GAME.phase==='running'){GAME.paused=true;controls();}});let last=performance.now();function frame(){if(window.RAMP_TEST_MODE)return;const now=performance.now();gameStep(Math.min(.05,(now-last)/1000));last=now;requestAnimationFrame(frame);}controls();draw();{const m=location.hash.match(/^#level-([1-5])$/);if(m)startLevel(+m[1]);}requestAnimationFrame(frame);window.RAMP_GAME={GAME,startLevel,release,advance,gameStep,readBest};
+</script></body></html>

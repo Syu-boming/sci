@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>水溶液的各種性質　重點整理</title>
+  <link rel="icon" href="../../image/icon.svg">
+  <style>
+    :root{--c-ink:#2c2f31;--c-soft:#55606a;--c-bg:#fff9f0;--c-brand:#f5a623;--c-brandS:#e8890b;--c-brandSoft:#fff2d9;--c-no:#e5484d;--c-noSoft:#fdeaea;--radius:16px;
+      --font:"Noto Sans TC","PingFang TC","Microsoft JhengHei","微軟正黑體",system-ui,-apple-system,sans-serif;}
+    *{box-sizing:border-box;}
+    body{margin:0;font-family:var(--font);color:var(--c-ink);background:var(--c-bg);line-height:1.75;font-size:18px;}
+    .wrap{width:min(880px,92vw);margin:0 auto;}
+    .site-header{background:linear-gradient(135deg,var(--c-brand),var(--c-brandS));color:#fff;padding:24px 0;}
+    .site-header .wrap{display:flex;align-items:center;gap:14px;}
+    .site-header img{width:50px;height:50px;}
+    .site-header h1{margin:0;font-size:1.5rem;}
+    .site-header p{margin:2px 0 0;opacity:.92;font-size:.95rem;}
+    .breadcrumb{padding:14px 0;font-size:.95rem;}
+    .breadcrumb a{color:var(--c-brandS);text-decoration:none;margin-right:14px;display:inline-block;padding:9px 0;min-height:44px;}
+    .breadcrumb a:hover{text-decoration:underline;}
+    .keypoint{background:#fff;border:1px solid #ece3d6;border-left:5px solid var(--c-brand);border-radius:12px;
+      padding:14px 16px;margin:12px 0;box-shadow:0 6px 20px rgba(90,70,30,.08);}
+    .keypoint.danger{border-left-color:var(--c-no);background:var(--c-noSoft);}
+    .keypoint b{color:var(--c-brandS);}
+    .keypoint.danger b{color:var(--c-no);}
+    .keytab{width:100%;border-collapse:collapse;margin:14px 0;background:#fff;border-radius:12px;overflow:hidden;
+      box-shadow:0 6px 20px rgba(90,70,30,.08);}
+    .keytab th,.keytab td{border:1px solid #ece3d6;padding:10px 12px;text-align:center;}
+    .keytab th{background:var(--c-brandSoft);color:var(--c-brandS);}
+    .keytab td.l{text-align:left;}
+    h2{font-size:1.3rem;}
+    .toolbar{margin:18px 0;}
+    .btn{cursor:pointer;border:none;border-radius:999px;padding:10px 20px;font-family:inherit;font-size:1rem;font-weight:700;background:var(--c-brand);color:#fff;min-height:44px;}
+    .btn:hover{background:var(--c-brandS);}
+    .site-footer{margin:40px 0 26px;text-align:center;color:var(--c-soft);font-size:.9rem;}
+    .site-footer a{color:var(--c-brandS);}
+    .print-title{display:none;}
+    .keytab td.grp{font-weight:800;color:var(--c-brandS);background:#fffaf1;}
+    .keytab td.nw{white-space:nowrap;}
+    .nobr{white-space:nowrap;}
+    /* 階梯圖（步驟） */
+    .ladder{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;
+      background:#fff;border:1px solid #ece3d6;border-radius:12px;padding:16px;margin:14px 0;
+      box-shadow:0 6px 20px rgba(90,70,30,.08);}
+    .step{text-align:center;min-width:120px;}
+    .step .box{font-size:2rem;line-height:1.2;}
+    .step .nm{font-weight:800;color:var(--c-brandS);}
+    .step .ds{font-size:.85em;color:var(--c-soft);}
+    .step .ds b{color:var(--c-ink);font-size:1.15em;}
+    .arrow{font-size:1.6rem;color:var(--c-soft);}
+    /* 每格都放一段話：平均分寬、不換行成兩列 */
+    .ladder.wide{flex-wrap:nowrap;align-items:stretch;}
+    .ladder.wide .step{flex:1 1 0;min-width:0;}
+    .ladder.wide .arrow{flex:none;align-self:center;}
+    .nest-ttl{font-weight:700;margin:4px 0 6px;}
+    .nest{display:flex;gap:10px;flex-wrap:wrap;}
+    .fl{flex:1 1 0;min-width:0;background:#fff;border:2px solid var(--c-ink);border-radius:14px;padding:8px 10px;text-align:center;}
+    .fl-nm{font-weight:800;}
+    .fl-ds{font-size:.85em;color:var(--c-soft);line-height:1.5;}
+    /* 迷思清單、一般清單：開頭符號凸出來，第二行對齊文字 */
+    .nope,.list{margin:0;padding:0;list-style:none;}
+    .nope li,.list li{padding-left:1.6em;text-indent:-1.6em;margin:2px 0;}
+    .keypoint .lead{font-weight:700;margin-bottom:2px;}
+    .note{font-size:.88em;color:var(--c-soft);margin:4px 0 0;}
+    .tag{display:inline-block;font-size:.62em;font-weight:700;color:var(--c-soft);border:1px solid #cfc3b1;border-radius:999px;
+      padding:0 10px;margin-left:8px;vertical-align:middle;white-space:nowrap;}
+    .keypoint.soft{border-left-color:#b9ad9b;box-shadow:none;}
+    .keypoint.soft b{color:var(--c-ink);}
+    /* 給高能力學生的延伸小知識（次要） */
+    .extra{background:#f4f7ff;border:1px dashed #9db4e0;border-radius:12px;padding:12px 16px;margin:28px 0 14px;
+      font-size:.9em;color:#3f5488;}
+    .extra b{color:#2f4680;}
+    .extra .ttl{display:flex;flex-wrap:wrap;align-items:baseline;gap:0 10px;}
+    .extra .ttl small{font-size:.88em;color:#52679a;}
+    .extra ul{margin:4px 0 0;padding-left:1.2em;}
+
+    /* ===== 本課新增 ===== */
+    /* 必會 3 句：編號清單 */
+    .must3{margin:0;padding-left:1.6em;}
+    .must3 li{margin:4px 0;font-weight:700;}
+    /* 安全三不：╳ 大字（黑白印也看得懂） */
+    .fl.no{border-color:var(--c-no);background:#fff;}
+    .fl.no .x{display:block;font-size:1.6rem;font-weight:900;color:#c0352f;line-height:1.1;}
+    .fl.no .fl-nm{font-size:1.08em;}
+    /* 搧聞示意圖 */
+    .fanfig{margin:8px auto 0;max-width:420px;text-align:center;}
+    .fanfig svg{display:block;width:100%;height:auto;border:1px solid #ece3d6;border-radius:10px;background:#FFFDF8;}
+    .fanfig figcaption{font-size:.85em;color:var(--c-soft);}
+    .step .num{display:inline-flex;align-items:center;justify-content:center;width:1.9em;height:1.9em;border-radius:50%;
+      border:2px solid var(--c-ink);font-weight:900;font-size:1.1rem;background:#fff;}
+    .chk{font-weight:800;}
+    a.ext{color:var(--c-brandS);font-weight:700;}
+
+    @media print{
+      @page{size:A4;margin:14mm;}
+      body{background:#fff;color:#000;font-size:11pt;line-height:1.5;}
+      .site-header,.breadcrumb,.toolbar,.site-footer{display:none!important;}
+      .keypoint,.keytab,.ladder,.extra{box-shadow:none;break-inside:avoid;}
+      /* 保留分類底色，黑白印也看得出虛線／實線 */
+      .keypoint.danger,.keytab th,.keytab td.grp,.extra{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+      .print-title{display:block;margin:0 0 4px;font-size:15pt;font-weight:800;}
+      .print-title small{font-size:9.5pt;font-weight:400;color:#555;margin-left:10px;}
+      /* 每個段落整段不跨頁 */
+      .sec{break-inside:avoid;}
+      h2{break-after:avoid;font-size:13pt;margin:.5em 0 .2em;}
+      p{margin:.3em 0;}
+      .keypoint{padding:5px 10px;margin:5px 0;}
+      .keytab{margin:5px 0;}
+      .keytab th,.keytab td{padding:2px 8px;}
+      .ladder{padding:4px 6px;margin:5px 0;}
+      .nope li,.list li{margin:0;}
+      .step .box{font-size:1.3rem;}
+      .step .ds{line-height:1.45;}
+      .nest-ttl{margin:2px 0 4px;}
+      .fl{padding:4px 8px;}
+      .note{margin:2px 0 0;}
+      .extra{padding:5px 14px;margin:6px 0 0;font-size:10pt;line-height:1.45;}
+      .fanfig{max-width:78mm;margin-top:4px;}
+      .must3 li{margin:1px 0;}
+    }
+
+    /* ===== RWD：手機 / 平板 / 筆電 / 75 吋觸控螢幕 ===== */
+    @media (max-width:640px){
+      body{font-size:16px;line-height:1.65;}
+      .wrap{width:94vw;}
+      .site-header{padding:16px 0;}
+      .site-header img{width:38px;height:38px;}
+      .site-header h1{font-size:1.22rem;}
+      .site-header p{font-size:.82rem;}
+      h2{font-size:1.1rem;}
+      .keypoint{padding:11px 12px;border-radius:10px;margin:9px 0;}
+      .keytab{font-size:.88em;}
+      .keytab th,.keytab td{padding:7px 5px;}
+      .keytab td.nw{white-space:normal;}
+      .btn{padding:12px 20px;}
+      .ladder{gap:6px;padding:12px;}
+      .ladder .step{min-width:96px;}
+      .arrow{font-size:1.2rem;}
+      /* 手機：步驟改成直向，箭頭朝下 */
+      .ladder.v3{flex-direction:column;gap:2px;}
+      .ladder.v3 .arrow{transform:rotate(90deg);line-height:1;}
+      .ladder.wide{align-items:center;}
+      .ladder.wide .step{flex:0 0 auto;width:100%;max-width:26em;}
+      .nest{flex-direction:column;gap:8px;}
+      .fl{display:flex;flex-wrap:wrap;align-items:center;gap:2px 10px;text-align:left;padding:7px 10px;}
+      .fl.no .x{display:inline;font-size:1.3rem;}
+      .fl-ds{flex-basis:100%;}
+      .tag{white-space:normal;}
+    }
+    @media (min-width:641px) and (max-width:1024px){ .wrap{width:94vw;} }
+    @media (min-width:1800px){
+      body{font-size:23px;}
+      .wrap{width:min(1250px,90vw);}
+      .site-header{padding:34px 0;}
+      .site-header img{width:70px;height:70px;}
+      .site-header h1{font-size:2rem;}
+      h2{font-size:1.6rem;}
+      .keypoint{padding:20px 24px;border-radius:16px;}
+      .keytab th,.keytab td{padding:15px 18px;}
+      .btn{font-size:1.15rem;padding:14px 28px;}
+      .ladder .step{min-width:180px;}
+      .ladder.wide .step{min-width:0;}
+      .ladder .step .box{font-size:3rem;}
+      .fl{border-width:3px;}
+      .nest{gap:18px;}
+      .fl{padding:14px 16px;}
+      .extra{padding:18px 24px;}
+      .fanfig{max-width:620px;}
+    }
+    @media (min-width:2600px){
+      body{font-size:30px;}
+      .wrap{width:min(1750px,88vw);}
+      .site-header img{width:94px;height:94px;}
+      .site-header h1{font-size:2.6rem;}
+      h2{font-size:2.1rem;}
+      .keytab th,.keytab td{padding:20px 24px;}
+      .ladder .step{min-width:240px;}
+      .ladder.wide .step{min-width:0;}
+      .ladder .step .box{font-size:4rem;}
+      .fl{border-width:4px;}
+      .fanfig{max-width:820px;}
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap">
+      <img src="../../image/icon.svg" alt="站標">
+      <div>
+        <h1>水溶液的各種性質</h1>
+        <p>單元重點整理 · 第三單元 水溶液</p>
+      </div>
+    </div>
+  </header>
+
+  <nav class="breadcrumb wrap">
+    <a href="../../index.html">← 回首頁</a><a href="水溶液的各種性質_互動教材.html">← 回互動教材</a><a href="水溶液的各種性質_學習單.html">📄 學習單</a>
+  </nav>
+
+  <main class="wrap">
+    <div class="toolbar"><button class="btn" onclick="window.print()">🖨️ 列印重點</button></div>
+    <div class="print-title">水溶液的各種性質　重點整理<small>五年級自然｜第三單元 水溶液　課本 66–69 頁</small></div>
+
+    <section class="sec">
+      <h2>⭐ 必會 3 句</h2>
+      <div class="keypoint">
+        <ol class="must3">
+          <li><span class="must">不清楚來源的水溶液，不能碰、不能嘗、不能直接靠近聞；要聞氣味時，用手掌往鼻子方向搧聞。</span></li>
+          <li><span class="must">兩種以上的物質混合而成的物品叫做混合物，例如不鏽鋼（固態）、水溶液（液態）、空氣（氣態）。</span></li>
+          <li><span class="must">配製水溶液要用純水，因為自來水裡的其他物質會影響水溶液的酸鹼性。</span></li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="sec">
+      <h2>💧 水溶液有哪些不同的性質</h2>
+      <div class="keypoint">課本 68 頁：溶解在水中的物質不同，水溶液的<b>性質</b>也不一樣。</div>
+      <table class="keytab">
+        <tr><th style="width:24%">性質</th><th>怎麼知道</th></tr>
+        <tr><td class="grp">顏色</td><td class="l">用眼睛看（紅茶、白開水、檸檬汁的顏色不同）</td></tr>
+        <tr><td class="grp">氣味</td><td class="l">用手掌往鼻子方向<b>搧聞</b></td></tr>
+        <tr><td class="grp">味道</td><td class="l">在家喝飲料可以；<b>實驗室裡的東西一律不嘗</b></td></tr>
+        <tr><td class="grp">酸鹼性</td><td class="l">後面幾課會學（〈檢驗水溶液的酸鹼性〉）</td></tr>
+        <tr><td class="grp">導電性</td><td class="l">後面幾課會學（〈水溶液的導電性〉）</td></tr>
+      </table>
+    </section>
+
+    <section class="sec">
+      <h2>🚫 安全三不＋✅ 搧聞</h2>
+      <div class="nest-ttl">不清楚來源的水溶液（課本 67 頁）：</div>
+      <div class="nest">
+        <div class="fl no"><span class="x">╳</span><div class="fl-nm">不能碰</div><div class="fl-ds">不用手或身體接觸</div></div>
+        <div class="fl no"><span class="x">╳</span><div class="fl-nm">不能嘗</div><div class="fl-ds">不用舌頭嘗味道</div></div>
+        <div class="fl no"><span class="x">╳</span><div class="fl-nm">不能直接靠近聞</div><div class="fl-ds">鼻子不湊近杯口，以免受到傷害</div></div>
+      </div>
+      <div class="ladder v3 wide">
+        <div class="step"><div class="box"><span class="num">1</span></div><div class="nm">放好、離遠</div><div class="ds">杯子放在桌上，<b>臉不要靠近杯口</b></div></div>
+        <div class="arrow">→</div>
+        <div class="step"><div class="box"><span class="num">2</span></div><div class="nm">輕輕搧</div><div class="ds">手掌在杯口上方，<b>往鼻子的方向</b>輕輕搧</div></div>
+        <div class="arrow">→</div>
+        <div class="step"><div class="box"><span class="num">3</span></div><div class="nm">輕輕聞</div><div class="ds">輕輕吸一口氣；聞不清楚就再搧幾下，鼻子<b>還是不靠近</b></div></div>
+      </div>
+      <figure class="fanfig">
+        <svg viewBox="0 0 440 250" role="img" aria-label="搧聞的示意圖：杯子放在桌上，臉和杯口保持距離，手掌在杯口上方往鼻子的方向輕輕搧" xmlns="http://www.w3.org/2000/svg" font-family="Microsoft JhengHei,PingFang TC,Noto Sans TC,sans-serif">
+          <defs>
+            <marker id="sumAh" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#2E7D4F"/></marker>
+            <marker id="sumAh2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#6B7A82"/></marker>
+          </defs>
+          <rect width="440" height="250" fill="#FFFDF8"/>
+          <rect x="0" y="214" width="440" height="36" fill="#EADFC8"/>
+          <line x1="0" y1="214" x2="440" y2="214" stroke="#1E1E1E" stroke-width="3"/>
+          <path d="M36 214 C36 170 60 150 92 150 C124 150 148 170 148 214 Z" fill="#CFE3F2" stroke="#1E1E1E" stroke-width="3"/>
+          <circle cx="92" cy="102" r="44" fill="#FFE6D2" stroke="#1E1E1E" stroke-width="3"/>
+          <path d="M50 98 C48 66 72 52 98 56 C118 59 130 70 134 84 C110 74 82 76 58 104 Z" fill="#4A3A2A"/>
+          <path d="M134 92 L151 106 L134 113" fill="#FFE6D2" stroke="#1E1E1E" stroke-width="3" stroke-linejoin="round"/>
+          <circle cx="114" cy="92" r="4" fill="#1E1E1E"/>
+          <path d="M117 127 Q125 131 131 125" fill="none" stroke="#1E1E1E" stroke-width="2.5" stroke-linecap="round"/>
+          <path d="M304 150 L313 212 H367 L376 150 Z" fill="#D6ECF8"/>
+          <line x1="304" y1="150" x2="376" y2="150" stroke="#2E86C1" stroke-width="2"/>
+          <path d="M298 126 L313 212 H367 L382 126" fill="none" stroke="#1E1E1E" stroke-width="3" stroke-linejoin="round"/>
+          <text x="340" y="188" font-size="15" font-weight="700" text-anchor="middle" fill="#1E1E1E">水溶液</text>
+          <g fill="none" stroke="#6B7A82" stroke-width="2.5" stroke-dasharray="5 5" stroke-linecap="round">
+            <path d="M322 120 C318 104 300 98 280 100"/>
+            <path d="M342 118 C338 98 316 88 292 88"/>
+            <path d="M362 120 C360 100 340 82 306 78"/>
+          </g>
+          <text x="388" y="102" font-size="15" font-weight="700" fill="#4A5960" text-anchor="start">氣味</text>
+          <rect x="232" y="54" width="76" height="22" rx="11" fill="#FFE6D2" stroke="#1E1E1E" stroke-width="3" transform="rotate(-12 270 65)"/>
+          <ellipse cx="262" cy="79" rx="10" ry="6" fill="#FFE6D2" stroke="#1E1E1E" stroke-width="2.5" transform="rotate(-30 262 79)"/>
+          <text x="276" y="36" font-size="15" font-weight="700" text-anchor="middle" fill="#1E1E1E">手掌</text>
+          <path d="M230 90 C210 100 186 106 160 106" fill="none" stroke="#2E7D4F" stroke-width="4" marker-end="url(#sumAh)"/>
+          <text x="204" y="128" font-size="15" font-weight="700" text-anchor="middle" fill="#2E7D4F" stroke="#FFFDF8" stroke-width="4" paint-order="stroke">往鼻子的方向搧</text>
+          <line x1="160" y1="178" x2="294" y2="178" stroke="#6B7A82" stroke-width="2.5" stroke-dasharray="6 5" marker-start="url(#sumAh2)" marker-end="url(#sumAh2)"/>
+          <text x="227" y="166" font-size="14" font-weight="700" text-anchor="middle" fill="#4A5960" stroke="#FFFDF8" stroke-width="4" paint-order="stroke">臉不要靠近杯口</text>
+          <text x="432" y="240" font-size="13" text-anchor="end" fill="#4A5960">示意圖</text>
+        </svg>
+        <figcaption>搧聞的示意圖（不是照片）</figcaption>
+      </figure>
+      <div class="keypoint">💡 搧聞：手掌往鼻子方向輕輕搧，是用來<b>安全地聞氣味</b>；只靠搧聞，<b>不能確定</b>水溶液是酸性還是鹼性。</div>
+    </section>
+
+    <section class="sec">
+      <h2>🏷️ 成分標示</h2>
+      <div class="keypoint">看包裝上的<b>成分標示</b>，就知道裡面有什麼（課本 68 頁）：<br>
+        ・洗衣精的標示：水、香精……<br>
+        ・氣泡水的標示：水、二氧化碳……<br>
+        → <b>大部分的物品是由多種物質組成的。</b></div>
+      <div class="keypoint">👀 透明無色，<b>不一定</b>就是白開水：糖、食鹽溶解在水裡以後都看不見，只看顏色分不出來。要知道裡面溶了什麼，就看成分標示或標籤（不清楚來源的液體一律不嘗）。</div>
+    </section>
+
+    <section class="sec">
+      <h2>🧺 混合物</h2>
+      <div class="keypoint">課本 68 頁小知識：由<b>兩種以上的物質</b>混合而成的物品，叫做<b>混合物</b>。混合物除了液態的水溶液，也有固態和氣態的。</div>
+      <table class="keytab">
+        <tr><th style="width:18%">狀態</th><th style="width:38%">例子</th><th>由什麼混合而成</th></tr>
+        <tr><td class="grp">固態</td><td>不鏽鋼</td><td class="l">不同的金屬</td></tr>
+        <tr><td class="grp">液態</td><td>水溶液（糖水、食鹽水……）、氣泡水</td><td class="l">溶質＋水；氣泡水的標示：水、二氧化碳……</td></tr>
+        <tr><td class="grp">氣態</td><td>空氣</td><td class="l">不同的氣體</td></tr>
+      </table>
+      <p class="note">💡 <b>氣泡水裡有氣體，但它是液態的混合物；空氣是由不同氣體混合的氣態混合物。</b>整瓶氣泡水是倒得出來的液體，二氧化碳溶在水裡；氣體也是物質。</p>
+    </section>
+
+    <section class="sec">
+      <h2>🥄 配製水溶液（課本 69 頁）</h2>
+      <div class="ladder v3 wide">
+        <div class="step"><div class="box"><span class="num">1</span></div><div class="nm">洗容器</div><div class="ds">容器先用<b>純水</b>洗</div></div>
+        <div class="arrow">→</div>
+        <div class="step"><div class="box"><span class="num">2</span></div><div class="nm">配固體</div><div class="ds">砂糖、食鹽、檸檬酸、小蘇打粉各 <b>1 平匙</b>，分別加入 <b>20 毫升純水</b>，攪拌溶解</div></div>
+        <div class="arrow">→</div>
+        <div class="step"><div class="box"><span class="num">3</span></div><div class="nm">配醋</div><div class="ds">醋取 <b>2 毫升</b>，加入 <b>20 毫升純水</b>，攪拌均勻</div></div>
+        <div class="arrow">→</div>
+        <div class="step"><div class="box"><span class="num">4</span></div><div class="nm">貼標籤</div><div class="ds">貼上<b>名稱標籤</b>或編號</div></div>
+      </div>
+      <div class="keypoint">💧 <b>為什麼用純水？</b>自來水裡的其他物質，會影響水溶液的<b>酸鹼性</b>；為了減少實驗的誤差，實驗室常用中性的純水來配製。</div>
+      <div class="keypoint">🥄 取不同的材料，要用<b>乾淨、乾燥</b>的平匙：剛舀過檸檬酸的平匙直接去舀小蘇打，殘留的檸檬酸會混進小蘇打水。</div>
+      <div class="keypoint">🔁 <b>一直加食鹽，都溶得完嗎？</b>不會。<b>一定量的水，能溶解的物質有限，加太多就會有一些溶不掉。</b>杯底會留下怎麼攪拌都溶不掉的食鹽。</div>
+    </section>
+
+    <section class="sec">
+      <h2>⚠️ 容易搞混的地方</h2>
+      <div class="keypoint danger">
+        <ul class="nope">
+          <li>❌「透明無色的，就是白開水」→ 不對！糖、食鹽溶解後也看不見，要看成分標示或標籤。</li>
+          <li>❌「只靠搧聞，就知道是酸性還是鹼性」→ 不對！搧聞只能知道<b>氣味</b>；酸鹼性要用後面學的方法檢驗。</li>
+          <li>❌「氣泡水裡有氣體，所以是氣態的混合物」→ 不對！整瓶是液體，是<b>液態</b>的混合物。</li>
+          <li>❌「空氣只有一種氣體」→ 不對！空氣是由<b>不同氣體</b>混合的氣態混合物。</li>
+          <li>❌「水可以一直溶解食鹽，加多少都溶得完」→ 不對！一定量的水能溶解的物質<b>有限</b>。</li>
+        </ul>
+      </div>
+    </section>
+
+    <aside class="extra sec">
+      <div class="ttl">🔎 <b>想多知道一點（國中才會學）</b><small>看看就好，不考</small></div>
+      <ul>
+        <li>一定量的水能溶解多少物質，和水的<b>溫度</b>有關。</li>
+      </ul>
+    </aside>
+
+    <section class="sec">
+      <h2>🎯 想多練習</h2>
+      <div class="keypoint soft">自由練習，<b>不是作業</b>；用眼 30 分鐘要休息 10 分鐘。<br>
+        打開 <a class="ext" href="../../題庫/index.html?exam=exam2">第二次評量線上題庫</a> →「📚 主題練習」→ 選「<b>水溶液的性質與配製</b>」（課本 66–69）。<br>
+        <span class="note">「素養題組」裡的〈看起來像水的飲料〉〈第三組的配製紀錄〉，也是這一課的內容。</span></div>
+    </section>
+
+  </main>
+
+  <footer class="site-footer"><div class="wrap"><a href="../../index.html">← 回首頁</a> · <a href="水溶液的各種性質_互動教材.html">互動教材</a> · <a href="水溶液的各種性質_學習單.html">學習單</a> · 豬豬的自然探索 · 教學依據：<a href="https://reader.nani.com.tw/9200a013cbef8e66" target="_blank" rel="noopener">南一自然課本，第 66–69 頁</a> · 搧聞圖是示意圖</div></footer>
+</body>
+</html>

@@ -1,0 +1,174 @@
+<!DOCTYPE html><html lang="zh-Hant"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>彈簧秤與秤重工具 重點整理</title><link rel="icon" href="../../image/icon.svg"><style>
+    :root{--c-ink:#2c2f31;--c-soft:#55606a;--c-bg:#fff9f0;--c-brand:#f5a623;--c-brandS:#e8890b;--c-brandSoft:#fff2d9;--c-no:#e5484d;--c-noSoft:#fdeaea;--radius:16px;
+      --font:"Noto Sans TC","PingFang TC","Microsoft JhengHei","微軟正黑體",system-ui,-apple-system,sans-serif;}
+    *{box-sizing:border-box;}
+    body{margin:0;font-family:var(--font);color:var(--c-ink);background:var(--c-bg);line-height:1.75;font-size:18px;}
+    .wrap{width:min(880px,92vw);margin:0 auto;}
+    .site-header{background:linear-gradient(135deg,var(--c-brand),var(--c-brandS));color:#fff;padding:24px 0;}
+    .site-header .wrap{display:flex;align-items:center;gap:14px;}
+    .site-header img{width:50px;height:50px;}
+    .site-header h1{margin:0;font-size:1.5rem;}
+    .site-header p{margin:2px 0 0;opacity:.92;font-size:.95rem;}
+    .breadcrumb{padding:14px 0;font-size:.95rem;}
+    .breadcrumb a{color:var(--c-brandS);text-decoration:none;margin-right:14px;}
+    .breadcrumb a:hover{text-decoration:underline;}
+    .keypoint{background:#fff;border:1px solid #ece3d6;border-left:5px solid var(--c-brand);border-radius:12px;
+      padding:14px 16px;margin:12px 0;box-shadow:0 6px 20px rgba(90,70,30,.08);}
+    .keypoint.danger{border-left-color:var(--c-no);background:var(--c-noSoft);}
+    .keypoint b{color:var(--c-brandS);}
+    .keypoint.danger b{color:var(--c-no);}
+    .keytab{width:100%;border-collapse:collapse;margin:14px 0;background:#fff;border-radius:12px;overflow:hidden;
+      box-shadow:0 6px 20px rgba(90,70,30,.08);}
+    .keytab th,.keytab td{border:1px solid #ece3d6;padding:10px 12px;text-align:center;}
+    .keytab th{background:var(--c-brandSoft);color:var(--c-brandS);}
+    .keytab td.l{text-align:left;}
+    h2{font-size:1.3rem;}
+    .toolbar{margin:18px 0;}
+    .btn{cursor:pointer;border:none;border-radius:999px;padding:10px 20px;font-family:inherit;font-size:1rem;font-weight:700;background:var(--c-brand);color:#fff;}
+    .btn:hover{background:var(--c-brandS);}
+    .site-footer{margin:40px 0 26px;text-align:center;color:var(--c-soft);font-size:.9rem;}
+    .site-footer a{color:var(--c-brandS);}
+    .print-title{display:none;}
+    /* 主表：第一欄是植物名 */
+    .keytab td.grp{font-weight:800;color:var(--c-brandS);background:#fffaf1;}
+    .keytab td.nw{white-space:nowrap;}
+    .nobr{white-space:nowrap;}
+    /* 三格階梯圖 */
+    .ladder{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;
+      background:#fff;border:1px solid #ece3d6;border-radius:12px;padding:16px;margin:14px 0;
+      box-shadow:0 6px 20px rgba(90,70,30,.08);}
+    .step{text-align:center;min-width:120px;}
+    .step .box{font-size:2rem;line-height:1.2;}
+    .step .nm{font-weight:800;color:var(--c-brandS);}
+    .step .ds{font-size:.85em;color:var(--c-soft);}
+    .step .ds b{color:var(--c-ink);font-size:1.15em;}
+    .arrow{font-size:1.6rem;color:var(--c-soft);}
+    /* 三格都放一段話：平均分寬、不換行成兩列 */
+    .ladder.wide{flex-wrap:nowrap;align-items:stretch;}
+    .ladder.wide .step{flex:1 1 0;min-width:0;}
+    .ladder.wide .arrow{flex:none;align-self:center;}
+    .nest-ttl{font-weight:700;margin:4px 0 6px;}
+    .nest{display:flex;gap:10px;flex-wrap:wrap;}
+    .fl{flex:1 1 0;min-width:0;background:#fff;border:2px solid var(--c-ink);border-radius:14px;padding:8px 10px;text-align:center;}
+    .fl-nm{font-weight:800;}
+    .pts{display:flex;justify-content:center;flex-wrap:wrap;gap:6px;margin:6px 0 4px;}
+    .pt{border:2px dashed var(--c-brandS);background:var(--c-brandSoft);color:#8a4f00;border-radius:8px;padding:0 8px;font-weight:800;white-space:nowrap;}
+    .fl-ds{font-size:.85em;color:var(--c-soft);line-height:1.5;}
+    .so{margin:10px 0 0;}
+    /* 兩招對照卡：維持＝實線、改良＝虛線（黑白印也分得出來） */
+    .fl.keep{border-color:var(--c-brandS);}
+    .fl.new{border-style:dashed;border-color:#2f7d4f;}
+    .fl.keep .fl-nm{color:var(--c-brandS);}
+    .fl.new .fl-nm{color:#2f7d4f;}
+    .fl .fl-ds{color:var(--c-ink);margin:2px 0 6px;}
+    .fl .fl-ds b{color:inherit;}
+    .fl .list{text-align:left;font-size:.9em;line-height:1.55;border-top:1px dashed #d9cdbb;padding-top:6px;}
+    /* 迷思清單、一般清單：開頭符號凸出來，第二行對齊文字 */
+    .nope,.list{margin:0;padding:0;list-style:none;}
+    .nope li,.list li{padding-left:1.6em;text-indent:-1.6em;margin:2px 0;}
+    .keypoint .lead{font-weight:700;margin-bottom:2px;}
+    .note{font-size:.88em;color:var(--c-soft);margin:4px 0 0;}
+    /* 課本以外的延伸段落：標題旁的小標籤 */
+    .tag{display:inline-block;font-size:.62em;font-weight:700;color:var(--c-soft);border:1px solid #cfc3b1;border-radius:999px;
+      padding:0 10px;margin-left:8px;vertical-align:middle;white-space:nowrap;}
+    .keypoint.soft{border-left-color:#b9ad9b;box-shadow:none;}
+    .keypoint.soft b{color:var(--c-ink);}
+    /* 給高能力學生的延伸小知識（次要） */
+    .extra{background:#f4f7ff;border:1px dashed #9db4e0;border-radius:12px;padding:12px 16px;margin:28px 0 14px;
+      font-size:.9em;color:#3f5488;}
+    .extra b{color:#2f4680;}
+    .extra .ttl{display:flex;flex-wrap:wrap;align-items:baseline;gap:0 10px;}
+    .extra .ttl small{font-size:.88em;color:#52679a;}
+    .extra ul{margin:4px 0 0;padding-left:1.2em;}
+    @media print{
+      @page{size:A4;margin:14mm;}
+      body{background:#fff;color:#000;font-size:11pt;line-height:1.5;}
+      .site-header,.breadcrumb,.toolbar,.site-footer{display:none!important;}
+      .keypoint,.keytab,.ladder,.extra{box-shadow:none;break-inside:avoid;}
+      /* 保留分類底色，黑白印也看得出虛線／實線 */
+      .keypoint.danger,.keytab th,.keytab td.grp,.pt,.extra{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+      .print-title{display:block;margin:0 0 4px;font-size:15pt;font-weight:800;}
+      .print-title small{font-size:9.5pt;font-weight:400;color:#555;margin-left:10px;}
+      /* 每個段落整段不跨頁 */
+      .sec{break-inside:avoid;}
+      h2{break-after:avoid;font-size:13pt;margin:.5em 0 .2em;}
+      p{margin:.3em 0;}
+      .keypoint{padding:5px 10px;margin:5px 0;}
+      .keytab{margin:5px 0;}
+      .keytab th,.keytab td{padding:2px 8px;}
+      .ladder{padding:4px 6px;margin:5px 0;}
+      .nope li,.list li{margin:0;}
+      .step .box{font-size:1.3rem;}
+      .step .ds{line-height:1.45;}
+      .nest-ttl{margin:2px 0 4px;}
+      .fl{padding:4px 8px;}
+      .pts{margin:4px 0 2px;}
+      .so{margin-top:6px;}
+      .note{margin:2px 0 0;}
+      .fl .fl-ds{margin:0 0 3px;}
+      .fl .list{padding-top:3px;line-height:1.45;}
+      .extra{padding:5px 14px;margin:6px 0 0;font-size:10pt;line-height:1.45;}
+    }
+
+    /* ===== RWD：手機 / 平板 / 筆電 / 75 吋觸控螢幕 ===== */
+    @media (max-width:640px){
+      body{font-size:16px;line-height:1.65;}
+      .wrap{width:94vw;}
+      .site-header{padding:16px 0;}
+      .site-header img{width:38px;height:38px;}
+      .site-header h1{font-size:1.22rem;}
+      .site-header p{font-size:.82rem;}
+      h2{font-size:1.1rem;}
+      .keypoint{padding:11px 12px;border-radius:10px;margin:9px 0;}
+      .keytab{font-size:.88em;}
+      .keytab th,.keytab td{padding:7px 5px;}
+      .keytab td.nw{white-space:normal;}
+      .btn{padding:12px 20px;}
+      .ladder{gap:6px;padding:12px;}
+      .ladder .step{min-width:96px;}
+      .arrow{font-size:1.2rem;}
+      /* 手機：三格改成直向，箭頭朝下 */
+      .ladder.v3{flex-direction:column;gap:2px;}
+      .ladder.v3 .arrow{transform:rotate(90deg);line-height:1;}
+      .ladder.wide{align-items:center;}
+      .ladder.wide .step{flex:0 0 auto;width:100%;max-width:26em;}
+      .nest{flex-direction:column;gap:8px;}
+      .fl{display:flex;flex-wrap:wrap;align-items:center;gap:2px 10px;text-align:left;padding:7px 10px;}
+      .pts{margin:0;justify-content:flex-start;}
+      .fl-ds{flex-basis:100%;}
+      .fl .list{flex-basis:100%;}
+      .tag{white-space:normal;}
+    }
+    @media (min-width:641px) and (max-width:1024px){ .wrap{width:94vw;} }
+    @media (min-width:1800px){
+      body{font-size:23px;}
+      .wrap{width:min(1250px,90vw);}
+      .site-header{padding:34px 0;}
+      .site-header img{width:70px;height:70px;}
+      .site-header h1{font-size:2rem;}
+      h2{font-size:1.6rem;}
+      .keypoint{padding:20px 24px;border-radius:16px;}
+      .keytab th,.keytab td{padding:15px 18px;}
+      .btn{font-size:1.15rem;padding:14px 28px;}
+      .ladder .step{min-width:180px;}
+      .ladder.wide .step{min-width:0;}
+      .ladder .step .box{font-size:3rem;}
+      .pt,.fl{border-width:3px;}
+      .nest{gap:18px;}
+      .fl{padding:14px 16px;}
+      .extra{padding:18px 24px;}
+    }
+    @media (min-width:2600px){
+      body{font-size:30px;}
+      .wrap{width:min(1750px,88vw);}
+      .site-header img{width:94px;height:94px;}
+      .site-header h1{font-size:2.6rem;}
+      h2{font-size:2.1rem;}
+      .keytab th,.keytab td{padding:20px 24px;}
+      .ladder .step{min-width:240px;}
+      .ladder.wide .step{min-width:0;}
+      .ladder .step .box{font-size:4rem;}
+      .pt,.fl{border-width:4px;}
+    }
+
+.qfig,.qchart{width:100%;height:auto;display:block}.diagram{max-width:500px;margin:8px auto}.btn,.breadcrumb a{min-height:44px;display:inline-flex;align-items:center}.keytab{table-layout:fixed}.keytab th,.keytab td{overflow-wrap:anywhere}.must-list{padding-left:1.5em}.sec{min-width:0}.credits{font-size:.85em;margin:20px 0;padding-top:12px;border-top:1px dashed #aaa}@media print{.credits{margin:6px 0;break-inside:avoid}.diagram{max-width:120mm}.keypoint li{margin:2px 0}.keypoint ol{margin:2px 0;padding-left:1.5em}}@media print{.sec>h2{margin-top:.3em}.credits{padding-top:4px;margin:4px 0;break-before:avoid}}</style></head><body><header class="site-header"><div class="wrap"><img src="../../image/icon.svg" alt="站標"><div><h1>彈簧秤與秤重工具</h1><p>五年級自然｜第四單元 力與運動　課本 92–93 頁</p></div></div></header><nav class="breadcrumb wrap"><a href="../../index.html">← 回首頁</a><a href="彈簧秤與秤重工具_互動教材.html">← 回互動教材</a><a href="彈簧秤與秤重工具_學習單.html">學習單</a></nav><main class="wrap"><div class="toolbar"><button class="btn" onclick="window.print()">列印重點</button></div><div class="print-title">彈簧秤與秤重工具　重點整理<small>課本 92–93 頁</small></div><section class="sec"><h2>必會 3 句</h2><div class="keypoint"><ol class="must-list"><li>彈簧秤利用彈簧受力後長度會改變、不受力時會恢復原狀的原理；指針最後停住的刻度，就是用力的大小。</li><li>使用彈簧秤要先歸零，上端和下端不可倒過來使用，讀刻度時眼睛要和指針在同一水平面上。</li><li>體重計、磅秤裡面也有彈簧；有彈簧不一定是測量工具，還要轉化成刻度才能讀出大小。</li></ol></div></section><section class="sec"><h2>五個構造</h2><div class="keypoint"><table class="keytab"><thead><tr><th>吊環</th><th>彈簧</th><th>指針</th><th>刻度讀數</th><th>掛鉤</th></tr></thead><tbody><tr><td>上端吊起</td><td>受力改變長度</td><td>停住時指向讀數</td><td>單位公克重</td><td>下端掛物品</td></tr></tbody></table></div></section><section class="sec"><h2>使用三規則</h2><div class="keypoint"><div class="ladder v3 wide"><div class="step"><div class="nm">① 先歸零</div><div class="ds">直立、沒掛東西時，指針對準 0</div></div><div class="arrow">→</div><div class="step"><div class="nm">② 不倒掛</div><div class="ds">上端、下端不可倒過來</div></div><div class="arrow">→</div><div class="step"><div class="nm">③ 視線水平</div><div class="ds">眼睛和指針一樣高</div></div></div><p class="note">倒過來的彈簧秤無法歸零，讀到的數字不準。</p></div></section><section class="sec"><h2>讀刻度</h2><div class="keypoint"><p class="lead">讀刻度前先數：一小格代表多少公克重。單位是公克重，不是公分。</p><ul class="list"><li>① 找兩個相鄰的數字，算相差多少。</li><li>② 數中間分成幾小格，算出一小格是多少。</li><li>③ 從指針上面最近的數字往下數。</li></ul><p class="note">例：課本的彈簧秤最大 250 公克重，數字間隔 50、每小格 10 公克重；另一支最大 500 公克重，數字間隔 100、每小格 20 公克重。指針到最大刻度，就要換能秤更重的工具，不要再用力拉。</p></div></section><section class="sec"><h2>生活秤重工具</h2><div class="keypoint"><table class="keytab"><thead><tr><th>是測量工具（有刻度）</th><th>有彈簧，但不是測量工具</th></tr></thead><tbody><tr><td>體重計、磅秤、彈簧秤</td><td>摩托車避震器、彈簧床、遊樂器材</td></tr></tbody></table><p class="lead">要成為測量工具：彈簧受力會改變長度、不受力會恢復原狀、在彈性限度內伸長有規律，還要轉化成刻度。</p><ul class="list"><li>✔ 用容器裝東西秤：先放好空容器，再歸零，讀到的就是東西的重量。</li><li>✔ 想知道秤準不準：掛上已知重量的砝碼，看讀數對不對。</li></ul></div></section><section class="sec"><h2>⚠️ 容易搞混</h2><div class="keypoint danger"><ul class="nope"><li>╳ 「刻度是公分」→ 公克重。</li><li>╳ 「指針往下移得愈多，東西愈輕」→ 指針往下愈多，讀數愈大，東西愈重。</li><li>╳ 「秤上寫 250，東西就是 250 公克重」→ 250 是最大刻度；要讀指針停住的位置。</li><li>╳ 「有彈簧就是秤」→ 還要轉化成刻度，才讀得出大小。</li><li>╳ 「蘋果拿下來，指針回到 0，是因為蘋果沒有重力了」→ 蘋果還是受到重力；只是彈簧不再受力，所以恢復原狀。</li></ul></div></section><section class="sec"><aside class="extra"><b>國中才會學・看看就好，不考</b><p>電子秤用的是另一種感應的方法，不是靠看彈簧的長度。</p></aside></section><section class="sec"><h2>想多練習（自由練習，不是作業；用眼 30 分鐘要休息 10 分鐘）</h2><div class="keypoint">到<a href="../../題庫/index.html?exam=exam2">線上題庫（第二次評量）</a>，選「彈簧秤與秤重工具」練習。</div></section><footer class="credits">教學依據：<a href="https://reader.nani.com.tw/9200a013cbef8e66">南一自然課本，第 92–93 頁</a>。</footer></main><script src="../../題庫/figures.js?v=20261006a"></script><script>document.querySelectorAll('[data-fig]').forEach(el=>{try{if(window.QFIG){el.innerHTML=QFIG.render(JSON.parse(el.dataset.fig))+'<figcaption class="note">示意：'+el.dataset.fallback+'</figcaption>';}}catch(e){el.textContent='示意圖未載入：'+el.dataset.fallback;}});</script></body></html>

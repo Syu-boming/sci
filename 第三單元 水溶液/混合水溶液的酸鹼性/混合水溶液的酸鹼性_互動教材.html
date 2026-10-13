@@ -1,0 +1,1494 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>混合水溶液的酸鹼性｜少量多次調回中性</title>
+<link rel="icon" href="../../image/icon.svg" type="image/svg+xml">
+<style>
+/* ==========================================================
+   混合水溶液的酸鹼性 — 樣式表
+   使用情境：教室 75 吋觸控螢幕，全班共用、學生輪流上臺操作。
+   沿用〈植物與人類生活〉的調色盤與元件。
+   白色字只放在深綠 #2E7D4F 上；顏色可以標示規則，不用來暗示答案；
+   試紙、高麗菜汁的顏色一律同時寫成字（色弱、黑白都看得懂）。
+   ========================================================== */
+:root{
+  --bg:#FDF6EC;         /* 奶油底色 */
+  --ink:#1E1E1E;        /* 描邊近黑 */
+  --green:#58B159;
+  --green-dark:#2E7D4F; /* 深綠（唯一可以放白字的底色） */
+  --water:#4FB0E5;
+  --water-dark:#2E86C1;
+  --sun:#FFC93C;
+  --coral:#FF7F66;
+  --wrong:#E4574C;
+  --card:#FFFFFF;
+  --muted:#6B7A82;
+  --shadow:0 6px 18px rgba(46,86,110,.16);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  min-height:100vh;color:var(--ink);background:var(--bg);
+  font-family:-apple-system,"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif;
+  font-size:clamp(17px,1.9vw,22px);line-height:1.6;
+}
+figure{margin:0}
+#app{max-width:1240px;margin:0 auto;padding:12px 16px 40px}
+
+/* ---------- 頁首與站別導覽（老師可自由跳段） ---------- */
+.sitehead{margin-bottom:12px}
+.headrow{display:flex;align-items:center;gap:6px 16px;flex-wrap:wrap}
+.back{
+  display:inline-flex;align-items:center;min-height:44px;padding:4px 16px;
+  border:3px solid var(--ink);border-radius:999px;background:var(--card);color:var(--ink);
+  font-weight:800;text-decoration:none;box-shadow:0 3px 0 var(--ink);font-size:clamp(15px,1.4vw,18px);
+}
+.back:active{transform:translateY(2px);box-shadow:0 1px 0 var(--ink)}
+.sitehead h1{margin:0;font-size:clamp(22px,2.6vw,32px);font-weight:900;letter-spacing:.5px;line-height:1.25}
+.sitehead .sub{color:var(--muted);font-size:clamp(13px,1.35vw,17px);font-weight:700}
+.toplinks{display:flex;gap:8px;flex-wrap:wrap;margin-left:auto}
+.stations{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;align-items:center}
+.period{font-weight:900;color:var(--muted);font-size:clamp(13px,1.3vw,17px);white-space:nowrap;padding:0 2px}
+.station-btn{
+  border:3px solid var(--ink);border-radius:999px;background:var(--card);color:var(--ink);
+  padding:8px 16px;font:inherit;font-size:clamp(15px,1.4vw,19px);font-weight:800;cursor:pointer;
+  box-shadow:0 3px 0 var(--ink);min-height:56px;line-height:1.25;
+}
+.station-btn.on{background:var(--green-dark);color:#fff}
+.station-btn:active{transform:translateY(2px);box-shadow:0 1px 0 var(--ink)}
+
+/* ---------- 畫面切換 ---------- */
+.screen{display:none;animation:fadeIn .4s ease}
+.screen.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.hidden{display:none !important}
+
+/* ---------- 通用卡片、按鈕 ---------- */
+.panel{
+  background:var(--card);border:3px solid var(--ink);border-radius:20px;
+  padding:16px 18px;box-shadow:var(--shadow);margin-bottom:14px;
+}
+.ptitle{font-weight:900;font-size:clamp(19px,2.2vw,27px);margin:0 0 10px}
+.btn{
+  border:3px solid var(--ink);border-radius:999px;background:var(--sun);color:var(--ink);
+  padding:12px 26px;font:inherit;font-weight:900;cursor:pointer;
+  box-shadow:0 4px 0 var(--ink);min-height:60px;
+}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--ink)}
+.btn.green{background:var(--green-dark);color:#fff}
+.btn.plain{background:var(--card)}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.btn.green[disabled]{opacity:1;background:#E6E1D6;color:#5B666C;box-shadow:0 4px 0 #9A9486}
+.btnrow{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-top:14px}
+.btnrow.center{justify-content:center}
+.navrow{display:flex;justify-content:flex-end;gap:12px;flex-wrap:wrap;margin:0 0 12px}
+.ask{
+  background:#FFF6D8;border:3px dashed var(--sun);border-radius:16px;
+  padding:12px 16px;font-weight:800;font-size:clamp(18px,2.1vw,25px);text-align:center;
+}
+.ask.big{font-size:clamp(22px,2.6vw,40px);padding:16px}
+.ask.left{text-align:left}
+.lead{color:var(--muted);font-weight:700;margin:10px 0;font-size:clamp(15px,1.6vw,19px)}
+.cap{font-weight:800;margin-top:6px;font-size:clamp(14px,1.55vw,19px);line-height:1.45}
+.note{color:var(--muted);font-weight:700;font-size:clamp(13px,1.4vw,17px);line-height:1.45}
+.center{text-align:center}
+.mt{margin-top:14px}
+/* 給老師看的操作提示（放在舞台面板外面，學生不必讀） */
+.teacher-tip{
+  margin:0 0 18px;font-size:clamp(13px,1.4vw,16px);color:var(--muted);
+  border-left:5px solid var(--sun);padding:6px 12px;background:#FFFCF2;border-radius:0 10px 10px 0;
+}
+.teacher-tip b.time{color:#7A5B00}
+.teacher-tip p{margin:4px 0}
+/* 照片載入失敗：中性的灰框 */
+.img-fallback{
+  display:flex !important;align-items:center;justify-content:center;text-align:center;line-height:1.35;
+  background:#F2EEE4;color:var(--muted);font-weight:800;font-size:clamp(12px,1.3vw,17px);
+  padding:8px;border:2px dashed #C9C2B4;overflow:hidden;overflow-wrap:anywhere;
+}
+
+/* 並排版面：橫向 ≥1024 時左右兩欄 */
+.duo{display:grid;grid-template-columns:minmax(0,1fr);gap:16px;align-items:start}
+@media (min-width:1024px) and (orientation:landscape){
+  .duo{grid-template-columns:minmax(0,1.15fr) minmax(0,1fr)}
+  .duo.mid{align-items:center}
+}
+.pair{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px;align-items:start}
+
+/* ---------- 照片框：比例＝照片原比例，所以百分比標籤不會跑位 ---------- */
+.fig{
+  position:relative;width:min(100%, calc(var(--mh,60vh) * var(--ar,4/3)));aspect-ratio:var(--ar,4/3);
+  margin:0 auto;border-radius:14px;background:#F2EEE4;box-shadow:0 0 0 3px var(--ink);
+}
+.fig > img,.fig > .img-fallback{
+  position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:14px;display:block;
+  -webkit-user-drag:none;user-select:none;
+}
+.figbox{padding:3px}
+/* 疊在照片上的文字標籤 */
+.tag{
+  position:absolute;z-index:4;width:max-content;pointer-events:none;
+  background:rgba(255,255,255,.96);border:3px solid var(--ink);border-radius:12px;
+  padding:3px 10px;font-size:clamp(13px,1.35vw,19px);line-height:1.3;
+  box-shadow:0 3px 8px rgba(0,0,0,.28);animation:tagIn .35s ease;
+}
+.tag b{display:block;font-size:1.12em;font-weight:900}
+@keyframes tagIn{from{opacity:0;scale:.85}to{opacity:1;scale:1}}
+.pin{
+  position:absolute;z-index:3;width:18px;height:18px;border-radius:50%;
+  background:var(--sun);border:3px solid var(--ink);box-shadow:0 0 0 3px #fff;transform:translate(-50%,-50%);
+}
+
+/* ---------- 選項、回饋、判準 ---------- */
+.opts{display:flex;flex-wrap:wrap;gap:12px}
+.opts.col{flex-direction:column;align-items:stretch}
+.opts.col .opt{text-align:left}
+.opt{
+  border:3px solid var(--ink);border-radius:16px;background:var(--card);color:var(--ink);
+  padding:12px 24px;font:inherit;font-weight:900;cursor:pointer;
+  box-shadow:0 4px 0 var(--ink);min-height:62px;font-size:clamp(18px,2vw,25px);line-height:1.35;
+}
+.opt:active{transform:translateY(3px);box-shadow:0 1px 0 var(--ink)}
+.opt.ok{background:var(--green-dark);color:#fff}
+.opt.no{background:#FBE3E1;border-color:var(--wrong);color:#B03A30;text-decoration:line-through}
+.opt[disabled]{cursor:not-allowed}
+.opt.picked,.opt[aria-pressed="true"]{background:#FFF3C4;box-shadow:0 0 0 5px var(--sun),0 4px 0 var(--ink)}
+.steptag{
+  display:inline-block;background:#DDF0FA;color:var(--ink);border:3px solid var(--ink);
+  border-radius:999px;padding:2px 14px;font-weight:900;margin-bottom:8px;font-size:clamp(14px,1.5vw,19px);
+}
+.qtitle{font-weight:900;font-size:clamp(19px,2.2vw,27px);margin:0 0 12px}
+.feedback{margin-top:12px;font-weight:800;border-radius:14px}
+.feedback:empty{display:none}
+.feedback.hint{background:#FFF6D8;border:3px dashed var(--sun);padding:10px 14px}
+.feedback.good{background:#EAF7EE;border:3px solid var(--green-dark);color:var(--green-dark);padding:10px 14px}
+/* 判準卡 —— 課堂追問「你怎麼知道？」的素材，答對後一定要出現 */
+.criterion{
+  background:#EAF7EE;border:3px solid var(--green-dark);border-radius:18px;padding:12px 16px;margin-top:14px;
+}
+.criterion .k{font-weight:900;color:var(--green-dark);font-size:clamp(18px,2.1vw,25px)}
+.criterion .askagain{
+  margin-top:8px;font-size:clamp(13px,1.5vw,17px);color:var(--muted);font-weight:800;
+  border-top:2px dashed #B9D8C4;padding-top:8px;
+}
+.bigpoint{
+  background:#EAF7EE;border:3px solid var(--green-dark);border-radius:18px;margin-top:14px;
+  padding:14px 18px;font-weight:900;font-size:clamp(19px,2.3vw,28px);text-align:center;color:var(--green-dark);
+}
+.bigpoint small{display:block;margin-top:6px;font-size:.7em;color:#2F5E43;font-weight:800}
+.saybox{
+  margin-top:14px;background:#FFFDF8;border:3px solid var(--ink);border-radius:16px;padding:12px 16px;
+  font-weight:900;font-size:clamp(20px,2.3vw,30px);line-height:1.45;
+}
+.saybox .no{display:inline-block;background:var(--sun);border:3px solid var(--ink);border-radius:999px;padding:0 12px;margin-right:8px;font-size:.8em}
+.kidsay{
+  margin:0 0 10px;padding:6px 12px;border-left:5px solid var(--water);border-radius:0 10px 10px 0;
+  background:#F2F8FC;color:#34444C;font-weight:800;font-size:clamp(15px,1.6vw,20px);line-height:1.5;
+}
+
+/* ---------- 開場投票 ---------- */
+.guessbox{margin-top:16px;text-align:center;background:#FFFDF8;border:3px solid var(--ink);border-radius:16px;padding:12px}
+.guessbox .g{font-size:clamp(19px,2.2vw,28px);font-weight:900}
+.guessbox .later{font-size:clamp(22px,2.8vw,36px);font-weight:900;color:var(--green-dark)}
+
+/* ---------- 分類白板（探究步驟） ---------- */
+.cardtray{
+  display:flex;flex-wrap:wrap;gap:12px;justify-content:center;
+  min-height:150px;padding:12px;border:3px dashed #C9C2B4;border-radius:18px;background:#FFFDF8;margin-top:12px;
+}
+.fcard{
+  width:clamp(118px,11vw,170px);background:var(--card);
+  border:3px solid var(--ink);border-radius:16px;padding:7px;text-align:center;
+  cursor:pointer;box-shadow:0 4px 0 rgba(30,30,30,.25);touch-action:none;user-select:none;
+  transition:transform .12s ease,box-shadow .12s ease;
+}
+.fcard .label{font-weight:900;font-size:clamp(14px,1.35vw,19px);line-height:1.3;margin-top:5px}
+.fcard.picked{transform:translateY(-6px) scale(1.04);box-shadow:0 10px 0 var(--sun),0 0 0 5px var(--sun)}
+.fcard.dragging{position:fixed;z-index:999;pointer-events:none;opacity:.92;box-shadow:0 14px 26px rgba(0,0,0,.35)}
+.fcard:focus-visible{outline:4px solid var(--water-dark);outline-offset:3px}
+.fcard .mark{display:none;font-weight:900;font-size:clamp(14px,1.4vw,19px);line-height:1.3;margin-top:4px}
+.fcard.judged .mark{display:block}
+.fcard.judged.ok .mark{color:var(--green-dark)}
+.fcard.judged.no .mark{color:#B03A30}
+.fcard.judged.no{border-color:var(--wrong)}
+.fcard.txt{width:clamp(190px,19vw,280px);text-align:left}
+.fcard.txt .label{font-size:clamp(14px,1.3vw,18px);font-weight:800;line-height:1.4}
+.fcard.noimg{display:flex;flex-direction:column;justify-content:center;background:#FFFDF8;min-height:clamp(120px,10vw,170px)}
+.baskets{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:14px}
+.basket{border:4px solid var(--ink);border-radius:20px;padding:10px;min-height:170px;background:#FFFDF8;cursor:pointer}
+.basket.hot{background:#FFF3C4;border-style:dashed}
+.bdrop{
+  position:absolute;width:1px;height:1px;margin:-1px;padding:0;border:0;overflow:hidden;
+  clip:rect(0 0 0 0);white-space:nowrap;
+}
+.bdrop:focus{
+  position:static;width:auto;height:auto;margin:0;overflow:visible;clip:auto;
+  border:3px solid var(--ink);border-radius:999px;background:var(--card);color:var(--ink);
+  padding:6px 16px;min-height:48px;font:inherit;font-weight:900;cursor:pointer;
+  outline:4px solid var(--water-dark);outline-offset:3px;
+}
+.bhead{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap}
+.bletter{
+  width:clamp(38px,3.6vw,52px);aspect-ratio:1;border-radius:50%;border:3px solid var(--ink);background:#fff;
+  display:flex;align-items:center;justify-content:center;font-weight:900;font-size:clamp(20px,2.2vw,28px);flex:none;
+}
+.bname{font-size:clamp(20px,2.3vw,30px);font-weight:900;text-align:center;letter-spacing:1px;line-height:1.3}
+.bhint{text-align:center;font-weight:800;color:var(--muted);margin:4px 0 8px;font-size:clamp(14px,1.5vw,19px);line-height:1.35}
+.drop{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;min-height:80px}
+.scorebar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:14px}
+#sortMsg{font-weight:800}
+.derive{margin-top:18px;border-top:3px dashed #C9C2B4;padding-top:16px}
+
+/* ---------- 闖關驗收 ---------- */
+.quizbar{display:flex;align-items:center;gap:8px 14px;flex-wrap:wrap;
+  background:var(--card);border:3px solid var(--ink);border-radius:26px;padding:8px 18px;
+  box-shadow:var(--shadow);margin-bottom:14px;font-weight:900}
+.dots{display:flex;gap:8px}
+.dot{width:16px;height:16px;border-radius:50%;border:3px solid var(--ink);background:#fff}
+.dot.done{background:var(--green-dark)}
+.dot.now{background:var(--sun)}
+.qscore{margin-left:auto}
+.quizwrap{display:grid;grid-template-columns:minmax(0,1fr);gap:18px;align-items:start}
+@media (min-width:1024px) and (orientation:landscape){
+  .quizwrap{grid-template-columns:minmax(0,1fr) minmax(0,1.1fr)}
+}
+.quizwrap.nophoto{grid-template-columns:minmax(0,1fr)}
+.quizwrap.nophoto .qphoto{display:none}
+.qkind{display:inline-block;margin-left:8px;padding:2px 12px;border-radius:999px;border:2px solid var(--ink);font-weight:900;font-size:clamp(13px,1.35vw,17px);background:#FFF6D8}
+.qkind.home{background:#fff;border-style:dashed;color:var(--muted)}
+.result{text-align:center;padding:16px}
+.result .big{font-size:clamp(30px,5vw,58px);font-weight:900;color:var(--green-dark)}
+.rankline{font-weight:900;font-size:clamp(22px,2.8vw,36px);margin:6px 0}
+.ticket{
+  margin:14px auto;max-width:900px;background:#FFF6D8;border:3px dashed var(--sun);border-radius:16px;
+  padding:12px 16px;font-weight:800;font-size:clamp(18px,2.1vw,26px);text-align:left;line-height:1.8;
+}
+
+/* ---------- 頁尾：出處 ---------- */
+.credits{
+  font-size:clamp(12px,1.2vw,15px);color:var(--muted);margin-top:20px;line-height:1.55;
+  border-top:2px dashed #D9CFBE;padding-top:12px;
+}
+.credits a{color:var(--muted)}
+.credits p{margin:4px 0}
+
+/* ==========================================================
+   混合水溶液的酸鹼性 — 本課新增的元件
+   ========================================================== */
+.qfig{width:100%;height:auto;display:block}
+/* 示意圖外框：右上角一律標「示意」 */
+.svgbox{position:relative;background:#FFFDF8;border:3px solid var(--ink);border-radius:16px;padding:6px 6px 2px;max-width:820px;margin:0 auto}
+.simtag{
+  position:absolute;right:8px;top:6px;z-index:2;background:#fff;border:2px dashed var(--muted);border-radius:999px;
+  padding:0 10px;font-weight:900;color:var(--muted);font-size:clamp(12px,1.3vw,17px);
+}
+.sim{display:inline-block;margin-left:8px;padding:0 10px;border:2px dashed var(--muted);border-radius:999px;font-size:.7em;color:var(--muted);font-weight:800;vertical-align:middle}
+/* figures.js 讀不到時的文字版試管 */
+.cabfb{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;padding:8px}
+.cabt{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:70px;font-weight:800;line-height:1.3}
+.cabt .sw{width:28px;height:44px;border:3px solid var(--ink);border-radius:0 0 14px 14px}
+.cabfb .note{flex-basis:100%;text-align:center;margin:4px 0 0}
+
+/* 暖身 */
+.warm{background:#FFFDF6;border-style:dashed}
+.warmq{display:grid;gap:8px;margin-bottom:12px}
+.warmq .ask{text-align:left}
+.warmq .btn{justify-self:start;min-height:52px;padding:8px 20px}
+.warmq .bigpoint{margin-top:0;text-align:left}
+
+/* 示範：器材、抓錯、老師課前試做的照片 */
+.safety{margin-top:12px;background:#FFF1EE;border:3px solid var(--wrong);border-radius:14px;padding:8px 14px;font-weight:800;font-size:clamp(15px,1.6vw,20px)}
+.kchips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:10px 0 4px}
+.kchip{border:3px solid var(--ink);border-radius:14px;background:#fff;padding:4px 12px;font-weight:900;text-align:center;line-height:1.3;min-width:5.2em}
+.kchip small{display:block;font-weight:800;color:var(--muted);font-size:.8em}
+.catch{margin:12px 0;border:3px solid var(--wrong);border-radius:16px;padding:10px 12px;background:#FFF8F6}
+.catch .ask{background:#FFF1EE;border-color:var(--wrong)}
+.catch .opts{margin-top:10px;justify-content:center}
+.fig.teacher{background:#fff}
+.fig.teacher > img{object-fit:contain;background:#fff}
+.teacher-empty{font-size:clamp(14px,1.6vw,22px) !important}
+.steplist{margin:8px 0 0;padding:0;list-style:none;display:grid;gap:6px}
+.steplist li{font-weight:800;font-size:clamp(16px,1.75vw,23px);line-height:1.45}
+.steplist b.no{display:inline-block;background:var(--sun);border:3px solid var(--ink);border-radius:999px;padding:0 10px;margin-right:6px}
+
+/* 課本 76 頁：兩組的試管（小圖，不放大超過 1.5 倍） */
+.groups{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:10px}
+.gcard{border:3px solid var(--ink);border-radius:16px;background:#FFFDF8;padding:10px 12px;display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 14px;align-items:start}
+.gcard .tubeimg{grid-row:span 3}
+.tubeimg img,.tubeimg .img-fallback{width:86px;height:auto;display:block;border-radius:8px;background:#fff}
+.tubeimg .img-fallback{height:190px;font-size:12px;padding:2px}
+.tubeimg .tcap{font-size:clamp(12px,1.25vw,16px);font-weight:800;color:var(--muted);text-align:center;width:86px;line-height:1.3;margin-top:4px}
+.gname{font-weight:900;font-size:clamp(18px,2vw,26px);line-height:1.35}
+.gname small{display:block;font-size:.72em;color:#34444C;font-weight:800}
+.gcard .opt{min-height:52px;padding:8px 16px}
+
+/* 虛擬調色臺 */
+.mixlab{display:grid;grid-template-columns:minmax(0,1fr);gap:14px;margin-top:12px}
+@media (min-width:1024px) and (orientation:landscape){ .mixlab{grid-template-columns:minmax(0,1fr) minmax(0,1fr)} }
+.beaker{position:relative;background:#FFFDF8;border:3px solid var(--ink);border-radius:16px;padding:6px;max-width:560px;width:100%;margin:0 auto}
+.mixbtns{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:10px}
+.mixbtns .btn{min-height:60px;padding:10px 20px}
+.mixbtns .btn.soda{background:#DDF0FA}
+.mixbtns .btn.cit{background:#FFE3EA}
+.mixbtns .btn.small{min-height:52px;font-size:.88em}
+.counts{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;font-weight:900;font-size:clamp(16px,1.8vw,24px);margin-top:10px}
+.counts span{border:3px solid var(--ink);border-radius:999px;padding:2px 14px;background:#fff}
+.logwrap{max-height:52vh;overflow:auto;border:3px solid var(--ink);border-radius:16px;background:#fff}
+.logtab{width:100%;border-collapse:collapse;table-layout:fixed;font-size:clamp(14px,1.45vw,19px)}
+.logtab th,.logtab td{border-bottom:2px solid #E6E0D4;padding:5px 6px;text-align:center;line-height:1.3;overflow-wrap:anywhere}
+.logtab th{position:sticky;top:0;background:#F2EEE4;font-weight:900}
+.logtab td.c{font-weight:900}
+.logtab tr.now td{background:#FFF3C4}
+.chipc{display:inline-block;width:1em;height:1em;border-radius:50%;border:2px solid var(--ink);vertical-align:-2px;margin-right:4px}
+
+/* 生活應用：配對白板（卡片有照片） */
+.fcard .ph img,.fcard .ph .img-fallback{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:10px;display:block;background:#fff}
+.fcard .ph .img-fallback{font-size:11px;padding:2px}
+.baskets.four{grid-template-columns:repeat(4,minmax(0,1fr))}
+.natrow{display:flex;align-items:center;gap:8px 14px;flex-wrap:wrap;margin:8px 0;padding:6px 10px;border:3px solid var(--ink);border-radius:14px;background:#fff}
+.natrow .nm{font-weight:900;font-size:clamp(17px,1.9vw,25px);min-width:7.5em}
+.natrow .opt{min-height:52px;padding:8px 16px}
+.natrow .feedback{flex-basis:100%;margin-top:4px}
+
+/* 安全 */
+.stopbox{background:#FFF1EE;border:3px solid var(--wrong);border-radius:16px;padding:10px 14px;font-weight:800;margin-top:12px}
+.stopbox ul{margin:4px 0 0;padding-left:1.2em}
+.actrow{display:flex;align-items:center;gap:8px 14px;flex-wrap:wrap;margin:8px 0;padding:6px 10px;border:3px solid var(--ink);border-radius:14px;background:#fff}
+.actrow .nm{font-weight:900;font-size:clamp(17px,1.9vw,25px);flex:1 1 14em}
+.actrow .opt{min-height:52px;padding:8px 18px}
+.actrow .feedback{flex-basis:100%;margin-top:4px}
+.homework{margin-top:12px;background:#F2F8FC;border:3px solid var(--water-dark);border-radius:14px;padding:8px 14px;font-weight:800}
+.wslist{margin:8px 0 0;padding-left:1.3em;font-weight:800}
+.wslist li{margin:4px 0}
+
+@media (prefers-reduced-motion:reduce){
+  .screen,.tag{animation:none}
+}
+
+/* ===== RWD：手機 / 平板 / 筆電 / 75 吋觸控螢幕 ===== */
+@media (max-width:1100px){
+  .station-btn{ padding:8px 10px; }
+}
+@media (max-width:1023px){
+  .baskets,.baskets.four{ grid-template-columns:repeat(2,minmax(0,1fr)); }
+}
+@media (max-width:760px){
+  .groups{ grid-template-columns:minmax(0,1fr); }
+}
+@media (max-width:640px){
+  #app{ padding:10px 10px 28px; }
+  .panel{ border-radius:14px; padding:12px 12px; }
+  .stations{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:6px; }
+  .stations .period{ grid-column:1/-1; }
+  .station-btn{ padding:4px 4px; font-size:14px; min-height:52px; border-radius:16px; }
+  .btn{ padding:10px 18px; min-height:52px; }
+  .opt{ min-height:52px; padding:10px 14px; }
+  .baskets,.baskets.four{ grid-template-columns:minmax(0,1fr); }
+  .basket{ min-height:130px; }
+  .quizbar{ border-radius:18px; }
+  .pair{ gap:8px; }
+  .toplinks{ margin-left:0; }
+  .kchip{ min-width:4.4em; padding:3px 8px; }
+  .mixbtns .btn{ flex:1 1 100%; }
+  .logtab th,.logtab td{ padding:4px 3px; font-size:13px; }
+  .natrow .nm{ min-width:0; flex-basis:100%; }
+}
+@media (min-width:1800px){
+  body{ font-size:26px; }
+  #app{ max-width:1680px; padding:20px 30px 60px; }
+  .sitehead h1{ font-size:38px; }
+  .back{ min-height:64px; font-size:22px; padding:6px 24px; }
+  .station-btn{ min-height:72px; font-size:23px; padding:10px 26px; }
+  .period{ font-size:21px; }
+  .btn{ min-height:80px; padding:16px 40px; }
+  .opt{ min-height:84px; font-size:28px; }
+  .fcard{ width:210px; }
+  .basket{ min-height:240px; }
+  .tag{ font-size:22px; }
+  .bdrop:focus{ min-height:64px; }
+  .cap{ font-size:22px; }
+  .ask{ font-size:30px; }
+  .steptag{ font-size:23px; }
+  .sitehead .sub{ font-size:21px; }
+  .ask.big{ font-size:46px; }
+  .qtitle,.ptitle{ font-size:32px; }
+  .saybox{ font-size:34px; }
+  .bigpoint{ font-size:33px; }
+  .criterion .k{ font-size:30px; }
+  .bname{ font-size:32px; }
+  .bhint,.fcard .label,.fcard .mark{ font-size:22px; }
+  .note,.lead{ font-size:20px; }
+  .kidsay{ font-size:24px; }
+  .pin{ width:24px; height:24px; }
+  .teacher-tip{ font-size:19px; }
+  .credits{ font-size:16px; }
+  .svgbox{ max-width:1100px; }
+  .simtag{ font-size:20px; }
+  .qkind{ font-size:20px; }
+  .safety,.stopbox,.homework{ font-size:23px; }
+  .steplist li{ font-size:26px; }
+  .gname{ font-size:30px; }
+  .tubeimg .tcap{ font-size:18px; }
+  .gcard .opt,.natrow .opt,.actrow .opt{ min-height:72px; font-size:26px; }
+  .natrow .nm,.actrow .nm{ font-size:28px; }
+  .mixbtns .btn{ min-height:80px; }
+  .mixbtns .btn.small{ min-height:72px; }
+  .counts{ font-size:28px; }
+  .logtab{ font-size:22px; }
+  .beaker{ max-width:700px; }
+  .warmq .btn{ min-height:68px; }
+}
+@media (min-width:2600px){
+  body{ font-size:34px; }
+  #app{ max-width:2280px; padding:30px 40px 80px; }
+  .sitehead h1{ font-size:50px; }
+  .back{ min-height:84px; font-size:30px; }
+  .station-btn{ min-height:96px; font-size:30px; padding:14px 34px; }
+  .period{ font-size:28px; }
+  .btn{ min-height:104px; padding:22px 52px; }
+  .opt{ min-height:112px; font-size:36px; }
+  .fcard{ width:280px; }
+  .basket{ min-height:300px; }
+  .tag{ font-size:30px; }
+  .cap{ font-size:29px; }
+  .ask{ font-size:39px; }
+  .steptag{ font-size:30px; }
+  .sitehead .sub{ font-size:27px; }
+  .ask.big{ font-size:60px; }
+  .qtitle,.ptitle{ font-size:42px; }
+  .saybox{ font-size:44px; }
+  .bigpoint{ font-size:43px; }
+  .criterion .k{ font-size:39px; }
+  .bname{ font-size:42px; }
+  .bhint,.fcard .label,.fcard .mark{ font-size:29px; }
+  .note,.lead{ font-size:26px; }
+  .kidsay{ font-size:31px; }
+  .pin{ width:32px; height:32px; }
+  .teacher-tip{ font-size:25px; }
+  .credits{ font-size:21px; }
+  .svgbox{ max-width:1500px; }
+  .simtag{ font-size:26px; }
+  .qkind{ font-size:26px; }
+  .safety,.stopbox,.homework{ font-size:30px; }
+  .steplist li{ font-size:34px; }
+  .gname{ font-size:39px; }
+  .tubeimg .tcap{ font-size:22px; }
+  .gcard .opt,.natrow .opt,.actrow .opt{ min-height:96px; font-size:34px; }
+  .natrow .nm,.actrow .nm{ font-size:36px; }
+  .mixbtns .btn{ min-height:104px; }
+  .mixbtns .btn.small{ min-height:96px; }
+  .counts{ font-size:36px; }
+  .logtab{ font-size:29px; }
+  .beaker{ max-width:960px; }
+  .warmq .btn{ min-height:88px; }
+}
+</style>
+<script>
+/* 放在 head：圖片一出錯就能呼叫（不論主程式跑到哪裡） */
+function imgFallback(img){
+  const span=document.createElement("span");
+  span.className="img-fallback "+(img.className||"");
+  span.setAttribute("role","img");
+  const name=img.getAttribute("data-name")||img.getAttribute("alt")||"照片";
+  span.setAttribute("aria-label","照片載入失敗："+name);
+  span.textContent="📷 照片載入失敗："+name;
+  img.replaceWith(span);
+}
+/* 老師課前試做的照片：檔案還沒放時，顯示中性的虛線框（不是錯誤訊息） */
+function teacherFallback(img){
+  const span=document.createElement("span");
+  span.className="img-fallback teacher-empty";
+  span.setAttribute("role","img");
+  span.setAttribute("aria-label","老師課前試做的照片");
+  span.textContent="（老師課前試做的照片）";
+  img.replaceWith(span);
+}
+</script>
+</head>
+<body>
+<div id="app">
+
+  <header class="sitehead">
+    <div class="headrow">
+      <a class="back" href="../../index.html">← 回教材首頁</a>
+      <h1>混合水溶液的酸鹼性</h1>
+      <span class="sub">五年級自然｜第三單元 水溶液　課本 76–77 頁</span>
+      <span class="toplinks"><a class="back" href="混合水溶液的酸鹼性_學習單.html">📝 學習單</a><a class="back" href="混合水溶液的酸鹼性_重點整理.html">📌 重點整理</a></span>
+    </div>
+    <nav class="stations" aria-label="站別">
+      <span class="period">一節 ⑧</span>
+      <button class="station-btn on" data-go="open" aria-current="step">開場</button>
+      <button class="station-btn" data-go="mix">示範：混合</button>
+      <button class="station-btn" data-go="adjust">少量多次調整</button>
+      <button class="station-btn" data-go="life">生活中的應用</button>
+      <button class="station-btn" data-go="safe">安全第一</button>
+      <button class="station-btn" data-go="quiz">學習單與複習</button>
+    </nav>
+  </header>
+
+  <!-- ==================== 開場（課本 76 頁） ==================== -->
+  <section id="screen-open" class="screen active">
+    <div class="panel warm">
+      <p class="ptitle">🔁 暖身：上一課＋前一課</p>
+      <div class="warmq">
+        <div class="ask">① 紫色高麗菜汁遇到酸性、中性、鹼性的水溶液，各偏什麼顏色？</div>
+        <button class="btn plain" type="button" data-reveal="w8a">👀 看答案</button>
+        <div class="bigpoint hidden" id="w8a">酸性偏紅色、中性偏紫色、鹼性偏藍色或綠色。</div>
+      </div>
+      <div class="warmq">
+        <div class="ask">② 只用<b>藍色</b>石蕊試紙，分得出食鹽水和小蘇打水嗎？</div>
+        <button class="btn plain" type="button" data-reveal="w8b">👀 看答案</button>
+        <div class="bigpoint hidden" id="w8b">分不出來：中性和鹼性都<b>不會</b>讓藍色石蕊試紙變色。要再用紅色石蕊試紙（鹼性會讓它變藍色），或用紫色高麗菜汁。</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <p class="kidsay">將等量的酸性、鹼性水溶液加在一起混合後，再滴入自製酸鹼指示劑檢測，水溶液會接近中性嗎？若不會，要怎麼做呢？（課本 76 頁）</p>
+      <div class="ask big">上一節出場單寫過的預測：<br><b>等量</b>的酸性和鹼性水溶液混合後，會變成中性嗎？</div>
+      <p class="lead">📝 先把出場單的預測抄到學習單的<b>預測格</b>，再舉反應卡（○＝會、╳＝不一定）。只記下來，不判對錯。</p>
+      <div class="opts" id="guessOpts"></div>
+      <div class="guessbox hidden" id="guessBox" aria-live="polite">
+        <div class="g">全班大多數猜：「<span id="guessText"></span>」</div>
+        <div class="later">到「示範：混合」那一站揭曉！</div>
+      </div>
+    </div>
+    <div class="navrow"><button class="btn green" data-next="mix">下一站：示範混合 →</button></div>
+    <div class="teacher-tip">
+      <p><b class="time">給老師｜開場 2 分鐘</b>（前面先做暖身 3 分鐘：高麗菜汁顏色＋只用一種試紙）</p>
+      <p>暖身＝上一課 1 題（紫色高麗菜汁的顏色）＋前一課 1 題（只用藍色石蕊試紙分不出中性和鹼性）。暖身的 3 分鐘請小助手布置示範臺：檸檬酸水、小蘇打水（各一大杯，每種一支滴管）、紫色高麗菜汁、透明大杯或燒杯、<b>托盤</b>、攪拌棒。</p>
+      <p>回收 ⑦〈自製酸鹼指示劑〉出場單寫的預測：學生先抄到學習單預測格（先寫後舉），再舉 ○╳ 卡。老師看哪一種卡比較多，按那一個選項（只記不判）；「示範：混合」那一站會回收這個猜測。重新整理頁面會清掉。</p>
+    </div>
+  </section>
+
+  <!-- ==================== 示範：混合（課本 76 頁） ==================== -->
+  <section id="screen-mix" class="screen">
+    <div class="panel">
+      <p class="ptitle">🧪 老師示範：等量混合，再滴入紫色高麗菜汁（課本 76 頁）</p>
+      <div class="kchips" aria-label="器材">
+        <span class="kchip">檸檬酸水<small>酸性</small></span>
+        <span class="kchip">小蘇打水<small>鹼性</small></span>
+        <span class="kchip">紫色高麗菜汁<small>指示劑</small></span>
+        <span class="kchip">透明大杯<small>放在托盤上</small></span>
+        <span class="kchip">滴管<small>每種一支</small></span>
+        <span class="kchip">攪拌棒<small>邊加邊攪拌</small></span>
+      </div>
+      <div class="safety">⚠️ 先說好：兩杯倒在一起時，會冒出很多<b>氣泡</b>。這是兩種水溶液互相作用產生的氣體（課本沒有寫，國中會學）。杯子放在托盤上、<b>不加蓋</b>；實驗用的東西一律<b>不嘗</b>。</div>
+      <ol class="steplist">
+        <li><b class="no">①</b>兩杯各取<b>等量</b>，倒在一起（放在托盤上，杯子不加蓋）</li>
+        <li><b class="no">②</b>滴入紫色高麗菜汁，看顏色</li>
+        <li><b class="no">③</b>偏紅就一滴一滴加小蘇打水，偏藍綠就一滴一滴加檸檬酸水，直到偏紫（下一站）</li>
+      </ol>
+      <p class="lead">小助手：倒等量、數滴數、唸顏色 → 全班複誦。📒 全班同步填習作 29 頁。</p>
+    </div>
+
+    <div class="panel">
+      <div class="ask">步驟 ② 做完了。老師按下<b>真的看到</b>的顏色：</div>
+      <div class="opts mt" id="mixSeen" style="justify-content:center"></div>
+      <div class="svgbox mt"><span class="simtag">示意</span><div id="mixFig"></div></div>
+      <div class="feedback" id="mixFeed" aria-live="polite"></div>
+      <div class="guessbox hidden" id="recallBox" aria-live="polite"></div>
+      <div class="derive hidden" id="mixAsk">
+        <div class="ask">等量的酸性和鹼性水溶液混合後，會是什麼性？</div>
+        <div id="mixQ" class="mt"></div>
+        <div class="feedback" id="mixQFeed" aria-live="polite"></div>
+        <div class="criterion hidden" id="mixCrit">
+          <div class="k">💡 用紫色高麗菜汁看：偏紅＝還偏酸，偏紫＝接近中性，偏藍或偏綠＝偏鹼。</div>
+          <div class="askagain">👩‍🏫 老師追問：<b>你怎麼知道？</b>（混合液滴入後偏什麼顏色？那個顏色代表什麼性？）</div>
+        </div>
+        <div class="bigpoint hidden" id="must1">酸性和鹼性水溶液混合後，可能是酸性、中性或鹼性。</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <p class="ptitle">📷 放大看</p>
+      <div class="duo">
+        <div>
+          <p class="lead" style="margin-top:0">課本 76 頁：兩組混合後的結果不一樣。要加哪一種，才能讓顏色變成偏紫？（先舉卡）</p>
+          <div class="groups">
+            <div class="gcard">
+              <div class="tubeimg"><div id="g1img"></div><div class="tcap">課本 76 頁</div></div>
+              <div class="gname">第一組：混合後偏紅<small>還偏酸</small></div>
+              <div id="g1Q"></div>
+              <div class="feedback" id="g1Feed" aria-live="polite"></div>
+            </div>
+            <div class="gcard">
+              <div class="tubeimg"><div id="g2img"></div><div class="tcap">課本 76 頁</div></div>
+              <div class="gname">第二組：混合後偏藍<small>偏鹼</small></div>
+              <div id="g2Q"></div>
+              <div class="feedback" id="g2Feed" aria-live="polite"></div>
+            </div>
+          </div>
+          <p class="note hidden" id="grpDone">👉 到底要加多少？下一站一滴一滴試試看。</p>
+        </div>
+        <figure class="figbox">
+          <div class="fig teacher" style="--mh:34vh;--ar:4/3"><img src="photos/teacher-mix.jpg" alt="老師課前試做的照片" loading="lazy" decoding="async" onerror="teacherFallback(this)"></div>
+          <figcaption class="cap center">老師課前試做的照片（課前拍的：等量混合後滴入紫色高麗菜汁）</figcaption>
+        </figure>
+      </div>
+    </div>
+    <div class="navrow"><button class="btn green" data-next="adjust">下一站：少量多次調整 →</button></div>
+    <div class="teacher-tip">
+      <p><b class="time">給老師｜示範：混合＋同步填習作 P.29 9 分鐘</b></p>
+      <p>器材：檸檬酸水、小蘇打水（各一大杯，食品級）、紫色高麗菜汁、透明大杯或燒杯、托盤、滴管（每種一支）、攪拌棒。只用檸檬酸水和小蘇打水，不用其他酸鹼。</p>
+      <p><b>倒之前先講</b>：會冒出很多氣泡，這是兩種水溶液互相作用產生的氣體（課本沒有寫，國中會學）。用大杯、放在托盤上、<b>杯子不加蓋</b>。</p>
+      <p>課前試做：先試出「等量」大概會偏哪一色。可以刻意調整濃度，讓第一次偏紅（偏酸），下一站好示範加小蘇打水調回。冒泡很多，用大杯、放托盤、不加蓋；滴管每種一支。</p>
+      <p>看得到：請把課前拍的「等量混合後滴入高麗菜汁」照片存成 <b>photos/teacher-mix.jpg</b>（放在本課資料夾），沒放時畫面是虛線框；小助手拿著杯子＋白底板沿走道巡迴展示約 30 秒；每排一位觀察代表上前近看，回座位向同排報告。</p>
+      <p>小助手 2–3 人（男女輪替，優先點平常比較被動的學生）：倒等量、數滴數、唸顏色 → 全班複誦 → 每人同步填習作 P.29。老師按下真的看到的顏色，畫面會回收開場的預測。示意圖是線上題庫同一套圖，不是照片。</p>
+      <p>課本 76 頁的兩支試管照片很小，只當小圖；兩組的問題用反應卡全班一起舉（第一組加小蘇打水、第二組加檸檬酸水）。低：看顏色條＋舉卡；中：說「我看到偏紅，所以還偏酸，要加小蘇打水」；高：先預測「大概要加幾滴才會偏紫」，當數據審查員。</p>
+    </div>
+  </section>
+
+  <!-- ==================== 少量多次調整（虛擬調色臺） ==================== -->
+  <section id="screen-adjust" class="screen">
+    <div class="panel">
+      <div class="catch" style="margin-top:0">
+        <div class="ask">⚠️ 抓錯時間：混合液偏紅，老師說：「我直接倒一大杯小蘇打水，一定會變中性！」可以嗎？</div>
+        <div id="catchQ"></div>
+        <div class="feedback" id="catchFeed" aria-live="polite"></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <p class="ptitle">🎨 虛擬調色臺<span class="sim">示意</span></p>
+      <div class="ask">再加一滴會怎樣？<b>先舉卡預測</b>，再按按鈕。</div>
+      <div class="mixlab">
+        <div>
+          <div class="beaker"><span class="simtag">示意</span><div id="beakerFig"></div></div>
+          <div class="counts" aria-live="polite"><span>小蘇打水 <b id="nSoda">0</b> 滴</span><span>檸檬酸水 <b id="nCit">0</b> 滴</span></div>
+          <div class="mixbtns">
+            <button class="btn soda" id="addSoda" type="button">💧 加一滴小蘇打水</button>
+            <button class="btn cit" id="addCit" type="button">💧 加一滴檸檬酸水</button>
+          </div>
+          <div class="mixbtns">
+            <button class="btn plain small" id="bigPour" type="button">⚠️ 一次倒一大杯小蘇打水</button>
+            <button class="btn plain small" id="resetRed" type="button">↺ 重來：偏紅的一杯</button>
+            <button class="btn plain small" id="resetBlue" type="button">↺ 重來：偏藍綠的一杯</button>
+          </div>
+        </div>
+        <div>
+          <p class="lead" style="margin-top:0">📋 滴數紀錄表（學習單 ★ 會用到這種表）</p>
+          <div class="logwrap"><table class="logtab" aria-label="滴數紀錄表"><thead><tr><th style="width:14%">次</th><th style="width:30%">加了什麼</th><th>小蘇打水<br>累計</th><th>檸檬酸水<br>累計</th><th style="width:22%">顏色</th></tr></thead><tbody id="logBody"></tbody></table></div>
+        </div>
+      </div>
+      <div class="derive hidden" id="stopBox">
+        <div class="ask" id="stopText">變成偏紫了！接下來要怎麼做？</div>
+        <div id="stopQ" class="mt"></div>
+        <div class="feedback" id="stopFeed" aria-live="polite"></div>
+      </div>
+      <div class="derive hidden" id="overBox">
+        <div class="ask" id="overText"></div>
+        <div id="overQ" class="mt"></div>
+        <div class="feedback" id="overFeed" aria-live="polite"></div>
+      </div>
+      <div class="criterion hidden" id="adjCrit">
+        <div class="k">💡 混合後是什麼性，要看兩種水溶液各加了多少；所以要少量多次地加，一邊加一邊看顏色。</div>
+        <div class="askagain">👩‍🏫 老師追問：<b>你怎麼知道？</b>（看紀錄表：加到第幾滴變偏紫？一次倒一大杯會怎樣？）</div>
+      </div>
+      <div class="bigpoint hidden" id="must2">混合後偏酸性，就加鹼性水溶液（如小蘇打水）；偏鹼性，就加酸性水溶液（如檸檬酸水），結果可能接近中性。</div>
+    </div>
+
+    <div class="panel">
+      <p class="ptitle">📷 放大看：真的示範</p>
+      <figure class="figbox">
+        <div class="fig teacher" style="--mh:34vh;--ar:4/3"><img src="photos/teacher-adjust.jpg" alt="老師課前試做的照片" loading="lazy" decoding="async" onerror="teacherFallback(this)"></div>
+        <figcaption class="cap center">老師課前試做的照片（課前拍的：一滴一滴加，調回偏紫）</figcaption>
+      </figure>
+    </div>
+    <div class="navrow"><button class="btn green" data-next="life">下一站：生活中的應用 →</button></div>
+    <div class="teacher-tip">
+      <p><b class="time">給老師｜少量多次＋虛擬調色臺 6 分鐘</b></p>
+      <p>真的示範（步驟 ③）：偏紅就一滴一滴加小蘇打水、偏藍綠就一滴一滴加檸檬酸水，<b>邊加邊攪拌</b>，直到偏紫。小助手數滴數、唸顏色，全班複誦。</p>
+      <p>抓錯：老師說「我直接倒一大杯小蘇打水，一定會變中性」→ 全班舉 ╳ 喊停（不真的倒）→ 改用少量多次重做。低能力對照步驟卡就抓得到；高能力要說出「會加過頭，變成偏鹼性」。</p>
+      <p>虛擬調色臺是示意，只表示<b>方向</b>（偏紅—偏紫—偏藍或偏綠），不顯示 pH 數字，也不代表真的要幾滴。「一次倒一大杯」按鈕用來示範加過頭；加過頭就再加另一種。每按一次前先問「再加一滴會怎樣？」全班舉卡。紀錄表的寫法和學習單「二」「★」一樣。</p>
+      <p>迷思（題庫有考）：偏鹼還加小蘇打水（╳，要加檸檬酸水）；糖水可以把偏鹼調回來（╳，糖水是中性）。高能力：預測第幾滴會偏紫，當數據審查員。</p>
+      <p>真的示範照片請存成 <b>photos/teacher-adjust.jpg</b>（課前拍；沒放時是虛線框）。</p>
+    </div>
+  </section>
+
+  <!-- ==================== 生活中的應用（課本 77 頁） ==================== -->
+  <section id="screen-life" class="screen">
+    <div class="panel">
+      <p class="ptitle">🏠 課本 77 頁：生活中的應用</p>
+      <p class="kidsay">我們有時會利用酸性和鹼性水溶液互相作用，來降低物質的酸鹼性，或使其變成接近中性。（課本 77 頁）</p>
+      <div class="ask">這四樣東西，各是用來處理什麼？</div>
+      <p class="lead">點一張卡片，再點一個籃子放進去（也可以直接拖曳）。按「揭曉」之前都可以換位置。</p>
+      <div class="cardtray" id="tray" aria-label="還沒放的卡片"></div>
+      <div class="baskets four" id="lifeBaskets"></div>
+      <div class="scorebar">
+        <button class="btn green" id="revealBtn" disabled>🔍 揭曉</button>
+        <button class="btn plain" id="resetSort">↺ 重新放一次</button>
+        <span id="sortMsg" aria-live="polite"></span>
+      </div>
+      <div class="derive hidden" id="lifeNat">
+        <div class="ask">用到的東西是什麼性？（舉反應卡：酸／鹼）</div>
+        <div id="natRows"></div>
+        <p class="note">熱水瓶的水垢不用判斷是什麼性，只要知道是用<b>檸檬酸</b>去除的。</p>
+        <div class="bigpoint hidden" id="lifePoint">生活中有時會利用酸性和鹼性互相作用，來降低物質的酸鹼性，或使它接近中性。<small>💊 胃藥要依照醫師、藥師的指示使用，不可以自己亂吃。</small></div>
+      </div>
+    </div>
+    <div class="navrow"><button class="btn green" data-next="safe">下一站：安全第一 →</button></div>
+    <div class="teacher-tip">
+      <p><b class="time">給老師｜生活中的應用 6 分鐘</b></p>
+      <p>課本 77 頁四個例子：①胃藥裡通常含有鹼性物質，胃酸過多時可服用胃藥 ②將檸檬酸倒入水中一段時間，可去除熱水瓶的水垢 ③飲食後用鹼性牙膏刷牙，可以中和口中的酸性 ④使用偏酸性的清潔劑來清洗馬桶裡的鹼性汙垢。</p>
+      <p>配對白板：先配「用來處理什麼」，揭曉後再舉卡說「用到的東西是什麼性」。揭曉前不判對錯，先問「你為什麼這樣放？」。<b>水垢不問酸鹼性</b>（課本沒有寫）。胃藥一定加一句「依照醫師、藥師的指示使用」。</p>
+      <p>迷思（題庫有考）：把食鹽溶在水裡、把海水晒乾，是溶解或蒸發，<b>不是</b>酸鹼互相作用；糖水是中性，不能拿來中和。學習單「三」「四」就是這一站的練習。</p>
+      <p>照片：課本 77 頁（胃藥、熱水瓶加檸檬酸、刷牙）；清洗馬桶是線上題庫裡裁好的課本 77 頁照片。照片只是情境，卡片上的名稱照課本寫，不出現品牌。</p>
+    </div>
+  </section>
+
+  <!-- ==================== 安全第一（課本 77 頁、習作 P.30） ==================== -->
+  <section id="screen-safe" class="screen">
+    <div class="panel">
+      <p class="ptitle">🛑 課本 77 頁：注意！</p>
+      <p class="kidsay">使用水溶液前，一定要仔細看清楚水溶液成分、使用方法和注意事項。若是不小心碰觸強酸或強鹼水溶液，馬上用大量清水沖洗並盡速送醫治療，千萬不能使用酸鹼混合方式，以免造成傷害。（課本 77 頁）</p>
+      <div class="duo mid">
+        <figure class="figbox">
+          <div class="fig" id="safeFig" style="--mh:36vh"></div>
+          <figcaption class="cap center">戴手套、用清潔劑清洗馬桶（課本 77 頁）</figcaption>
+        </figure>
+        <div>
+          <div class="ask">在家可以把兩種清潔劑倒在一起，洗得更乾淨嗎？（先舉卡）</div>
+          <div id="mixCleanQ" class="mt"></div>
+          <div class="feedback" id="mixCleanFeed" aria-live="polite"></div>
+          <div class="criterion hidden" id="safeCrit">
+            <div class="k">💡 使用水溶液前，一定要看清楚成分、使用方法和注意事項。</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <p class="ptitle">🚿 不小心碰到強酸或強鹼：這樣做對嗎？（舉 ○╳ 卡）</p>
+      <div id="actRows"></div>
+      <div class="bigpoint hidden" id="must3">不小心碰到強酸或強鹼，要馬上用大量清水沖洗並盡快送醫，千萬不能用酸鹼混合的方式處理。</div>
+    </div>
+
+    <div class="panel">
+      <p class="ptitle">🌿 習作 30 頁預告：咬人貓</p>
+      <p class="kidsay">咬人貓的焮毛斷裂時，會釋放酸性的物質（酒石酸、草酸），皮膚會刺痛、灼熱。</p>
+      <div class="ask">被咬人貓刺到，習作寫的最好的處理是哪一個？</div>
+      <div id="catQ" class="mt"></div>
+      <div class="feedback" id="catFeed" aria-live="polite"></div>
+      <div class="homework">📒 回家讀習作 30 頁〈咬人貓〉並寫完（只讀、只寫，不做實驗）。</div>
+    </div>
+    <div class="navrow"><button class="btn green" data-next="quiz">最後一站：學習單與複習 →</button></div>
+    <div class="teacher-tip">
+      <p><b class="time">給老師｜安全 4 分鐘</b></p>
+      <p>課本 77 頁注意事項照原文唸。上課要補（題庫有考）：<b>在家不可以自己把清潔劑混在一起用</b>；清潔劑瓶上的注意事項常寫「不可和其他清潔劑混用」。素養題組〈清潔劑瓶上的說明〉是這一站的延伸。</p>
+      <p>三個做法用 ○╳ 卡全班一起舉：大量清水沖洗 ○、拿醋或小蘇打水來「中和」╳、盡快送醫 ○。</p>
+      <p>咬人貓照習作 P.30 的正確處理：用膠帶黏除焮毛、盡快用清水清洗、冰敷，嚴重時就醫。民間用鹼性東西「酸鹼中和」的方法需要再證實，<b>不教偏方</b>。</p>
+    </div>
+  </section>
+
+  <!-- ==================== 學習單與複習 ==================== -->
+  <section id="screen-quiz" class="screen">
+    <div class="panel">
+      <p class="ptitle">📝 這一課用學習單代替闖關</p>
+      <ul class="wslist">
+        <li>全班必做（約 8 分鐘）：<b>預測格、一、二</b></li>
+        <li>有時間再做：三、四；★、★★ 給先寫完的人（沒寫完的選做題不帶回家）</li>
+        <li>最後寫出場單</li>
+      </ul>
+      <div class="btnrow"><a class="btn" href="混合水溶液的酸鹼性_學習單.html" style="text-decoration:none;display:inline-flex;align-items:center">📝 打開學習單</a></div>
+    </div>
+
+    <div class="quizbar">
+      <span id="qprog">第 1 / 4 題</span>
+      <span class="dots" id="dots"></span>
+      <span class="note">在家自由複習</span>
+      <span class="qscore">⭐ <span id="score">0</span> / 8 分</span>
+      <span id="rank">🧪 小助手</span>
+    </div>
+
+    <div class="panel" id="quizPanel">
+      <div class="quizwrap" id="quizwrap">
+        <div class="qphoto" id="qphoto"></div>
+        <div>
+          <div id="step1">
+            <span class="steptag">第 1 層｜選答案</span><span class="qkind" id="qkind">課堂題</span>
+            <p class="qtitle" id="q1title"></p>
+            <div id="q1opts"></div>
+            <div class="feedback" id="q1feed" aria-live="polite"></div>
+          </div>
+          <div id="step2" class="hidden" style="margin-top:16px">
+            <span class="steptag">第 2 層｜你怎麼知道？</span>
+            <p class="qtitle">選一個最好的理由：</p>
+            <div id="q2opts"></div>
+            <div class="feedback" id="q2feed" aria-live="polite"></div>
+          </div>
+          <div id="criterion" class="criterion hidden">
+            <div class="k" id="criterionText"></div>
+            <div class="askagain">👩‍🏫 老師追問：<b>你怎麼知道？</b>（請一位同學用上面這句話說說看）</div>
+          </div>
+          <div class="btnrow">
+            <button class="btn green hidden" id="nextBtn">下一題 →</button>
+            <button class="btn plain hidden" id="skipBtn" type="button">⏭ 這題在家複習，先跳過</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel hidden" id="quizResult">
+      <div class="result">
+        <div class="big" id="finalScore"></div>
+        <p class="rankline" id="finalRank"></p>
+        <p class="note" id="skipNote"></p>
+        <div class="ticket"><b>出場單（寫在學習單上）：</b>我要提醒家人的一件安全的事是＿＿＿＿＿＿＿＿。<br><span class="note">例如：清潔劑不可以混在一起用；碰到強酸或強鹼要用大量清水沖洗並盡快送醫。</span></div>
+        <button class="btn" id="againBtn">↺ 再挑戰一次</button>
+      </div>
+    </div>
+    <div class="teacher-tip">
+      <p><b class="time">給老師｜學習單 8 分鐘＋收束 2 分鐘</b></p>
+      <p>本課一節，學習單代替闖關。全班必做＝預測格、一、二（約 8 分鐘）；三、四依時間做，★、★★ 給先寫完的人；沒寫完的選做題不帶回家。收束：全班一起唸必會 3 句，寫出場單。</p>
+      <p>下面 4 題兩層題是給學生<b>在家自由複習</b>的（課堂不用做）；答錯的選項會停用，可以再試，分數減半。</p>
+      <p>三層：低＝顏色條（偏紅—偏紫—偏藍或偏綠，色塊＋字）、配對題、舉卡；中＝滴數小表格；高＝預測第幾滴會偏紫、★★。</p>
+      <p>回家只有習作（P.29 其餘欄位、P.30〈咬人貓〉），不派任何實驗。線上題庫、互動教材是自由練習，提醒護眼：用眼 30 分鐘休息 10 分鐘。</p>
+      <p>家長檢核：只用檸檬酸水和小蘇打水（食品級）；冒泡不加蓋；明講「在家不混清潔劑」；胃藥加「依照醫師、藥師指示」；咬人貓照習作的正確處理，不教民間偏方。</p>
+    </div>
+  </section>
+
+  <!-- ==================== 頁尾：出處 ==================== -->
+  <footer class="credits" id="credits">
+    <p><b>教學依據：</b><a href="https://reader.nani.com.tw/9200a013cbef8e66" target="_blank" rel="noopener">南一自然課本，第 76–77 頁</a>（閱讀器可能需要登入）；習作第 29–30 頁。</p>
+    <p><b>照片出處：</b>混合後偏紅、偏藍的兩支試管（課本第 76 頁）；胃藥、把檸檬酸倒進熱水瓶的水中、刷牙（課本第 77 頁）；用清潔劑清洗馬桶（課本第 77 頁，線上題庫裡裁好的課本照片）。「老師課前試做的照片」由老師自己拍攝。</p>
+    <p><b>示意畫面：</b>試管顏色圖（和線上題庫同一套示意圖）、虛擬調色臺和顏色條都是示意，不是真的拍到的結果，也不代表真的要加幾滴。</p>
+  </footer>
+
+</div>
+
+<script src="../../題庫/figures.js?v=20261006a"></script>
+<script>
+/* ==========================================================
+   混合水溶液的酸鹼性 — 程式
+   科學內容（照課本，不說過頭）：
+   酸性和鹼性水溶液混合後，可能是酸性、中性或鹼性；要看兩種各加了多少。
+   偏酸（紫色高麗菜汁偏紅）加小蘇打水、偏鹼（偏藍或偏綠）加檸檬酸水，少量多次，結果可能接近中性（偏紫）。
+   生活應用照課本 77 頁；碰到強酸強鹼：大量清水沖洗、盡快送醫，不能用酸鹼混合的方式處理。
+   虛擬調色臺只表示方向，不顯示 pH 數字。
+   ========================================================== */
+const $=id=>document.getElementById(id);
+function show(id){ $(id).classList.remove("hidden"); }
+function say(id,cls,html){ const e=$(id); e.className="feedback "+cls; e.innerHTML=html; }
+
+/* ---------- 照片清單：尺寸是檔案的真實像素 ---------- */
+const PHOTO_DIR="photos/", BANK_DIR="../../題庫/photos/u3/";
+const PHOTOS={
+  "p76-red":       [62,  156, "混合後偏紅的試管（課本 76 頁）"],
+  "p76-blue":      [60,  153, "混合後偏藍的試管（課本 76 頁）"],
+  "p77-antacid":   [298, 163, "胃藥"],
+  "p77-kettle":    [322, 263, "把檸檬酸倒進熱水瓶的水中"],
+  "p77-brush":     [241, 306, "飲食後刷牙"],
+  "toilet-cleaner":[319, 262, "用清潔劑清洗馬桶", BANK_DIR]
+};
+function imgTag(id,name){
+  const p=PHOTOS[id], n=name||p[2];
+  /* lazy：還沒切到的站別不載入照片 */
+  return `<img src="${p[3]||PHOTO_DIR}${id}.jpg" alt="${n}" data-name="${n}" draggable="false" loading="lazy" decoding="async" onerror="imgFallback(this)">`;
+}
+/* 照片框：設定原比例後放進照片 */
+function renderFig(el,id,name){
+  const p=PHOTOS[id];
+  el.style.setProperty("--ar",`${p[0]} / ${p[1]}`);
+  el.style.maxWidth=Math.floor(p[0]*1.5)+"px";   /* 小圖不放大超過原始寬度的 1.5 倍 */
+  el.innerHTML=imgTag(id,name);
+  return el;
+}
+/* 疊在照片上的標籤。place：r 右、l 左、b 下、t 上、br/bl/tr/tl 斜角；自動加一個小圓點標出位置。 */
+function addTag(fig,x,y,html,place,opt){
+  opt=opt||{};
+  const off="14px";
+  const t=document.createElement("div");
+  t.className="tag"; t.innerHTML=html;
+  const s=t.style, m=Math.min(x,100-x);
+  switch(place){
+    case "r": s.left=`calc(${x}% + ${off})`; s.top=y+"%"; s.transform="translateY(-50%)"; s.maxWidth=`calc(${100-x}% - ${off} - 4px)`; break;
+    case "l": s.right=`calc(${100-x}% + ${off})`; s.top=y+"%"; s.transform="translateY(-50%)"; s.maxWidth=`calc(${x}% - ${off} - 4px)`; break;
+    case "t": s.left=x+"%"; s.bottom=`calc(${100-y}% + ${off})`; s.transform="translateX(-50%)"; s.maxWidth=`calc(${2*m}% - 8px)`; break;
+    default:  s.left=x+"%"; s.top=`calc(${y}% + ${off})`; s.transform="translateX(-50%)"; s.maxWidth=`calc(${2*m}% - 8px)`;
+  }
+  if(opt.mw) s.maxWidth=opt.mw+"%";
+  const d=document.createElement("span");
+  d.className="pin"; d.style.left=x+"%"; d.style.top=y+"%";
+  fig.appendChild(d);
+  fig.appendChild(t);
+  return t;
+}
+/* 通用選擇題：答錯的選項標示並停用、可再試；答對就全部停用 */
+function choiceQ(host,opts,ans,onRight,onWrong,cls){
+  const box=document.createElement("div");
+  box.className="opts"+(cls?" "+cls:"");
+  opts.forEach(o=>{
+    const b=document.createElement("button");
+    b.type="button"; b.className="opt"; b.textContent=o;
+    b.addEventListener("click",()=>{
+      if(o===ans){
+        b.classList.add("ok");
+        box.querySelectorAll(".opt").forEach(x=>x.disabled=true);
+        if(onRight) onRight();
+      }else{
+        b.classList.add("no"); b.disabled=true;
+        if(onWrong) onWrong(o);
+      }
+    });
+    box.appendChild(b);
+  });
+  host.appendChild(box);
+  return box;
+}
+
+/* ---------- 試管示意圖：用題庫同一套 figures.js，再在每支試管下面寫上顏色的字 ---------- */
+const CAB_WORD={acid:"偏紅",neutral:"偏紫",base:"偏藍綠","base-green":"偏綠"};
+const CAB_COL={acid:"#E2557F",neutral:"#8A5BB8",base:"#3A9AA8","base-green":"#5AAA4A"};
+function cabFig(tubes,cap){
+  const words=tubes.map(t=>t.word||(t.res?CAB_WORD[t.res]:"？"));
+  cap=cap||"（示意圖：滴入紫色高麗菜汁後的顏色）";
+  let s="";
+  try{
+    if(window.QFIG && typeof QFIG.render==="function")
+      s=QFIG.render({type:"cabbage",tubes:tubes.map(t=>t.lab?{lab:t.lab,res:t.res||"none"}:{name:t.name,res:t.res||"none"})});
+  }catch(_){ s=""; }
+  if(!s) return cabFallback(tubes,words,cap);
+  const m=s.match(/viewBox="0 0 ([\d.]+) ([\d.]+)"/);
+  if(!m) return s;
+  const W=+m[1], H=+m[2], NH=H+28, n=tubes.length, cw=72, x0=(W-n*cw)/2;
+  let add="";
+  words.forEach((w,i)=>{
+    add+=`<text x="${x0+cw*i+cw/2}" y="${H-12}" font-size="17" font-weight="900" fill="#1E1E1E" text-anchor="middle" dominant-baseline="middle" stroke="#fff" stroke-width="4" stroke-linejoin="round" paint-order="stroke">${w}</text>`;
+  });
+  return s.replace(`viewBox="0 0 ${m[1]} ${m[2]}"`,`viewBox="0 0 ${m[1]} ${NH}"`)
+          .replace(`height="${m[2]}"`,`height="${NH}"`)
+          .replace(new RegExp(`y="${H-10}"([^>]*>)（示意圖[^<]*`),`y="${NH-10}"$1${cap}`)
+          .replace("</svg>",add+"</svg>");
+}
+/* figures.js 讀不到時的退路：文字版試管（顏色＋字） */
+function cabFallback(tubes,words,cap){
+  return `<div class="cabfb" role="img" aria-label="試管裡的顏色（文字版）">${tubes.map((t,i)=>
+    `<div class="cabt"><span class="sw" style="background:${CAB_COL[t.res]||"#E4E4E4"}"></span><span>${t.lab||t.name}</span><b>${words[i]}</b></div>`).join("")}<p class="note">${cap}</p></div>`;
+}
+
+/* ---------- 站別切換（可自由跳；網址加 #adjust 之類可直接開到某一站） ---------- */
+const STATIONS=["open","mix","adjust","life","safe","quiz"];
+window.addEventListener("hashchange",()=>{
+  const h=location.hash.slice(1);
+  if(STATIONS.includes(h) && !$("screen-"+h).classList.contains("active")) go(h,false);
+});
+function go(name,smooth){
+  if(STATIONS.indexOf(name)<0) name="open";
+  document.querySelectorAll(".station-btn").forEach(b=>{
+    const on=b.dataset.go===name;
+    b.classList.toggle("on",on);
+    if(on) b.setAttribute("aria-current","step"); else b.removeAttribute("aria-current");
+  });
+  document.querySelectorAll(".screen").forEach(s=>s.classList.toggle("active",s.id==="screen-"+name));
+  try{ history.replaceState(null,"","#"+name); }catch(_){}
+  window.scrollTo({top:0,behavior:smooth?"smooth":"auto"});
+}
+document.querySelectorAll(".station-btn").forEach(b=>b.addEventListener("click",()=>go(b.dataset.go,true)));
+document.querySelectorAll("[data-next]").forEach(b=>b.addEventListener("click",()=>go(b.dataset.next,true)));
+
+/* 暖身：看答案／收起答案 */
+document.querySelectorAll("[data-reveal]").forEach(b=>b.addEventListener("click",()=>{
+  const t=$(b.dataset.reveal);
+  t.classList.toggle("hidden");
+  b.textContent=t.classList.contains("hidden")?"👀 看答案":"🙈 收起答案";
+}));
+
+/* ==========================================================
+   開場：等量混合會變中性嗎？（只記不判，示範站回收）
+   ========================================================== */
+const GUESSES=["○ 會變成中性","╳ 不一定"];
+let classGuess=null;
+GUESSES.forEach(g=>{
+  const b=document.createElement("button");
+  b.type="button"; b.className="opt"; b.textContent=g; b.setAttribute("aria-pressed","false");
+  b.addEventListener("click",()=>{
+    classGuess=g;
+    $("guessOpts").querySelectorAll(".opt").forEach(x=>{ x.classList.toggle("picked",x===b); x.setAttribute("aria-pressed",String(x===b)); });
+    $("guessText").textContent=g;
+    show("guessBox");
+  });
+  $("guessOpts").appendChild(b);
+});
+
+/* ==========================================================
+   示範：混合（老師按下真的看到的顏色）
+   ========================================================== */
+const SEEN=[["偏紅","acid","酸性"],["偏紫","neutral","中性"],["偏藍或綠","base","鹼性"]];
+let mixRes=null, mixWord=null;
+function drawMix(){
+  $("mixFig").innerHTML=cabFig([{name:"混合液",res:mixRes,word:mixRes?mixWord:"還沒滴"}],"（示意圖：老師按下真的看到的顏色）");
+}
+drawMix();
+SEEN.forEach(([w,res,nat])=>{
+  const b=document.createElement("button");
+  b.type="button"; b.className="opt"; b.textContent="看到"+w; b.setAttribute("aria-pressed","false");
+  b.addEventListener("click",()=>{
+    mixRes=res; mixWord=w;
+    $("mixSeen").querySelectorAll(".opt").forEach(x=>{ x.classList.toggle("picked",x===b); x.setAttribute("aria-pressed",String(x===b)); });
+    drawMix();
+    say("mixFeed","good",`等量混合，滴入紫色高麗菜汁後<b>${w}</b> → 這杯混合液是<b>${nat}</b>。`);
+    recallGuess(w,nat);
+    show("mixAsk");
+  });
+  $("mixSeen").appendChild(b);
+});
+function recallGuess(w,nat){
+  const res = nat==="中性"
+    ? `這一次${w}（接近中性）。可是兩種水溶液各加多少不一樣，結果就可能不一樣（看下面課本兩組的結果）。`
+    : `等量混合後${w}，是<b>${nat}</b>：等量混合，<b>不一定</b>是中性！`;
+  $("recallBox").innerHTML = (classGuess
+    ? `<div class="g">開場時全班大多數猜：「${classGuess}」</div>`
+    : `<div class="g">開場的問題：等量的酸性和鹼性水溶液混合後，會變成中性嗎？</div>`)+`<div class="later">${res}</div>`;
+  show("recallBox");
+}
+choiceQ($("mixQ"),["一定是中性","可能是酸性、中性或鹼性"],"可能是酸性、中性或鹼性",
+  ()=>{ say("mixQFeed","good","✅ 答對了！"); show("mixCrit"); show("must1"); },
+  ()=>say("mixQFeed","hint","🤔 再看看（不扣分）：剛剛的示範和課本兩組的試管，混合後的顏色都是偏紫嗎？"),
+  "col");
+$("g1img").innerHTML=imgTag("p76-red");
+$("g2img").innerHTML=imgTag("p76-blue");
+let gOk=0;
+function gDone(){ gOk++; if(gOk>=2) show("grpDone"); }
+choiceQ($("g1Q"),["加小蘇打水","加檸檬酸水"],"加小蘇打水",
+  ()=>{ say("g1Feed","good","✅ 偏紅＝還偏酸，加<b>鹼性</b>的小蘇打水。"); gDone(); },
+  ()=>say("g1Feed","hint","🤔 再想想（不扣分）：這杯已經偏酸，再加酸性的檸檬酸水會怎樣？"));
+choiceQ($("g2Q"),["加小蘇打水","加檸檬酸水"],"加檸檬酸水",
+  ()=>{ say("g2Feed","good","✅ 偏藍＝偏鹼，加<b>酸性</b>的檸檬酸水。"); gDone(); },
+  ()=>say("g2Feed","hint","🤔 再想想（不扣分）：這杯已經偏鹼，再加鹼性的小蘇打水會怎樣？"));
+
+/* ==========================================================
+   少量多次調整：虛擬調色臺（示意；只表示方向，不顯示 pH 數字）
+   lv：負＝偏酸、0 附近＝接近中性、正＝偏鹼。每加一滴小蘇打水 +1、檸檬酸水 -1。
+   偏紅：lv ≤ -2；偏紫：-1～1；偏藍綠：lv ≥ 2（從 -4 開始：0、2 滴偏紅，4 滴偏紫，6 滴偏藍綠）
+   ========================================================== */
+choiceQ($("catchQ"),["○ 可以","╳ 不可以，喊停！"],"╳ 不可以，喊停！",
+  ()=>say("catchFeed","good","✅ 喊停得好！一次倒太多，可能<b>加過頭</b>，變成偏鹼性（偏藍綠）。要少量多次：一滴一滴加、邊加邊攪拌、邊看顏色。"),
+  ()=>say("catchFeed","hint","🤔 再想想（不扣分）：一大杯小蘇打水全部倒進去，會不會加太多？"));
+let start=-4, lv=-4, nSoda=0, nCit=0, log=[], askedStop=false, askedOver=false, adjOk=false;
+function lvWord(l){ return l<=-2?"偏紅":l<=1?"偏紫":"偏藍綠"; }
+function lvNat(l){ return l<=-2?"還偏酸":l<=1?"接近中性":"偏鹼"; }
+function lvCol(l){
+  if(l<=-4) return "#C93A66";
+  if(l===-3) return "#D8476F";
+  if(l===-2) return "#E2557F";
+  if(l===-1) return "#9C58B0";
+  if(l===0)  return "#8A5BB8";
+  if(l===1)  return "#7764BE";
+  if(l===2)  return "#4C8FB2";
+  if(l===3)  return "#3A9AA8";
+  return "#2F9E8C";
+}
+function beakerSVG(l){
+  const c=lvCol(l), w=lvWord(l), n=lvNat(l);
+  const x=Math.max(45,Math.min(315,180+l*30));
+  const F='font-family="Microsoft JhengHei,PingFang TC,Noto Sans TC,sans-serif"';
+  return `<svg class="qfig" viewBox="0 0 360 300" role="img" aria-label="示意圖：混合液現在${w}，${n}" xmlns="http://www.w3.org/2000/svg" ${F}>
+    <rect width="360" height="300" fill="#FFFDF8"/>
+    <path d="M112 86 V188 Q112 206 130 206 H230 Q248 206 248 188 V86 Z" fill="${c}"/>
+    <path d="M110 26 V188 Q110 208 130 208 H230 Q250 208 250 188 V26" fill="none" stroke="#1E1E1E" stroke-width="4"/>
+    <line x1="100" y1="26" x2="260" y2="26" stroke="#1E1E1E" stroke-width="5"/>
+    <text x="180" y="140" font-size="40" font-weight="900" fill="#1E1E1E" text-anchor="middle" stroke="#fff" stroke-width="7" stroke-linejoin="round" paint-order="stroke">${w}</text>
+    <text x="180" y="180" font-size="22" font-weight="900" fill="#1E1E1E" text-anchor="middle" stroke="#fff" stroke-width="6" stroke-linejoin="round" paint-order="stroke">${n}</text>
+    <rect x="30" y="236" width="100" height="18" fill="#E2557F" stroke="#1E1E1E" stroke-width="2"/>
+    <rect x="130" y="236" width="100" height="18" fill="#8A5BB8" stroke="#1E1E1E" stroke-width="2"/>
+    <rect x="230" y="236" width="100" height="18" fill="#3A9AA8" stroke="#1E1E1E" stroke-width="2"/>
+    <path d="M${x-9} 222 L${x+9} 222 L${x} 234 Z" fill="#1E1E1E"/>
+    <g font-size="16" font-weight="900" fill="#1E1E1E" text-anchor="middle">
+      <text x="80" y="274">偏紅</text><text x="180" y="274">偏紫</text><text x="280" y="274">偏藍或偏綠</text>
+    </g>
+    <g font-size="13" font-weight="700" fill="#4A5960" text-anchor="middle">
+      <text x="80" y="292">還偏酸</text><text x="180" y="292">接近中性</text><text x="280" y="292">偏鹼</text>
+    </g>
+  </svg>`;
+}
+function drawLab(){
+  $("beakerFig").innerHTML=beakerSVG(lv);
+  $("nSoda").textContent=nSoda; $("nCit").textContent=nCit;
+  const rows=[`<tr${log.length?"":' class="now"'}><td>開始</td><td>—</td><td>0</td><td>0</td><td class="c"><span class="chipc" style="background:${lvCol(start)}"></span>${lvWord(start)}</td></tr>`];
+  log.forEach((r,i)=>rows.push(`<tr${i===log.length-1?' class="now"':""}><td>${i+1}</td><td>${r.t}</td><td>${r.s}</td><td>${r.c}</td><td class="c"><span class="chipc" style="background:${lvCol(r.l)}"></span>${lvWord(r.l)}</td></tr>`));
+  $("logBody").innerHTML=rows.join("");
+  const wrap=$("logBody").closest(".logwrap"); wrap.scrollTop=wrap.scrollHeight;
+}
+function addDrop(kind,n){
+  if(kind==="soda"){ lv+=n; nSoda+=n; } else { lv-=n; nCit+=n; }
+  const t = n>1 ? "一大杯小蘇打水" : (kind==="soda"?"小蘇打水 1 滴":"檸檬酸水 1 滴");
+  log.push({t, s:nSoda, c:nCit, l:lv});
+  drawLab();
+  afterDrop();
+}
+function afterDrop(){
+  const w=lvWord(lv);
+  if(w==="偏紫" && !askedStop){ askedStop=true; buildStopQ(); }
+  const over = start<0 ? lv>=2 : lv<=-2;
+  if(over && !askedOver){ askedOver=true; buildOverQ(); }
+}
+function adjDone(){ if(adjOk) return; adjOk=true; show("adjCrit"); show("must2"); }
+function buildStopQ(){
+  const more = start<0 ? "再倒一大杯小蘇打水" : "再倒一大杯檸檬酸水";
+  $("stopQ").innerHTML=""; $("stopFeed").className="feedback"; $("stopFeed").textContent="";
+  choiceQ($("stopQ"),["停下來，不要再加",more,"改加糖水"],"停下來，不要再加",
+    ()=>{ say("stopFeed","good","✅ 對！偏紫＝接近中性，就停下來。"); adjDone(); },
+    o=>say("stopFeed","hint", o==="改加糖水"
+      ? "🤔 再想想（不扣分）：已經偏紫了，還需要再加東西嗎？"
+      : "🤔 再想想（不扣分）：已經接近中性了，再倒一大杯會不會加過頭？"),
+    "col");
+  show("stopBox");
+}
+function buildOverQ(){
+  const need = start<0 ? "檸檬酸水" : "小蘇打水";
+  $("overText").innerHTML=`加過頭了，變成<b>${lvWord(lv)}</b>（${lvNat(lv)}）！現在要加哪一種，才可能調回偏紫？`;
+  $("overQ").innerHTML=""; $("overFeed").className="feedback"; $("overFeed").textContent="";
+  choiceQ($("overQ"),["檸檬酸水","小蘇打水","糖水"],need,
+    ()=>{ say("overFeed","good",`✅ 對！${lvNat(lv)}就加${need==="檸檬酸水"?"<b>酸性</b>的檸檬酸水":"<b>鹼性</b>的小蘇打水"}，一樣要一滴一滴加。`); adjDone(); },
+    o=>say("overFeed","hint", o==="糖水"
+      ? "🤔 再想想（不扣分）：糖水是中性，能把它調回來嗎？"
+      : (start<0 ? "🤔 再想想（不扣分）：這杯已經偏鹼，再加小蘇打水會更偏鹼喔。" : "🤔 再想想（不扣分）：這杯已經偏酸，再加檸檬酸水會更偏酸喔。")));
+  show("overBox");
+}
+function resetLab(s){
+  start=s; lv=s; nSoda=0; nCit=0; log=[]; askedStop=false; askedOver=false;
+  ["stopBox","overBox"].forEach(id=>$(id).classList.add("hidden"));
+  $("bigPour").textContent = s<0 ? "⚠️ 一次倒一大杯小蘇打水" : "⚠️ 一次倒一大杯檸檬酸水";
+  drawLab();
+}
+$("addSoda").addEventListener("click",()=>addDrop("soda",1));
+$("addCit").addEventListener("click",()=>addDrop("cit",1));
+$("bigPour").addEventListener("click",()=>{
+  if(start<0) addDrop("soda",8);
+  else{ lv-=8; nCit+=8; log.push({t:"一大杯檸檬酸水",s:nSoda,c:nCit,l:lv}); drawLab(); afterDrop(); }
+});
+$("resetRed").addEventListener("click",()=>resetLab(-4));
+$("resetBlue").addEventListener("click",()=>resetLab(4));
+resetLab(-4);
+
+/* ==========================================================
+   生活中的應用：配對白板（揭曉前不顯示任何對錯）
+   ========================================================== */
+const LIFE_BASKETS=[
+  {k:"A",nm:"胃酸過多",      hint:"胃裡的酸太多，不舒服"},
+  {k:"B",nm:"熱水瓶的水垢",  hint:"熱水瓶裡面的硬垢"},
+  {k:"C",nm:"口中的酸性",    hint:"吃東西以後的嘴巴"},
+  {k:"D",nm:"馬桶裡的鹼性汙垢",hint:"馬桶裡面"}
+];
+const LIFE_CARDS=[
+  {img:"p77-antacid",   name:"胃藥",          cat:"A", nat:"鹼性", say:"胃藥裡通常含有<b>鹼性</b>物質"},
+  {img:"p77-kettle",    name:"檸檬酸",        cat:"B", nat:"酸性", say:"檸檬酸是<b>酸性</b>"},
+  {img:"p77-brush",     name:"鹼性牙膏",      cat:"C", nat:"鹼性", say:"鹼性牙膏是<b>鹼性</b>"},
+  {img:"toilet-cleaner",name:"偏酸性的清潔劑",cat:"D", nat:"酸性", say:"偏酸性的清潔劑是<b>酸性</b>"}
+];
+const BASKET_NAMES={}; LIFE_BASKETS.forEach(s=>BASKET_NAMES[s.k]=s.nm);
+const CN_NUM=["零","一","二","三","四","五","六","七","八","九","十"];
+const tray=$("tray"), revealBtn=$("revealBtn"), sortMsg=$("sortMsg");
+const cardCat=new WeakMap();   /* 正確答案只存在程式裡，不寫進畫面 */
+let picked=null, sortRevealed=false;
+
+LIFE_BASKETS.forEach(s=>{
+  const b=document.createElement("div");
+  b.className="basket"; b.dataset.basket=s.k; b.setAttribute("role","group"); b.setAttribute("aria-labelledby",`let-${s.k} name-${s.k}`);
+  b.innerHTML=`<div class="bhead"><span class="bletter" id="let-${s.k}">${s.k==="A"?"甲":s.k==="B"?"乙":s.k==="C"?"丙":"丁"}</span><span class="bname" id="name-${s.k}">${s.nm}</span><button type="button" class="bdrop">放進「${s.nm}」</button></div><div class="bhint">${s.hint}</div><div class="drop" id="drop-${s.k}"></div>`;
+  $("lifeBaskets").appendChild(b);
+});
+function buildSort(){
+  tray.innerHTML="";
+  Object.keys(BASKET_NAMES).forEach(k=>{ $("drop-"+k).innerHTML=""; });
+  document.querySelectorAll(".basket").forEach(b=>b.classList.remove("hot"));
+  picked=null; sortRevealed=false;
+  revealBtn.disabled=true;
+  $("lifeNat").classList.add("hidden");
+  LIFE_CARDS.slice().sort(()=>Math.random()-0.5).forEach(o=>tray.appendChild(makeCard(o)));
+  checkReady();
+}
+function makeCard(o){
+  const el=document.createElement("div");
+  el.className="fcard"; el.tabIndex=0; el.setAttribute("role","button");
+  el.setAttribute("aria-label",o.name);
+  cardCat.set(el,o.cat);
+  el.innerHTML=`<div class="ph">${imgTag(o.img,o.name)}</div><div class="label">${o.name}</div><div class="mark"></div>`;
+  attachDrag(el);
+  el.addEventListener("keydown",e=>{
+    if(e.key==="Enter"||e.key===" "){ e.preventDefault(); if(!sortRevealed){ togglePick(el); checkReady(); } }
+  });
+  return el;
+}
+function togglePick(el){
+  if(picked===el){ el.classList.remove("picked"); picked=null; }
+  else{
+    if(picked) picked.classList.remove("picked");
+    picked=el; el.classList.add("picked");
+  }
+}
+/* 兩種操作都支援：①點卡片再點籃子　②直接拖曳（Pointer Events，滑鼠與觸控通用） */
+function attachDrag(el){
+  let sx=0, sy=0, ox=0, oy=0, moved=false, down=false;
+  el.addEventListener("pointerdown",e=>{
+    if(sortRevealed || (e.pointerType==="mouse" && e.button!==0)) return;
+    down=true; moved=false; sx=e.clientX; sy=e.clientY;
+    const r=el.getBoundingClientRect(); ox=e.clientX-r.left; oy=e.clientY-r.top;
+    try{ el.setPointerCapture(e.pointerId); }catch(_){}
+  });
+  el.addEventListener("pointermove",e=>{
+    if(!down) return;
+    if(sortRevealed){ if(moved) endDrag(); return; }
+    if(!moved && Math.hypot(e.clientX-sx,e.clientY-sy)>12){
+      moved=true;
+      const r=el.getBoundingClientRect();
+      el.style.width=r.width+"px";
+      el.classList.add("dragging");
+      setPos(e);
+    }else if(moved){ setPos(e); }
+  });
+  el.addEventListener("pointerup",e=>{
+    if(!down) return;
+    down=false;
+    if(sortRevealed){ if(moved) endDrag(); return; }
+    if(moved){
+      const under=document.elementFromPoint(e.clientX,e.clientY);
+      endDrag();
+      const basket=under && under.closest(".basket");
+      const back=under && under.closest(".cardtray");
+      if(basket) place(el,basket.dataset.basket);
+      else if(back){ tray.appendChild(el); if(picked===el){ el.classList.remove("picked"); picked=null; } }
+    }else{
+      togglePick(el);
+    }
+    checkReady();
+  });
+  el.addEventListener("pointercancel",()=>{ down=false; if(moved) endDrag(); });
+  function endDrag(){
+    el.classList.remove("dragging"); el.style.cssText=""; clearHot(); moved=false;
+  }
+  function setPos(e){
+    el.style.left=(e.clientX-ox)+"px"; el.style.top=(e.clientY-oy)+"px";
+    const under=document.elementFromPoint(e.clientX,e.clientY);
+    clearHot();
+    const b=under && under.closest(".basket"); if(b) b.classList.add("hot");
+  }
+}
+function clearHot(){ document.querySelectorAll(".basket").forEach(b=>b.classList.remove("hot")); }
+function place(el,k){
+  $("drop-"+k).appendChild(el);
+  el.classList.remove("picked");
+  if(picked===el) picked=null;
+}
+/* 點籃子 → 把選起來的卡片放進去（點到籃子裡的卡片時不重複放） */
+document.querySelectorAll(".basket").forEach(b=>{
+  b.addEventListener("click",e=>{
+    if(sortRevealed || !picked) return;
+    if(e.target.closest(".fcard")) return;
+    place(picked,b.dataset.basket);
+    checkReady();
+  });
+  b.addEventListener("keydown",e=>{
+    if((e.key==="Enter"||e.key===" ") && e.target===b){
+      e.preventDefault();
+      if(sortRevealed || !picked) return;
+      place(picked,b.dataset.basket); checkReady();
+    }
+  });
+});
+/* 點卡片區的空白處 → 把選起來的卡片收回來 */
+tray.addEventListener("click",e=>{
+  if(sortRevealed || !picked || e.target.closest(".fcard")) return;
+  tray.appendChild(picked); picked.classList.remove("picked"); picked=null;
+  checkReady();
+});
+function checkReady(){
+  if(sortRevealed) return;
+  const left=tray.querySelectorAll(".fcard").length;
+  revealBtn.disabled=(left>0);
+  if(picked){
+    sortMsg.textContent=`已選「${picked.querySelector(".label").textContent}」→ 點一個籃子放進去`;
+  }else{
+    sortMsg.textContent= left>0 ? `還有 ${left} 張沒放` : `${CN_NUM[LIFE_CARDS.length]}張都放好了，討論完可以按揭曉`;
+  }
+}
+/* 揭曉：逐張判 ○ ✗ */
+revealBtn.addEventListener("click",()=>{
+  if(picked){ picked.classList.remove("picked"); picked=null; }
+  sortRevealed=true;
+  let right=0;
+  Object.keys(BASKET_NAMES).forEach(k=>{
+    $("drop-"+k).querySelectorAll(".fcard").forEach(el=>{
+      const ok=cardCat.get(el)===k;
+      el.classList.add("judged",ok?"ok":"no");
+      el.querySelector(".mark").textContent= ok ? "○ 放對了" : `✗ 應該放「${BASKET_NAMES[cardCat.get(el)]}」`;
+      right+=ok?1:0;
+    });
+  });
+  sortMsg.textContent=`${CN_NUM[LIFE_CARDS.length]}張裡放對 ${right} 張`;
+  revealBtn.disabled=true;
+  buildNat();
+  show("lifeNat");
+});
+$("resetSort").addEventListener("click",buildSort);
+let natOk=0;
+function buildNat(){
+  natOk=0; $("lifePoint").classList.add("hidden");
+  $("natRows").innerHTML="";
+  LIFE_CARDS.forEach((c,i)=>{
+    const row=document.createElement("div"); row.className="natrow";
+    row.innerHTML=`<span class="nm">${c.name}</span><span id="natQ${i}"></span><div class="feedback" id="natF${i}" aria-live="polite"></div>`;
+    $("natRows").appendChild(row);
+    choiceQ($("natQ"+i),["酸性","鹼性"],c.nat,
+      ()=>{ say("natF"+i,"good",`✅ ${c.say}，用來處理「${BASKET_NAMES[c.cat]}」。`); natOk++; if(natOk>=LIFE_CARDS.length) show("lifePoint"); },
+      ()=>say("natF"+i,"hint","🤔 再想想（不扣分）：要處理的東西偏酸，就要用相反的那一種。"));
+  });
+}
+buildSort();
+
+/* ==========================================================
+   安全第一
+   ========================================================== */
+renderFig($("safeFig"),"toilet-cleaner");
+addTag($("safeFig"),30,30,"<b>使用前看清楚</b>成分、使用方法、注意事項","b",{mw:56});
+choiceQ($("mixCleanQ"),["可以，洗得更乾淨","不可以"],"不可以",
+  ()=>{ say("mixCleanFeed","good","✅ 不可以！不同的清潔劑混在一起可能發生危險，瓶子上的注意事項也常寫「不可和其他清潔劑混用」。<b>在家不可以自己把清潔劑混在一起用。</b>"); show("safeCrit"); },
+  ()=>say("mixCleanFeed","hint","🤔 再想想（不扣分）：使用前要先看清楚什麼？清潔劑瓶上的注意事項會怎麼寫？"));
+const ACTS=[
+  {t:"馬上用大量清水沖洗",ans:"○",ok:"✅ 對！先用大量清水沖洗。",no:"🤔 再想想（不扣分）：課本 77 頁說要先怎麼做？"},
+  {t:"拿醋或小蘇打水倒上去「中和」",ans:"╳",ok:"✅ 對！千萬不能用酸鹼混合的方式處理，以免造成傷害。",no:"🤔 再想想（不扣分）：課本 77 頁說「千萬不能」用什麼方式處理？"},
+  {t:"盡快送醫治療",ans:"○",ok:"✅ 對！沖洗後盡快送醫。",no:"🤔 再想想（不扣分）：沖洗完就沒事了嗎？課本 77 頁還說要做什麼？"}
+];
+let actOk=0;
+ACTS.forEach((a,i)=>{
+  const row=document.createElement("div"); row.className="actrow";
+  row.innerHTML=`<span class="nm">${a.t}</span><span id="actQ${i}"></span><div class="feedback" id="actF${i}" aria-live="polite"></div>`;
+  $("actRows").appendChild(row);
+  choiceQ($("actQ"+i),["○","╳"],a.ans,
+    ()=>{ say("actF"+i,"good",a.ok); actOk++; if(actOk>=ACTS.length) show("must3"); },
+    ()=>say("actF"+i,"hint",a.no));
+});
+choiceQ($("catQ"),["用膠帶黏除焮毛、盡快用清水清洗、冰敷，嚴重時就醫","趕快塗上鹼性的東西來中和","用手用力搓揉刺痛的地方"],"用膠帶黏除焮毛、盡快用清水清洗、冰敷，嚴重時就醫",
+  ()=>say("catFeed","good","✅ 對！民間用鹼性的東西「酸鹼中和」的方法，還需要再證實。"),
+  o=>say("catFeed","hint", o.startsWith("趕快")
+    ? "🤔 再想想（不扣分）：習作說民間用鹼性東西的方法「需要再證實」，最好的處理是什麼？"
+    : "🤔 再想想（不扣分）：用力搓揉，焮毛會不會刺得更多？"),
+  "col");
+
+/* ==========================================================
+   在家自由複習　兩層：先選答案，再選「你怎麼知道？」；答對一定出現判準卡
+   本課課堂用學習單代替闖關，這 4 題都是在家複習。
+   ========================================================== */
+const QUIZ=[
+  {fig:[{lab:"甲",res:"neutral"},{lab:"乙",res:"acid"},{lab:"丙",res:"base"}],
+   q:"甲、乙、丙是三杯混合液，滴入紫色高麗菜汁後的顏色如圖（甲偏紫、乙偏紅、丙偏藍綠）。哪一杯要再加小蘇打水，才可能調回偏紫？",
+   opts:["甲","乙","丙"], ans:"乙",
+   r:["乙偏紅，還偏酸，要加鹼性的小蘇打水","丙偏藍綠，加小蘇打水會更接近中性","甲偏紫，再加一點小蘇打水會更好"],
+   rAns:"乙偏紅，還偏酸，要加鹼性的小蘇打水",
+   why:"用紫色高麗菜汁看：偏紅＝還偏酸，偏紫＝接近中性，偏藍或偏綠＝偏鹼。"},
+  {q:"小芸在偏藍綠的混合液裡，一滴一滴加檸檬酸水，加到偏紫就停下來。為什麼要一滴一滴加？",
+   opts:["才不會加過頭，又變成偏紅","這樣冒出的氣泡比較漂亮","這樣比較快做完"], ans:"才不會加過頭，又變成偏紅",
+   r:["混合後是什麼性，要看兩種水溶液各加了多少","檸檬酸水一次只能滴一滴","加得慢，顏色就不會改變"],
+   rAns:"混合後是什麼性，要看兩種水溶液各加了多少",
+   why:"混合後是什麼性，要看兩種水溶液各加了多少；所以要少量多次地加，一邊加一邊看顏色。"},
+  {photo:"p77-kettle", cap:"把檸檬酸倒進熱水瓶的水中（課本 77 頁）",
+   q:"照片中把檸檬酸倒進熱水瓶的水中，放一段時間。這是要處理什麼？",
+   opts:["熱水瓶的水垢","熱水瓶的電線","水裡的糖"], ans:"熱水瓶的水垢",
+   r:["課本 77 頁：將檸檬酸倒入水中一段時間，可去除熱水瓶的水垢","檸檬酸是鹼性，可以讓水變甜","檸檬酸可以讓熱水瓶導電"],
+   rAns:"課本 77 頁：將檸檬酸倒入水中一段時間，可去除熱水瓶的水垢",
+   why:"生活中有時會利用酸性和鹼性互相作用，來降低物質的酸鹼性，或使它接近中性；檸檬酸是酸性。"},
+  {photo:"toilet-cleaner", cap:"用清潔劑清洗馬桶（課本 77 頁）",
+   q:"打掃廁所時，可以把兩瓶不同的清潔劑倒在一起用嗎？",
+   opts:["可以，洗得更乾淨","不可以"], ans:"不可以",
+   r:["混在一起可能發生危險；使用前要看清楚注意事項","清潔劑倒在一起會變成糖水","兩瓶一起用太浪費，其他沒有關係"],
+   rAns:"混在一起可能發生危險；使用前要看清楚注意事項",
+   why:"使用水溶液前，一定要看清楚成分、使用方法和注意事項。"}
+];
+const RANKS=[{s:0,t:"🧪 小助手"},{s:4,t:"🔬 小科學家"},{s:7,t:"🏅 調色達人！"}];
+let qi=0, score=0, tries=0, skipped=0;
+function fmt(n){ return Number.isInteger(n)?String(n):n.toFixed(1); }
+function rankOf(s){ let r=RANKS[0]; RANKS.forEach(x=>{ if(s>=x.s) r=x; }); return r.t; }
+function renderDots(){
+  $("dots").innerHTML="";
+  QUIZ.forEach((_,i)=>{
+    const d=document.createElement("span");
+    d.className="dot"+(i<qi?" done":i===qi?" now":"");
+    $("dots").appendChild(d);
+  });
+}
+function renderQPhoto(q){
+  const box=$("qphoto"); box.innerHTML="";
+  $("quizwrap").classList.toggle("nophoto",!q.photo && !q.fig);
+  if(q.fig){
+    box.innerHTML=`<div class="svgbox"><span class="simtag">示意</span>${cabFig(q.fig)}</div>`;
+  }else if(q.photo){
+    box.innerHTML=`<figure class="figbox"><div class="fig" id="qFig" style="--mh:40vh"></div>
+      <figcaption class="cap center">${q.cap||PHOTOS[q.photo][2]}</figcaption></figure>`;
+    renderFig($("qFig"),q.photo);
+  }
+}
+function renderQ(){
+  const q=QUIZ[qi]; tries=0;
+  $("qprog").textContent=`第 ${qi+1} / ${QUIZ.length} 題`;
+  renderDots();
+  renderQPhoto(q);
+  $("qkind").textContent=q.cls?"課堂題":"在家複習";
+  $("qkind").classList.toggle("home",!q.cls);
+  $("q1title").textContent=q.q;
+  ["q1opts","q2opts"].forEach(id=>$(id).innerHTML="");
+  ["q1feed","q2feed"].forEach(id=>{ $(id).className="feedback"; $(id).textContent=""; });
+  $("step2").classList.add("hidden");
+  $("criterion").classList.add("hidden");
+  $("nextBtn").classList.add("hidden");
+  $("skipBtn").classList.toggle("hidden",!!q.cls);
+  choiceQ($("q1opts"),q.opts,q.ans,
+    ()=>{ addScore(); $("q1feed").className="feedback good"; $("q1feed").textContent="✅ 答對了！再說說你怎麼知道。"; $("step2").classList.remove("hidden");
+          $("skipBtn").classList.add("hidden");
+          $("step2").scrollIntoView({behavior:"smooth",block:"nearest"}); },
+    ()=>{ tries++; $("q1feed").className="feedback hint"; $("q1feed").textContent="🤔 再想想看，還可以再試。"; },
+    "col");
+  choiceQ($("q2opts"),q.r,q.rAns,
+    ()=>{
+      addScore();
+      $("q2feed").className="feedback"; $("q2feed").textContent="";
+      $("criterionText").textContent="💡 "+q.why;
+      $("criterion").classList.remove("hidden");
+      $("nextBtn").textContent= qi+1<QUIZ.length ? "下一題 →" : "看結果 →";
+      $("nextBtn").classList.remove("hidden");
+      $("nextBtn").scrollIntoView({behavior:"smooth",block:"nearest"});
+    },
+    ()=>{ tries++; $("q2feed").className="feedback hint"; $("q2feed").textContent="🤔 這個理由說不通，再選一次。"; },
+    "col");
+}
+function addScore(){
+  score += tries===0 ? 1 : 0.5;   /* 答錯再試，分數減半 */
+  tries=0;
+  $("score").textContent=fmt(score);
+  $("rank").textContent=rankOf(score);
+}
+function nextQ(){
+  qi++;
+  if(qi>=QUIZ.length) showResult();
+  else{ renderQ(); $("quizPanel").scrollIntoView({behavior:"smooth",block:"nearest"}); }
+}
+$("nextBtn").addEventListener("click",nextQ);
+$("skipBtn").addEventListener("click",()=>{ skipped++; nextQ(); });
+function showResult(){
+  renderDots();
+  $("qprog").textContent="完成！";
+  $("quizPanel").classList.add("hidden");
+  $("quizResult").classList.remove("hidden");
+  $("finalScore").textContent=`總分 ${fmt(score)} / ${(QUIZ.length-skipped)*2}`;
+  $("finalRank").textContent=rankOf(score);
+  $("skipNote").textContent= skipped ? `跳過 ${skipped} 題，回家可以再挑戰。` : "";
+  $("quizResult").scrollIntoView({behavior:"smooth",block:"start"});
+}
+$("againBtn").addEventListener("click",()=>{
+  qi=0; score=0; skipped=0; $("score").textContent="0"; $("rank").textContent=RANKS[0].t;
+  $("quizResult").classList.add("hidden");
+  $("quizPanel").classList.remove("hidden");
+  renderQ();
+  $("quizPanel").scrollIntoView({block:"start"});
+});
+renderQ();
+
+/* ---------- 開頁：網址有 #站名 就直接跳過去 ---------- */
+(function(){
+  const h=(location.hash||"").replace("#","");
+  if(STATIONS.indexOf(h)>0) go(h,false);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,1456 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>水溶液的導電性｜LED 導電測試</title>
+<link rel="icon" href="../../image/icon.svg" type="image/svg+xml">
+<style>
+/* ==========================================================
+   水溶液的導電性 — 樣式表
+   使用情境：教室 75 吋觸控螢幕，全班共用、學生輪流上臺操作。
+   沿用〈植物與人類生活〉〈檢驗水溶液的酸鹼性〉的調色盤與元件；照片取自課本，
+   導電測試的示意圖和線上題庫是同一套（題庫/figures.js），一律標「示意」。
+   LED 亮不亮一律同時寫成字（發亮／不亮）；白色字只放在深綠 #2E7D4F 上。
+   ========================================================== */
+:root{
+  --bg:#FDF6EC;
+  --ink:#1E1E1E;
+  --green:#58B159;
+  --green-dark:#2E7D4F;
+  --water:#4FB0E5;
+  --water-dark:#2E86C1;
+  --sun:#FFC93C;
+  --coral:#FF7F66;
+  --wrong:#E4574C;
+  --card:#FFFFFF;
+  --muted:#6B7A82;
+  --shadow:0 6px 18px rgba(46,86,110,.16);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  min-height:100vh;color:var(--ink);background:var(--bg);
+  font-family:-apple-system,"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif;
+  font-size:clamp(17px,1.9vw,22px);line-height:1.6;
+}
+figure{margin:0}
+#app{max-width:1240px;margin:0 auto;padding:12px 16px 96px}
+
+/* ---------- 頁首與站別導覽 ---------- */
+.sitehead{margin-bottom:12px}
+.headrow{display:flex;align-items:center;gap:6px 16px;flex-wrap:wrap}
+.back{
+  display:inline-flex;align-items:center;min-height:44px;padding:4px 16px;
+  border:3px solid var(--ink);border-radius:999px;background:var(--card);color:var(--ink);
+  font-weight:800;text-decoration:none;box-shadow:0 3px 0 var(--ink);font-size:clamp(15px,1.4vw,18px);
+}
+.back:active{transform:translateY(2px);box-shadow:0 1px 0 var(--ink)}
+.sitehead h1{margin:0;font-size:clamp(22px,2.6vw,32px);font-weight:900;letter-spacing:.5px;line-height:1.25}
+.sitehead .sub{color:var(--muted);font-size:clamp(13px,1.35vw,17px);font-weight:700}
+.stations{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.station-btn{
+  border:3px solid var(--ink);border-radius:999px;background:var(--card);color:var(--ink);
+  padding:8px 16px;font:inherit;font-size:clamp(15px,1.4vw,19px);font-weight:800;cursor:pointer;
+  box-shadow:0 3px 0 var(--ink);min-height:56px;line-height:1.25;
+}
+.station-btn.on{background:var(--green-dark);color:#fff}
+.station-btn:active{transform:translateY(2px);box-shadow:0 1px 0 var(--ink)}
+
+/* ---------- 畫面切換 ---------- */
+.screen{display:none;animation:fadeIn .4s ease}
+.screen.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.hidden{display:none !important}
+
+/* ---------- 通用卡片、按鈕 ---------- */
+.panel{
+  background:var(--card);border:3px solid var(--ink);border-radius:20px;
+  padding:16px 18px;box-shadow:var(--shadow);margin-bottom:14px;
+}
+.ptitle{font-weight:900;font-size:clamp(19px,2.2vw,27px);margin:0 0 10px}
+.btn{
+  border:3px solid var(--ink);border-radius:999px;background:var(--sun);color:var(--ink);
+  padding:12px 26px;font:inherit;font-weight:900;cursor:pointer;
+  box-shadow:0 4px 0 var(--ink);min-height:60px;
+}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--ink)}
+.btn.green{background:var(--green-dark);color:#fff}
+.btn.plain{background:var(--card)}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.btn.green[disabled]{opacity:1;background:#E6E1D6;color:#5B666C;box-shadow:0 4px 0 #9A9486}
+.btn[aria-pressed="true"]{box-shadow:0 0 0 5px var(--ink),0 4px 0 var(--ink);background:#FFF3C4}
+a.btn{display:inline-flex;align-items:center;text-decoration:none}
+.btnrow{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-top:14px}
+.btnrow.center{justify-content:center}
+.navrow{display:flex;justify-content:flex-end;gap:12px;flex-wrap:wrap;margin:0 0 12px}
+.ask{
+  background:#FFF6D8;border:3px dashed var(--sun);border-radius:16px;
+  padding:12px 16px;font-weight:800;font-size:clamp(18px,2.1vw,25px);text-align:center;
+}
+.ask.big{font-size:clamp(22px,2.6vw,40px);padding:16px}
+.lead{color:var(--muted);font-weight:700;margin:10px 0;font-size:clamp(15px,1.6vw,19px)}
+.cap{font-weight:800;margin-top:6px;font-size:clamp(14px,1.55vw,19px);line-height:1.45}
+.note{color:var(--muted);font-weight:700;font-size:clamp(13px,1.4vw,17px);line-height:1.45}
+.center{text-align:center}
+.teacher-tip{
+  margin:0 0 18px;font-size:clamp(13px,1.4vw,16px);color:var(--muted);
+  border-left:5px solid var(--sun);padding:6px 12px;background:#FFFCF2;border-radius:0 10px 10px 0;
+}
+.teacher-tip b.time{color:#7A5B00}
+.teacher-tip p{margin:4px 0}
+.img-fallback{
+  display:flex !important;align-items:center;justify-content:center;text-align:center;line-height:1.35;
+  background:#F2EEE4;color:var(--muted);font-weight:800;font-size:clamp(12px,1.3vw,17px);
+  padding:8px;border:2px dashed #C9C2B4;overflow:hidden;overflow-wrap:anywhere;
+}
+
+.duo{display:grid;grid-template-columns:minmax(0,1fr);gap:16px;align-items:start}
+@media (min-width:1024px) and (orientation:landscape){
+  .duo{grid-template-columns:minmax(0,1.15fr) minmax(0,1fr)}
+  .duo.mid{align-items:center}
+}
+
+/* ---------- 照片框 ---------- */
+.fig{
+  position:relative;width:min(100%, calc(var(--mh,60vh) * var(--ar,4/3)));aspect-ratio:var(--ar,4/3);
+  margin:0 auto;border-radius:14px;background:#F2EEE4;box-shadow:0 0 0 3px var(--ink);
+}
+.fig > img,.fig > .img-fallback{
+  position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:14px;display:block;
+  -webkit-user-drag:none;user-select:none;
+}
+.figbox{padding:3px}
+
+/* ---------- 選項、回饋、判準 ---------- */
+.opts{display:flex;flex-wrap:wrap;gap:12px}
+.opts.col{flex-direction:column;align-items:stretch}
+.opts.col .opt{text-align:left}
+.opt{
+  border:3px solid var(--ink);border-radius:16px;background:var(--card);color:var(--ink);
+  padding:12px 24px;font:inherit;font-weight:900;cursor:pointer;
+  box-shadow:0 4px 0 var(--ink);min-height:62px;font-size:clamp(18px,2vw,25px);line-height:1.35;
+}
+.opt:active{transform:translateY(3px);box-shadow:0 1px 0 var(--ink)}
+.opt.ok{background:var(--green-dark);color:#fff}
+.opt.no{background:#FBE3E1;border-color:var(--wrong);color:#B03A30;text-decoration:line-through}
+.opt[disabled]{cursor:not-allowed}
+.opt.picked,.opt[aria-pressed="true"]{background:#FFF3C4;box-shadow:0 0 0 5px var(--sun),0 4px 0 var(--ink)}
+.steptag{
+  display:inline-block;background:#DDF0FA;color:var(--ink);border:3px solid var(--ink);
+  border-radius:999px;padding:2px 14px;font-weight:900;margin-bottom:8px;font-size:clamp(14px,1.5vw,19px);
+}
+.qtitle{font-weight:900;font-size:clamp(19px,2.2vw,27px);margin:0 0 12px}
+.feedback{margin-top:12px;font-weight:800;border-radius:14px}
+.feedback:empty{display:none}
+.feedback.hint{background:#FFF6D8;border:3px dashed var(--sun);padding:10px 14px}
+.feedback.good{background:#EAF7EE;border:3px solid var(--green-dark);color:var(--green-dark);padding:10px 14px}
+.feedback.bad{background:#FBE3E1;border:3px solid var(--wrong);color:#8E2A22;padding:10px 14px}
+.criterion{
+  background:#EAF7EE;border:3px solid var(--green-dark);border-radius:18px;padding:12px 16px;margin-top:14px;
+}
+.criterion .k{font-weight:900;color:var(--green-dark);font-size:clamp(18px,2.1vw,25px)}
+.criterion .k + .k{margin-top:8px}
+.criterion .askagain{
+  margin-top:8px;font-size:clamp(13px,1.5vw,17px);color:var(--muted);font-weight:800;
+  border-top:2px dashed #B9D8C4;padding-top:8px;
+}
+.bigpoint{
+  background:#EAF7EE;border:3px solid var(--green-dark);border-radius:18px;margin-top:14px;
+  padding:14px 18px;font-weight:900;font-size:clamp(19px,2.3vw,28px);text-align:center;color:var(--green-dark);
+}
+.bigpoint b{text-decoration:underline;text-decoration-thickness:3px;text-underline-offset:5px}
+.bigpoint small{display:block;margin-top:6px;font-size:.7em;color:#2F5E43;font-weight:800}
+
+.guessbox{margin-top:16px;text-align:center;background:#FFFDF8;border:3px solid var(--ink);border-radius:16px;padding:12px}
+.guessbox .g{font-size:clamp(19px,2.2vw,28px);font-weight:900}
+.guessbox .later{font-size:clamp(20px,2.6vw,34px);font-weight:900;color:var(--green-dark)}
+
+.tabs{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.tab{
+  border:3px solid var(--ink);border-radius:16px 16px 6px 6px;background:var(--card);color:var(--ink);
+  padding:10px 18px;font:inherit;font-weight:900;cursor:pointer;min-height:60px;box-shadow:0 3px 0 var(--ink);
+}
+.tab.on{background:var(--green-dark);color:#fff}
+.saybox{
+  margin:0 0 12px;background:#FFFDF8;border:3px solid var(--ink);border-radius:16px;padding:12px 16px;
+  font-weight:800;font-size:clamp(18px,2.1vw,26px);line-height:1.5;
+}
+.saybox .no{display:inline-block;background:var(--sun);border:3px solid var(--ink);border-radius:999px;padding:0 12px;margin-right:8px;font-size:.8em}
+.derive{margin-top:18px;border-top:3px dashed #C9C2B4;padding-top:16px}
+
+/* ---------- 闖關（出場卡） ---------- */
+.modebar{display:flex;align-items:center;gap:8px 12px;flex-wrap:wrap;margin-bottom:12px;font-weight:900}
+.modebar .btn{min-height:52px;padding:8px 18px}
+.quizbar{display:flex;align-items:center;gap:8px 14px;flex-wrap:wrap;
+  background:var(--card);border:3px solid var(--ink);border-radius:26px;padding:8px 18px;
+  box-shadow:var(--shadow);margin-bottom:14px;font-weight:900}
+.dots{display:flex;gap:8px}
+.dot{width:16px;height:16px;border-radius:50%;border:3px solid var(--ink);background:#fff}
+.dot.done{background:var(--green-dark)}
+.dot.now{background:var(--sun)}
+.qscore{margin-left:auto}
+.quizwrap{display:grid;grid-template-columns:minmax(0,1fr);gap:18px;align-items:start}
+@media (min-width:1024px) and (orientation:landscape){
+  .quizwrap{grid-template-columns:minmax(0,1fr) minmax(0,1.1fr)}
+}
+.quizwrap.nophoto{grid-template-columns:minmax(0,1fr)}
+.quizwrap.nophoto .qphoto{display:none}
+.result{text-align:center;padding:16px}
+.result .big{font-size:clamp(30px,5vw,58px);font-weight:900;color:var(--green-dark)}
+.rankline{font-weight:900;font-size:clamp(22px,2.8vw,36px);margin:6px 0}
+.ticket{
+  margin:14px auto;max-width:900px;background:#FFF6D8;border:3px dashed var(--sun);border-radius:16px;
+  padding:12px 16px;font-weight:800;font-size:clamp(18px,2.1vw,26px);text-align:left;line-height:1.8;
+}
+
+.credits{
+  font-size:clamp(12px,1.2vw,15px);color:var(--muted);margin-top:20px;line-height:1.55;
+  border-top:2px dashed #D9CFBE;padding-top:12px;
+}
+.credits a{color:var(--muted)}
+.credits p{margin:4px 0}
+
+/* ==========================================================
+   水溶液的導電性 — 本課新增的元件
+   ========================================================== */
+.qfig{width:100%;height:auto;display:block}
+.svgbox{border:3px solid var(--ink);border-radius:14px;background:#FFFDF8;padding:4px;overflow:hidden}
+.svgbox svg{display:block;width:100%;height:auto;max-height:46vh}
+.ledbox{max-width:620px;margin:0 auto}
+.qfig-fallback{min-height:120px;border-radius:10px}
+.sitag{display:inline-block;border:2px solid var(--muted);border-radius:999px;padding:0 10px;margin-left:6px;
+  font-size:.85em;color:#4A5960;background:#fff;font-weight:800;vertical-align:middle;line-height:1.4}
+
+/* 暖身 */
+.warm{background:#FFFDF8}
+.wq{display:flex;align-items:center;gap:8px 12px;flex-wrap:wrap;margin:10px 0 0}
+.wq .q{font-weight:900;flex:1 1 280px;font-size:clamp(18px,2vw,25px);line-height:1.45}
+.wq .btn{min-height:52px;padding:8px 20px}
+.wans{margin-top:8px}
+.no1{display:inline-flex;align-items:center;justify-content:center;width:1.7em;height:1.7em;border-radius:50%;
+  background:var(--sun);border:3px solid var(--ink);font-weight:900;margin-right:6px;font-size:.85em;flex:none}
+
+/* 開場：復習電路 */
+.recall3{display:grid;grid-template-columns:minmax(0,1fr);gap:10px}
+@media (min-width:720px){.recall3{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.recall3 .it{border:3px solid var(--ink);border-radius:16px;background:#FFFDF8;padding:10px;text-align:center;font-weight:800}
+.recall3 .it .em{font-size:2em;line-height:1.2;display:block}
+
+/* ① LED 小知識：課本 78 頁的兩張小照片（原圖很小，不放大） */
+.minis{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:6px}
+.mini{flex:0 1 200px;text-align:center}
+.mini .fig{--mh:22vh}
+.defs{display:grid;grid-template-columns:minmax(0,1fr);gap:12px}
+@media (min-width:900px){.defs{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.def{border:3px solid var(--ink);border-radius:16px;background:#FFFDF8;padding:10px 14px}
+.def .dt{font-weight:900;font-size:1.15em}
+.def .dd{font-weight:700;margin-top:4px}
+.sortq{display:grid;grid-template-columns:minmax(0,1fr);gap:12px;margin-top:12px}
+@media (min-width:1024px) and (orientation:landscape){.sortq{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.sortq .card{border:3px solid var(--ink);border-radius:16px;background:#fff;padding:10px}
+.sortq .scene{font-weight:900;margin:0 0 8px;line-height:1.45}
+.sortq .opt{flex:1 1 110px;padding:8px 10px;font-size:clamp(16px,1.7vw,22px)}
+
+/* 抓錯卡 */
+.oopscard{border:3px solid var(--ink);border-radius:16px;background:#FFFDF8;padding:12px}
+.oopscard .scene{font-weight:900;font-size:clamp(17px,1.9vw,24px);line-height:1.45;margin:0 0 10px}
+.oopscard .opts .opt{flex:1 1 110px}
+.oopsres .right{font-weight:900;color:var(--green-dark);margin:0}
+.oopsres .btn{min-height:52px;padding:8px 16px;margin-top:10px;font-size:clamp(15px,1.5vw,19px)}
+.oopsres .why{margin-top:8px;font-weight:800;background:#FFF6D8;border:3px dashed var(--sun);border-radius:12px;padding:8px 12px}
+.pair{display:grid;grid-template-columns:minmax(0,1fr);gap:12px;margin-top:12px}
+@media (min-width:720px){.pair{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+/* ② 步驟卡、注意事項 */
+.stepcards{display:grid;grid-template-columns:minmax(0,1fr);gap:12px}
+@media (min-width:720px){.stepcards{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (min-width:1200px){.stepcards{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.stepcard{border:3px solid var(--ink);border-radius:16px;background:#FFFDF8;padding:10px;text-align:center}
+.stepcard .sno{font-weight:900;font-size:clamp(22px,2.4vw,32px);line-height:1.2;margin-bottom:6px}
+.stepcard .sdesc{font-weight:800;margin:6px 0 0;font-size:clamp(16px,1.7vw,21px);line-height:1.45}
+.carelist{margin:0;padding:0;list-style:none}
+.carelist li{margin:8px 0;font-weight:800;display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px}
+.carelist li .t{flex:1 1 300px}
+.carelist li .btn{min-height:48px;padding:6px 16px;font-size:clamp(14px,1.4vw,18px)}
+.carelist li .why{flex-basis:100%;background:#FFF6D8;border:3px dashed var(--sun);border-radius:12px;padding:6px 12px}
+
+/* ③ 示範 5 杯 */
+.flowline{font-weight:800;color:#34444C;background:#F2F8FC;border-left:5px solid var(--water);border-radius:0 10px 10px 0;
+  padding:6px 12px;margin:0 0 12px;font-size:clamp(15px,1.6vw,20px);line-height:1.5}
+.tblwrap{overflow-x:auto;margin-top:14px}
+.restab{width:100%;border-collapse:collapse;background:#fff;text-align:center;font-weight:800;font-size:clamp(15px,1.6vw,20px)}
+.restab th,.restab td{border:2px solid var(--ink);padding:4px 6px;line-height:1.35}
+.restab th{background:#F2EEE4}
+.restab td.q{color:var(--muted)}
+.restab tr.now td{background:#FFF6D8}
+.sortsum{display:grid;grid-template-columns:minmax(0,1fr);gap:8px}
+@media (min-width:900px){.sortsum{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.sortsum .grp{border:3px solid var(--ink);border-radius:14px;background:#fff;padding:8px 12px;font-weight:800;line-height:1.5}
+.sortsum .grp b{font-size:1.15em}
+.photos2{display:grid;grid-template-columns:minmax(0,1fr);gap:14px}
+@media (min-width:720px){.photos2{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.tphoto{display:block;width:100%;height:auto;max-height:52vh;object-fit:contain;border-radius:14px;box-shadow:0 0 0 3px var(--ink);background:#F2EEE4}
+.tphoto-empty{
+  display:flex;align-items:center;justify-content:center;text-align:center;width:min(100%,640px);aspect-ratio:4/3;max-height:40vh;margin:0 auto;
+  border:3px dashed #C9C2B4;border-radius:14px;background:#FAF7F0;color:var(--muted);font-weight:800;
+  font-size:clamp(15px,1.6vw,22px);padding:10px;
+}
+
+/* ④ 抓錯實驗臺（示意） */
+.switches{display:flex;flex-direction:column;gap:10px;margin-top:10px}
+.sw{
+  display:flex;align-items:center;gap:12px;text-align:left;width:100%;
+  border:3px solid var(--ink);border-radius:16px;background:#fff;color:var(--ink);
+  padding:8px 14px;font:inherit;font-weight:900;cursor:pointer;min-height:60px;box-shadow:0 4px 0 var(--ink);
+}
+.sw .knob{flex:none;display:inline-flex;align-items:center;justify-content:center;min-width:3.6em;height:1.8em;border-radius:999px;
+  border:3px solid var(--ink);background:#E6E1D6;font-size:.8em;font-weight:900}
+.sw[aria-pressed="true"]{background:#FBE3E1;border-color:var(--wrong)}
+.sw[aria-pressed="true"] .knob{background:var(--wrong);color:#fff;border-color:var(--wrong)}
+.status{margin-top:12px;font-weight:900;font-size:clamp(18px,2vw,25px);background:#F2F8FC;border:3px solid var(--water-dark);border-radius:14px;padding:8px 12px}
+
+/* ⑤ 三種檢驗比較表 */
+.cmptab{width:100%;border-collapse:collapse;background:#fff;font-weight:800;font-size:clamp(15px,1.6vw,21px)}
+.cmptab th,.cmptab td{border:3px solid var(--ink);padding:6px 8px;line-height:1.4;text-align:left;vertical-align:top}
+.cmptab th{background:#F2EEE4}
+.cmptab td.q{color:var(--muted);text-align:center;vertical-align:middle}
+.cmptab tr.led th{background:#FFF3C4}
+.cmptab td b{font-weight:900;text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:3px}
+
+/* 右下角的「注意事項」卡（② 之後的站；給需要的同學隨時看） */
+.rulefab{
+  position:fixed;right:12px;bottom:12px;z-index:60;display:none;align-items:center;
+  border:3px solid var(--ink);border-radius:999px;background:#fff;color:var(--ink);
+  padding:8px 18px;font:inherit;font-weight:900;cursor:pointer;min-height:56px;box-shadow:0 4px 0 var(--ink);
+}
+body[data-st="check"] .rulefab,body[data-st="demo"] .rulefab,body[data-st="oops"] .rulefab,body[data-st="quiz"] .rulefab{display:inline-flex}
+.rulefab[aria-expanded="true"]{background:#FFF3C4}
+.rulecard{
+  position:fixed;right:12px;bottom:80px;z-index:61;width:min(560px,calc(100vw - 24px));max-height:calc(100vh - 100px);overflow:auto;
+  background:#fff;border:3px solid var(--ink);border-radius:18px;padding:12px;box-shadow:0 10px 26px rgba(0,0,0,.3);
+}
+.rulecard .ptitle{margin-bottom:8px}
+.rulecard ol{margin:0;padding-left:1.6em;font-weight:800}
+.rulecard .btn{min-height:48px;padding:6px 18px;margin-top:10px}
+
+.safe{background:#FBE3E1;border:3px solid var(--wrong);border-radius:14px;padding:8px 12px;font-weight:800;color:#8E2A22;margin:10px 0 0}
+.qfigs{display:grid;grid-template-columns:minmax(0,1fr);gap:10px}
+
+@media (prefers-reduced-motion:reduce){
+  .screen{animation:none}
+}
+
+  /* ===== RWD：手機 / 平板 / 筆電 / 75 吋觸控螢幕 ===== */
+  @media (max-width:1100px){
+    .station-btn{ padding:8px 10px; }
+  }
+  @media (max-width:640px){
+    #app{ padding:10px 10px 90px; }
+    .panel{ border-radius:14px; padding:12px 12px; }
+    .stations{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:6px; }
+    .station-btn{ padding:4px 4px; font-size:14px; min-height:52px; border-radius:16px; }
+    .btn{ padding:10px 18px; min-height:52px; }
+    .opt{ min-height:52px; padding:10px 14px; }
+    .tab{ padding:8px 12px; min-height:52px; }
+    .quizbar{ border-radius:18px; }
+    .restab th,.restab td{ padding:3px 3px; }
+    .cmptab th,.cmptab td{ padding:4px 4px; }
+    .sw{ padding:8px 10px; }
+  }
+  @media (min-width:1800px){
+    body{ font-size:26px; }
+    #app{ max-width:1680px; padding:20px 30px 120px; }
+    .sitehead h1{ font-size:38px; }
+    .back{ min-height:64px; font-size:22px; padding:6px 24px; }
+    .station-btn{ min-height:72px; font-size:23px; padding:10px 26px; }
+    .btn{ min-height:80px; padding:16px 40px; }
+    .opt{ min-height:84px; font-size:28px; }
+    .tab{ min-height:80px; }
+    .cap{ font-size:22px; }
+    .ask{ font-size:30px; }
+    .steptag{ font-size:23px; }
+    .sitehead .sub{ font-size:21px; }
+    .ask.big{ font-size:46px; }
+    .qtitle,.ptitle{ font-size:32px; }
+    .saybox{ font-size:30px; }
+    .bigpoint{ font-size:33px; }
+    .criterion .k{ font-size:30px; }
+    .note,.lead{ font-size:20px; }
+    .teacher-tip{ font-size:19px; }
+    .credits{ font-size:16px; }
+    .ledbox{ max-width:900px; }
+    .svgbox svg{ max-height:50vh; }
+    .wq .q{ font-size:30px; }
+    .wq .btn{ min-height:64px; }
+    .stepcard .sdesc{ font-size:26px; }
+    .stepcard .sno{ font-size:38px; }
+    .oopscard .scene{ font-size:29px; }
+    .oopsres .btn{ min-height:64px; font-size:22px; }
+    .flowline{ font-size:24px; }
+    .restab{ font-size:25px; }
+    .cmptab{ font-size:26px; }
+    .sortq .opt{ font-size:26px; min-height:72px; }
+    .carelist li .btn{ min-height:64px; font-size:22px; }
+    .sw{ min-height:80px; }
+    .status{ font-size:30px; }
+    .rulefab{ min-height:72px; font-size:26px; padding:10px 26px; }
+    .rulecard{ width:min(820px,calc(100vw - 24px)); bottom:100px; }
+    .modebar .btn{ min-height:68px; }
+    .tphoto-empty{ font-size:26px; width:min(100%,900px); }
+  }
+  @media (min-width:2600px){
+    body{ font-size:34px; }
+    #app{ max-width:2280px; padding:30px 40px 150px; }
+    .sitehead h1{ font-size:50px; }
+    .back{ min-height:84px; font-size:30px; }
+    .station-btn{ min-height:96px; font-size:30px; padding:14px 34px; }
+    .btn{ min-height:104px; padding:22px 52px; }
+    .opt{ min-height:112px; font-size:36px; }
+    .tab{ min-height:104px; }
+    .cap{ font-size:29px; }
+    .ask{ font-size:39px; }
+    .steptag{ font-size:30px; }
+    .sitehead .sub{ font-size:27px; }
+    .ask.big{ font-size:60px; }
+    .qtitle,.ptitle{ font-size:42px; }
+    .saybox{ font-size:39px; }
+    .bigpoint{ font-size:43px; }
+    .criterion .k{ font-size:39px; }
+    .note,.lead{ font-size:26px; }
+    .teacher-tip{ font-size:25px; }
+    .credits{ font-size:21px; }
+    .ledbox{ max-width:1200px; }
+    .wq .q{ font-size:39px; }
+    .wq .btn{ min-height:84px; }
+    .stepcard .sdesc{ font-size:34px; }
+    .stepcard .sno{ font-size:50px; }
+    .oopscard .scene{ font-size:38px; }
+    .oopsres .btn{ min-height:84px; font-size:29px; }
+    .flowline{ font-size:31px; }
+    .restab{ font-size:33px; }
+    .cmptab{ font-size:34px; }
+    .sortq .opt{ font-size:34px; min-height:96px; }
+    .carelist li .btn{ min-height:84px; font-size:29px; }
+    .sw{ min-height:104px; }
+    .status{ font-size:39px; }
+    .rulefab{ min-height:96px; font-size:34px; padding:14px 34px; }
+    .rulecard{ width:min(1100px,calc(100vw - 24px)); bottom:130px; }
+    .modebar .btn{ min-height:88px; }
+    .tphoto-empty{ font-size:34px; width:min(100%,1200px); }
+  }
+  /* 筆電（矮螢幕）：示意圖不要佔掉整個畫面 */
+  @media (min-width:1024px) and (max-height:760px){
+    .svgbox svg{ max-height:40vh; }
+    .ask.big{ font-size:26px; padding:10px; }
+  }
+</style>
+<script>
+/* 放在 head：圖片一出錯就能呼叫 */
+function imgFallback(img){
+  const span=document.createElement("span");
+  span.className="img-fallback "+(img.className||"");
+  span.setAttribute("role","img");
+  const name=img.getAttribute("data-name")||img.getAttribute("alt")||"照片";
+  span.setAttribute("aria-label","照片載入失敗："+name);
+  span.textContent="📷 照片載入失敗："+name;
+  img.replaceWith(span);
+}
+/* 老師課前試做的照片：還沒放進 photos/ 時顯示中性的虛線框，不顯示錯誤 */
+function teacherPhotoFallback(img){
+  const box=document.createElement("div");
+  box.className="tphoto-empty";
+  box.setAttribute("role","img");
+  box.setAttribute("aria-label","老師課前試做的照片（還沒放上來）");
+  box.textContent="（老師課前試做的照片）";
+  const fig=img.closest("figure");
+  img.replaceWith(box);
+  if(fig){ const cap=fig.querySelector("figcaption"); if(cap) cap.classList.add("hidden"); }
+}
+</script>
+</head>
+<body data-st="open">
+<div id="app">
+
+  <header class="sitehead">
+    <div class="headrow">
+      <a class="back" href="../../index.html">← 回教材首頁</a>
+      <h1>水溶液的導電性</h1>
+      <span class="sub">五年級自然｜第三單元 水溶液　課本 78–79 頁</span>
+    </div>
+    <nav class="stations" aria-label="站別">
+      <button class="station-btn on" data-go="open" aria-current="step">開場</button>
+      <button class="station-btn" data-go="led">① LED 小知識</button>
+      <button class="station-btn" data-go="check">② 先確認電路</button>
+      <button class="station-btn" data-go="demo">③ 示範 5 杯</button>
+      <button class="station-btn" data-go="oops">④ 抓錯實驗臺</button>
+      <button class="station-btn" data-go="compare">⑤ 三種檢驗比一比</button>
+      <button class="station-btn" data-go="quiz">⑥ 出場卡</button>
+    </nav>
+  </header>
+
+  <!-- ==================== 開場（課本 78 頁） ==================== -->
+  <section id="screen-open" class="screen active">
+    <div class="panel warm">
+      <p class="ptitle">⏰ 第 ⑨ 節暖身：上一課學過的</p>
+      <div class="wq"><span class="q"><span class="no1">1</span>醋和小蘇打水混合以後，會變成什麼性質？</span><button class="btn plain" data-reveal="warmA1" aria-expanded="false">看答案</button></div>
+      <div class="feedback good wans hidden" id="warmA1">不一定。混合後可能是酸性、中性，也可能是鹼性，要看各加了多少，再用石蕊試紙或紫色高麗菜汁檢驗。</div>
+      <div class="wq"><span class="q"><span class="no1">2</span>滴上一杯水溶液後，紅色石蕊試紙變藍色、藍色石蕊試紙不變色。這杯是什麼性質？</span><button class="btn plain" data-reveal="warmA2" aria-expanded="false">看答案</button></div>
+      <div class="feedback good wans hidden" id="warmA2">鹼性。鹼性水溶液會讓紅色石蕊試紙變藍色，藍色石蕊試紙不變色。</div>
+    </div>
+
+    <div class="panel">
+      <p class="ptitle">🔦 還記得嗎？電路接成「通路」，燈泡才會亮（課本 78 頁）</p>
+      <p class="saybox">在電池、電線和燈泡的電路中，接上<b>具有導電性</b>的物質，使電路連接成<b>通路</b>時，燈泡會亮起來。</p>
+      <div class="recall3">
+        <div class="it"><span class="em">📎</span>迴紋針</div>
+        <div class="it"><span class="em">◎</span>硬幣</div>
+        <div class="it"><span class="em">📏</span>鐵尺</div>
+      </div>
+      <p class="lead center">放在電路中，會讓燈泡亮起來。好像<b>金屬製品</b>都具有導電性……</p>
+      <p class="saybox"><span class="no">今天</span>水溶液除了顏色、氣味、酸鹼性不同，<b>導電性</b>也不同。這次用 <b>LED</b> 取代燈泡來測試。</p>
+    </div>
+
+    <div class="panel">
+      <div class="ask big">食鹽水和糖水，<br>哪一杯會讓 <b>LED 亮</b>？</div>
+      <p class="lead">先想一想，舉「亮／不亮」卡，再請一位同學上臺按。（只記下來，先不對答案）</p>
+      <div id="guessOpts"></div>
+      <div class="guessbox hidden" id="guessBox" aria-live="polite">
+        <div class="g">全班猜的是：「<span id="guessText"></span>」</div>
+        <div class="later">第 ③ 站示範時揭曉！</div>
+      </div>
+    </div>
+    <div class="navrow"><button class="btn green" data-next="led">出發：① LED 小知識 →</button></div>
+    <div class="teacher-tip">
+      <p><b class="time">給老師｜開場 5 分鐘</b>（第 ⑨ 節：暖身 3＋開場 2）</p>
+      <p><b>暖身 3 分鐘</b>（〈混合水溶液的酸鹼性〉混合後可能酸、中、鹼＋石蕊試紙規則）：全班口答或舉卡，再按「看答案」。這 3 分鐘請 2–3 位小助手布置示範臺（器材見 ③ 站的提示）。</p>
+      <p><b>開場 2 分鐘</b>：課本 78 頁上方，複習四年級「電路形成通路燈泡才會亮」，迴紋針、硬幣、鐵尺（金屬）會讓燈泡亮。投票先不判對錯，只記下「全班猜的是：○○」，到 ③ 站 5 杯做完會自動回收（重新整理頁面會清掉）。</p>
+      <p><b>學習目標</b>：①能說出 LED（發光二極體）的接法和優點 ②能用 LED 電路測試水溶液容易導電或不容易導電，並說出操作注意事項 ③能說出酸性和鹼性水溶液容易導電、中性水溶液不一定。</p>
+      <p><b>時間</b>：<br>⏱ ⑨｜暖身（混合可能酸中鹼＋石蕊規則）3｜開場 2｜① LED 小知識＋抓錯 6｜② 先確認電路 2｜③ 示範 5 杯＋同步填習作 31 頁 13｜④ 抓錯實驗臺 3｜判準卡 3｜學習單 8｜合計 40<br>⏱ ⑩（單元三統整）｜暖身（三種檢驗各一題，在 ⑤ 站）3｜圖解筆記課本 82–83 頁回顧 8｜⑤ 三種檢驗比較表 10｜補充遊戲「水溶液偵探社」試玩 15｜習作 32–33 頁說明 2｜收束 2｜合計 40</p>
+      <p><b>學習單與習作</b>：本課一節，<b>學習單代替闖關</b>，在第 ⑨ 節最後 8 分鐘寫；全班必做「一、三」，二（預測表）在示範前先圈，其餘依時間做，★、★★ 給先寫完的人，沒寫完的選做題不帶回家。習作 31 頁在示範時同步填紀錄，討論題回家寫；習作 32–33 頁在第 ⑩ 節說明後回家寫。</p>
+      <p><b>三層差異化</b>：低＝「亮／不亮」兩張卡、學習單一看圖圈選、右下角「📋 注意事項」隨時看；中＝學習單三看圖找問題；高＝示範時當數據審查員（比較每杯 LED 的亮度、檢查電線有沒有相碰）、學習單 ★★、第 ⑩ 節帶全班完成三種檢驗比較表。</p>
+      <p><b>家長檢核</b>：只用電池，明講絕對不碰插座；電池和 LED 照教具說明書使用；不在現場故意讓兩條電線相碰（用 ④ 站的示意圖說明）；實驗室的東西一律不嘗；回家不做任何實驗。</p>
+    </div>
+  </section>
+
+  <!-- ==================== ① LED 小知識（課本 78 頁） ==================== -->
+  <section id="screen-led" class="screen">
+    <div class="panel">
+      <p class="ptitle">💡 小知識：發光二極體（LED）（課本 78 頁）</p>
+      <div class="duo">
+        <figure class="figbox">
+          <div class="fig" id="ledPhoto" style="--mh:34vh"></div>
+          <figcaption class="cap center">課本 78 頁：電池盒、電線和 LED 接成的電路，LED 亮了。紅色夾子那一邊標著 ⊕，黑色夾子那一邊標著 ⊖。</figcaption>
+        </figure>
+        <div>
+          <p class="saybox"><span class="no">不是燈泡</span>LED 並<b>不是燈泡</b>，是「<b>發光二極體</b>」的簡稱。</p>
+          <p class="saybox"><span class="no">優點</span><b>體積小</b>、<b>用電省</b>、<b>使用壽命長</b>。</p>
+          <div class="minis">
+            <figure class="mini"><div class="fig" id="miniFlash"></div><figcaption class="cap">① 手電筒</figcaption></figure>
+            <figure class="mini"><div class="fig" id="miniSignal"></div><figcaption class="cap">② 交通號誌燈</figcaption></figure>
+          </div>
+          <p class="note center">照片：課本 78 頁，生活中用到 LED 的東西。</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <p class="ptitle">🤔「用電省」和「使用壽命長」是兩件<b>不同</b>的事</p>
+      <div class="defs">
+        <div class="def"><div class="dt">⚡ 用電省</div><div class="dd">用比較少的電就能發光，同樣的電池可以用比較久。</div></div>
+        <div class="def"><div class="dt">⏳ 使用壽命長</div><div class="dd">LED 本身不容易壞，可以用很久才需要換一個新的。</div></div>
+      </div>
+      <p class="lead">下面每一句，說的是 LED 的哪一個優點？（請一位同學上臺按）</p>
+      <div class="sortq" id="sortQ"></div>
+    </div>
+
+    <div class="panel">
+      <p class="ptitle">📌 LED 有長腳、短腳：要怎麼接？（課本 78 頁注意）</p>
+      <div class="duo mid">
+        <figure class="figbox">
+          <div class="svgbox ledbox" id="legFig"></div>
+          <figcaption class="cap center">LED 的長腳、短腳：紅線接電池正極、黑線接負極<span class="sitag">示意</span></figcaption>
+        </figure>
+        <div>
+          <p class="saybox">長腳端要接在由電池<b>正極</b>出來的電線上；短腳端要接在由電池<b>負極</b>出來的電線上。</p>
+          <p class="lead">🙋 抓錯！老師正要這樣接——可以嗎？看到不對，就舉「╳」卡喊停！</p>
+          <div class="oopscard" id="oops1"></div>
+        </div>
+      </div>
+      <div class="pair hidden" id="legPair">
+        <figure class="figbox">
+          <div class="svgbox ledbox" id="legBad"></div>
+          <figcaption class="cap center">接反了：長腳接到負極那一邊 → LED <b>不亮</b><span class="sitag">示意</span></figcaption>
+        </figure>
+        <figure class="figbox">
+          <div class="svgbox ledbox" id="legGood"></div>
+          <figcaption class="cap center">接對了：長腳接電池正極出來的電線 → LED <b>發亮</b><span class="sitag">示意</span></figcaption>
+        </figure>
+      </div>
+      <div class="criterion hidden" id="ledCrit">
+        <div class="k">💡 <span class="must">LED 的長腳要接在電池正極出來的電線上，短腳接負極那一邊；LED 不是燈泡，是發光二極體。</span></div>
+        <div class="askagain">👩‍🏫 老師追問：<b>LED 不亮，第一個要檢查什麼？</b>（長腳是不是接在電池正極出來的電線上）</div>
+      </div>
+    </div>
+    <div class="navrow"><button class="btn green" data-next="check">下一站：② 先確認電路 →</button></div>
+    <div class="teacher-tip">
+      <p><b class="time">給老師｜① LED 小知識＋抓錯 6 分鐘</b></p>
+      <p>課本 78 頁小知識：LED 並不是燈泡，是「發光二極體」的簡稱，具有體積小、用電省、使用壽命長等優點（手電筒、交通號誌燈）。全課一律說「發光二極體（LED）」或「LED」，不要說成燈泡。</p>
+      <p><b>上課要補</b>：「用電省」（同樣的電可以亮比較久）和「使用壽命長」（LED 本身用很久才壞）是兩件不同的事，素養題組〈防災包裡的手電筒〉就在考這個分辨。三張小卡請三位同學上臺按。</p>
+      <p><b>抓錯 ①</b>：老師拿起 LED，正要把長腳接到電池負極出來的電線上 → 全班舉 ╳ 喊停 → 改成長腳接正極。<b>接反時 LED 不會通電，可以現場真的接一次</b>給全班看「不亮」，再改正。低能力看上面那一句注意就抓得到；高能力要說出「接反會怎樣」（LED 不亮，會誤以為水溶液不容易導電）。</p>
+      <p>題庫對應（u3-conduct）：LED 不是燈泡、三個優點、長腳接正極、接反不亮都有考。學習單一練這一站。</p>
+    </div>
+  </section>
+
+  <!-- ==================== ② 先確認電路（課本 79 頁步驟 4） ==================== -->
+  <section id="screen-check" class="screen">
+    <div class="panel">
+      <p class="ptitle">🔌 測試水溶液之前：先確認電路正常（課本 79 頁）</p>
+      <div class="duo mid">
+        <figure class="figbox">
+          <div class="svgbox ledbox" id="checkFig"></div>
+          <figcaption class="cap center">兩條電線<b>分開</b>放進一杯食鹽水，LED 發亮 → 電路正常<span class="sitag">示意</span></figcaption>
+        </figure>
+        <div>
+          <div class="ask">把兩條電線<b>分開</b>放進一杯<b>食鹽水</b>，<br>LED 亮了 → 電路正常、接法正確，可以開始測了！</div>
+          <p class="safe">✋ 不要把兩條銅線直接碰在一起來試：電路直接接通，電流太強，可能燒壞 LED。</p>
+          <p class="lead">如果 LED 不亮：先檢查長腳有沒有接在電池正極出來的電線上、電池是不是新的；都對了還是不亮，LED 可能壞了，要換一個新的。</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <p class="ptitle">🧪 測試的步驟（課本 79 頁）</p>
+      <div class="stepcards">
+        <div class="stepcard"><div class="sno">①</div><p class="sdesc">把要測的材料和<b>純水</b>調配成水溶液，各 <b>20 毫升</b>。</p></div>
+        <div class="stepcard"><div class="sno">②</div><p class="sdesc"><b>先確認電路</b>：兩條電線分開放進食鹽水，LED 會亮。</p></div>
+        <div class="stepcard"><div class="sno">③</div><p class="sdesc">把兩條電線<b>分開</b>放進要測的水溶液，按下開關，看 LED <b>亮不亮</b>。</p></div>
+        <div class="stepcard"><div class="sno">④</div><p class="sdesc">亮了<b>立刻拿出</b>；用純水<b>沖洗</b>電線、<b>擦乾</b>，再測下一杯。</p></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <p class="ptitle">⚠️ 注意（課本 79 頁）：為什麼要這樣做？</p>
+      <ul class="carelist" id="careList"></ul>
+      <div class="bigpoint" id="checkPoint"><span class="must">先確認 LED 電路正常、接法正確，再把兩條電線分開放進水溶液：LED 發亮，表示水溶液容易導電；不亮，表示不容易導電。</span></div>
+    </div>
+    <div class="navrow"><button class="btn green" data-next="demo">下一站：③ 示範 5 杯 →</button></div>
+    <div class="teacher-tip">
+      <p><b class="time">給老師｜② 先確認電路 2 分鐘</b></p>
+      <p>課本 79 頁步驟 4「接通電路，測試發光二極體會不會發亮」：本課的做法是<b>把兩條電線分開放進一杯食鹽水</b>，LED 亮了就表示電路正常；<b>不讓兩條銅線直接相碰</b>（電流太強可能燒壞 LED）。</p>
+      <p>四個「為什麼？」可以請學生先說，再按按鈕看答案。這四點就是右下角「📋 注意事項」卡的內容，③～⑥ 站都可以打開給需要的同學看。</p>
+      <p>大字那一句是必會第 2 句，請全班一起唸一次。</p>
+    </div>
+  </section>
+
+  <!-- ==================== ③ 示範 5 杯（課本 79 頁） ==================== -->
+  <section id="screen-demo" class="screen">
+    <div class="panel">
+      <p class="ptitle">🧪 示範 5 杯：哪些水溶液容易導電？</p>
+      <p class="flowline">每一杯：① 學習單預測表先圈 → ② 舉「亮／不亮」卡 → ③ 老師把兩條電線分開放進去 → ④ 亮了立刻拿出 → ⑤ 小助手換另一組電線、沖洗擦乾 → ⑥ 全班同步填習作 31 頁</p>
+      <div class="tabs" id="cupTabs"></div>
+      <div class="oopscard hidden" id="oops3" style="margin-bottom:12px"></div>
+      <div class="duo">
+        <div>
+          <span class="steptag">第 1 步｜全班預測</span>
+          <div class="ask" id="cupAsk"></div>
+          <div id="cupPred" style="margin-top:10px"></div>
+          <p class="lead" id="cupPredNote"></p>
+          <div class="btnrow"><button class="btn green" id="cupShow">👀 看結果</button></div>
+        </div>
+        <div>
+          <figure class="figbox hidden" id="cupFigBox">
+            <div class="svgbox ledbox" id="cupFig"></div>
+            <figcaption class="cap center" id="cupFigCap"></figcaption>
+          </figure>
+          <div id="cupInfer"></div>
+          <div class="feedback" id="cupFeed" aria-live="polite"></div>
+        </div>
+      </div>
+      <div class="tblwrap">
+        <table class="restab" id="resTab" aria-label="示範結果紀錄表">
+          <tr><th>水溶液</th><th>LED</th><th>導電性</th><th>酸鹼性<br><span class="note">（上一課測過）</span></th><th>全班預測</th></tr>
+        </table>
+      </div>
+
+      <div class="derive hidden" id="demoEnd">
+        <p class="ptitle">🗂️ 5 杯測完了</p>
+        <div class="sortsum">
+          <div class="grp"><b>容易導電</b>（LED 發亮）：食鹽水、小蘇打水、肥皂水、醋</div>
+          <div class="grp"><b>不容易導電</b>（LED 不亮）：糖水</div>
+        </div>
+        <div class="criterion">
+          <div class="k">💡 <span class="must">在電路正常、兩條電線分開的情況下：LED 發亮＝電路形成通路＝這杯水溶液容易導電；微微亮也算亮。不同水溶液的性質不同，LED 的亮度也可能不同。</span></div>
+          <div class="k">💡 <span class="must">酸性和鹼性水溶液容易導電；中性水溶液不一定，食鹽水容易導電，糖水不容易導電。</span></div>
+          <div class="askagain">👩‍🏫 老師追問：<b>食鹽水和糖水都是中性，導電性一樣嗎？</b>（不一樣：食鹽水容易導電，糖水不容易導電）</div>
+        </div>
+        <div class="bigpoint" id="openRecall"></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <p class="ptitle">📷 課本 79 頁的照片</p>
+      <div class="photos2">
+        <figure class="figbox">
+          <div class="fig" id="photoOn" style="--mh:30vh"></div>
+          <figcaption class="cap center">兩條電線放進水溶液，LED <b>發亮</b>（課本 79 頁）</figcaption>
+        </figure>
+        <figure class="figbox">
+          <div class="fig" id="photoOff" style="--mh:30vh"></div>
+          <figcaption class="cap center">兩條電線放進水溶液，LED <b>沒有發亮</b>（課本 79 頁）</figcaption>
+        </figure>
+      </div>
+      <p class="note">仔細看：兩條電線用夾子夾在燒杯兩邊，<b>分開</b>放進水溶液裡。</p>
+    </div>
+
+    <div class="panel">
+      <p class="ptitle">📷 看不清楚時：老師課前試做的照片</p>
+      <figure class="figbox">
+        <img class="tphoto" src="photos/teacher-led.jpg" alt="老師課前試做的照片" loading="lazy" decoding="async" onerror="teacherPhotoFallback(this)">
+        <figcaption class="cap center">老師課前試做時拍的照片：各杯水溶液的 LED 測試結果</figcaption>
+      </figure>
+    </div>
+    <div class="navrow"><button class="btn green" data-next="oops">下一站：④ 抓錯實驗臺 →</button></div>
+    <div class="teacher-tip">
+      <p><b class="time">給老師｜③ 示範 5 杯＋同步填習作 31 頁 13 分鐘</b>（判準卡 3 分鐘在 5 杯做完後）</p>
+      <p><b>器材</b>：學校現有的導電測試教具（電池盒、LED，<b>照說明書</b>的電池數和接法；教具附限流電阻就照原樣接上）、兩組電線（前端多露一些銅線）、5 杯水溶液各 20 毫升（食鹽水、小蘇打水、肥皂水、醋、糖水，用純水配製）、一杯確認電路用的食鹽水、純水、紙巾。<b>不測純水</b>。步驟照課本 79 頁。</p>
+      <p><b>流程</b>：每一杯先圈學習單二的預測表 → 舉「亮／不亮」卡（按全班最多的那一個）→ 老師把兩條電線分開放進去 → 小助手唸「亮／不亮」，全班複誦 → 亮了立刻拿出 → 小助手用另一組電線輪替，把剛用過的那組用純水沖洗並擦乾 → 按「看結果」→ 全班說「所以它……」→ 同步填習作 31 頁。</p>
+      <p><b>抓錯 ③</b>（會汙染水溶液，只做到「正要」）：測完醋，老師拿著沒沖洗的電線正要放進糖水 → 全班舉 ╳ 喊停 → 用純水沖洗並擦乾（或換另一組電線）。所以這裡把糖水排在醋後面；萬一已經碰到，換一杯新倒出的糖水重測。</p>
+      <p><b>看得到</b>：示範一結束就放大下面「老師課前試做的照片」；小助手拿著裝置沿走道巡迴展示約 30 秒（只拿出來看 LED，不碰水溶液）；每排一位觀察代表上前近看，回座位向同排報告。高能力當<b>數據審查員</b>：比較每杯 LED 的亮度、檢查兩條電線有沒有相碰。</p>
+      <p><b>課前試做</b>：用學校的導電測試教具，照說明書先把 5 杯都測一次（電池數、LED 型號、有沒有限流電阻都記在備料單）；醋、肥皂水可能只微亮——多露一些銅線、兩條線靠近一點（但不相碰）；電池用新的；「先確認會亮」用一杯食鹽水測，<b>不讓兩條銅線直接相碰</b>；<b>只用電池，絕對不接插座</b>。試做時拍照，存成這個資料夾裡的 <b>photos/teacher-led.jpg</b>，上面那一格就會自動顯示；還沒放照片時只顯示虛線框。</p>
+      <p><b>判準卡 3 分鐘</b>：5 杯做完會出現分類和判準卡，請全班唸「微微亮也算亮」那一句；開場的猜測在這裡回收。酸鹼性那一欄是上一課〈檢驗水溶液的酸鹼性〉測過的結果，用來帶出必會第 3 句。</p>
+    </div>
+  </section>
+
+  <!-- ==================== ④ 抓錯實驗臺（示意） ==================== -->
+  <section id="screen-oops" class="screen">
+    <div class="panel">
+      <p class="ptitle">🕵️ 抓錯實驗臺：這個結果能不能相信？<span class="sitag">示意</span></p>
+      <div class="ask">「這次 LED 亮了，可以說這杯容易導電嗎？」</div>
+      <p class="lead">示意畫面，不是真的實驗。打開下面的開關，看看 LED 會怎樣，再判斷結果能不能相信。</p>
+      <div class="duo">
+        <div>
+          <div class="tabs" id="labCups" role="group" aria-label="選一杯水溶液"></div>
+          <div class="svgbox ledbox" id="labFig"></div>
+          <div class="status" id="labStatus" aria-live="polite"></div>
+        </div>
+        <div>
+          <div class="switches">
+            <button type="button" class="sw" id="swRev" aria-pressed="false"><span class="knob">關</span>① LED 長短腳接反</button>
+            <button type="button" class="sw" id="swTouch" aria-pressed="false"><span class="knob">關</span>② 兩條電線在杯子裡相碰</button>
+            <button type="button" class="sw" id="swVin" aria-pressed="false"><span class="knob">關</span>③ 上一杯的醋沒洗掉</button>
+          </div>
+          <div class="feedback hint hidden" id="vinHint" aria-live="polite"></div>
+          <div class="ask" style="margin-top:14px">這個結果能不能相信？</div>
+          <div id="trustQ" style="margin-top:10px"></div>
+          <div class="feedback" id="trustFeed" aria-live="polite"></div>
+        </div>
+      </div>
+      <div class="criterion hidden" id="oopsCrit">
+        <div class="k">💡 <span class="must">兩條電線在水溶液裡碰在一起時，電路直接接通，LED 會亮起來，這時的結果不能算。</span></div>
+        <div class="askagain">👩‍🏫 老師追問：<b>電線相碰時 LED 亮了，要怎麼辦？</b>（立刻拿出來，把兩條電線分開，重新測一次）</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <p class="ptitle">🔧 還有一種情形：LED 燒壞了</p>
+      <p class="saybox">先用食鹽水確認、長腳也接對了，LED 還是<b>怎麼接都不亮</b> → LED 可能燒壞了，要<b>換一個新的</b>。<br><span class="note">所以 LED 亮了要立刻把銅線拿出來，以免電流過強，把 LED 燒壞。</span></p>
+    </div>
+    <div class="navrow"><button class="btn green" data-next="compare">下一站：⑤ 三種檢驗比一比 →</button></div>
+    <div class="teacher-tip">
+      <p><b class="time">給老師｜④ 抓錯實驗臺 3 分鐘</b></p>
+      <p><b>抓錯 ②</b>「兩條電線相碰」<b>只用這個示意畫面演示</b>，不在現場讓電線相碰（電流太強可能燒壞 LED）。建議操作：選「糖水」→ 打開②，LED 亮了 →「這次 LED 亮了，可以說糖水容易導電嗎？」→ 全班舉 ○╳ → 按「不能相信」→ 出現判準卡。</p>
+      <p>三個開關：①長短腳接反 → LED 不亮（選食鹽水最明顯）；②兩條電線相碰 → LED 亮（選糖水最明顯）；③上一杯的醋沒洗掉 → LED 的樣子<b>不變</b>，只跳出提示：殘留的醋混進下一杯，結果不能相信。高能力請他說出「這樣做會造成什麼結果」。</p>
+      <p>題庫對應：兩線相碰的假性發亮、殘留的醋、LED 燒壞都出現在素養題組〈第五組的測試紀錄〉；學習單三（看圖找問題）練這一站。</p>
+    </div>
+  </section>
+
+  <!-- ==================== ⑤ 三種檢驗比一比（課本 82–83 頁統整） ==================== -->
+  <section id="screen-compare" class="screen">
+    <div class="panel warm">
+      <p class="ptitle">⏰ 第 ⑩ 節暖身：三種檢驗各一題</p>
+      <div class="wq"><span class="q"><span class="no1">1</span>醋滴在藍色石蕊試紙上，試紙會變成什麼顏色？</span><button class="btn plain" data-reveal="warmB1" aria-expanded="false">看答案</button></div>
+      <div class="feedback good wans hidden" id="warmB1">變紅色。醋是酸性，會讓藍色石蕊試紙變紅色。</div>
+      <div class="wq"><span class="q"><span class="no1">2</span>小蘇打水滴入紫色高麗菜汁，顏色會偏什麼顏色？</span><button class="btn plain" data-reveal="warmB2" aria-expanded="false">看答案</button></div>
+      <div class="feedback good wans hidden" id="warmB2">偏藍（藍綠）。小蘇打水是鹼性。</div>
+      <div class="wq"><span class="q"><span class="no1">3</span>用 LED 電路測糖水（電路正常、兩條電線分開），LED 會亮嗎？</span><button class="btn plain" data-reveal="warmB3" aria-expanded="false">看答案</button></div>
+      <div class="feedback good wans hidden" id="warmB3">不亮。糖水不容易導電。</div>
+    </div>
+
+    <div class="panel">
+      <p class="ptitle">🧩 三種檢驗方法，各能知道什麼？</p>
+      <div class="tblwrap" style="margin-top:0">
+        <table class="cmptab" id="cmpTab" aria-label="三種檢驗方法比較表">
+          <tr><th style="width:18%">檢驗方法</th><th>能知道什麼</th><th style="width:22%">食鹽水和糖水<br>分得出來嗎？</th><th style="width:24%">醋、食鹽水、小蘇打水<br>分得出來嗎？</th></tr>
+          <tr class="lit"><th>石蕊試紙<br>（紅、藍兩種）</th><td class="q">？</td><td class="q">？</td><td class="q">？</td></tr>
+          <tr class="cab"><th>紫色高麗菜汁</th><td class="q">？</td><td class="q">？</td><td class="q">？</td></tr>
+          <tr class="led"><th>LED 導電電路</th><td class="q">？</td><td class="q">？</td><td class="q">？</td></tr>
+        </table>
+      </div>
+      <div class="btnrow">
+        <button class="btn" id="cmpLed">⑨ 先填 LED 這一列</button>
+        <button class="btn green" id="cmpAll">⑩ 全班完成另外兩列</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <p class="ptitle">🙋 全班提問（先舉卡，再揭曉）</p>
+      <div class="ask">1. 食鹽水和糖水，要用哪一種方法才分得出來？</div>
+      <div id="cq1" style="margin-top:10px"></div>
+      <div class="guessbox hidden" id="cq1Box"><div class="g" id="cq1Text"></div></div>
+      <div class="btnrow"><button class="btn plain" id="cq1Btn">💡 揭曉</button></div>
+      <div class="feedback good hidden" id="cq1Ans">只有 <b>LED 導電電路</b>分得出來：食鹽水讓 LED 發亮，糖水不亮。食鹽水和糖水都是中性，石蕊試紙都不變色、紫色高麗菜汁都偏紫，分不出來。</div>
+
+      <div class="ask" style="margin-top:18px">2. 只用 LED，能把醋、食鹽水、小蘇打水分出來嗎？</div>
+      <div id="cq2" style="margin-top:10px"></div>
+      <div class="guessbox hidden" id="cq2Box"><div class="g" id="cq2Text"></div></div>
+      <div class="btnrow"><button class="btn plain" id="cq2Btn">💡 揭曉</button></div>
+      <div class="feedback good hidden" id="cq2Ans"><b>不能</b>，三杯都讓 LED 發亮。要再用紅、藍兩種石蕊試紙，或紫色高麗菜汁，看酸鹼性。</div>
+
+      <div class="criterion hidden" id="cmpCrit">
+        <div class="k">💡 <span class="must">三種方法各有用處：石蕊試紙和紫色高麗菜汁看酸鹼性，LED 看導電性；食鹽水和糖水都是中性，只有 LED 分得出來。</span></div>
+        <div class="askagain">👩‍🏫 老師追問：<b>看 LED 亮不亮，能知道水溶液是酸性還是鹼性嗎？</b>（不能，LED 只看導電性）</div>
+      </div>
+    </div>
+
+    <div class="panel center">
+      <p class="ptitle">🎮 補充遊戲：水溶液偵探社</p>
+      <p class="lead">用石蕊試紙、紫色高麗菜汁、LED 和搧聞，找出每一杯水溶液的性質。兩隊輪流上臺。</p>
+      <a class="btn green" href="../補充教材 水溶液偵探社/水溶液偵探社_互動教材.html">🕵️ 打開「水溶液偵探社」</a>
+    </div>
+    <div class="navrow"><button class="btn green" data-next="quiz">最後一站：⑥ 出場卡 →</button></div>
+    <div class="teacher-tip">
+      <p><b class="time">給老師｜⑤ 三種檢驗比一比</b>（第 ⑨ 節只填 LED 一列；第 ⑩ 節單元三統整用 10 分鐘完成）</p>
+      <p><b>第 ⑨ 節</b>：示範完按「⑨ 先填 LED 這一列」，讓學生知道 LED 看的是「導電性」，不是酸鹼性。<b>第 ⑩ 節</b>：暖身（三種檢驗各一題）3 分鐘 → 課本 82–83 頁圖解筆記回顧 8 分鐘 → 這一站 10 分鐘：先讓全班說石蕊試紙、紫色高麗菜汁兩列，再按「⑩ 全班完成另外兩列」，接著兩個全班提問 → 補充遊戲「水溶液偵探社」試玩 15 分鐘 → 習作 32–33 頁說明 2 分鐘（回家寫）→ 收束 2 分鐘。</p>
+      <p>高能力學生可以帶全班完成比較表（他說、全班舉 ○╳ 確認）。全班提問先舉卡（甲＝石蕊試紙、乙＝紫色高麗菜汁、丙＝LED；○╳），只記不判，再按「揭曉」。</p>
+      <p>遊戲按鈕連到〈補充教材 水溶液偵探社〉；遊戲做好放上網站之後才打得開。</p>
+      <p>題庫對應：「看 LED 亮不亮不能判斷酸鹼」「食鹽水和糖水只能靠導電分辨」是 u3-conduct 的重點；素養題組〈四杯沒貼名稱的水溶液〉也考三種檢驗互補。</p>
+    </div>
+  </section>
+
+  <!-- ==================== ⑥ 出場卡（在家複習） ==================== -->
+  <section id="screen-quiz" class="screen">
+    <div class="modebar" role="group" aria-label="題數">
+      <span>題數：</span>
+      <button class="btn plain" id="modeClass" aria-pressed="false">出場卡 2 題（第 1、3 題）</button>
+      <button class="btn plain" id="modeAll" aria-pressed="true">完整 5 題</button>
+    </div>
+    <div class="quizbar">
+      <span id="qprog">第 1 / 5 題</span>
+      <span class="dots" id="dots"></span>
+      <span class="qscore">⭐ <span id="score">0</span> / <span id="maxScore">10</span> 分</span>
+      <span id="rank">🔌 見習測試員</span>
+    </div>
+
+    <div class="panel" id="quizPanel">
+      <div class="quizwrap" id="quizwrap">
+        <div class="qphoto" id="qphoto"></div>
+        <div>
+          <div id="step1">
+            <span class="steptag">第 1 層｜選答案</span>
+            <p class="qtitle" id="q1title"></p>
+            <div id="q1opts"></div>
+            <div class="feedback" id="q1feed" aria-live="polite"></div>
+          </div>
+          <div id="step2" class="hidden" style="margin-top:16px">
+            <span class="steptag">第 2 層｜你怎麼知道？</span>
+            <p class="qtitle">選一個最好的理由：</p>
+            <div id="q2opts"></div>
+            <div class="feedback" id="q2feed" aria-live="polite"></div>
+          </div>
+          <div id="criterion" class="criterion hidden">
+            <div class="k" id="criterionText"></div>
+            <div class="askagain">👩‍🏫 老師追問：<b>你怎麼知道？</b>（請一位同學用上面這句話說說看）</div>
+          </div>
+          <div class="btnrow"><button class="btn green hidden" id="nextBtn">下一題 →</button></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel hidden" id="quizResult">
+      <div class="result">
+        <div class="big" id="finalScore"></div>
+        <p class="rankline" id="finalRank"></p>
+        <div class="ticket"><b>📝 學習單：</b>全班必做「一、三」；寫完的人挑戰 ★、★★，最後寫出場單。</div>
+        <button class="btn" id="againBtn">↺ 再挑戰一次</button>
+      </div>
+    </div>
+    <div class="teacher-tip">
+      <p><b class="time">給老師｜⑥ 出場卡</b>（本課一節，課堂<b>用學習單代替</b>闖關）</p>
+      <p>第 ⑨ 節最後 8 分鐘寫學習單（全班必做一、三）。這一站給學生在家自由複習；課堂時間多時，按「出場卡 2 題」只做第 1、3 題（LED 接法、中性不一定）。第 2 層「你怎麼知道？」由高能力學生說理由；答錯的選項會停用，可以再試，分數減半。</p>
+      <p>收束：全班唸一次必會 3 句。</p>
+    </div>
+  </section>
+
+  <!-- ==================== 頁尾 ==================== -->
+  <footer class="credits" id="credits">
+    <p><b>本課三件套：</b>互動教材（這一頁）｜<a href="水溶液的導電性_學習單.html">學習單</a>｜<a href="水溶液的導電性_重點整理.html">重點整理</a></p>
+    <p><b>教學依據：</b><a href="https://reader.nani.com.tw/9200a013cbef8e66" target="_blank" rel="noopener">南一自然課本，第 78–79 頁</a>（單元三統整用到第 82–83 頁；閱讀器可能需要登入）。</p>
+    <p>本頁照片取自南一版自然五上課本：電池盒、電線和 LED 接成的電路，手電筒、交通號誌燈（第 78 頁）；兩條電線放進水溶液、LED 發亮和沒有發亮（第 79 頁）。第 79 頁的兩張和線上題庫是同一張。③ 站「老師課前試做的照片」由老師上課前自己拍攝。</p>
+    <p>示意畫面（不是照片）：導電測試的示意圖（和線上題庫同一套）、④ 站的抓錯實驗臺。</p>
+  </footer>
+
+</div>
+
+<!-- 右下角的注意事項卡（②～⑥ 站） -->
+<button class="rulefab" id="ruleFab" type="button" aria-expanded="false" aria-controls="ruleCard">📋 注意事項</button>
+<div class="rulecard hidden" id="ruleCard" role="region" aria-label="導電測試注意事項">
+  <p class="ptitle">📋 導電測試注意事項</p>
+  <ol>
+    <li>LED 長腳接電池<b>正極</b>出來的電線。</li>
+    <li>先用一杯食鹽水確認電路會亮。</li>
+    <li>電線前端多露一些銅線。</li>
+    <li>兩條電線<b>不可</b>互相碰觸。</li>
+    <li>LED 亮了<b>立刻</b>把銅線拿出來。</li>
+    <li>測完一杯，用純水沖洗電線並擦乾。</li>
+  </ol>
+  <button class="btn plain" id="ruleClose" type="button">收起來</button>
+</div>
+
+<script src="../../題庫/figures.js?v=20261006a"></script>
+<script>
+/* ==========================================================
+   水溶液的導電性 — 程式
+   科學內容（照課本 78–79 頁與題庫規則，不可講錯）：
+   LED 是發光二極體，不是燈泡；長腳接電池正極出來的電線、短腳接負極那一邊；接反不亮。
+   先確認電路（兩條電線分開放進食鹽水，LED 亮）；多露銅線、兩線不碰、亮了立刻拿出、沖洗擦乾。
+   結果：食鹽水、小蘇打水、醋、肥皂水 LED 發亮（容易導電）；糖水不亮（不容易導電）。不測純水。
+   酸性和鹼性容易導電；中性不一定。
+   ========================================================== */
+const $=id=>document.getElementById(id);
+const NS="http://www.w3.org/2000/svg";
+
+/* ---------- 照片清單：[寬, 高, 名稱, 資料夾（省略＝本課 photos/）] ---------- */
+const PHOTO_DIR="photos/";
+const U3="../../題庫/photos/u3/";
+const PHOTOS={
+  "led-circuit":   [431, 262, "電池盒、電線和 LED 接成的電路", U3],
+  "conduct-on":    [361, 246, "兩條電線放進水溶液，LED 發亮", U3],
+  "conduct-off":   [364, 246, "兩條電線放進水溶液，LED 沒有發亮", U3],
+  "p78-flashlight":[164, 166, "手電筒"],
+  "p78-signal":    [165, 166, "交通號誌燈"]
+};
+function imgTag(id,name){
+  const p=PHOTOS[id], n=name||p[2], dir=p[3]||PHOTO_DIR;
+  return `<img src="${dir}${id}.jpg" alt="${n}" data-name="${n}" draggable="false" loading="lazy" decoding="async" onerror="imgFallback(this)">`;
+}
+function renderFig(el,id,name){
+  const p=PHOTOS[id];
+  el.style.setProperty("--ar",`${p[0]} / ${p[1]}`);
+  el.style.maxWidth=Math.round(p[0]*1.5)+"px";   /* 小圖不放大：顯示寬度最多原始寬的 1.5 倍 */
+  el.innerHTML=imgTag(id,name);
+  return el;
+}
+/* 通用選擇題：答錯的選項標示並停用、可再試；答對就全部停用 */
+function choiceQ(host,opts,ans,onRight,onWrong,cls){
+  const box=document.createElement("div");
+  box.className="opts"+(cls?" "+cls:"");
+  opts.forEach(o=>{
+    const b=document.createElement("button");
+    b.type="button"; b.className="opt"; b.textContent=o;
+    b.addEventListener("click",()=>{
+      if(o===ans){
+        b.classList.add("ok");
+        box.querySelectorAll(".opt").forEach(x=>x.disabled=true);
+        if(onRight) onRight();
+      }else{
+        b.classList.add("no"); b.disabled=true;
+        if(onWrong) onWrong(o);
+      }
+    });
+    box.appendChild(b);
+  });
+  host.appendChild(box);
+  return box;
+}
+/* 只記不判的全班投票（classGuess）：按了只標示「全班選這個」，不顯示對錯 */
+function pollQ(host,list,onPick,picked){
+  const box=document.createElement("div");
+  box.className="opts";
+  list.forEach(g=>{
+    const b=document.createElement("button");
+    b.type="button"; b.className="opt"; b.textContent=g;
+    b.classList.toggle("picked",g===picked); b.setAttribute("aria-pressed",String(g===picked));
+    b.addEventListener("click",()=>{
+      box.querySelectorAll(".opt").forEach(x=>{ x.classList.toggle("picked",x===b); x.setAttribute("aria-pressed",String(x===b)); });
+      onPick(g);
+    });
+    box.appendChild(b);
+  });
+  host.appendChild(box);
+  return box;
+}
+
+/* ---------- 必會 3 句、判準（和學習單、重點整理一字不差） ---------- */
+const MUST=[
+  "LED 的長腳要接在電池正極出來的電線上，短腳接負極那一邊；LED 不是燈泡，是發光二極體。",
+  "先確認 LED 電路正常、接法正確，再把兩條電線分開放進水溶液：LED 發亮，表示水溶液容易導電；不亮，表示不容易導電。",
+  "酸性和鹼性水溶液容易導電；中性水溶液不一定，食鹽水容易導電，糖水不容易導電。"
+];
+const JUDGE=[
+  "在電路正常、兩條電線分開的情況下：LED 發亮＝電路形成通路＝這杯水溶液容易導電；微微亮也算亮。不同水溶液的性質不同，LED 的亮度也可能不同。",
+  "兩條電線在水溶液裡碰在一起時，電路直接接通，LED 會亮起來，這時的結果不能算。",
+  "三種方法各有用處：石蕊試紙和紫色高麗菜汁看酸鹼性，LED 看導電性；食鹽水和糖水都是中性，只有 LED 分得出來。"
+];
+
+/* ---------- 導電測試示意圖：和線上題庫同一套（figures.js）；LED 旁邊再寫上「發亮／不亮」
+   （色弱、黑白列印也看得懂）。figures.js 讀不到時改成文字說明，整頁照常可用。 ---------- */
+function ledFig(host,p){
+  p=p||{};
+  const word=p.on?"LED：發亮":"LED：不亮";
+  const desc=(p.name?p.name+"，":"")+(p.legs==="reversed"?"LED 長短腳接反，":"")+(p.touch?"兩條電線在杯子裡相碰，":"")+word.replace("：","");
+  let s="";
+  try{
+    if(window.QFIG && typeof window.QFIG.render==="function") s=window.QFIG.render(Object.assign({type:"led"},p))||"";
+  }catch(_){ s=""; }
+  if(s){
+    host.innerHTML=s;
+    const svg=host.querySelector("svg");
+    if(!svg) return;
+    const t=document.createElementNS(NS,"text");
+    [["x",72],["y",212],["font-size",18],["font-weight",900],["text-anchor","middle"],["dominant-baseline","middle"],
+     ["fill","#1E1E1E"],["stroke","#fff"],["stroke-width",5],["stroke-linejoin","round"],["paint-order","stroke"]]
+      .forEach(([a,v])=>t.setAttribute(a,v));
+    t.setAttribute("class","ledword");
+    t.textContent=word;
+    svg.appendChild(t);
+    svg.setAttribute("aria-label","示意圖："+desc);
+    return;
+  }
+  host.innerHTML=`<div class="img-fallback qfig-fallback" role="note">示意圖沒有載入，改用文字說明：${desc}</div>`;
+}
+
+/* ---------- 站別切換（可自由跳；網址加 #demo 之類可直接開到某一站） ---------- */
+const STATIONS=["open","led","check","demo","oops","compare","quiz"];
+const RULE_ST=["check","demo","oops","quiz"];
+window.addEventListener("hashchange",()=>{
+  const h=location.hash.slice(1);
+  if(STATIONS.includes(h) && !$("screen-"+h).classList.contains("active")) go(h,false);
+});
+function go(name,smooth){
+  if(STATIONS.indexOf(name)<0) name="open";
+  document.querySelectorAll(".station-btn").forEach(b=>{
+    const on=b.dataset.go===name;
+    b.classList.toggle("on",on);
+    if(on) b.setAttribute("aria-current","step"); else b.removeAttribute("aria-current");
+  });
+  document.querySelectorAll(".screen").forEach(s=>s.classList.toggle("active",s.id==="screen-"+name));
+  document.body.dataset.st=name;
+  if(!RULE_ST.includes(name)) setRule(false);
+  try{ history.replaceState(null,"","#"+name); }catch(_){}
+  window.scrollTo({top:0,behavior:smooth?"smooth":"auto"});
+}
+document.querySelectorAll(".station-btn").forEach(b=>b.addEventListener("click",()=>go(b.dataset.go,true)));
+document.querySelectorAll("[data-next]").forEach(b=>b.addEventListener("click",()=>go(b.dataset.next,true)));
+
+function setRule(open){
+  $("ruleCard").classList.toggle("hidden",!open);
+  $("ruleFab").setAttribute("aria-expanded",String(open));
+}
+$("ruleFab").addEventListener("click",()=>setRule($("ruleCard").classList.contains("hidden")));
+$("ruleClose").addEventListener("click",()=>setRule(false));
+
+document.querySelectorAll("[data-reveal]").forEach(b=>b.addEventListener("click",()=>{
+  const t=$(b.dataset.reveal), show=t.classList.contains("hidden");
+  t.classList.toggle("hidden",!show);
+  b.textContent=show?"收起答案":"看答案";
+  b.setAttribute("aria-expanded",String(show));
+}));
+
+/* 抓錯卡：○ 可以／╳ 喊停，答對後可以追問「這樣做會怎樣？」 */
+function oopsCard(card,o,onDone){
+  card.innerHTML=`<p class="scene">${o.scene}</p><div class="oq"></div><div class="feedback" aria-live="polite"></div>
+    <div class="oopsres hidden"><p class="right">${o.right}</p>
+      <button type="button" class="btn plain" aria-expanded="false">👩‍🏫 追問：這樣做會怎樣？</button>
+      <div class="why hidden">${o.why}</div></div>`;
+  const fb=card.querySelector(".feedback"), res=card.querySelector(".oopsres");
+  choiceQ(card.querySelector(".oq"),["○ 可以","╳ 喊停！"],"╳ 喊停！",
+    ()=>{ fb.className="feedback"; fb.textContent=""; res.classList.remove("hidden"); if(onDone) onDone(); },
+    ()=>{ fb.className="feedback hint"; fb.textContent=o.hint; });
+  const wb=res.querySelector(".btn"), wy=res.querySelector(".why");
+  wb.addEventListener("click",()=>{ const show=wy.classList.contains("hidden"); wy.classList.toggle("hidden",!show); wb.setAttribute("aria-expanded",String(show)); });
+}
+
+/* ==========================================================
+   開場　食鹽水和糖水，哪一杯會讓 LED 亮？（只記不判；③ 站回收）
+   ========================================================== */
+let classGuess=null;
+pollQ($("guessOpts"),["食鹽水","糖水","兩杯都會","兩杯都不會"],g=>{
+  classGuess=g;
+  $("guessText").textContent=g;
+  $("guessBox").classList.remove("hidden");
+  updateOpenRecall();
+});
+
+/* ==========================================================
+   ① LED 小知識：照片、優點分辨、長短腳＋抓錯 ①
+   ========================================================== */
+renderFig($("ledPhoto"),"led-circuit");
+renderFig($("miniFlash"),"p78-flashlight");
+renderFig($("miniSignal"),"p78-signal");
+const SORTQ=[
+  {s:"🔋 遙控器上的 LED 指示燈常常亮著，電池卻不用常常換。",a:"用電省"},
+  {s:"🏫 走廊的 LED 照明裝好以後，好幾年都不用換新的。",a:"使用壽命長"},
+  {s:"⌚ LED 很小，可以裝進手錶、細細的筆型手電筒裡。",a:"體積小"}
+];
+SORTQ.forEach(q=>{
+  const card=document.createElement("div");
+  card.className="card";
+  card.innerHTML=`<p class="scene">${q.s}</p><div class="oq"></div><div class="feedback" aria-live="polite"></div>`;
+  $("sortQ").appendChild(card);
+  const fb=card.querySelector(".feedback");
+  choiceQ(card.querySelector(".oq"),["體積小","用電省","使用壽命長"],q.a,
+    ()=>{ fb.className="feedback good"; fb.textContent="✅ "+q.a+"！"; },
+    ()=>{ fb.className="feedback hint"; fb.textContent="🤔 再看一次上面兩格的說明：是「電用得少」，還是「本身用很久才壞」？"; });
+});
+ledFig($("legFig"),{showLegs:true,on:true,name:"食鹽水"});
+oopsCard($("oops1"),{
+  scene:"🔌 老師拿起 LED，正要把<b>長腳</b>接到電池<b>負極</b>出來的電線上……",
+  right:"✅ 喊停得好！長腳要接電池<b>正極</b>出來的電線，短腳接負極那一邊。",
+  why:"接反了，LED 不會亮。就算水溶液容易導電，也會被誤以為「不容易導電」。",
+  hint:"🤔 再看上面那一句注意：長腳要接哪一極出來的電線？"
+},()=>{
+  $("legPair").classList.remove("hidden");
+  ledFig($("legBad"),{showLegs:true,legs:"reversed",on:false,name:"食鹽水"});
+  ledFig($("legGood"),{showLegs:true,on:true,name:"食鹽水"});
+  $("ledCrit").classList.remove("hidden");
+});
+
+/* ==========================================================
+   ② 先確認電路：示意圖＋注意事項的「為什麼？」
+   ========================================================== */
+ledFig($("checkFig"),{on:true,name:"食鹽水"});
+const CARE=[
+  {t:"🔩 電線前端保留<b>較多裸露的銅線</b>。",w:"增加和水溶液的接觸面積。"},
+  {t:"✂️ 浸入水溶液的兩條電線<b>不可互相碰觸</b>。",w:"兩條電線碰在一起，電路直接接通，LED 會亮，就看不出是不是水溶液在導電。"},
+  {t:"⏱️ LED 發亮後，<b>立刻</b>把銅線從水溶液中拿出來。",w:"以免電流過強，導致 LED 燒壞。"},
+  {t:"🚿 每測完一種水溶液，用<b>純水沖洗</b>電線接觸水溶液的部分，並<b>擦乾</b>。",w:"以免殘留的水溶液影響後面的實驗結果。"}
+];
+CARE.forEach(c=>{
+  const li=document.createElement("li");
+  li.innerHTML=`<span class="t">${c.t}</span><button type="button" class="btn plain" aria-expanded="false">為什麼？</button><span class="why hidden">${c.w}</span>`;
+  $("careList").appendChild(li);
+  const b=li.querySelector(".btn"), w=li.querySelector(".why");
+  b.addEventListener("click",()=>{ const show=w.classList.contains("hidden"); w.classList.toggle("hidden",!show); b.setAttribute("aria-expanded",String(show)); b.textContent=show?"收起來":"為什麼？"; });
+});
+
+/* ==========================================================
+   ③ 示範 5 杯：每杯「預測（只記）→ 看結果 → 所以它？」→ 紀錄表
+   糖水排在醋後面：抓錯 ③（測完醋，正要不沖洗就放進糖水）
+   ========================================================== */
+renderFig($("photoOn"),"conduct-on");
+renderFig($("photoOff"),"conduct-off");
+const CUPS=[
+  {k:"salt", name:"食鹽水",  on:true, prop:"中性"},
+  {k:"soda", name:"小蘇打水",on:true, prop:"鹼性"},
+  {k:"soap", name:"肥皂水",  on:true, prop:"鹼性"},
+  {k:"vin",  name:"醋",      on:true, prop:"酸性"},
+  {k:"sugar",name:"糖水",    on:false,prop:"中性"}
+];
+const CUP_NO="①②③④⑤";
+const cupState=CUPS.map(()=>({pred:null,shown:false,done:false}));
+let cupI=0, demoEnded=false, oops3Done=false;
+function buildCupTabs(){
+  CUPS.forEach((c,i)=>{
+    const t=document.createElement("button");
+    t.type="button"; t.className="tab";
+    t.addEventListener("click",()=>{ cupI=i; renderCup(); });
+    $("cupTabs").appendChild(t);
+    const tr=document.createElement("tr");
+    tr.id="row-"+c.k;
+    tr.innerHTML=`<th>${c.name}</th><td class="q">？</td><td class="q">？</td><td class="q">？</td><td class="q">—</td>`;
+    $("resTab").appendChild(tr);
+  });
+}
+function markCupTabs(){
+  $("cupTabs").querySelectorAll(".tab").forEach((b,i)=>{
+    b.classList.toggle("on",i===cupI); b.setAttribute("aria-pressed",String(i===cupI));
+    b.textContent=CUP_NO[i]+" "+CUPS[i].name+(cupState[i].done?" ✓":"");
+  });
+  CUPS.forEach((c,i)=>$("row-"+c.k).classList.toggle("now",i===cupI));
+}
+function updateRow(i){
+  const c=CUPS[i], st=cupState[i], tds=$("row-"+c.k).querySelectorAll("td");
+  const set=(td,txt,known)=>{ td.textContent=txt; td.classList.toggle("q",!known); };
+  set(tds[0], st.shown ? (c.on?"發亮":"不亮") : "？", st.shown);
+  set(tds[1], st.done ? (c.on?"容易導電":"不容易導電") : "？", st.done);
+  set(tds[2], st.done ? c.prop : "？", st.done);
+  set(tds[3], st.pred || "—", !!st.pred);
+}
+function renderCup(){
+  const c=CUPS[cupI], st=cupState[cupI];
+  markCupTabs();
+  $("oops3").classList.toggle("hidden",!(c.k==="sugar" && !st.shown));
+  $("cupAsk").innerHTML=`${CUP_NO[cupI]} <b>${c.name}</b>：兩條電線分開放進去，LED 會亮嗎？`;
+  $("cupPred").innerHTML="";
+  pollQ($("cupPred"),["亮","不亮"],g=>{ st.pred=g; $("cupPredNote").textContent=`全班舉卡最多的是：「${g}」`; updateRow(cupI); },st.pred);
+  $("cupPredNote").textContent= st.pred ? `全班舉卡最多的是：「${st.pred}」` : "先在學習單二的預測表圈好，再舉卡（只記下來，先不對答案）。";
+  $("cupShow").classList.toggle("hidden",st.shown);
+  $("cupFigBox").classList.toggle("hidden",!st.shown);
+  const inf=$("cupInfer"); inf.innerHTML="";
+  const fb=$("cupFeed"); fb.className="feedback"; fb.innerHTML="";
+  if(st.shown){
+    ledFig($("cupFig"),{on:c.on,name:c.name});
+    $("cupFigCap").innerHTML=`${c.name}：LED <b>${c.on?"發亮":"不亮"}</b><span class="sitag">示意</span>`;
+    if(st.done){ showCupGood(); }
+    else{
+      inf.innerHTML=`<div class="ask" style="margin-top:12px">所以，<b>${c.name}</b>……</div>`;
+      const host=document.createElement("div"); host.style.marginTop="10px"; inf.appendChild(host);
+      choiceQ(host,["容易導電","不容易導電"],c.on?"容易導電":"不容易導電",
+        ()=>{ st.done=true; updateRow(cupI); renderCup(); checkDemoEnd(); },
+        ()=>{ fb.className="feedback hint"; fb.textContent="🤔 再看一次：LED 有沒有發亮？發亮表示電路形成通路。"; });
+    }
+  }
+  updateRow(cupI);
+}
+function showCupGood(){
+  const c=CUPS[cupI], st=cupState[cupI];
+  const pred= st.pred ? `　全班預測「${st.pred}」${(st.pred==="亮")===c.on?"，猜對了！":"。"}` : "";
+  $("cupFeed").className="feedback good";
+  $("cupFeed").innerHTML=`✅ ${c.name}讓 LED ${c.on?"發亮":"不亮"} → <b>${c.on?"容易導電":"不容易導電"}</b>。${pred}<br><span class="note">${c.name}是${c.prop}（上一課用石蕊試紙測過）。</span>`
+    +(c.on?'<br><span class="note">亮了要立刻把銅線拿出來；小助手換另一組電線，把用過的那組沖洗擦乾。</span>':"");
+}
+$("cupShow").addEventListener("click",()=>{ cupState[cupI].shown=true; renderCup(); });
+function checkDemoEnd(){
+  if(demoEnded) return;
+  if(cupState.every(s=>s.done)){
+    demoEnded=true;
+    $("demoEnd").classList.remove("hidden");
+    updateOpenRecall();
+  }
+}
+function updateOpenRecall(){
+  const head = !classGuess ? "開場的問題：食鹽水和糖水，哪一杯會讓 LED 亮？答案是："
+    : classGuess==="食鹽水" ? "🎉 開場時全班猜「食鹽水」，猜對了！" : `開場時全班猜「${classGuess}」。答案是：`;
+  $("openRecall").innerHTML=head+"<b>食鹽水</b>讓 LED 發亮，糖水不亮。<small>兩杯都是中性，導電性卻不一樣。</small>";
+}
+oopsCard($("oops3"),{
+  scene:"🧪 老師剛測完<b>醋</b>，拿著<b>沒有沖洗</b>的電線，正要放進<b>糖水</b>……",
+  right:"✅ 喊停得好！先用<b>純水沖洗</b>電線接觸水溶液的部分，再<b>擦乾</b>（或換另一組乾淨的電線）。",
+  why:"電線上殘留的醋會混進糖水，這杯就不只是糖水了，結果不能相信。",
+  hint:"🤔 再看右下角的注意事項：測完一杯，電線要怎麼處理？"
+},()=>{ oops3Done=true; });
+buildCupTabs();
+renderCup();
+updateOpenRecall();
+
+/* ==========================================================
+   ④ 抓錯實驗臺（示意）：三個開關
+   ① 長短腳接反 → LED 不亮　② 兩條電線相碰 → LED 亮（假性發亮）
+   ③ 上一杯的醋沒洗掉 → LED 不變，只跳出提示
+   ========================================================== */
+const LAB={cup:"糖水",rev:false,touch:false,vin:false};
+const LAB_CUPS=[{name:"食鹽水",on:true},{name:"糖水",on:false}];
+let trustAsked=false;
+LAB_CUPS.forEach(c=>{
+  const t=document.createElement("button");
+  t.type="button"; t.className="tab"; t.textContent="🧪 "+c.name; t.dataset.cup=c.name;
+  t.addEventListener("click",()=>{ LAB.cup=c.name; renderLab(); });
+  $("labCups").appendChild(t);
+});
+function labOn(){
+  const c=LAB_CUPS.find(x=>x.name===LAB.cup);
+  if(LAB.rev) return false;          /* 接反：電流不能通過 LED，怎樣都不亮 */
+  if(LAB.touch) return true;         /* 兩條電線相碰：電路直接接通 */
+  return c.on;
+}
+function labReasons(){
+  const r=[];
+  if(LAB.rev) r.push("LED 長短腳接反，不管放進什麼水溶液都不會亮");
+  if(LAB.touch) r.push("兩條電線相碰，電路直接接通，不管放進什麼水溶液都會亮");
+  if(LAB.vin) r.push(`電線上的醋混進${LAB.cup}，這杯已經不只是${LAB.cup}`);
+  return r;
+}
+function setSw(id,v){
+  const b=$(id); b.setAttribute("aria-pressed",String(v)); b.querySelector(".knob").textContent=v?"開":"關";
+}
+function renderLab(){
+  $("labCups").querySelectorAll(".tab").forEach(t=>{ const on=t.dataset.cup===LAB.cup; t.classList.toggle("on",on); t.setAttribute("aria-pressed",String(on)); });
+  setSw("swRev",LAB.rev); setSw("swTouch",LAB.touch); setSw("swVin",LAB.vin);
+  const on=labOn();
+  ledFig($("labFig"),{on,name:LAB.cup,legs:LAB.rev?"reversed":"ok",touch:LAB.touch,showLegs:LAB.rev});
+  $("labStatus").innerHTML=`${LAB.cup}：LED <b>${on?"發亮":"不亮"}</b>`;
+  const vh=$("vinHint");
+  if(LAB.vin){ vh.classList.remove("hidden"); vh.textContent=`⚠️ 電線上的醋混進${LAB.cup}，這杯已經不只是${LAB.cup}，結果不能相信。`; }
+  else{ vh.classList.add("hidden"); vh.textContent=""; }
+  /* 每換一次狀態，就重新問一次「能不能相信？」 */
+  $("trustQ").innerHTML="";
+  const fb=$("trustFeed"); fb.className="feedback"; fb.innerHTML="";
+  const reasons=labReasons(), ok=reasons.length===0;
+  choiceQ($("trustQ"),["⭕ 能相信","❌ 不能相信"],ok?"⭕ 能相信":"❌ 不能相信",
+    ()=>{
+      fb.className="feedback good";
+      fb.innerHTML= ok
+        ? `✅ 能相信：電路正常、兩條電線分開、電線也洗乾淨了。${LAB.cup}讓 LED ${on?"發亮 → 容易導電":"不亮 → 不容易導電"}。`
+        : "✅ 不能相信："+reasons.join("；")+"。";
+      if(LAB.touch) $("oopsCrit").classList.remove("hidden");
+    },
+    ()=>{ fb.className="feedback hint"; fb.textContent= ok ? "🤔 再檢查一次：三個開關都關著，接法、電線、清洗都沒問題嗎？" : "🤔 再看看哪一個開關是「開」的，這樣做對嗎？"; });
+}
+$("swRev").addEventListener("click",()=>{ LAB.rev=!LAB.rev; renderLab(); });
+$("swTouch").addEventListener("click",()=>{ LAB.touch=!LAB.touch; renderLab(); });
+$("swVin").addEventListener("click",()=>{ LAB.vin=!LAB.vin; renderLab(); });
+renderLab();
+
+/* ==========================================================
+   ⑤ 三種檢驗比一比：⑨ 先填 LED 一列，⑩ 全班完成
+   ========================================================== */
+const CMP={
+  led:["看<b>導電性</b>：LED 發亮＝容易導電；不亮＝不容易導電。<br><span class=\"note\">看不出酸鹼性。</span>","<b>分得出來</b>：食鹽水發亮，糖水不亮。","<b>分不出來</b>：三杯都發亮。"],
+  lit:["看<b>酸鹼性</b>：藍色試紙變紅色＝酸性；紅色試紙變藍色＝鹼性；兩種都不變色＝中性。","<b>分不出來</b>：兩杯都是中性，兩種試紙都不變色。","<b>分得出來</b>：醋讓藍色試紙變紅色，小蘇打水讓紅色試紙變藍色，食鹽水都不變色。"],
+  cab:["看<b>酸鹼性</b>：酸性偏紅、中性偏紫、鹼性偏藍或偏綠。","<b>分不出來</b>：兩杯都偏紫。","<b>分得出來</b>：醋偏紅、食鹽水偏紫、小蘇打水偏藍（藍綠）。"]
+};
+function fillRow(cls){
+  const tds=$("cmpTab").querySelectorAll("tr."+cls+" td");
+  CMP[cls].forEach((h,i)=>{ tds[i].innerHTML=h; tds[i].classList.remove("q"); });
+}
+$("cmpLed").addEventListener("click",()=>{ fillRow("led"); $("cmpLed").disabled=true; });
+$("cmpAll").addEventListener("click",()=>{ fillRow("led"); fillRow("lit"); fillRow("cab"); $("cmpLed").disabled=true; $("cmpAll").disabled=true; });
+function classPoll(host,list,box,text){
+  pollQ($(host),list,g=>{ $(box).classList.remove("hidden"); $(text).textContent=`全班猜的是：「${g}」`; });
+}
+classPoll("cq1",["石蕊試紙","紫色高麗菜汁","LED 導電電路"],"cq1Box","cq1Text");
+classPoll("cq2",["能","不能"],"cq2Box","cq2Text");
+function cmpCheck(){ if(!$("cq1Ans").classList.contains("hidden") && !$("cq2Ans").classList.contains("hidden")) $("cmpCrit").classList.remove("hidden"); }
+$("cq1Btn").addEventListener("click",()=>{ $("cq1Ans").classList.remove("hidden"); $("cq1Btn").disabled=true; cmpCheck(); });
+$("cq2Btn").addEventListener("click",()=>{ $("cq2Ans").classList.remove("hidden"); $("cq2Btn").disabled=true; cmpCheck(); });
+
+/* ==========================================================
+   ⑥ 出場卡　兩層：先選答案，再選「你怎麼知道？」
+   ★ 答對後一定要顯示「判準」。課堂由學習單代替；這裡給在家複習。
+   ========================================================== */
+const QUIZ=[
+  {photo:"led-circuit",cap:"課本 78 頁：LED 電路（紅色夾子那一邊標 ⊕，黑色夾子那一邊標 ⊖）",
+   q:"看課本 78 頁的照片：LED 的長腳應該接在哪一個夾子上？",
+   opts:["標 ⊕ 的紅色夾子（電池正極出來的電線）","標 ⊖ 的黑色夾子（電池負極出來的電線）","兩個夾子都可以，隨便接"],
+   ans:"標 ⊕ 的紅色夾子（電池正極出來的電線）",
+   r:["LED 的長腳要接電池正極出來的電線，接反了不會亮","紅色的夾子比較容易導電","LED 是燈泡，燈泡的兩隻腳可以隨便接"],
+   rAns:"LED 的長腳要接電池正極出來的電線，接反了不會亮",
+   why:MUST[0]},
+  {fig:{on:true,name:"肥皂水"},cap:"兩條電線分開放進肥皂水，LED 微微發亮",
+   q:"電路正常，兩條電線分開放進肥皂水，LED 微微發亮，沒有食鹽水那麼亮。這表示肥皂水……",
+   opts:["容易導電","不容易導電，因為不夠亮","是酸性的水溶液"],
+   ans:"容易導電",
+   r:["微微亮也算亮，表示電路形成通路","LED 要很亮才算亮","LED 發亮表示水溶液是酸性"],
+   rAns:"微微亮也算亮，表示電路形成通路",
+   why:JUDGE[0]},
+  {q:"下列哪一杯水溶液是中性，而且容易導電？",
+   opts:["食鹽水","糖水","醋","小蘇打水"],
+   ans:"食鹽水",
+   r:["中性的水溶液都容易導電","食鹽水是中性，課本示範時讓 LED 發亮","食鹽水是酸性，酸性容易導電"],
+   rAns:"食鹽水是中性，課本示範時讓 LED 發亮",
+   why:MUST[2]},
+  {q:"剛測完醋，下一杯要測糖水。電線要怎麼處理？",
+   opts:["用純水沖洗電線接觸水溶液的部分，再擦乾","直接放進糖水，比較省時間","先放進醋裡再沾一次"],
+   ans:"用純水沖洗電線接觸水溶液的部分，再擦乾",
+   r:["殘留的醋會混進糖水，影響結果","沖洗以後 LED 會比較亮","糖水會把電線弄壞"],
+   rAns:"殘留的醋會混進糖水，影響結果",
+   why:"每測完一種水溶液，就用純水沖洗電線並擦乾，以免殘留的水溶液影響後面的實驗結果。"},
+  {q:"甲杯讓藍色石蕊試紙變紅色，用 LED 電路測試時 LED 發亮（電線分開、電路正常）。甲杯最可能是哪一種？",
+   opts:["醋","食鹽水","小蘇打水","糖水"],
+   ans:"醋",
+   r:["藍色石蕊試紙變紅色＝酸性；醋是酸性，也容易導電","LED 發亮的一定是醋","糖水是酸性，也容易導電"],
+   rAns:"藍色石蕊試紙變紅色＝酸性；醋是酸性，也容易導電",
+   why:JUDGE[2]}
+];
+const RANKS=[{f:0,t:"🔌 見習測試員"},{f:0.5,t:"💡 導電小偵探"},{f:0.9,t:"🏅 LED 測試達人！"}];
+let order=[0,1,2,3,4], qi=0, score=0, tries=0;
+function fmt(n){ return Number.isInteger(n)?String(n):n.toFixed(1); }
+function maxScore(){ return order.length*2; }
+function rankOf(s){ const f=s/maxScore(); let r=RANKS[0]; RANKS.forEach(x=>{ if(f>=x.f) r=x; }); return r.t; }
+function renderDots(){
+  $("dots").innerHTML="";
+  order.forEach((_,i)=>{
+    const d=document.createElement("span");
+    d.className="dot"+(i<qi?" done":i===qi?" now":"");
+    $("dots").appendChild(d);
+  });
+}
+function renderQPhoto(q){
+  const box=$("qphoto"); box.innerHTML="";
+  $("quizwrap").classList.toggle("nophoto",!(q.photo||q.fig));
+  if(q.fig){
+    box.innerHTML=`<figure class="figbox"><div class="svgbox ledbox" id="qFig"></div>
+      <figcaption class="cap center">${q.cap}<span class="sitag">示意</span></figcaption></figure>`;
+    ledFig($("qFig"),q.fig);
+  }else if(q.photo){
+    box.innerHTML=`<figure class="figbox"><div class="fig" id="qFig" style="--mh:40vh"></div>
+      <figcaption class="cap center">${q.cap}</figcaption></figure>`;
+    renderFig($("qFig"),q.photo);
+  }
+}
+function renderQ(){
+  const n=order[qi], q=QUIZ[n]; tries=0;
+  $("qprog").textContent=`第 ${qi+1} / ${order.length} 題`;
+  renderDots();
+  renderQPhoto(q);
+  $("q1title").textContent=`${n+1}. ${q.q}`;
+  ["q1opts","q2opts"].forEach(id=>$(id).innerHTML="");
+  ["q1feed","q2feed"].forEach(id=>{ $(id).className="feedback"; $(id).textContent=""; });
+  $("step2").classList.add("hidden");
+  $("criterion").classList.add("hidden");
+  $("nextBtn").classList.add("hidden");
+  choiceQ($("q1opts"),q.opts,q.ans,
+    ()=>{ addScore(); $("q1feed").className="feedback good"; $("q1feed").textContent="✅ 答對了！再說說你怎麼知道。"; $("step2").classList.remove("hidden");
+          $("step2").scrollIntoView({behavior:"smooth",block:"nearest"}); },
+    ()=>{ tries++; $("q1feed").className="feedback hint"; $("q1feed").textContent="🤔 再想想看，還可以再試。"; },
+    "col");
+  choiceQ($("q2opts"),q.r,q.rAns,
+    ()=>{
+      addScore();
+      $("q2feed").className="feedback"; $("q2feed").textContent="";
+      $("criterionText").textContent="💡 "+q.why;
+      $("criterion").classList.remove("hidden");
+      $("nextBtn").textContent= qi+1<order.length ? "下一題 →" : "看結果 →";
+      $("nextBtn").classList.remove("hidden");
+      $("nextBtn").scrollIntoView({behavior:"smooth",block:"nearest"});
+    },
+    ()=>{ tries++; $("q2feed").className="feedback hint"; $("q2feed").textContent="🤔 這個理由說不通，再選一次。"; },
+    "col");
+}
+function addScore(){
+  score += tries===0 ? 1 : 0.5;
+  tries=0;
+  $("score").textContent=fmt(score);
+  $("rank").textContent=rankOf(score);
+}
+$("nextBtn").addEventListener("click",()=>{
+  qi++;
+  if(qi>=order.length) showResult();
+  else{ renderQ(); $("quizPanel").scrollIntoView({behavior:"smooth",block:"nearest"}); }
+});
+function showResult(){
+  renderDots();
+  $("qprog").textContent="完成！";
+  $("quizPanel").classList.add("hidden");
+  $("quizResult").classList.remove("hidden");
+  $("finalScore").textContent=`總分 ${fmt(score)} / ${maxScore()}`;
+  $("finalRank").textContent=rankOf(score);
+  $("quizResult").scrollIntoView({behavior:"smooth",block:"start"});
+}
+function restartQuiz(){
+  qi=0; score=0;
+  $("score").textContent="0"; $("maxScore").textContent=String(maxScore()); $("rank").textContent=RANKS[0].t;
+  $("quizResult").classList.add("hidden");
+  $("quizPanel").classList.remove("hidden");
+  renderQ();
+}
+function setMode(m){
+  order = m==="class" ? [0,2] : [0,1,2,3,4];
+  $("modeClass").setAttribute("aria-pressed",String(m==="class"));
+  $("modeAll").setAttribute("aria-pressed",String(m!=="class"));
+  restartQuiz();
+}
+$("modeClass").addEventListener("click",()=>setMode("class"));
+$("modeAll").addEventListener("click",()=>setMode("all"));
+$("againBtn").addEventListener("click",()=>{ restartQuiz(); $("quizPanel").scrollIntoView({block:"start"}); });
+restartQuiz();
+
+/* ---------- 開頁：網址有 #站名 就直接跳過去 ---------- */
+(function(){
+  const h=(location.hash||"").replace("#","");
+  if(STATIONS.indexOf(h)>0) go(h,false);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,1634 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>水溶液的各種性質｜安全觀察、成分標示、混合物與配製</title>
+<link rel="icon" href="../../image/icon.svg" type="image/svg+xml">
+<style>
+/* ==========================================================
+   水溶液的各種性質 — 樣式表
+   使用情境：教室 75 吋觸控螢幕，全班共用、學生輪流上臺操作。
+   沿用〈植物與人類生活〉的調色盤與元件；照片是題庫裁好的課本照片，
+   示意圖和線上題庫是同一套（題庫/figures.js），一律標「示意」。
+   白色字只放在深綠 #2E7D4F 上；顏色不用來暗示答案，顏色旁一律寫字。
+   ========================================================== */
+:root{
+  --bg:#FDF6EC;         /* 奶油底色 */
+  --ink:#1E1E1E;        /* 描邊近黑 */
+  --green:#58B159;
+  --green-dark:#2E7D4F; /* 深綠（唯一可以放白字的底色） */
+  --water:#4FB0E5;      /* 水滴藍 */
+  --water-dark:#2E86C1;
+  --sun:#FFC93C;        /* 陽光黃 */
+  --coral:#FF7F66;
+  --coral-dark:#E4574C;
+  --wrong:#E4574C;
+  --card:#FFFFFF;
+  --muted:#6B7A82;
+  --shadow:0 6px 18px rgba(46,86,110,.16);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  min-height:100vh;color:var(--ink);background:var(--bg);
+  font-family:-apple-system,"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif;
+  font-size:clamp(17px,1.9vw,22px);line-height:1.6;
+}
+figure{margin:0}
+#app{max-width:1240px;margin:0 auto;padding:12px 16px 40px}
+
+/* ---------- 頁首與站別導覽（老師可自由跳段） ---------- */
+.sitehead{margin-bottom:12px}
+.headrow{display:flex;align-items:center;gap:6px 16px;flex-wrap:wrap}
+.back{
+  display:inline-flex;align-items:center;min-height:44px;padding:4px 16px;
+  border:3px solid var(--ink);border-radius:999px;background:var(--card);color:var(--ink);
+  font-weight:800;text-decoration:none;box-shadow:0 3px 0 var(--ink);font-size:clamp(15px,1.4vw,18px);
+}
+.back:active{transform:translateY(2px);box-shadow:0 1px 0 var(--ink)}
+.sitehead h1{margin:0;font-size:clamp(22px,2.6vw,32px);font-weight:900;letter-spacing:.5px;line-height:1.25}
+.sitehead .sub{color:var(--muted);font-size:clamp(13px,1.35vw,17px);font-weight:700}
+.stations{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.station-btn{
+  border:3px solid var(--ink);border-radius:999px;background:var(--card);color:var(--ink);
+  padding:8px 16px;font:inherit;font-size:clamp(15px,1.4vw,19px);font-weight:800;cursor:pointer;
+  box-shadow:0 3px 0 var(--ink);min-height:56px;line-height:1.25;
+}
+.station-btn.on{background:var(--green-dark);color:#fff}
+.station-btn:active{transform:translateY(2px);box-shadow:0 1px 0 var(--ink)}
+
+/* ---------- 畫面切換 ---------- */
+.screen{display:none;animation:fadeIn .4s ease}
+.screen.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.hidden{display:none !important}
+
+/* ---------- 通用卡片、按鈕 ---------- */
+.panel{
+  background:var(--card);border:3px solid var(--ink);border-radius:20px;
+  padding:16px 18px;box-shadow:var(--shadow);margin-bottom:14px;
+}
+.ptitle{font-weight:900;font-size:clamp(19px,2.2vw,27px);margin:0 0 10px}
+.btn{
+  border:3px solid var(--ink);border-radius:999px;background:var(--sun);color:var(--ink);
+  padding:12px 26px;font:inherit;font-weight:900;cursor:pointer;
+  box-shadow:0 4px 0 var(--ink);min-height:60px;
+}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--ink)}
+.btn.green{background:var(--green-dark);color:#fff}
+.btn.plain{background:var(--card)}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+/* 深綠按鈕停用時不可以變淡（白字會看不清）：改成米色底＋深灰字 */
+.btn.green[disabled]{opacity:1;background:#E6E1D6;color:#5B666C;box-shadow:0 4px 0 #9A9486}
+.btn[aria-pressed="true"]{box-shadow:0 0 0 5px var(--ink),0 4px 0 var(--ink)}
+a.btn{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;color:var(--ink)}
+.btnrow{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-top:14px}
+.btnrow.center{justify-content:center}
+.navrow{display:flex;justify-content:flex-end;gap:12px;flex-wrap:wrap;margin:0 0 12px}
+.ask{
+  background:#FFF6D8;border:3px dashed var(--sun);border-radius:16px;
+  padding:12px 16px;font-weight:800;font-size:clamp(18px,2.1vw,25px);text-align:center;
+}
+.ask.big{font-size:clamp(22px,2.6vw,40px);padding:16px}
+.lead{color:var(--muted);font-weight:700;margin:10px 0;font-size:clamp(15px,1.6vw,19px)}
+.cap{font-weight:800;margin-top:6px;font-size:clamp(14px,1.55vw,19px);line-height:1.45}
+.note{color:var(--muted);font-weight:700;font-size:clamp(13px,1.4vw,17px);line-height:1.45}
+.center{text-align:center}
+/* 給老師看的操作提示（放在舞臺面板外面，學生不必讀） */
+.teacher-tip{
+  margin:0 0 18px;font-size:clamp(13px,1.4vw,16px);color:var(--muted);
+  border-left:5px solid var(--sun);padding:6px 12px;background:#FFFCF2;border-radius:0 10px 10px 0;
+}
+.teacher-tip b.time{color:#7A5B00}
+.teacher-tip p{margin:4px 0}
+/* 照片載入失敗：中性的灰框 */
+.img-fallback{
+  display:flex !important;align-items:center;justify-content:center;text-align:center;line-height:1.35;
+  background:#F2EEE4;color:var(--muted);font-weight:800;font-size:clamp(12px,1.3vw,17px);
+  padding:8px;border:2px dashed #C9C2B4;overflow:hidden;overflow-wrap:anywhere;
+}
+
+/* 並排版面：橫向 ≥1024 時圖在左、任務在右 */
+.duo{display:grid;grid-template-columns:minmax(0,1fr);gap:16px;align-items:start}
+@media (min-width:1024px) and (orientation:landscape){
+  .duo{grid-template-columns:minmax(0,1.15fr) minmax(0,1fr)}
+  .duo.mid{align-items:center}
+}
+
+/* ---------- 照片框：比例＝照片原比例，所以百分比標籤不會跑位 ---------- */
+.fig{
+  position:relative;width:min(100%, calc(var(--mh,60vh) * var(--ar,4/3)));aspect-ratio:var(--ar,4/3);
+  margin:0 auto;border-radius:14px;background:#F2EEE4;box-shadow:0 0 0 3px var(--ink);
+}
+.fig > img,.fig > .img-fallback{
+  position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:14px;display:block;
+  -webkit-user-drag:none;user-select:none;
+}
+.figbox{padding:3px}
+/* 疊在照片上的名稱標籤 */
+.tag{
+  position:absolute;z-index:4;width:max-content;pointer-events:none;
+  background:rgba(255,255,255,.96);border:3px solid var(--ink);border-radius:12px;
+  padding:3px 10px;font-size:clamp(13px,1.35vw,19px);line-height:1.3;
+  box-shadow:0 3px 8px rgba(0,0,0,.28);animation:tagIn .35s ease;
+}
+.tag b{display:block;font-size:1.12em;font-weight:900}
+.tag small{display:block;font-size:1em;font-weight:700;color:#34444C}
+@keyframes tagIn{from{opacity:0;scale:.85}to{opacity:1;scale:1}}
+.pin{
+  position:absolute;z-index:3;width:18px;height:18px;border-radius:50%;
+  background:var(--sun);border:3px solid var(--ink);box-shadow:0 0 0 3px #fff;transform:translate(-50%,-50%);
+}
+/* 照片上的框線（框出標示上的字，不蓋住字） */
+.hlbox{
+  position:absolute;z-index:3;border:3px solid var(--ink);border-radius:6px;pointer-events:none;
+  box-shadow:0 0 0 3px var(--sun);animation:tagIn .35s ease;
+}
+
+/* ---------- 選項、回饋、判準 ---------- */
+.opts{display:flex;flex-wrap:wrap;gap:12px}
+.opts.col{flex-direction:column;align-items:stretch}
+.opts.col .opt{text-align:left}
+.opt{
+  border:3px solid var(--ink);border-radius:16px;background:var(--card);color:var(--ink);
+  padding:12px 24px;font:inherit;font-weight:900;cursor:pointer;
+  box-shadow:0 4px 0 var(--ink);min-height:62px;font-size:clamp(18px,2vw,25px);line-height:1.35;
+}
+.opt:active{transform:translateY(3px);box-shadow:0 1px 0 var(--ink)}
+.opt.ok{background:var(--green-dark);color:#fff}
+.opt.no{background:#FBE3E1;border-color:var(--wrong);color:#B03A30;text-decoration:line-through}
+.opt[disabled]{cursor:not-allowed}
+.opt.picked,.opt[aria-pressed="true"]{background:#FFF3C4;box-shadow:0 0 0 5px var(--sun),0 4px 0 var(--ink)}
+.steptag{
+  display:inline-block;background:#DDF0FA;color:var(--ink);border:3px solid var(--ink);
+  border-radius:999px;padding:2px 14px;font-weight:900;margin-bottom:8px;font-size:clamp(14px,1.5vw,19px);
+}
+.qtitle{font-weight:900;font-size:clamp(19px,2.2vw,27px);margin:0 0 12px}
+.feedback{margin-top:12px;font-weight:800;border-radius:14px}
+.feedback:empty{display:none}
+.feedback.hint{background:#FFF6D8;border:3px dashed var(--sun);padding:10px 14px}
+.feedback.good{background:#EAF7EE;border:3px solid var(--green-dark);color:var(--green-dark);padding:10px 14px}
+/* 判準卡 —— 課堂追問「你怎麼知道？」的素材，答對後一定要出現 */
+.criterion{
+  background:#EAF7EE;border:3px solid var(--green-dark);border-radius:18px;padding:12px 16px;margin-top:14px;
+}
+.criterion .k{font-weight:900;color:var(--green-dark);font-size:clamp(18px,2.1vw,25px)}
+.criterion .askagain{
+  margin-top:8px;font-size:clamp(13px,1.5vw,17px);color:var(--muted);font-weight:800;
+  border-top:2px dashed #B9D8C4;padding-top:8px;
+}
+.bigpoint{
+  background:#EAF7EE;border:3px solid var(--green-dark);border-radius:18px;margin-top:14px;
+  padding:14px 18px;font-weight:900;font-size:clamp(19px,2.3vw,28px);text-align:center;color:var(--green-dark);
+}
+.bigpoint b{text-decoration:underline;text-decoration-thickness:3px;text-underline-offset:5px}
+.bigpoint small{display:block;margin-top:6px;font-size:.7em;color:#2F5E43;font-weight:800}
+
+/* ==========================================================
+   開場
+   ========================================================== */
+.guessbox{margin-top:16px;text-align:center;background:#FFFDF8;border:3px solid var(--ink);border-radius:16px;padding:12px}
+.guessbox .g{font-size:clamp(19px,2.2vw,28px);font-weight:900}
+.guessbox .later{font-size:clamp(22px,2.8vw,36px);font-weight:900;color:var(--green-dark)}
+
+/* ==========================================================
+   ③ 分類白板
+   ========================================================== */
+.cardtray{
+  display:flex;flex-wrap:wrap;gap:12px;justify-content:center;
+  min-height:150px;padding:12px;border:3px dashed #C9C2B4;border-radius:18px;background:#FFFDF8;margin-top:12px;
+}
+.fcard{
+  width:clamp(118px,11vw,170px);background:var(--card);
+  border:3px solid var(--ink);border-radius:16px;padding:7px;text-align:center;
+  cursor:pointer;box-shadow:0 4px 0 rgba(30,30,30,.25);touch-action:none;user-select:none;
+  transition:transform .12s ease,box-shadow .12s ease;
+}
+.fcard .label{font-weight:900;font-size:clamp(14px,1.35vw,19px);line-height:1.3;margin-top:5px}
+.fcard.picked{transform:translateY(-6px) scale(1.04);box-shadow:0 10px 0 var(--sun),0 0 0 5px var(--sun)}
+.fcard.dragging{position:fixed;z-index:999;pointer-events:none;opacity:.92;box-shadow:0 14px 26px rgba(0,0,0,.35)}
+.fcard:focus-visible{outline:4px solid var(--water-dark);outline-offset:3px}
+.fcard .mark{display:none;font-weight:900;font-size:clamp(14px,1.4vw,19px);line-height:1.3;margin-top:4px}
+.fcard.judged .mark{display:block}
+.fcard.judged.ok .mark{color:var(--green-dark)}
+.fcard.judged.no .mark{color:#B03A30}
+.fcard.judged.no{border-color:var(--wrong)}
+/* 沒有照片的文字卡：文字置中，不要留一大片空白 */
+.fcard.noimg{display:flex;flex-direction:column;justify-content:center;background:#FFFDF8;min-height:clamp(120px,10vw,170px)}
+.fcard.noimg.mid{width:clamp(140px,14vw,210px)}
+.fcard.noimg .label{font-size:clamp(17px,1.6vw,23px);text-align:center}
+.fcard .sub{display:block;font-size:clamp(13px,1.2vw,17px);font-weight:700;color:#34444C;line-height:1.35;margin-top:4px}
+
+.baskets{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:14px}
+@media(max-width:720px){.baskets{grid-template-columns:minmax(0,1fr)}}
+.basket{border:4px solid var(--ink);border-radius:20px;padding:10px;min-height:220px;background:#FFFDF8;cursor:pointer}
+.basket.hot{background:#FFF3C4;border-style:dashed}
+/* 鍵盤用的「放進這一籃」按鈕：平常藏起來（觸控直接點籃子），用 Tab 移到它時才出現 */
+.bdrop{
+  position:absolute;width:1px;height:1px;margin:-1px;padding:0;border:0;overflow:hidden;
+  clip:rect(0 0 0 0);white-space:nowrap;
+}
+.bdrop:focus{
+  position:static;width:auto;height:auto;margin:0;overflow:visible;clip:auto;
+  border:3px solid var(--ink);border-radius:999px;background:var(--card);color:var(--ink);
+  padding:6px 16px;min-height:48px;font:inherit;font-weight:900;cursor:pointer;
+  outline:4px solid var(--water-dark);outline-offset:3px;
+}
+.bhead{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap}
+.bletter{
+  width:clamp(38px,3.6vw,52px);aspect-ratio:1;border-radius:50%;border:3px solid var(--ink);background:#fff;
+  display:flex;align-items:center;justify-content:center;font-weight:900;font-size:clamp(20px,2.2vw,28px);flex:none;
+}
+.bname{font-size:clamp(20px,2.3vw,30px);font-weight:900;text-align:center;letter-spacing:1px;line-height:1.3}
+.bhint{text-align:center;font-weight:800;color:var(--muted);margin:4px 0 8px;font-size:clamp(15px,1.6vw,20px)}
+.drop{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;min-height:120px}
+.scorebar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:14px}
+#sortMsg{font-weight:800}
+.derive{margin-top:18px;border-top:3px dashed #C9C2B4;padding-top:16px}
+.evidence{display:grid;grid-template-columns:minmax(0,1fr);gap:12px;align-items:center;margin-top:12px}
+@media(min-width:720px){.evidence{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}}
+.evidence .cap{color:var(--ink)}
+.chips{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin:14px 0}
+.chip{background:#FFF6D8;border:2px solid var(--sun);border-radius:999px;padding:4px 14px;font-weight:800}
+
+/* ==========================================================
+   ⑤ 出場卡
+   ========================================================== */
+.quizbar{display:flex;align-items:center;gap:8px 14px;flex-wrap:wrap;
+  background:var(--card);border:3px solid var(--ink);border-radius:26px;padding:8px 18px;
+  box-shadow:var(--shadow);margin-bottom:14px;font-weight:900}
+.dots{display:flex;gap:8px}
+.dot{width:16px;height:16px;border-radius:50%;border:3px solid var(--ink);background:#fff}
+.dot.done{background:var(--green-dark)}
+.dot.now{background:var(--sun)}
+.qscore{margin-left:auto}
+.quizwrap{display:grid;grid-template-columns:minmax(0,1fr);gap:18px;align-items:start}
+@media (min-width:1024px) and (orientation:landscape){
+  .quizwrap{grid-template-columns:minmax(0,1fr) minmax(0,1.1fr)}
+}
+.quizwrap.nophoto{grid-template-columns:minmax(0,1fr)}
+.quizwrap.nophoto .qphoto{display:none}
+.result{text-align:center;padding:16px}
+.result .big{font-size:clamp(30px,5vw,58px);font-weight:900;color:var(--green-dark)}
+.rankline{font-weight:900;font-size:clamp(22px,2.8vw,36px);margin:6px 0}
+.ticket{
+  margin:14px auto;max-width:900px;background:#FFF6D8;border:3px dashed var(--sun);border-radius:16px;
+  padding:12px 16px;font-weight:800;font-size:clamp(18px,2.1vw,26px);text-align:left;line-height:1.8;
+}
+
+/* ---------- 頁尾：照片來源 ---------- */
+.credits{
+  font-size:clamp(12px,1.2vw,15px);color:var(--muted);margin-top:20px;line-height:1.55;
+  border-top:2px dashed #D9CFBE;padding-top:12px;
+}
+.credits a{color:var(--muted)}
+.credits p{margin:4px 0}
+
+/* ==========================================================
+   水溶液的各種性質 — 本課新增的元件
+   ========================================================== */
+.kidsay{
+  margin:0 0 10px;padding:6px 12px;border-left:5px solid var(--water);border-radius:0 10px 10px 0;
+  background:#F2F8FC;color:#34444C;font-weight:800;font-size:clamp(15px,1.6vw,20px);line-height:1.5;
+}
+.saybox{
+  margin-top:14px;background:#FFFDF8;border:3px solid var(--ink);border-radius:16px;padding:12px 16px;
+  font-weight:900;font-size:clamp(18px,2.1vw,27px);line-height:1.5;
+}
+.saybox .no{display:inline-block;background:var(--sun);border:3px solid var(--ink);border-radius:999px;padding:0 12px;margin-right:8px;font-size:.8em}
+/* 示意圖（題庫 figures.js 與本頁自己畫的 SVG） */
+.qfig{width:100%;height:auto;display:block}
+.svgbox{border:3px solid var(--ink);border-radius:14px;background:#FFFDF8;padding:4px;overflow:hidden}
+.svgbox svg{display:block;width:100%;height:auto;max-height:46vh}
+.qfig-fallback{min-height:120px;border-radius:10px}
+.sitag{display:inline-block;border:2px solid var(--muted);border-radius:999px;padding:0 10px;margin-left:6px;font-size:.85em;color:#4A5960;background:#fff}
+
+/* 開場：三種性質按鈕 */
+.propbtns{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px;justify-content:center}
+
+/* ① 安全三不 */
+.nos{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:12px}
+.nocard{border:3px solid var(--ink);border-radius:16px;background:#FFF5F3;padding:10px 8px;text-align:center}
+.nocard .x{display:block;font-size:clamp(28px,3.2vw,46px);font-weight:900;color:#B03A30;line-height:1.1}
+.nocard b{display:block;font-size:clamp(18px,2vw,27px);font-weight:900;line-height:1.3}
+.nocard small{display:block;color:#4A5960;font-weight:700;font-size:clamp(13px,1.3vw,17px);line-height:1.4;margin-top:2px}
+/* ① 搧聞步驟 */
+.fansteps{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.fansteps li{
+  display:flex;gap:10px;align-items:flex-start;border:3px solid #D9CFBE;border-radius:14px;background:#fff;
+  padding:8px 12px;font-weight:800;font-size:clamp(16px,1.8vw,23px);line-height:1.45;
+}
+.fansteps li.on{border-color:var(--ink);background:#FFF3C4;box-shadow:0 0 0 4px var(--sun)}
+.sn{
+  flex:none;width:1.75em;height:1.75em;border-radius:50%;border:3px solid var(--ink);background:#fff;
+  display:inline-flex;align-items:center;justify-content:center;font-weight:900;line-height:1;
+}
+.fansvg .hand{transform-box:fill-box;transform-origin:50% 50%}
+.fansvg.waving .hand{animation:fan .7s ease-in-out 4}
+@keyframes fan{0%,100%{transform:translate(0,0) rotate(0)}50%{transform:translate(-22px,5px) rotate(-14deg)}}
+.fansvg .sdot circle{fill:#fff}
+.fansvg .sdot.on circle{fill:var(--sun)}
+/* 抓錯卡：老師正要做錯 → 全班舉 ○╳ → 揭曉 */
+.oopsgrid{display:grid;grid-template-columns:minmax(0,1fr);gap:12px;margin-top:10px}
+@media(min-width:900px){.oopsgrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.oops{border:3px dashed #B03A30;border-radius:16px;background:#FFF5F3;padding:10px 14px;margin-top:12px}
+.oopsgrid .oops{margin-top:0}
+.oops .otag{display:inline-block;border:3px solid var(--ink);border-radius:999px;background:#FFE1DC;padding:0 12px;font-weight:900;margin-right:6px;font-size:.85em}
+.oops .oq{font-weight:800;font-size:clamp(17px,1.9vw,24px);line-height:1.5}
+.oops .btnrow{margin-top:8px}
+.oops .oa{margin-top:8px;background:#fff;border:3px solid var(--ink);border-radius:12px;padding:8px 12px;font-weight:800;line-height:1.5;font-size:clamp(16px,1.8vw,23px)}
+.oops .oa .xx{color:#B03A30;font-weight:900}
+/* ② 成分標示 */
+.labelcard{border:3px solid var(--ink);border-radius:16px;background:#fff;padding:10px 14px;font-weight:900;font-size:clamp(18px,2.1vw,27px);line-height:1.5}
+.labelcard .lt{display:block;font-size:.72em;color:#4A5960;font-weight:800}
+.preview{display:grid;grid-template-columns:minmax(0,1fr);gap:12px;margin-top:12px}
+@media(min-width:720px){.preview{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.preview figure{border:3px solid var(--ink);border-radius:14px;background:#FFFDF8;padding:6px}
+.preview .qfig{max-height:34vh}
+/* ④ 配製步驟卡 */
+.stepcards{display:grid;grid-template-columns:minmax(0,1fr);gap:10px;margin-top:12px}
+@media(min-width:560px){.stepcards{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(min-width:1024px){.stepcards{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.scard{
+  border:3px solid var(--ink);border-radius:16px;background:#fff;padding:10px 12px;font-weight:800;line-height:1.45;
+  font-size:clamp(16px,1.7vw,22px);display:flex;gap:8px;align-items:flex-start;
+}
+/* ④ 一直加食鹽（示意） */
+.simcount{font-weight:900;font-size:clamp(20px,2.3vw,30px);text-align:center}
+.simcount b{font-size:1.3em;color:var(--green-dark)}
+.saltsvg .grain{animation:grainDrop .9s ease-in forwards}
+@keyframes grainDrop{from{transform:translateY(0);opacity:1}to{transform:translateY(120px);opacity:0}}
+/* ④ 老師課前試做的照片（老師之後自己放；沒有檔案時顯示中性的虛線框） */
+.tphoto{display:block;width:100%;height:auto;max-height:52vh;object-fit:contain;border-radius:14px;box-shadow:0 0 0 3px var(--ink);background:#F2EEE4}
+.tphoto-empty{
+  display:flex;align-items:center;justify-content:center;text-align:center;width:100%;aspect-ratio:4/3;max-height:40vh;
+  border:3px dashed #C9C2B4;border-radius:14px;background:#FAF7F0;color:var(--muted);font-weight:800;
+  font-size:clamp(15px,1.6vw,22px);padding:10px;
+}
+
+@media (prefers-reduced-motion:reduce){
+  .screen,.tag,.hlbox{animation:none}
+  .fansvg.waving .hand,.saltsvg .grain{animation:none}
+}
+
+  /* ===== RWD：手機 / 平板 / 筆電 / 75 吋觸控螢幕 ===== */
+  @media (max-width:1100px){
+    .station-btn{ padding:8px 10px; }
+  }
+  @media (max-width:640px){
+    #app{ padding:10px 10px 28px; }
+    .panel{ border-radius:14px; padding:12px 12px; }
+    .stations{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:6px; }
+    .station-btn{ padding:4px 4px; font-size:14px; min-height:52px; border-radius:16px; }
+    .btn{ padding:10px 18px; min-height:52px; }
+    .opt{ min-height:52px; padding:10px 14px; }
+    .basket{ min-height:160px; }
+    .quizbar{ border-radius:18px; }
+    .nos{ gap:8px; }
+    .nocard{ padding:8px 4px; }
+  }
+  /* 筆電（矮螢幕）：示意圖不要佔掉整個畫面 */
+  @media (min-width:1024px) and (max-height:760px){
+    .svgbox svg{ max-height:40vh; }
+    .ask.big{ font-size:26px; padding:10px; }
+  }
+  @media (min-width:1800px){
+    /* 按鈕與選項都是 font:inherit，放大 body 字級它們就跟著長大 */
+    body{ font-size:26px; }
+    #app{ max-width:1680px; padding:20px 30px 60px; }
+    .sitehead h1{ font-size:38px; }
+    .back{ min-height:64px; font-size:22px; padding:6px 24px; }
+    .station-btn{ min-height:72px; font-size:23px; padding:10px 26px; }
+    .btn{ min-height:80px; padding:16px 40px; }
+    .opt{ min-height:84px; font-size:28px; }
+    .fcard{ width:clamp(170px,11vw,230px); }
+    .fcard.noimg.mid{ width:clamp(220px,13vw,290px); }
+    .basket{ min-height:300px; }
+    .tag{ font-size:22px; }
+    .bdrop:focus{ min-height:64px; }
+    .cap{ font-size:22px; }
+    .ask{ font-size:30px; }
+    .steptag{ font-size:23px; }
+    .sitehead .sub{ font-size:21px; }
+    .ask.big{ font-size:46px; }
+    .qtitle,.ptitle{ font-size:32px; }
+    .saybox{ font-size:32px; }
+    .bigpoint{ font-size:33px; }
+    .criterion .k{ font-size:30px; }
+    .bname{ font-size:34px; }
+    .bhint,.fcard .label,.fcard .mark{ font-size:22px; }
+    .fcard.noimg .label{ font-size:27px; }
+    .fcard .sub{ font-size:20px; }
+    .note,.lead{ font-size:20px; }
+    .pin{ width:24px; height:24px; }
+    .teacher-tip{ font-size:19px; }
+    .credits{ font-size:16px; }
+    .kidsay{ font-size:24px; }
+    .nocard b{ font-size:32px; }
+    .nocard small{ font-size:20px; }
+    .nocard .x{ font-size:54px; }
+    .fansteps li{ font-size:28px; }
+    .oops .oq{ font-size:28px; }
+    .oops .oa{ font-size:27px; }
+    .labelcard{ font-size:32px; }
+    .scard{ font-size:26px; }
+    .simcount{ font-size:34px; }
+    .tphoto-empty{ font-size:26px; }
+    .chip{ font-size:24px; }
+  }
+  @media (min-width:2600px){
+    body{ font-size:34px; }
+    #app{ max-width:2280px; padding:30px 40px 80px; }
+    .sitehead h1{ font-size:50px; }
+    .back{ min-height:84px; font-size:30px; }
+    .station-btn{ min-height:96px; font-size:30px; padding:14px 34px; }
+    .btn{ min-height:104px; padding:22px 52px; }
+    .opt{ min-height:112px; font-size:36px; }
+    .fcard{ width:clamp(230px,10vw,310px); }
+    .fcard.noimg.mid{ width:clamp(290px,12vw,380px); }
+    .basket{ min-height:390px; }
+    .tag{ font-size:30px; }
+    .cap{ font-size:29px; }
+    .ask{ font-size:39px; }
+    .steptag{ font-size:30px; }
+    .sitehead .sub{ font-size:27px; }
+    .ask.big{ font-size:60px; }
+    .qtitle,.ptitle{ font-size:42px; }
+    .saybox{ font-size:42px; }
+    .bigpoint{ font-size:43px; }
+    .criterion .k{ font-size:39px; }
+    .bname{ font-size:44px; }
+    .bhint,.fcard .label,.fcard .mark{ font-size:29px; }
+    .fcard.noimg .label{ font-size:35px; }
+    .fcard .sub{ font-size:26px; }
+    .note,.lead{ font-size:26px; }
+    .pin{ width:32px; height:32px; }
+    .teacher-tip{ font-size:25px; }
+    .credits{ font-size:21px; }
+    .kidsay{ font-size:31px; }
+    .nocard b{ font-size:42px; }
+    .nocard small{ font-size:26px; }
+    .nocard .x{ font-size:70px; }
+    .fansteps li{ font-size:36px; }
+    .oops .oq{ font-size:36px; }
+    .oops .oa{ font-size:35px; }
+    .labelcard{ font-size:42px; }
+    .scard{ font-size:34px; }
+    .simcount{ font-size:44px; }
+    .tphoto-empty{ font-size:34px; }
+    .chip{ font-size:31px; }
+  }
+</style>
+<script>
+/* 放在 head：圖片一出錯就能呼叫（不論主程式跑到哪裡） */
+function imgFallback(img){
+  const span=document.createElement("span");
+  span.className="img-fallback "+(img.className||"");
+  span.setAttribute("role","img");
+  const name=img.getAttribute("data-name")||img.getAttribute("alt")||"照片";
+  span.setAttribute("aria-label","照片載入失敗："+name);
+  span.textContent="📷 照片載入失敗："+name;
+  img.replaceWith(span);
+}
+/* 老師課前試做的照片：老師之後才會放進 photos/；還沒放時顯示中性的虛線框，不顯示錯誤 */
+function teacherPhotoFallback(img){
+  const box=document.createElement("div");
+  box.className="tphoto-empty";
+  box.setAttribute("role","img");
+  box.setAttribute("aria-label","老師課前試做的照片（還沒放上來）");
+  box.textContent="（老師課前試做的照片）";
+  const fig=img.closest("figure");
+  img.replaceWith(box);
+  if(fig){ const cap=fig.querySelector("figcaption"); if(cap) cap.classList.add("hidden"); }
+}
+</script>
+</head>
+<body>
+<div id="app">
+
+  <header class="sitehead">
+    <div class="headrow">
+      <a class="back" href="../../index.html">← 回教材首頁</a>
+      <h1>水溶液的各種性質</h1>
+      <span class="sub">五年級自然｜第三單元 水溶液　課本 66–69 頁</span>
+    </div>
+    <nav class="stations" aria-label="站別">
+      <button class="station-btn on" data-go="open" aria-current="step">開場</button>
+      <button class="station-btn" data-go="safe">① 安全的觀察</button>
+      <button class="station-btn" data-go="label">② 成分標示</button>
+      <button class="station-btn" data-go="mix">③ 混合物</button>
+      <button class="station-btn" data-go="make">④ 配製水溶液</button>
+      <button class="station-btn" data-go="quiz">⑤ 出場卡</button>
+    </nav>
+  </header>
+
+  <!-- ==================== 開場　看起來、聞起來、喝起來一樣嗎？（課本 66 頁） ==================== -->
+  <section id="screen-open" class="screen active">
+    <div class="panel">
+      <p class="ptitle">🔍 不同的飲料，看起來、聞起來、喝起來都一樣嗎？</p>
+      <div class="duo mid">
+        <figure class="figbox">
+          <div class="fig" id="openFig" style="--mh:34vh"></div>
+          <figcaption class="cap center">左起：紅茶、白開水、檸檬汁（課本 66 頁的照片）</figcaption>
+        </figure>
+        <div>
+          <p class="kidsay">課本 66 頁同學的對話：「檸檬汁聞起來有酸酸的氣味，白開水聞起來……。」「我喜歡紅茶，喝起來甜甜的。」「顏色看起來不同，白開水是透明的，紅茶是……。」</p>
+          <div class="ask">這三杯哪裡不一樣？點一點看。</div>
+          <div class="propbtns" id="propBtns"></div>
+          <div class="saybox hidden" id="propSay" aria-live="polite"></div>
+        </div>
+      </div>
+
+      <div class="derive">
+        <div class="duo mid">
+          <figure class="figbox">
+            <div class="svgbox" id="cupsFig"></div>
+            <figcaption class="cap center">示意圖：三杯看起來都透明無色</figcaption>
+          </figure>
+          <div>
+            <div class="ask big">三杯<b>透明無色</b>的水溶液，<br>用眼睛看得出哪一杯是<b>糖水</b>嗎？</div>
+            <p class="lead">先想一想，舉反應卡（甲、乙、丙），再請一位同學上臺按。</p>
+            <div class="opts col" id="guessOpts"></div>
+            <div class="guessbox hidden" id="guessBox" aria-live="polite">
+              <div class="g">全班猜的是：「<span id="guessText"></span>」</div>
+              <div class="later">第 ② 站（成分標示）揭曉！</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="navrow"><button class="btn green" data-next="safe">下一站：① 安全的觀察 →</button></div>
+    <div class="teacher-tip">
+      <p><b class="time">給老師｜開場 4 分鐘</b>（第 ② 節〈溶解現象〉最後 8 分鐘的前半；網址後面加 <b>#open</b> 可以直接開到這一站）</p>
+      <p>本課學習目標：①能說出分辨不明水溶液時的安全做法（不碰、不嘗、搧聞）②能從成分標示知道水溶液含有哪些物質，並說出固態、液態、氣態混合物的例子 ③能說出配製水溶液的步驟和用純水的理由。</p>
+      <p>節次：開場、① 安全的觀察在第 ② 節最後 8 分鐘上（各 4 分鐘）；② 成分標示以後在第 ③ 節上。請學生翻開課本 66 頁。</p>
+      <p>先問「看起來、聞起來、喝起來都一樣嗎？」再點「顏色、氣味、味道」三個按鈕收束。<b>家長檢核</b>：課本 66 頁談到飲料的味道，要明講「在家喝飲料可以；實驗室裡的東西一律不嘗」。</p>
+      <p>三杯透明無色的問題：先舉反應卡、再請一位同學上臺按；<b>只記不判</b>，在 ② 成分標示站回收（答案：看不出來，透明無色不等於白開水）。重新整理頁面會清掉；隔一節才回收時，請全班回想自己舉的卡。</p>
+    </div>
+  </section>
+
+  <!-- ==================== ① 安全的觀察：安全三不、搧聞（課本 67 頁） ==================== -->
+  <section id="screen-safe" class="screen">
+    <div class="panel">
+      <p class="ptitle">🚫 不清楚來源的水溶液，怎麼觀察才安全？</p>
+      <p class="kidsay">課本 67 頁的「注意」：對於不清楚來源的水溶液，千萬不能以身體任意接觸，也不可輕易用舌頭嘗味道或用鼻子直接靠近水溶液聞氣味，以免受到傷害。用鼻子辨別水溶液的氣味時，應用手掌往鼻子方向搧聞水溶液的氣味。</p>
+      <p class="ptitle" style="margin-top:12px">安全三不</p>
+      <div class="nos">
+        <div class="nocard"><span class="x" aria-hidden="true">╳</span><b>不能碰</b><small>不用手或身體接觸</small></div>
+        <div class="nocard"><span class="x" aria-hidden="true">╳</span><b>不能嘗</b><small>不用舌頭嘗味道</small></div>
+        <div class="nocard"><span class="x" aria-hidden="true">╳</span><b>不能直接靠近聞</b><small>鼻子不湊近杯口</small></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <p class="ptitle">✅ 全班一起練：搧聞（手上不拿東西）</p>
+      <div class="duo mid">
+        <figure class="figbox">
+          <div class="svgbox" id="fanFig">
+            <svg class="fansvg" id="fanSvg" viewBox="0 0 440 250" role="img" aria-label="搧聞的示意圖：杯子放在桌上，臉和杯口保持距離，手掌在杯口上方往鼻子的方向輕輕搧" xmlns="http://www.w3.org/2000/svg" font-family="Microsoft JhengHei,PingFang TC,Noto Sans TC,sans-serif">
+              <defs>
+                <marker id="fanAh" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#2E7D4F"/></marker>
+                <marker id="fanAh2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#6B7A82"/></marker>
+              </defs>
+              <rect width="440" height="250" fill="#FFFDF8"/>
+              <rect x="0" y="214" width="440" height="36" fill="#EADFC8"/>
+              <line x1="0" y1="214" x2="440" y2="214" stroke="#1E1E1E" stroke-width="3"/>
+              <!-- 人（側面，臉朝右） -->
+              <path d="M36 214 C36 170 60 150 92 150 C124 150 148 170 148 214 Z" fill="#CFE3F2" stroke="#1E1E1E" stroke-width="3"/>
+              <circle cx="92" cy="102" r="44" fill="#FFE6D2" stroke="#1E1E1E" stroke-width="3"/>
+              <path d="M50 98 C48 66 72 52 98 56 C118 59 130 70 134 84 C110 74 82 76 58 104 Z" fill="#4A3A2A"/>
+              <path d="M134 92 L151 106 L134 113" fill="#FFE6D2" stroke="#1E1E1E" stroke-width="3" stroke-linejoin="round"/>
+              <circle cx="114" cy="92" r="4" fill="#1E1E1E"/>
+              <path d="M117 127 Q125 131 131 125" fill="none" stroke="#1E1E1E" stroke-width="2.5" stroke-linecap="round"/>
+              <!-- 杯子與水溶液 -->
+              <path d="M304 150 L313 212 H367 L376 150 Z" fill="#D6ECF8"/>
+              <line x1="304" y1="150" x2="376" y2="150" stroke="#2E86C1" stroke-width="2"/>
+              <path d="M298 126 L313 212 H367 L382 126" fill="none" stroke="#1E1E1E" stroke-width="3" stroke-linejoin="round"/>
+              <text x="340" y="188" font-size="15" font-weight="700" text-anchor="middle" fill="#1E1E1E">水溶液</text>
+              <!-- 氣味（虛線） -->
+              <g fill="none" stroke="#6B7A82" stroke-width="2.5" stroke-dasharray="5 5" stroke-linecap="round">
+                <path d="M322 120 C318 104 300 98 280 100"/>
+                <path d="M342 118 C338 98 316 88 292 88"/>
+                <path d="M362 120 C360 100 340 82 306 78"/>
+              </g>
+              <text x="388" y="102" font-size="15" font-weight="700" fill="#4A5960" text-anchor="start">氣味</text>
+              <!-- 手掌（全班跟著做時會搧動） -->
+              <g class="hand" id="fanHand">
+                <rect x="232" y="54" width="76" height="22" rx="11" fill="#FFE6D2" stroke="#1E1E1E" stroke-width="3" transform="rotate(-12 270 65)"/>
+                <ellipse cx="262" cy="79" rx="10" ry="6" fill="#FFE6D2" stroke="#1E1E1E" stroke-width="2.5" transform="rotate(-30 262 79)"/>
+              </g>
+              <text x="276" y="36" font-size="15" font-weight="700" text-anchor="middle" fill="#1E1E1E">手掌</text>
+              <path d="M230 90 C210 100 186 106 160 106" fill="none" stroke="#2E7D4F" stroke-width="4" marker-end="url(#fanAh)"/>
+              <text x="204" y="128" font-size="15" font-weight="700" text-anchor="middle" fill="#2E7D4F" stroke="#FFFDF8" stroke-width="4" paint-order="stroke">往鼻子的方向搧</text>
+              <!-- 臉和杯口保持距離 -->
+              <line x1="160" y1="178" x2="294" y2="178" stroke="#6B7A82" stroke-width="2.5" stroke-dasharray="6 5" marker-start="url(#fanAh2)" marker-end="url(#fanAh2)"/>
+              <text x="227" y="166" font-size="14" font-weight="700" text-anchor="middle" fill="#4A5960" stroke="#FFFDF8" stroke-width="4" paint-order="stroke">臉不要靠近杯口</text>
+              <!-- 步驟號碼 -->
+              <g class="sdot" data-s="1"><circle cx="404" cy="146" r="13" stroke="#1E1E1E" stroke-width="2.5"/><text x="404" y="147" font-size="15" font-weight="900" text-anchor="middle" dominant-baseline="middle" fill="#1E1E1E">1</text></g>
+              <g class="sdot" data-s="2"><circle cx="322" cy="40" r="13" stroke="#1E1E1E" stroke-width="2.5"/><text x="322" y="41" font-size="15" font-weight="900" text-anchor="middle" dominant-baseline="middle" fill="#1E1E1E">2</text></g>
+              <g class="sdot" data-s="3"><circle cx="166" cy="76" r="13" stroke="#1E1E1E" stroke-width="2.5"/><text x="166" y="77" font-size="15" font-weight="900" text-anchor="middle" dominant-baseline="middle" fill="#1E1E1E">3</text></g>
+              <text x="432" y="240" font-size="13" text-anchor="end" fill="#4A5960">示意圖</text>
+            </svg>
+          </div>
+          <figcaption class="cap center">搧聞的示意圖（不是照片）</figcaption>
+        </figure>
+        <div>
+          <ol class="fansteps" id="fanSteps">
+            <li data-step="1"><span class="sn">1</span><span>杯子放在桌上，<b>臉不要靠近杯口</b>。</span></li>
+            <li data-step="2"><span class="sn">2</span><span>手掌在杯口上方，<b>往鼻子的方向</b>輕輕搧。</span></li>
+            <li data-step="3"><span class="sn">3</span><span>輕輕吸一口氣，聞聞看有什麼氣味。</span></li>
+            <li data-step="4"><span class="sn">4</span><span>聞不清楚？再搧幾下，鼻子<b>還是不靠近</b>。</span></li>
+          </ol>
+          <div class="btnrow">
+            <button class="btn" id="fanNext">▶ 一起做：第 1 步</button>
+            <button class="btn plain" id="fanReset">↺ 從頭做</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="oops">
+        <div class="oq"><span class="otag">抓錯</span>老師正要這樣做：<b>把鼻子湊近杯口，直接聞</b>。對嗎？全班先舉 ○ 或 ╳。</div>
+        <div class="btnrow"><button class="btn plain" type="button" data-oops="nose">🔍 揭曉</button></div>
+        <div class="oa hidden"><span class="xx">╳ 不可以！</span>正確做法：用手掌往鼻子方向搧聞。<br>不這樣做會怎樣：可能吸入刺激的氣體，受到傷害。</div>
+      </div>
+
+      <div class="derive">
+        <div class="ask">搧聞可以知道水溶液的什麼？</div>
+        <div id="safeQ" style="margin-top:12px"></div>
+        <div class="feedback" id="safeFeed" aria-live="polite"></div>
+        <div class="criterion hidden" id="safeCrit">
+          <div class="k">💡 <span class="must">搧聞：手掌往鼻子方向輕輕搧，是用來安全地聞氣味；只靠搧聞，不能確定水溶液是酸性還是鹼性。</span></div>
+          <div class="askagain">👩‍🏫 老師追問：<b>你怎麼知道？</b>（鼻子聞到的是什麼？醋有酸酸的氣味，可是酸鹼性要用什麼檢驗？後面幾課會學）</div>
+        </div>
+        <div class="bigpoint hidden" id="safePoint"><span class="must">不清楚來源的水溶液，不能碰、不能嘗、不能直接靠近聞；要聞氣味時，用手掌往鼻子方向搧聞。</span><small>（必會第 1 句）</small></div>
+      </div>
+    </div>
+    <div class="navrow"><button class="btn green" data-next="label">下一站：② 成分標示 →</button></div>
+    <div class="teacher-tip">
+      <p><b class="time">給老師｜① 安全的觀察 4 分鐘</b>（第 ② 節最後 8 分鐘的後半；網址後面加 <b>#safe</b> 可以直接開到這一站）</p>
+      <p>全班一起練搧聞手勢，<b>手上不拿東西</b>：按「一起做」一步一步來，老師喊口令、全班跟著做（低能力靠動作記憶）。</p>
+      <p><b>抓錯①</b>：老師拿一杯清水當作「不清楚來源的水溶液」，正要把鼻子湊近杯口 → 全班舉 ╳ 喊停 → 改用搧聞。低能力對照步驟就抓得到；高能力要說出「不這樣做會怎樣」：可能吸入刺激的氣體，受到傷害。</p>
+      <p><b>上課要補</b>（題庫會考）：只靠搧聞不能確定酸鹼性。醋有酸酸的氣味，但「聞到酸味」不等於檢驗了酸鹼性；酸鹼性要用後面學的石蕊試紙、紫色高麗菜汁檢驗。</p>
+      <p>第 ③ 節開始的<b>暖身 3 分鐘</b>：全班再做一次搧聞手勢（回到這一站按「從頭做」）＋上一課 1 題：「糖水裡，糖是溶質還是溶劑？」（溶質）。</p>
+      <p>判準卡和必會第 1 句，和學習單「一」、重點整理第一框一字不差。</p>
+    </div>
+  </section>
+
+  <!-- ==================== ② 成分標示（課本 68 頁） ==================== -->
+  <section id="screen-label" class="screen">
+    <div class="panel">
+      <p class="ptitle">🏷️ 看不出來、聞不出來，還能怎麼知道裡面有什麼？</p>
+      <div class="chips" aria-label="已經會的方法">
+        <span class="chip">顏色：用眼睛看</span><span class="chip">氣味：用手掌搧聞</span><span class="chip">味道：實驗室裡不嘗</span>
+      </div>
+      <p class="kidsay">課本 68 頁：洗衣精、咖啡、果汁、茶、運動飲料、氣泡水，都是生活中的水溶液。溶解在水中的物質不同，水溶液的性質也不一樣。除了觀察顏色或搧聞氣味，還可以查包裝上的<b>成分標示</b>。</p>
+      <div class="duo">
+        <figure class="figbox">
+          <div class="fig" id="labelFig" style="--mh:34vh"></div>
+          <figcaption class="cap center">洗衣精包裝上的成分標示（課本 68 頁的照片，只拍到包裝的一部分）</figcaption>
+        </figure>
+        <div>
+          <div class="labelcard"><span class="lt">氣泡水包裝上的成分標示（課本 68 頁）</span>水、二氧化碳……</div>
+          <div class="ask" style="margin-top:12px">一起讀：洗衣精的標示上，寫了哪些東西？</div>
+          <div class="btnrow center"><button class="btn" id="readBtn">🔍 一起讀出來</button></div>
+          <div class="saybox hidden" id="readSay" aria-live="polite">照片上寫著很多成分：……界面活性劑、……抑菌因子、抗菌劑、<b>香精</b>、<b>水</b>。<br><span class="note">名字很長的不用記。課本說：洗衣精的成分標籤有水、香精……</span></div>
+        </div>
+      </div>
+      <div class="derive">
+        <div class="ask">洗衣精和氣泡水的成分標示上，<b>都有寫</b>哪一種物質？</div>
+        <div id="labelQ" style="margin-top:12px"></div>
+        <div class="feedback" id="labelFeed" aria-live="polite"></div>
+        <div class="criterion hidden" id="labelCrit">
+          <div class="k">💡 看成分標示，就知道裡面有什麼：兩個標示上都寫了「水」，其他物質溶解在水裡。</div>
+          <div class="askagain">👩‍🏫 老師追問：<b>你是看標示上的哪幾個字判斷的？</b></div>
+        </div>
+        <div class="bigpoint hidden" id="labelPoint">大部分的物品是由<b>多種物質</b>組成的。<small>（課本 68 頁）</small></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <p class="ptitle">🔁 回到開場：三杯透明無色的水溶液，用眼睛看得出哪一杯是糖水嗎？</p>
+      <div class="ask" id="recallGuess"></div>
+      <div class="btnrow center"><button class="btn" id="recallBtn">🔍 揭曉答案</button></div>
+      <div class="bigpoint hidden" id="recallAns"></div>
+    </div>
+
+    <div class="panel">
+      <p class="ptitle">🔭 水溶液還有哪些不同的性質？</p>
+      <div class="ask">顏色、氣味、味道之外，後面幾課還會學：<b>酸鹼性</b>、<b>導電性</b>。</div>
+      <div class="btnrow center"><button class="btn plain" id="previewBtn">看看後面會用到的工具（示意圖）</button></div>
+      <div class="preview hidden" id="preview">
+        <figure><div id="pvLitmus"></div><figcaption class="cap center">石蕊試紙：〈檢驗水溶液的酸鹼性〉會用到（示意圖）</figcaption></figure>
+        <figure><div id="pvLed"></div><figcaption class="cap center">發光二極體（LED）電路：〈水溶液的導電性〉會用到（示意圖，還沒接通電路）</figcaption></figure>
+      </div>
+    </div>
+    <div class="navrow"><button class="btn green" data-next="mix">下一站：③ 混合物 →</button></div>
+    <div class="teacher-tip">
+      <p><b class="time">給老師｜② 成分標示 6 分鐘</b>（第 ③ 節；前面先<b>暖身 3 分鐘</b>：搧聞手勢＋溶質溶劑，見 ① 站的提示）</p>
+      <p>洗衣精照片是課本 68 頁的成分標示，只拍到包裝的一部分，照片上沒有品牌。全班一起讀出「香精」「水」就好，名字很長的成分不用記。照片下方的「7 ± 1.0」是這瓶洗衣精標示的酸鹼值，<b>本課不講</b>（課本 80 頁才學 pH 值）；學生問起就說「後面會學」。</p>
+      <p>氣泡水：課本照片的標示寫「水、二氧化碳……」，這裡用文字卡。<b>不出品牌</b>：課堂只看課本照片和文字卡，不拿真的商品包裝；學習單「二」的兩瓶飲料標示是自編的。</p>
+      <p><b>上課要補</b>（題庫會考）：透明無色不等於白開水；只看顏色分不出溶了什麼。在這裡回收開場的猜測。中能力：學習單「二」讀成分標示的小表格。</p>
+      <p>最下面的「後面會用到的工具」只是預告（和線上題庫同一套示意圖），不用講怎麼用。</p>
+    </div>
+  </section>
+
+  <!-- ==================== ③ 混合物：分類白板（課本 68 頁小知識） ==================== -->
+  <section id="screen-mix" class="screen">
+    <div class="panel" id="boardPanel">
+      <p class="ptitle">🧺 分類白板：這些混合物，看起來是什麼樣子？</p>
+      <div class="ask">下面五樣東西，都是由<b>兩種以上的物質</b>混合成的。照它們<b>看起來的樣子</b>，放進三個籃子。</div>
+      <p class="lead">點一張卡片，再點一個籃子放進去（也可以直接拖曳）。按「揭曉」之前都可以換位置。</p>
+      <div class="cardtray" id="tray" aria-label="還沒分的卡片"></div>
+      <div class="baskets">
+        <div class="basket" data-basket="A" role="group" aria-labelledby="let-A name-A">
+          <div class="bhead"><span class="bletter" id="let-A">A</span><span class="bname" id="name-A">？？？</span><button type="button" class="bdrop">放進 A 籃</button></div>
+          <div class="bhint">拿得起來的<b>硬東西</b></div>
+          <div class="drop" id="drop-A"></div>
+        </div>
+        <div class="basket" data-basket="B" role="group" aria-labelledby="let-B name-B">
+          <div class="bhead"><span class="bletter" id="let-B">B</span><span class="bname" id="name-B">？？？</span><button type="button" class="bdrop">放進 B 籃</button></div>
+          <div class="bhint">倒得出來的<b>液體</b></div>
+          <div class="drop" id="drop-B"></div>
+        </div>
+        <div class="basket" data-basket="C" role="group" aria-labelledby="let-C name-C">
+          <div class="bhead"><span class="bletter" id="let-C">C</span><span class="bname" id="name-C">？？？</span><button type="button" class="bdrop">放進 C 籃</button></div>
+          <div class="bhint">看不見、<b>充滿房間</b>的氣體</div>
+          <div class="drop" id="drop-C"></div>
+        </div>
+      </div>
+      <div class="scorebar">
+        <button class="btn green" id="revealBtn" disabled>🔍 揭曉</button>
+        <button class="btn plain" id="resetSort">↺ 重新分一次</button>
+        <span id="sortMsg" aria-live="polite"></span>
+      </div>
+
+      <div class="derive hidden" id="derive">
+        <div class="ask">咦？<b>氣泡水</b>裡有氣體，為什麼放在液態？</div>
+        <div id="deriveQ" style="margin-top:12px"></div>
+        <div class="feedback" id="deriveFeed" aria-live="polite"></div>
+        <div class="criterion hidden" id="deriveCrit">
+          <div class="k">💡 <span class="must">氣泡水裡有氣體，但它是液態的混合物；空氣是由不同氣體混合的氣態混合物。</span></div>
+          <div class="askagain">👩‍🏫 老師追問：<b>空氣只有一種氣體嗎？</b>（不是，空氣是由不同的氣體混合的；氣體也是物質）</div>
+        </div>
+        <div class="bigpoint hidden" id="mixPoint"><span class="must">兩種以上的物質混合而成的物品叫做<b>混合物</b>，例如不鏽鋼（固態）、水溶液（液態）、空氣（氣態）。</span><small>（必會第 2 句｜課本 68 頁小知識「混合物」）</small></div>
+      </div>
+    </div>
+    <div class="navrow"><button class="btn green" data-next="make">下一站：④ 配製水溶液 →</button></div>
+    <div class="teacher-tip">
+      <p><b class="time">給老師｜③ 混合物 7 分鐘</b>（本課重點「橋」：先看狀態，最後才說出名稱）</p>
+      <p>先唸「混合物」的意思（兩種以上的物質混合而成），卡片只照「看起來的樣子」分；<b>揭曉前不判對錯</b>，先問「你為什麼放這一籃？」揭曉後籃名才出現：固態、液態、氣態混合物。</p>
+      <p>課本 68 頁小知識：不鏽鋼是不同金屬混合的固態混合物；空氣是不同氣體混合的氣態混合物；水溶液是液態的混合物。卡片下面的小字是它的組成，故意留給學生推理：氣泡水的標示有二氧化碳（氣體），但整瓶是倒得出來的液體。</p>
+      <p><b>上課要補</b>（題庫會考）：氣泡水是液態的混合物；氣體也是物質；空氣不只一種氣體。</p>
+    </div>
+  </section>
+
+  <!-- ==================== ④ 配製水溶液（課本 69 頁） ==================== -->
+  <section id="screen-make" class="screen">
+    <div class="panel">
+      <p class="ptitle">🥄 自己配製水溶液</p>
+      <p class="kidsay">課本 69 頁：自己配製水溶液，需要可以被溶解的物質（例如糖、鹽……），還需要可以溶解其他物質的材料（例如水……）。</p>
+      <div class="stepcards">
+        <div class="scard"><span class="sn">1</span><span>準備容器，<b>先用純水洗</b>。</span></div>
+        <div class="scard"><span class="sn">2</span><span>固體（砂糖、食鹽、檸檬酸、小蘇打粉）各取 <b>1 平匙</b>，分別加入 <b>20 毫升純水</b>，攪拌溶解。</span></div>
+        <div class="scard"><span class="sn">3</span><span>液體的醋取 <b>2 毫升</b>，加入 <b>20 毫升純水</b>，攪拌均勻。</span></div>
+        <div class="scard"><span class="sn">4</span><span>貼上<b>名稱標籤</b>或編號。</span></div>
+      </div>
+      <p class="note" style="margin-top:8px">要配的六杯：小蘇打水、肥皂水、檸檬酸水、糖水、食鹽水、醋（後面幾課都要用）。</p>
+
+      <p class="ptitle" style="margin-top:16px">🔎 抓錯時間：老師正要這樣做，對嗎？（先舉 ○ 或 ╳）</p>
+      <div class="oopsgrid">
+        <div class="oops">
+          <div class="oq"><span class="otag">抓錯</span>老師正要拿<b>自來水</b>來配製。</div>
+          <div class="btnrow"><button class="btn plain" type="button" data-oops="tap">🔍 揭曉</button></div>
+          <div class="oa hidden"><span class="xx">╳ 不可以！</span>要用<b>純水</b>。<br>不這樣做會怎樣：自來水裡的物質會影響水溶液的酸鹼性。</div>
+        </div>
+        <div class="oops">
+          <div class="oq"><span class="otag">抓錯</span>配好了，老師正要<b>不貼標籤</b>就放著。</div>
+          <div class="btnrow"><button class="btn plain" type="button" data-oops="label">🔍 揭曉</button></div>
+          <div class="oa hidden"><span class="xx">╳ 不可以！</span>要貼上<b>名稱標籤</b>或編號。<br>不這樣做會怎樣：好幾杯都是透明無色，會分不出哪一杯是哪一種。</div>
+        </div>
+      </div>
+      <div class="bigpoint hidden" id="makePoint"><span class="must">配製水溶液要用純水，因為自來水裡的其他物質會影響水溶液的酸鹼性。</span><small>（必會第 3 句｜課本 69 頁）</small></div>
+
+      <div class="derive">
+        <div class="ask">剛舀過<b>檸檬酸</b>的平匙，能直接拿去舀<b>小蘇打</b>嗎？</div>
+        <div id="spoonQ" style="margin-top:12px"></div>
+        <div class="feedback" id="spoonFeed" aria-live="polite"></div>
+        <div class="criterion hidden" id="spoonCrit">
+          <div class="k">💡 取不同材料，要用<b>乾淨、乾燥</b>的平匙：平匙上留下的東西，會混進下一杯。</div>
+          <div class="askagain">👩‍🏫 老師追問：<b>殘留的檸檬酸混進小蘇打水，之後檢驗會怎樣？</b>（那一杯不再只有小蘇打，檢驗的結果可能不準）</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <p class="ptitle">🤔 一直加食鹽，都溶得完嗎？</p>
+      <p class="kidsay">課本 69 頁的討論：不斷加入可以被溶解的物質，都可以溶解在水中嗎？</p>
+      <div class="ask">同一杯 20 毫升的純水，一匙一匙加食鹽，每一匙都攪拌。一直加下去，會怎樣？</div>
+      <p class="lead">先想一想，舉反應卡（甲或乙），再請一位同學上臺按。</p>
+      <div class="opts col" id="saltGuessOpts"></div>
+      <div class="guessbox hidden" id="saltGuessBox" aria-live="polite">
+        <div class="g">全班猜的是：「<span id="saltGuessText"></span>」</div>
+        <div class="later">看老師示範！</div>
+      </div>
+
+      <div class="derive">
+        <p class="ptitle">看完示範，用示意畫面再看一次<span class="sitag">示意</span></p>
+        <div class="duo mid">
+          <figure class="figbox">
+            <div class="svgbox" id="saltFig">
+              <svg class="saltsvg" id="saltSvg" viewBox="0 0 300 250" role="img" aria-label="示意圖：一杯 20 毫升的純水，一匙一匙加入食鹽" xmlns="http://www.w3.org/2000/svg" font-family="Microsoft JhengHei,PingFang TC,Noto Sans TC,sans-serif">
+                <rect width="300" height="250" fill="#FFFDF8"/>
+                <rect x="73" y="100" width="154" height="119" fill="#E3F2FB"/>
+                <line x1="73" y1="100" x2="227" y2="100" stroke="#9CC3E0" stroke-width="2"/>
+                <g id="saltPile"></g>
+                <g id="saltDrops"></g>
+                <path d="M66 40 H72 V214 Q72 221 79 221 H221 Q228 221 228 214 V40 H234" fill="none" stroke="#1E1E1E" stroke-width="3" stroke-linejoin="round"/>
+                <text x="150" y="150" font-size="16" font-weight="700" text-anchor="middle" fill="#1E1E1E" stroke="#E3F2FB" stroke-width="4" paint-order="stroke">20 毫升純水</text>
+                <text id="saltState" x="150" y="78" font-size="15" font-weight="700" text-anchor="middle" fill="#2E7D4F"></text>
+                <text x="292" y="244" font-size="12" text-anchor="end" fill="#4A5960">示意圖</text>
+              </svg>
+            </div>
+            <figcaption class="cap center">示意圖：匙數只是舉例</figcaption>
+          </figure>
+          <div>
+            <div class="simcount">已經加入 <b id="spoonN">0</b> 平匙食鹽</div>
+            <div class="saybox" id="simSay" aria-live="polite">杯子裡是 20 毫升純水。按「加 1 平匙並攪拌」。</div>
+            <div class="btnrow center">
+              <button class="btn" id="addSalt">加 1 平匙並攪拌</button>
+              <button class="btn plain" id="simReset">↺ 重來</button>
+            </div>
+            <p class="note">這是示意畫面，匙數只是舉例。真正加到第幾匙會溶不掉，要看老師的示範（平匙的大小不同，匙數也會不同）。</p>
+          </div>
+        </div>
+
+        <div class="evidence">
+          <figure class="figbox">
+            <img class="tphoto" src="photos/teacher-make.jpg" alt="老師課前試做的照片" loading="lazy" decoding="async" onerror="teacherPhotoFallback(this)">
+            <figcaption class="cap center">老師課前試做時拍的照片：一直加食鹽，杯底留下溶不掉的食鹽</figcaption>
+          </figure>
+          <div>
+            <div class="btnrow center"><button class="btn green" id="saltReveal">🔍 揭曉：一直加食鹽，會怎樣？</button></div>
+            <div class="criterion hidden" id="saltCrit">
+              <div class="k">💡 <span class="must">一定量的水，能溶解的物質有限，加太多就會有一些溶不掉。</span></div>
+              <div class="askagain">👩‍🏫 老師追問：<b>杯底溶不掉的食鹽，再多攪拌一下會溶掉嗎？</b>（不會。這杯水能溶解的食鹽有限，已經溶不下了）</div>
+            </div>
+            <div class="bigpoint hidden" id="saltRecall"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="navrow"><button class="btn green" data-next="quiz">最後一站：⑤ 出場卡 →</button></div>
+    <div class="teacher-tip">
+      <p><b class="time">給老師｜④ 配製水溶液 12 分鐘</b>（配製示範＋抓錯 8 分鐘、一直加食鹽 4 分鐘）</p>
+      <p><b>示範器材</b>：純水（藥局或賣場的蒸餾水）、燒杯或透明塑膠杯 6 個、平匙、量筒、滴管、標籤紙、食鹽、醋；其餘四杯（糖水、檸檬酸水、小蘇打水、肥皂水）課前配好、貼好標籤。</p>
+      <p><b>示範步驟</b>（照課本 69 頁）：①容器先用純水洗 ②固體 1 平匙加 20 毫升純水攪拌 ③醋 2 毫升加 20 毫升純水 ④貼名稱標籤。當堂只配食鹽水、醋兩杯。<b>小助手</b> 2–3 人：量 20 毫升純水、貼標籤、攪拌（男女輪替，優先點平常比較被動的學生）。</p>
+      <p><b>抓錯②</b>：老師拿起自來水正要倒 → 全班舉 ╳ 喊停 → 換純水（高能力說：自來水裡的物質會影響酸鹼性）。<b>抓錯③</b>：配好正要不貼標籤就放著 → ╳ → 貼標籤。<b>平匙口頭題</b>（素養題組 s-u3-04 考過）：取不同材料要用乾淨、乾燥的平匙。</p>
+      <p><b>一直加食鹽</b>：同一杯 20 毫升純水一匙一匙加，每匙都攪拌到不再變化，小助手數匙數，直到杯底有溶不掉的食鹽；高能力記錄匙數並預測下一匙會怎樣。結論只說「一定量的水能溶解的量有限」，不用國中的專有名詞。示意畫面在示範之後用（後排看得清楚、回家複習）。</p>
+      <p><b>課前試做</b>：肥皂水用<b>固體肥皂</b>刨少許溶在純水（課本沒寫做法；洗手乳、沐浴乳多半是弱酸性或中性，之後的試紙結果會不對），肥皂水會混濁，不要說成透明；小蘇打或檸檬酸若有少量溶不完，靜置後用上層的水溶液；「一直加食鹽」先試出大約幾匙會開始溶不掉。這六杯第 ④–⑨ 節都要用，一次配足量（每種約 150 毫升）裝在保存瓶並標日期；每次示範倒小份到小杯，用過的不倒回保存瓶。</p>
+      <p><b>照片</b>：課前試做時拍一張「杯底有溶不掉的食鹽」的照片（可以連同貼好標籤的六杯一起入鏡），存成這個資料夾裡的 <b>photos/teacher-make.jpg</b>，這一格就會自動顯示；還沒放照片時只顯示虛線框。示範一結束就放大給全班看，再請小助手拿杯子沿走道巡迴約 30 秒、各排觀察代表上前近看。</p>
+      <p><b>家長檢核</b>：清潔用品只用固體肥皂，不拿其他清潔劑；示範用的水溶液一律不嘗；回家不做實驗。</p>
+    </div>
+  </section>
+
+  <!-- ==================== ⑤ 出場卡（本課一節，3 題） ==================== -->
+  <section id="screen-quiz" class="screen">
+    <div class="quizbar">
+      <span id="qprog">第 1 / 3 題</span>
+      <span class="dots" id="dots"></span>
+      <span class="qscore">⭐ <span id="score">0</span> / 3 分</span>
+      <span id="rank">🙂 見習小助手</span>
+    </div>
+
+    <div class="panel" id="quizPanel">
+      <div class="quizwrap nophoto" id="quizwrap">
+        <div class="qphoto" id="qphoto"></div>
+        <div>
+          <div id="step1">
+            <span class="steptag">出場卡｜先舉反應卡，再按答案</span>
+            <p class="qtitle" id="q1title"></p>
+            <div id="q1opts"></div>
+            <div class="feedback" id="q1feed" aria-live="polite"></div>
+          </div>
+          <div id="step2" class="hidden" style="margin-top:16px">
+            <span class="steptag">第 2 層｜你怎麼知道？</span>
+            <p class="qtitle">選一個最好的理由：</p>
+            <div id="q2opts"></div>
+            <div class="feedback" id="q2feed" aria-live="polite"></div>
+          </div>
+          <div id="criterion" class="criterion hidden">
+            <div class="k" id="criterionText"></div>
+            <div class="askagain">👩‍🏫 老師追問：<b>你怎麼知道？</b>（請一位同學用上面這句話說說看）</div>
+          </div>
+          <div class="btnrow"><button class="btn green hidden" id="nextBtn">下一題 →</button></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel hidden" id="quizResult">
+      <div class="result">
+        <div class="big" id="finalScore"></div>
+        <p class="rankline" id="finalRank"></p>
+        <div class="ticket"><b>出場單（寫在學習單最下面）：</b>我原本以為＿＿＿＿，現在知道＿＿＿＿。</div>
+        <div class="btnrow center">
+          <button class="btn" id="againBtn">↺ 再挑戰一次</button>
+          <a class="btn plain" href="水溶液的各種性質_學習單.html">📄 學習單</a>
+          <a class="btn plain" href="水溶液的各種性質_重點整理.html">📝 重點整理</a>
+        </div>
+      </div>
+    </div>
+    <div class="teacher-tip">
+      <p><b class="time">給老師｜⑤ 出場卡 3 分鐘</b>（之後寫學習單 9 分鐘）</p>
+      <p>每題先讓全班舉反應卡（甲乙丙、○╳），再請一位同學上臺按。答錯的選項會停用，可以再試，分數減半；答對後一定出現判準卡，請一位同學用那句話說說看。</p>
+      <p><b>學習單</b>（第 ③ 節最後 9 分鐘）：全班必做「一、二」；其餘依時間做；★、★★ 給先寫完的人；沒寫完的選做題不帶回家。<b>習作</b>：本課沒有習作頁。</p>
+      <p><b>三層差異化</b>：低＝搧聞全班一起做（動作記憶）、圈選題、詞語框；中＝讀成分標示的小表格（學習單「二」）；高＝「一直加食鹽」時記錄匙數並預測、★★。</p>
+      <p><b>家長檢核</b>：明講不嘗、不直接聞；清潔用品只用固體肥皂，不拿其他清潔劑；成分標示用自編的、不出品牌；回家不做實驗。線上題庫和互動教材是自由練習，提醒用眼 30 分鐘要休息 10 分鐘。</p>
+    </div>
+  </section>
+
+  <!-- ==================== 頁尾：教學依據、照片來源、示意畫面 ==================== -->
+  <footer class="credits" id="credits">
+    <p><b>本課三件套：</b>互動教材（這一頁）｜<a href="水溶液的各種性質_學習單.html">學習單</a>｜<a href="水溶液的各種性質_重點整理.html">重點整理</a></p>
+    <p><b>教學依據：</b><a href="https://reader.nani.com.tw/9200a013cbef8e66" target="_blank" rel="noopener">南一自然課本，第 66–69 頁</a>（閱讀器可能需要登入）。</p>
+    <p>本頁照片取自南一版自然五上課本第 66、68 頁：紅茶、白開水、檸檬汁三杯飲料（第 66 頁）；洗衣精包裝上的成分標示（第 68 頁，只拍到包裝的一部分）。④ 站「老師課前試做的照片」由老師上課前自己拍攝。</p>
+    <p>示意畫面（不是照片）：開場的三杯透明無色水溶液、① 站的搧聞步驟圖、② 站的石蕊試紙和導電裝置（和線上題庫同一套示意圖）、④ 站「一匙一匙加食鹽」。</p>
+  </footer>
+
+</div>
+
+<script src="../../題庫/figures.js?v=20261006a"></script>
+<script>
+/* ==========================================================
+   水溶液的各種性質 — 程式
+   科學內容（照課本 p.66–69，不可講錯）：
+   不清楚來源的水溶液：不能碰、不能嘗、不能直接靠近聞；用手掌往鼻子方向搧聞。只靠搧聞不能確定酸鹼性。
+   成分標示：洗衣精（水、香精……）、氣泡水（水、二氧化碳……）；大部分的物品由多種物質組成。
+   混合物：兩種以上物質混合；不鏽鋼（固態）、水溶液與氣泡水（液態）、空氣（氣態）；氣體也是物質。
+   配製：容器先用純水洗、固體 1 平匙＋20 毫升純水、醋 2 毫升＋20 毫升純水、貼標籤；自來水裡的物質會影響酸鹼性。
+   一定量的水能溶解的物質有限（不用國中名詞）。
+   ========================================================== */
+const $=id=>document.getElementById(id);
+
+/* ---------- 照片清單：題庫已裁好的課本照片，尺寸是檔案的真實像素 ---------- */
+const PHOTO_DIR="../../題庫/photos/u3/";
+const PHOTOS={
+  "drinks":          [792, 314, "紅茶、白開水、檸檬汁三杯飲料"],
+  "detergent-label": [474, 203, "洗衣精包裝上的成分標示"]
+};
+function imgTag(id,name){
+  const n=name||PHOTOS[id][2];
+  /* lazy：還沒切到的站別不載入照片（教室電腦記憶體吃緊時會卡） */
+  return `<img src="${PHOTO_DIR}${id}.jpg" alt="${n}" data-name="${n}" draggable="false" loading="lazy" decoding="async" onerror="imgFallback(this)">`;
+}
+/* 照片框：設定原比例後放進照片（同時清掉舊的標籤） */
+function renderFig(el,id,name){
+  const p=PHOTOS[id];
+  el.style.setProperty("--ar",`${p[0]} / ${p[1]}`);
+  el.innerHTML=imgTag(id,name);
+  return el;
+}
+/* 疊在照片上的標籤。place：r 右、l 左、b 下、t 上、br/bl/tr/tl 斜角。
+   opt.hs＝旁邊是可點熱點（距離大一點）；opt.nopin＝不加小圓點；否則自動加一個小圓點標出位置。 */
+function addTag(fig,x,y,html,place,opt){
+  opt=opt||{};
+  const up=place==="t"||place==="tr"||place==="tl";
+  const off=opt.hs?(up?"(var(--hs) / 2 + var(--hs) * .55 + 12px)":"(var(--hs) / 2 + 6px)"):(opt.nopin?"4px":"14px");
+  const t=document.createElement("div");
+  t.className="tag"; t.innerHTML=html;
+  const s=t.style, m=Math.min(x,100-x);
+  switch(place){
+    case "r": s.left=`calc(${x}% + ${off})`; s.top=y+"%"; s.transform="translateY(-50%)"; s.maxWidth=`calc(${100-x}% - ${off} - 4px)`; break;
+    case "l": s.right=`calc(${100-x}% + ${off})`; s.top=y+"%"; s.transform="translateY(-50%)"; s.maxWidth=`calc(${x}% - ${off} - 4px)`; break;
+    case "t": s.left=x+"%"; s.bottom=`calc(${100-y}% + ${off})`; s.transform="translateX(-50%)"; s.maxWidth=`calc(${2*m}% - 8px)`; break;
+    case "br": s.left=`calc(${x}% - 14px)`; s.top=`calc(${y}% + ${off})`; s.maxWidth=`calc(${100-x}% + 10px)`; break;
+    case "bl": s.right=`calc(${100-x}% - 14px)`; s.top=`calc(${y}% + ${off})`; s.maxWidth=`calc(${x}% + 10px)`; break;
+    case "tr": s.left=`calc(${x}% - 14px)`; s.bottom=`calc(${100-y}% + ${off})`; s.maxWidth=`calc(${100-x}% + 10px)`; break;
+    case "tl": s.right=`calc(${100-x}% - 14px)`; s.bottom=`calc(${100-y}% + ${off})`; s.maxWidth=`calc(${x}% + 10px)`; break;
+    default:   s.left=x+"%"; s.top=`calc(${y}% + ${off})`; s.transform="translateX(-50%)"; s.maxWidth=`calc(${2*m}% - 8px)`;
+  }
+  if(opt.mw) s.maxWidth=opt.mw+"%";
+  if(!opt.hs && !opt.nopin){
+    const d=document.createElement("span");
+    d.className="pin"; d.style.left=x+"%"; d.style.top=y+"%";
+    fig.appendChild(d);
+  }
+  fig.appendChild(t);
+  return t;
+}
+/* 在照片上框出一塊（例如標示上的字），不蓋住字 */
+function addBox(fig,x1,y1,x2,y2){
+  const b=document.createElement("span");
+  b.className="hlbox";
+  b.style.left=x1+"%"; b.style.top=y1+"%"; b.style.width=(x2-x1)+"%"; b.style.height=(y2-y1)+"%";
+  fig.appendChild(b);
+  return b;
+}
+/* 通用選擇題：答錯的選項標示並停用、可再試；答對就全部停用 */
+function choiceQ(host,opts,ans,onRight,onWrong,cls){
+  const box=document.createElement("div");
+  box.className="opts"+(cls?" "+cls:"");
+  opts.forEach(o=>{
+    const b=document.createElement("button");
+    b.type="button"; b.className="opt"; b.textContent=o;
+    b.addEventListener("click",()=>{
+      if(o===ans){
+        b.classList.add("ok");
+        box.querySelectorAll(".opt").forEach(x=>x.disabled=true);
+        if(onRight) onRight();
+      }else{
+        b.classList.add("no"); b.disabled=true;
+        if(onWrong) onWrong(o);
+      }
+    });
+    box.appendChild(b);
+  });
+  host.appendChild(box);
+  return box;
+}
+/* 示意圖：和線上題庫同一套（figures.js）。讀不到時改成文字說明，整頁照常可用 */
+function qfig(p,alt){
+  try{
+    if(window.QFIG && typeof window.QFIG.render==="function"){
+      const s=window.QFIG.render(p);
+      if(s) return s;
+    }
+  }catch(_){}
+  return `<div class="img-fallback qfig-fallback" role="img" aria-label="${alt}">示意圖沒有載入：${alt}</div>`;
+}
+/* 只記不判的全班投票（開場、一直加食鹽） */
+function guessPoll(host,list,onPick){
+  list.forEach(g=>{
+    const b=document.createElement("button");
+    b.type="button"; b.className="opt"; b.textContent=g; b.setAttribute("aria-pressed","false");
+    b.addEventListener("click",()=>{
+      host.querySelectorAll(".opt").forEach(x=>{ x.classList.toggle("picked",x===b); x.setAttribute("aria-pressed",String(x===b)); });
+      onPick(g);
+    });
+    host.appendChild(b);
+  });
+}
+
+/* ---------- 站別切換（可自由跳；網址加 #safe 之類可直接開到某一站） ---------- */
+const STATIONS=["open","safe","label","mix","make","quiz"];
+window.addEventListener("hashchange",()=>{
+  const h=location.hash.slice(1);
+  if(STATIONS.includes(h) && !$("screen-"+h).classList.contains("active")) go(h,false);
+});
+function go(name,smooth){
+  if(STATIONS.indexOf(name)<0) name="open";
+  document.querySelectorAll(".station-btn").forEach(b=>{
+    const on=b.dataset.go===name;
+    b.classList.toggle("on",on);
+    if(on) b.setAttribute("aria-current","step"); else b.removeAttribute("aria-current");
+  });
+  document.querySelectorAll(".screen").forEach(s=>s.classList.toggle("active",s.id==="screen-"+name));
+  try{ history.replaceState(null,"","#"+name); }catch(_){}
+  if(name==="label") updateRecall();
+  if(name==="make") updateSaltRecall();
+  window.scrollTo({top:0,behavior:smooth?"smooth":"auto"});
+}
+document.querySelectorAll(".station-btn").forEach(b=>b.addEventListener("click",()=>go(b.dataset.go,true)));
+document.querySelectorAll("[data-next]").forEach(b=>b.addEventListener("click",()=>go(b.dataset.next,true)));
+
+/* ==========================================================
+   開場　看起來、聞起來、喝起來一樣嗎？＋三杯透明無色（只記不判）
+   ========================================================== */
+renderFig($("openFig"),"drinks");
+const PROPS=[
+  {k:"顏色",btn:"看起來：顏色",
+   say:"<span class=\"no\">顏色</span>用眼睛看就知道：紅茶是紅褐色，白開水透明無色，檸檬汁的顏色淡淡的、看起來有點混濁。"},
+  {k:"氣味",btn:"聞起來：氣味",
+   say:"<span class=\"no\">氣味</span>課本裡的同學說，檸檬汁聞起來有酸酸的氣味。怎麼聞才安全？下一站一起練習。"},
+  {k:"味道",btn:"喝起來：味道",
+   say:"<span class=\"no\">味道</span>在家喝飲料可以；但是<b>實驗室裡的東西一律不嘗</b>，看起來像飲料也不行。"}
+];
+PROPS.forEach(p=>{
+  const b=document.createElement("button");
+  b.type="button"; b.className="opt"; b.textContent=p.btn; b.setAttribute("aria-pressed","false");
+  b.addEventListener("click",()=>{
+    $("propBtns").querySelectorAll(".opt").forEach(x=>x.setAttribute("aria-pressed",String(x===b)));
+    $("propSay").innerHTML=p.say;
+    $("propSay").classList.remove("hidden");
+  });
+  $("propBtns").appendChild(b);
+});
+/* 三杯透明無色（示意圖） */
+function cupsSVG(){
+  let b=`<rect width="420" height="196" fill="#FFFDF8"/>`;
+  ["甲","乙","丙"].forEach((lab,i)=>{
+    const cx=70+i*140;
+    b+=`<path d="M${cx-39} 80 L${cx-31} 168 H${cx+31} L${cx+39} 80 Z" fill="#F1F8FC"/>`;
+    b+=`<line x1="${cx-39}" y1="80" x2="${cx+39}" y2="80" stroke="#9CC3E0" stroke-width="2"/>`;
+    b+=`<path d="M${cx-44} 52 L${cx-31} 168 H${cx+31} L${cx+44} 52" fill="none" stroke="#1E1E1E" stroke-width="3" stroke-linejoin="round"/>`;
+    b+=`<line x1="${cx-30}" y1="92" x2="${cx-24}" y2="150" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round"/>`;
+    b+=`<circle cx="${cx}" cy="26" r="15" fill="#fff" stroke="#1E1E1E" stroke-width="2.5"/>`;
+    b+=`<text x="${cx}" y="27" font-size="16" font-weight="900" text-anchor="middle" dominant-baseline="middle" fill="#1E1E1E">${lab}</text>`;
+    b+=`<text x="${cx}" y="128" font-size="26" font-weight="900" text-anchor="middle" dominant-baseline="middle" fill="#8A949A">？</text>`;
+  });
+  b+=`<text x="412" y="190" font-size="12" text-anchor="end" fill="#4A5960">示意圖</text>`;
+  return `<svg viewBox="0 0 420 196" role="img" aria-label="示意圖：甲、乙、丙三杯透明無色的水溶液" xmlns="http://www.w3.org/2000/svg" font-family="Microsoft JhengHei,PingFang TC,Noto Sans TC,sans-serif">${b}</svg>`;
+}
+$("cupsFig").innerHTML=cupsSVG();
+const GUESSES=["甲　看得出來","乙　看不出來","丙　不確定"];
+const GUESS_RIGHT=GUESSES[1];
+let classGuess=null;
+guessPoll($("guessOpts"),GUESSES,g=>{
+  classGuess=g;
+  $("guessText").textContent=g;
+  $("guessBox").classList.remove("hidden");
+  updateRecall();
+});
+
+/* ==========================================================
+   ① 安全的觀察：全班一起做搧聞、抓錯、搧聞能知道什麼
+   ========================================================== */
+const FAN_STEPS=4;
+let fanStep=0;
+function setFan(n){
+  fanStep=n;
+  $("fanSteps").querySelectorAll("li").forEach(li=>li.classList.toggle("on",+li.dataset.step===n));
+  $("fanSvg").querySelectorAll(".sdot").forEach(g=>g.classList.toggle("on",+g.dataset.s===n));
+  const svg=$("fanSvg");
+  svg.classList.remove("waving");
+  if(n===2||n===4){ void svg.getBoundingClientRect(); svg.classList.add("waving"); }
+  $("fanNext").textContent = n>=FAN_STEPS ? "▶ 再做一次：第 1 步" : `▶ 一起做：第 ${n+1} 步`;
+}
+$("fanNext").addEventListener("click",()=>setFan(fanStep>=FAN_STEPS?1:fanStep+1));
+$("fanReset").addEventListener("click",()=>{
+  setFan(0);
+  $("fanNext").textContent="▶ 一起做：第 1 步";
+});
+/* 抓錯卡：揭曉正確做法與「不這樣做會怎樣」 */
+document.querySelectorAll("[data-oops]").forEach(b=>b.addEventListener("click",()=>{
+  const box=b.closest(".oops");
+  box.querySelector(".oa").classList.remove("hidden");
+  b.disabled=true; b.textContent="已揭曉";
+  if(b.dataset.oops==="tap") $("makePoint").classList.remove("hidden");
+}));
+choiceQ($("safeQ"),
+  ["酸鹼性：聞起來酸酸的，就一定是酸性","氣味；只靠搧聞不能確定酸鹼性","味道：聞一聞，就知道甜不甜"],
+  "氣味；只靠搧聞不能確定酸鹼性",
+  ()=>{
+    $("safeFeed").className="feedback good"; $("safeFeed").textContent="✅ 答對了！";
+    $("safeCrit").classList.remove("hidden");
+    $("safePoint").classList.remove("hidden");
+    $("safeCrit").scrollIntoView({behavior:"smooth",block:"nearest"});
+  },
+  o=>{
+    $("safeFeed").className="feedback hint";
+    $("safeFeed").textContent = o.startsWith("酸鹼性")
+      ? "🤔 再想想（不扣分）：鼻子聞到的是氣味。酸鹼性要用後面幾課學的方法檢驗，只靠聞不能確定。"
+      : "🤔 再想想（不扣分）：甜不甜是味道，要用舌頭嘗才知道——實驗室裡的東西一律不嘗。";
+  },
+  "col");
+
+/* ==========================================================
+   ② 成分標示：讀標示、兩個標示都有什麼、回收開場的猜測、預告
+   ========================================================== */
+renderFig($("labelFig"),"detergent-label");
+let labelMarked=false;
+function markLabel(){
+  if(labelMarked) return;
+  labelMarked=true;
+  const fig=$("labelFig");
+  /* 位置量在 474×203 的照片上：「香精」x 171–211、「水」x 233–249，y 102–122 */
+  addBox(fig,35.2,47.5,45.3,62.5);
+  addBox(fig,48.3,47.5,53.6,62.5);
+  addTag(fig,40.2,63,"<b>香精</b>","bl",{nopin:true});
+  addTag(fig,51,63,"<b>水</b>","br",{nopin:true});
+}
+$("readBtn").addEventListener("click",()=>{
+  $("readSay").classList.remove("hidden");
+  markLabel();
+});
+choiceQ($("labelQ"),["香精","二氧化碳","水","抗菌劑"],"水",
+  ()=>{
+    $("labelFeed").className="feedback good";
+    $("labelFeed").innerHTML="✅ 對了！兩個標示都有<b>水</b>：其他物質溶解在水裡，水是溶劑（上一課學過）。";
+    $("labelCrit").classList.remove("hidden");
+    $("labelPoint").classList.remove("hidden");
+    markLabel();
+    $("labelCrit").scrollIntoView({behavior:"smooth",block:"nearest"});
+  },
+  o=>{
+    $("labelFeed").className="feedback hint";
+    $("labelFeed").textContent = o==="二氧化碳"
+      ? "🤔 再看一次（不扣分）：二氧化碳只寫在氣泡水的標示上，洗衣精的標示沒有。"
+      : `🤔 再看一次（不扣分）：「${o}」只寫在洗衣精的標示上，氣泡水的標示沒有。`;
+  });
+/* 回收開場的猜測 */
+let recallShown=false;
+function updateRecall(){
+  $("recallGuess").textContent = classGuess ? `開場時全班猜的是：「${classGuess}」` : "開場時的投票沒有留下來（重新整理會清掉）。請全班回想自己舉的卡，再看答案。";
+  $("recallGuess").classList.toggle("hidden",recallShown);
+  if(!recallShown) return;
+  const head = !classGuess ? "答案是：" : classGuess===GUESS_RIGHT ? "🎉 全班猜對了！" : `開場時全班猜「${classGuess}」。答案是：`;
+  $("recallAns").innerHTML = head
+    + "<b>看不出來</b>。透明無色，不一定就是白開水：糖、食鹽溶解在水裡以後都看不見。要知道裡面溶了什麼，可以看<b>成分標示</b>或<b>標籤</b>。"
+    + "<small>只看顏色分不出來；不清楚來源的液體一律不嘗。</small>";
+}
+$("recallBtn").addEventListener("click",()=>{
+  recallShown=true;
+  $("recallAns").classList.remove("hidden");
+  $("recallBtn").classList.add("hidden");
+  updateRecall();
+});
+updateRecall();
+/* 預告：後面幾課會用到的工具（題庫同一套示意圖） */
+let previewBuilt=false;
+$("previewBtn").addEventListener("click",()=>{
+  if(!previewBuilt){
+    previewBuilt=true;
+    $("pvLitmus").innerHTML=qfig({type:"litmus",blank:true,items:[{name:"水溶液"}]},"藍色和紅色的石蕊試紙");
+    $("pvLed").innerHTML=qfig({type:"led",on:false},"電池盒、發光二極體（LED）和兩條電線，電線放進裝水溶液的燒杯");
+  }
+  $("preview").classList.remove("hidden");
+  $("previewBtn").classList.add("hidden");
+});
+
+/* ==========================================================
+   ③ 分類白板：固態／液態／氣態混合物（揭曉前不顯示任何對錯）
+   籃子提示＝看得到的狀態；籃名揭曉後才出現。
+   ========================================================== */
+const SORT_CARDS=[
+  {name:"不鏽鋼湯匙", sub:"不同的金屬混合而成",   cat:"A"},
+  {name:"糖水",       sub:"糖＋水",               cat:"B"},
+  {name:"食鹽水",     sub:"食鹽＋水",             cat:"B"},
+  {name:"氣泡水",     sub:"標示：水、二氧化碳……", cat:"B"},
+  {name:"空氣",       sub:"不同的氣體混合而成",   cat:"C"}
+];
+const BASKET_NAMES={
+  A:"<b>固態</b>混合物",
+  B:"<b>液態</b>混合物",
+  C:"<b>氣態</b>混合物"
+};
+const CN_NUM=["零","一","二","三","四","五","六","七","八","九","十"];
+const tray=$("tray"), revealBtn=$("revealBtn"), sortMsg=$("sortMsg");
+const cardCat=new WeakMap();   /* 正確籃子只存在程式裡，不寫進畫面 */
+let picked=null, sortRevealed=false;
+
+function buildSort(){
+  tray.innerHTML="";
+  Object.keys(BASKET_NAMES).forEach(k=>{ $("drop-"+k).innerHTML=""; $("name-"+k).textContent="？？？"; });
+  document.querySelectorAll(".basket").forEach(b=>b.classList.remove("lit","hot"));
+  picked=null; sortRevealed=false;
+  revealBtn.disabled=true;
+  $("derive").classList.add("hidden");
+  buildDerive();
+  SORT_CARDS.slice().sort(()=>Math.random()-0.5).forEach(o=>tray.appendChild(makeCard(o)));
+  checkReady();
+}
+function makeCard(o){
+  const el=document.createElement("div");
+  el.className="fcard noimg mid"; el.tabIndex=0; el.setAttribute("role","button");
+  el.setAttribute("aria-label",`${o.name}（${o.sub}）`);
+  cardCat.set(el,o.cat);
+  el.innerHTML=`<div class="label">${o.name}</div><span class="sub">${o.sub}</span><div class="mark"></div>`;
+  attachDrag(el);
+  el.addEventListener("keydown",e=>{
+    if(e.key==="Enter"||e.key===" "){ e.preventDefault(); if(!sortRevealed){ togglePick(el); checkReady(); } }
+  });
+  return el;
+}
+function togglePick(el){
+  if(picked===el){ el.classList.remove("picked"); picked=null; }
+  else{
+    if(picked) picked.classList.remove("picked");
+    picked=el; el.classList.add("picked");
+  }
+}
+/* 兩種操作都支援：①點卡片再點籃子　②直接拖曳（Pointer Events，滑鼠與觸控通用） */
+function attachDrag(el){
+  let sx=0, sy=0, ox=0, oy=0, moved=false, down=false;
+  el.addEventListener("pointerdown",e=>{
+    if(sortRevealed || (e.pointerType==="mouse" && e.button!==0)) return;
+    down=true; moved=false; sx=e.clientX; sy=e.clientY;
+    const r=el.getBoundingClientRect(); ox=e.clientX-r.left; oy=e.clientY-r.top;
+    try{ el.setPointerCapture(e.pointerId); }catch(_){}
+  });
+  el.addEventListener("pointermove",e=>{
+    if(!down) return;
+    if(sortRevealed){ if(moved) endDrag(); return; }   /* 拖曳到一半有人按了揭曉：讓卡片回到原位 */
+    if(!moved && Math.hypot(e.clientX-sx,e.clientY-sy)>12){
+      moved=true;
+      const r=el.getBoundingClientRect();
+      el.style.width=r.width+"px";
+      el.classList.add("dragging");
+      setPos(e);
+    }else if(moved){ setPos(e); }
+  });
+  el.addEventListener("pointerup",e=>{
+    if(!down) return;
+    down=false;
+    if(sortRevealed){ if(moved) endDrag(); return; }
+    if(moved){
+      const under=document.elementFromPoint(e.clientX,e.clientY);
+      endDrag();
+      const basket=under && under.closest(".basket");
+      const back=under && under.closest(".cardtray");
+      if(basket) place(el,basket.dataset.basket);
+      else if(back){ tray.appendChild(el); if(picked===el){ el.classList.remove("picked"); picked=null; } }
+    }else{
+      /* 純點擊 → 選取／取消選取。卡片已經在籃子裡也一樣可以選起來，再點別的籃子就能換位置。 */
+      togglePick(el);
+    }
+    checkReady();
+  });
+  el.addEventListener("pointercancel",()=>{ down=false; if(moved) endDrag(); });
+  function endDrag(){
+    el.classList.remove("dragging"); el.style.cssText=""; clearHot(); moved=false;
+  }
+  function setPos(e){
+    el.style.left=(e.clientX-ox)+"px"; el.style.top=(e.clientY-oy)+"px";
+    const under=document.elementFromPoint(e.clientX,e.clientY);
+    clearHot();
+    const b=under && under.closest(".basket"); if(b) b.classList.add("hot");
+  }
+}
+function clearHot(){ document.querySelectorAll(".basket").forEach(b=>b.classList.remove("hot")); }
+function place(el,k){
+  $("drop-"+k).appendChild(el);
+  el.classList.remove("picked");
+  if(picked===el) picked=null;
+}
+/* 點籃子 → 把選起來的卡片放進去（點到籃子裡的卡片時不處理，免得永遠搬不走） */
+document.querySelectorAll(".basket").forEach(b=>{
+  b.addEventListener("click",e=>{
+    if(sortRevealed || !picked) return;
+    if(e.target.closest(".fcard")) return;
+    place(picked,b.dataset.basket);
+    checkReady();
+  });
+  b.addEventListener("keydown",e=>{
+    if((e.key==="Enter"||e.key===" ") && e.target===b){
+      e.preventDefault();
+      if(sortRevealed || !picked) return;
+      place(picked,b.dataset.basket); checkReady();
+    }
+  });
+});
+/* 鍵盤：Tab 到「放進 X 籃」按鈕，按下就把選起來的卡片放進那一籃 */
+document.querySelectorAll(".bdrop").forEach(btn=>btn.addEventListener("click",e=>{
+  e.stopPropagation();
+  if(sortRevealed || !picked) return;
+  place(picked,btn.closest(".basket").dataset.basket); checkReady();
+}));
+/* 點卡片區的空白處 → 把選起來的卡片收回來 */
+tray.addEventListener("click",e=>{
+  if(sortRevealed || !picked || e.target.closest(".fcard")) return;
+  tray.appendChild(picked); picked.classList.remove("picked"); picked=null;
+  checkReady();
+});
+function checkReady(){
+  if(sortRevealed) return;
+  const left=tray.querySelectorAll(".fcard").length;
+  revealBtn.disabled=(left>0);
+  if(picked){
+    sortMsg.textContent=`已選「${picked.querySelector(".label").textContent}」→ 點一個籃子放進去`;
+  }else{
+    sortMsg.textContent= left>0 ? `還有 ${left} 張沒分` : `${CN_NUM[SORT_CARDS.length]}張都分好了，討論完可以按揭曉`;
+  }
+}
+/* 揭曉：籃子命名 ＋ 逐張判 ○ ✗ */
+revealBtn.addEventListener("click",()=>{
+  if(picked){ picked.classList.remove("picked"); picked=null; }
+  sortRevealed=true;
+  let right=0;
+  Object.keys(BASKET_NAMES).forEach(k=>{
+    $("name-"+k).innerHTML=BASKET_NAMES[k];
+    $("drop-"+k).querySelectorAll(".fcard").forEach(el=>{
+      const ok=cardCat.get(el)===k;
+      el.classList.add("judged",ok?"ok":"no");
+      el.querySelector(".mark").textContent= ok ? "○ 放對了" : `✗ 應該放 ${cardCat.get(el)} 籃`;
+      right+=ok?1:0;
+    });
+  });
+  sortMsg.textContent=`${CN_NUM[SORT_CARDS.length]}張裡放對 ${right} 張`;
+  revealBtn.disabled=true;
+  $("derive").classList.remove("hidden");
+});
+$("resetSort").addEventListener("click",buildSort);
+
+/* ---------- 推導題：氣泡水裡有氣體，為什麼放在液態？ ---------- */
+function buildDerive(){
+  $("deriveQ").innerHTML="";
+  $("deriveFeed").className="feedback"; $("deriveFeed").textContent="";
+  $("deriveCrit").classList.add("hidden");
+  $("mixPoint").classList.add("hidden");
+  choiceQ($("deriveQ"),
+    ["放錯了！裡面有氣體，就應該放進氣態那一籃","整瓶氣泡水是倒得出來的液體，二氧化碳溶在水裡，所以是液態的混合物","氣泡一下子就跑掉了，所以不用算它"],
+    "整瓶氣泡水是倒得出來的液體，二氧化碳溶在水裡，所以是液態的混合物",
+    ()=>{
+      $("deriveFeed").className="feedback good"; $("deriveFeed").textContent="✅ 答對了！";
+      $("deriveCrit").classList.remove("hidden");
+      $("mixPoint").classList.remove("hidden");
+      $("deriveCrit").scrollIntoView({behavior:"smooth",block:"nearest"});
+    },
+    o=>{
+      $("deriveFeed").className="feedback hint";
+      $("deriveFeed").innerHTML = o.startsWith("放錯")
+        ? "🤔 再想想（不扣分）：打開瓶蓋，氣泡水倒得出來嗎？整瓶看起來是液體；氣泡是溶在水裡的二氧化碳跑出來。"
+        : "🤔 再想想（不扣分）：二氧化碳是氣體，<b>氣體也是物質</b>喔！成分標示上就寫著它。";
+    },
+    "col");
+}
+buildSort();
+
+/* ==========================================================
+   ④ 配製水溶液：平匙口頭題、一直加食鹽（預測只記不判＋示意畫面）
+   ========================================================== */
+choiceQ($("spoonQ"),
+  ["可以，兩種都是白色粉末，沒關係","可以，只要舀快一點就好","不行，殘留的檸檬酸會混進小蘇打水"],
+  "不行，殘留的檸檬酸會混進小蘇打水",
+  ()=>{
+    $("spoonFeed").className="feedback good"; $("spoonFeed").textContent="✅ 答對了！";
+    $("spoonCrit").classList.remove("hidden");
+    $("spoonCrit").scrollIntoView({behavior:"smooth",block:"nearest"});
+  },
+  o=>{
+    $("spoonFeed").className="feedback hint";
+    $("spoonFeed").textContent = o.includes("白色粉末")
+      ? "🤔 再想想（不扣分）：看起來一樣，就一定是同一種東西嗎？平匙上還沾著檸檬酸喔。"
+      : "🤔 再想想（不扣分）：舀得再快，平匙上沾著的檸檬酸還是會跟著進去。";
+  },
+  "col");
+
+const SALT_GUESSES=["甲　全部都溶得完","乙　有一些溶不掉"];
+const SALT_RIGHT=SALT_GUESSES[1];
+let saltGuess=null;
+guessPoll($("saltGuessOpts"),SALT_GUESSES,g=>{
+  saltGuess=g;
+  $("saltGuessText").textContent=g;
+  $("saltGuessBox").classList.remove("hidden");
+  updateSaltRecall();
+});
+
+/* 示意：一匙一匙加食鹽。SALT_T＝示意畫面裡開始溶不掉的匙數（只是舉例，標示在畫面上） */
+const SALT_T=5, SALT_MAX=9;
+let spoons=0;
+const SVGNS="http://www.w3.org/2000/svg";
+function svgEl(tag,attrs){ const e=document.createElementNS(SVGNS,tag); for(const k in attrs) e.setAttribute(k,attrs[k]); return e; }
+function drawSalt(){
+  const pile=$("saltPile"); pile.innerHTML="";
+  const left=Math.max(0,spoons-SALT_T+1);   /* 溶不掉的「層數」 */
+  if(left>0){
+    const w=24+left*14, h=6+left*4;
+    pile.appendChild(svgEl("path",{d:`M${150-w} 218 Q150 ${218-h*2} ${150+w} 218 Z`,fill:"#FFFFFF",stroke:"#8A949A","stroke-width":2}));
+    for(let i=0;i<left*4;i++){
+      const x=150-w*0.6+((i*37)%Math.round(w*1.2)), y=216-((i*13)%Math.max(4,h));
+      pile.appendChild(svgEl("circle",{cx:x,cy:y,r:2.2,fill:"#C9CED2"}));
+    }
+  }
+  $("spoonN").textContent=spoons;
+  $("saltState").textContent = spoons===0 ? "" : left>0 ? "杯底有溶不掉的食鹽" : "全部溶解，看不見顆粒";
+  $("saltState").setAttribute("fill", left>0 ? "#B03A30" : "#2E7D4F");
+  let msg;
+  if(spoons===0) msg="杯子裡是 20 毫升純水。按「加 1 平匙並攪拌」。";
+  else if(spoons<SALT_T) msg=`第 ${spoons} 匙：攪拌後全部溶解，看不見食鹽顆粒。`;
+  else if(spoons===SALT_T) msg=`第 ${spoons} 匙：攪拌了很久，杯底還是留下<b>溶不掉的食鹽</b>！`;
+  else msg=`第 ${spoons} 匙：杯底溶不掉的食鹽愈來愈多，再怎麼攪拌也溶不掉。`;
+  if(spoons>=SALT_MAX) msg+="（示意畫面到這裡為止）";
+  $("simSay").innerHTML=msg;
+  $("addSalt").disabled = spoons>=SALT_MAX;
+}
+function dropGrains(){
+  const g=$("saltDrops");
+  for(let i=0;i<6;i++){
+    const c=svgEl("circle",{cx:132+i*7,cy:46+(i%3)*5,r:2.6,fill:"#FFFFFF",stroke:"#8A949A","stroke-width":1,class:"grain"});
+    g.appendChild(c);
+  }
+  setTimeout(()=>{ g.innerHTML=""; },950);
+}
+$("addSalt").addEventListener("click",()=>{
+  if(spoons>=SALT_MAX) return;
+  spoons++;
+  dropGrains();
+  drawSalt();
+});
+$("simReset").addEventListener("click",()=>{ spoons=0; $("saltDrops").innerHTML=""; drawSalt(); });
+drawSalt();
+
+let saltShown=false;
+function updateSaltRecall(){
+  if(!saltShown) return;
+  const head = !saltGuess ? "結果：" : saltGuess===SALT_RIGHT ? "🎉 全班猜對了！" : `全班猜的是「${saltGuess}」。結果：`;
+  $("saltRecall").innerHTML = head + "加到某一匙以後，杯底留下<b>溶不掉的食鹽</b>，再怎麼攪拌也溶不掉。<small>匙數要看水有多少、平匙有多大；記下老師示範的匙數。</small>";
+}
+$("saltReveal").addEventListener("click",()=>{
+  saltShown=true;
+  $("saltCrit").classList.remove("hidden");
+  $("saltRecall").classList.remove("hidden");
+  $("saltReveal").classList.add("hidden");
+  updateSaltRecall();
+  $("saltCrit").scrollIntoView({behavior:"smooth",block:"nearest"});
+});
+
+/* ==========================================================
+   ⑤ 出場卡（本課一節，3 題）：答對後一定顯示判準卡
+   q.r／q.rAns 有寫時才出第 2 層「你怎麼知道？」（本課出場卡只用第 1 層）
+   ========================================================== */
+const QUIZ=[
+  {q:"1. 搧聞時，手掌要往哪個方向搧？",
+   opts:["甲　往杯子裡面的方向","乙　往鼻子的方向","丙　往旁邊同學的方向"],
+   ans:"乙　往鼻子的方向",
+   why:"搧聞：手掌往鼻子方向輕輕搧，是用來安全地聞氣味；只靠搧聞，不能確定水溶液是酸性還是鹼性。"},
+  {q:"2. 氣泡水是氣態、液態還是固態的混合物？",
+   opts:["甲　固態","乙　氣態","丙　液態"],
+   ans:"丙　液態",
+   why:"氣泡水裡有氣體，但它是液態的混合物；空氣是由不同氣體混合的氣態混合物。"},
+  {q:"3. ○╳：配製水溶液用自來水或純水都一樣。",
+   opts:["○","╳"],
+   ans:"╳",
+   why:"配製水溶液要用純水，因為自來水裡的其他物質會影響水溶液的酸鹼性。"}
+];
+const RANKS=[{s:0,t:"🙂 見習小助手"},{s:2,t:"🔬 小科學家"},{s:3,t:"🏅 安全配製高手！"}];
+let qi=0, score=0, tries=0;
+function fmt(n){ return Number.isInteger(n)?String(n):n.toFixed(1); }
+function rankOf(s){ let r=RANKS[0]; RANKS.forEach(x=>{ if(s>=x.s) r=x; }); return r.t; }
+function renderDots(){
+  $("dots").innerHTML="";
+  QUIZ.forEach((_,i)=>{
+    const d=document.createElement("span");
+    d.className="dot"+(i<qi?" done":i===qi?" now":"");
+    $("dots").appendChild(d);
+  });
+}
+function showCriterion(q){
+  $("criterionText").innerHTML="💡 <span class=\"must\"></span>";
+  $("criterionText").querySelector(".must").textContent=q.why;
+  $("criterion").classList.remove("hidden");
+  $("nextBtn").textContent= qi+1<QUIZ.length ? "下一題 →" : "看結果 →";
+  $("nextBtn").classList.remove("hidden");
+  $("nextBtn").scrollIntoView({behavior:"smooth",block:"nearest"});   /* 判準卡在按鈕正上方，一起帶進畫面 */
+}
+function renderQ(){
+  const q=QUIZ[qi]; tries=0;
+  $("qprog").textContent=`第 ${qi+1} / ${QUIZ.length} 題`;
+  renderDots();
+  $("quizwrap").classList.add("nophoto");
+  $("q1title").textContent=q.q;
+  ["q1opts","q2opts"].forEach(id=>$(id).innerHTML="");
+  ["q1feed","q2feed"].forEach(id=>{ $(id).className="feedback"; $(id).textContent=""; });
+  $("step2").classList.add("hidden");
+  $("criterion").classList.add("hidden");
+  $("nextBtn").classList.add("hidden");
+  choiceQ($("q1opts"),q.opts,q.ans,
+    ()=>{
+      addScore();
+      $("q1feed").className="feedback good";
+      if(q.r){
+        $("q1feed").textContent="✅ 答對了！再說說你怎麼知道。";
+        $("step2").classList.remove("hidden");
+        $("step2").scrollIntoView({behavior:"smooth",block:"nearest"});
+      }else{
+        $("q1feed").textContent="✅ 答對了！";
+        showCriterion(q);
+      }
+    },
+    ()=>{ tries++; $("q1feed").className="feedback hint"; $("q1feed").textContent="🤔 再想想看，還可以再試。"; },
+    q.opts.length>2?"col":"");
+  if(q.r){
+    choiceQ($("q2opts"),q.r,q.rAns,
+      ()=>{ addScore(); $("q2feed").className="feedback"; $("q2feed").textContent=""; showCriterion(q); },
+      ()=>{ tries++; $("q2feed").className="feedback hint"; $("q2feed").textContent="🤔 這個理由說不通，再選一次。"; },
+      "col");
+  }
+}
+function addScore(){
+  score += tries===0 ? 1 : 0.5;   /* 答錯再試，分數減半 */
+  tries=0;
+  $("score").textContent=fmt(score);
+  $("rank").textContent=rankOf(score);
+}
+$("nextBtn").addEventListener("click",()=>{
+  qi++;
+  if(qi>=QUIZ.length) showResult();
+  else{ renderQ(); $("quizPanel").scrollIntoView({behavior:"smooth",block:"nearest"}); }
+});
+function showResult(){
+  renderDots();
+  $("qprog").textContent="完成！";
+  $("quizPanel").classList.add("hidden");
+  $("quizResult").classList.remove("hidden");
+  $("finalScore").textContent=`總分 ${fmt(score)} / ${QUIZ.length}`;
+  $("finalRank").textContent=rankOf(score);
+  $("quizResult").scrollIntoView({behavior:"smooth",block:"start"});
+}
+$("againBtn").addEventListener("click",()=>{
+  qi=0; score=0; $("score").textContent="0"; $("rank").textContent=RANKS[0].t;
+  $("quizResult").classList.add("hidden");
+  $("quizPanel").classList.remove("hidden");
+  renderQ();
+  $("quizPanel").scrollIntoView({block:"start"});
+});
+renderQ();
+
+/* ---------- 開頁：網址有 #站名 就直接跳過去（#open、#safe 是第 ② 節最後 8 分鐘用的） ---------- */
+(function(){
+  const h=(location.hash||"").replace("#","");
+  if(STATIONS.indexOf(h)>0) go(h,false);
+})();
+</script>
+</body>
+</html>

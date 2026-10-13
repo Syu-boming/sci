@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="zh-Hant"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>彈簧秤與秤重工具｜互動教材</title><link rel="icon" href="../../image/icon.svg"><style>
+/* ==========================================================
+   植物與人類生活 — 樣式表
+   使用情境：教室 75 吋觸控螢幕，全班共用、學生輪流上台操作。
+   沿用〈果實和種子的傳播方式〉的調色盤與元件；植物一律是真實照片，
+   構造名稱是疊在照片上的 HTML 標籤（位置用百分比）。
+   白色字只放在深綠 #2E7D4F 上；顏色不用來暗示答案。
+   ========================================================== */
+:root{
+  --bg:#FDF6EC;         /* 奶油底色 */
+  --ink:#1E1E1E;        /* 描邊近黑 */
+  --green:#58B159;      /* 主葉綠 */
+  --green-dark:#2E7D4F; /* 深綠（唯一可以放白字的底色） */
+  --water:#4FB0E5;      /* 水滴藍 */
+  --water-dark:#2E86C1;
+  --sun:#FFC93C;        /* 陽光黃 */
+  --coral:#FF7F66;      /* 珊瑚（繁殖器官色） */
+  --coral-dark:#E4574C;
+  --wrong:#E4574C;
+  --card:#FFFFFF;
+  --muted:#6B7A82;
+  --shadow:0 6px 18px rgba(46,86,110,.16);
+  --hs:clamp(44px,4.4vw,60px);  /* 照片熱點直徑（觸控至少 44px） */
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  min-height:100vh;color:var(--ink);background:var(--bg);
+  font-family:-apple-system,"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif;
+  font-size:clamp(17px,1.9vw,22px);line-height:1.6;
+}
+figure{margin:0}
+#app{max-width:1240px;margin:0 auto;padding:12px 16px 40px}
+
+/* ---------- 頁首與站別導覽（老師可自由跳段） ---------- */
+.sitehead{margin-bottom:12px}
+.headrow{display:flex;align-items:center;gap:6px 16px;flex-wrap:wrap}
+.back{
+  display:inline-flex;align-items:center;min-height:44px;padding:4px 16px;
+  border:3px solid var(--ink);border-radius:999px;background:var(--card);color:var(--ink);
+  font-weight:800;text-decoration:none;box-shadow:0 3px 0 var(--ink);font-size:clamp(15px,1.4vw,18px);
+}
+.back:active{transform:translateY(2px);box-shadow:0 1px 0 var(--ink)}
+.sitehead h1{margin:0;font-size:clamp(22px,2.6vw,32px);font-weight:900;letter-spacing:.5px;line-height:1.25}
+.sitehead .sub{color:var(--muted);font-size:clamp(13px,1.35vw,17px);font-weight:700}
+.stations{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.station-btn{
+  border:3px solid var(--ink);border-radius:999px;background:var(--card);color:var(--ink);
+  padding:8px 16px;font:inherit;font-size:clamp(15px,1.4vw,19px);font-weight:800;cursor:pointer;
+  box-shadow:0 3px 0 var(--ink);min-height:56px;line-height:1.25;
+}
+.station-btn.on{background:var(--green-dark);color:#fff}
+.station-btn:active{transform:translateY(2px);box-shadow:0 1px 0 var(--ink)}
+
+/* ---------- 畫面切換 ---------- */
+.screen{display:none;animation:fadeIn .4s ease}
+.screen.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.hidden{display:none !important}
+
+/* ---------- 通用卡片、按鈕 ---------- */
+.panel{
+  background:var(--card);border:3px solid var(--ink);border-radius:20px;
+  padding:16px 18px;box-shadow:var(--shadow);margin-bottom:14px;
+}
+.ptitle{font-weight:900;font-size:clamp(19px,2.2vw,27px);margin:0 0 10px}
+.btn{
+  border:3px solid var(--ink);border-radius:999px;background:var(--sun);color:var(--ink);
+  padding:12px 26px;font:inherit;font-weight:900;cursor:pointer;
+  box-shadow:0 4px 0 var(--ink);min-height:60px;
+}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--ink)}
+.btn.green{background:var(--green-dark);color:#fff}
+.btn.plain{background:var(--card)}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+/* 深綠按鈕停用時不可以變淡（白字會看不清）：改成米色底＋深灰字 */
+.btn.green[disabled]{opacity:1;background:#E6E1D6;color:#5B666C;box-shadow:0 4px 0 #9A9486}
+.btn[aria-pressed="true"]{box-shadow:0 0 0 5px var(--ink),0 4px 0 var(--ink)}
+.btnrow{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-top:14px}
+.btnrow.center{justify-content:center}
+.navrow{display:flex;justify-content:flex-end;gap:12px;flex-wrap:wrap;margin:0 0 12px}
+.ask{
+  background:#FFF6D8;border:3px dashed var(--sun);border-radius:16px;
+  padding:12px 16px;font-weight:800;font-size:clamp(18px,2.1vw,25px);text-align:center;
+}
+.ask.big{font-size:clamp(22px,2.6vw,40px);padding:16px}
+.lead{color:var(--muted);font-weight:700;margin:10px 0;font-size:clamp(15px,1.6vw,19px)}
+.cap{font-weight:800;margin-top:6px;font-size:clamp(14px,1.55vw,19px);line-height:1.45}
+.note{color:var(--muted);font-weight:700;font-size:clamp(13px,1.4vw,17px);line-height:1.45}
+.center{text-align:center}
+/* 給老師看的操作提示（放在舞台面板外面，學生不必讀） */
+.teacher-tip{
+  margin:0 0 18px;font-size:clamp(13px,1.4vw,16px);color:var(--muted);
+  border-left:5px solid var(--sun);padding:6px 12px;background:#FFFCF2;border-radius:0 10px 10px 0;
+}
+.teacher-tip b.time{color:#7A5B00}
+.teacher-tip p{margin:4px 0}
+/* 照片載入失敗：中性的灰框，不用 emoji 冒充植物 */
+.img-fallback{
+  display:flex !important;align-items:center;justify-content:center;text-align:center;line-height:1.35;
+  background:#F2EEE4;color:var(--muted);font-weight:800;font-size:clamp(12px,1.3vw,17px);
+  padding:8px;border:2px dashed #C9C2B4;overflow:hidden;overflow-wrap:anywhere;
+}
+
+/* 並排版面：橫向 ≥1024 時照片在左、任務在右 */
+.duo{display:grid;grid-template-columns:minmax(0,1fr);gap:16px;align-items:start}
+@media (min-width:1024px) and (orientation:landscape){
+  .duo{grid-template-columns:minmax(0,1.15fr) minmax(0,1fr)}
+  .duo.mid{align-items:center}
+}
+.pair{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px;align-items:start}
+
+/* ---------- 照片框：比例＝照片原比例，所以百分比熱點不會跑位 ---------- */
+.fig{
+  position:relative;width:min(100%, calc(var(--mh,60vh) * var(--ar,4/3)));aspect-ratio:var(--ar,4/3);
+  margin:0 auto;border-radius:14px;background:#F2EEE4;box-shadow:0 0 0 3px var(--ink);
+}
+.fig > img,.fig > .img-fallback{
+  position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:14px;display:block;
+  -webkit-user-drag:none;user-select:none;
+}
+.figbox{padding:3px}
+/* 可點的數字熱點：中間透明的圈圈（看得到底下的構造），號碼放在圈圈上方的小牌子 */
+.hs{
+  position:absolute;z-index:3;transform:translate(-50%,-50%);
+  width:var(--hs);height:var(--hs);border-radius:50%;padding:0;
+  border:4px solid #fff;background:transparent;color:transparent;
+  font:inherit;font-weight:900;line-height:1;cursor:pointer;
+  box-shadow:0 0 0 3px var(--ink),inset 0 0 0 3px var(--ink);
+}
+.hs .n{
+  position:absolute;left:50%;bottom:100%;transform:translate(-50%,-2px);
+  min-width:1.5em;padding:0 .3em;border-radius:999px;background:#fff;border:3px solid var(--ink);
+  color:var(--ink);font-size:calc(var(--hs) * .42);line-height:1.3;text-align:center;
+  box-shadow:0 2px 6px rgba(0,0,0,.3);
+}
+.hs.found .n{background:var(--green-dark);color:#fff}
+.hs:focus-visible{outline:4px solid var(--water-dark);outline-offset:4px}
+.hs.shake{animation:shake .4s}
+@keyframes shake{0%,100%{margin-left:0}25%{margin-left:-7px}75%{margin-left:7px}}
+/* 疊在照片上的名稱標籤 */
+.tag{
+  position:absolute;z-index:4;width:max-content;pointer-events:none;
+  background:rgba(255,255,255,.96);border:3px solid var(--ink);border-radius:12px;
+  padding:3px 10px;font-size:clamp(13px,1.35vw,19px);line-height:1.3;
+  box-shadow:0 3px 8px rgba(0,0,0,.28);animation:tagIn .35s ease;
+}
+.tag b{display:block;font-size:1.12em;font-weight:900}
+.tag small{display:block;font-size:1em;font-weight:700;color:#34444C}
+@keyframes tagIn{from{opacity:0;scale:.85}to{opacity:1;scale:1}}
+.pin{
+  position:absolute;z-index:3;width:18px;height:18px;border-radius:50%;
+  background:var(--sun);border:3px solid var(--ink);box-shadow:0 0 0 3px #fff;transform:translate(-50%,-50%);
+}
+.badge{
+  position:absolute;left:8px;top:8px;z-index:3;width:clamp(44px,4.6vw,64px);aspect-ratio:1;border-radius:50%;
+  background:#fff;border:3px solid var(--ink);font-weight:900;font-size:clamp(22px,2.6vw,34px);
+  display:flex;align-items:center;justify-content:center;line-height:1;
+}
+
+/* ---------- 選項、回饋、判準 ---------- */
+.opts{display:flex;flex-wrap:wrap;gap:12px}
+.opts.col{flex-direction:column;align-items:stretch}
+.opts.col .opt{text-align:left}
+.opt{
+  border:3px solid var(--ink);border-radius:16px;background:var(--card);color:var(--ink);
+  padding:12px 24px;font:inherit;font-weight:900;cursor:pointer;
+  box-shadow:0 4px 0 var(--ink);min-height:62px;font-size:clamp(18px,2vw,25px);line-height:1.35;
+}
+.opt:active{transform:translateY(3px);box-shadow:0 1px 0 var(--ink)}
+.opt.ok{background:var(--green-dark);color:#fff}
+.opt.no{background:#FBE3E1;border-color:var(--wrong);color:#B03A30;text-decoration:line-through}
+.opt[disabled]{cursor:not-allowed}
+.opt.picked,.opt[aria-pressed="true"]{background:#FFF3C4;box-shadow:0 0 0 5px var(--sun),0 4px 0 var(--ink)}
+.steptag{
+  display:inline-block;background:#DDF0FA;color:var(--ink);border:3px solid var(--ink);
+  border-radius:999px;padding:2px 14px;font-weight:900;margin-bottom:8px;font-size:clamp(14px,1.5vw,19px);
+}
+.qtitle{font-weight:900;font-size:clamp(19px,2.2vw,27px);margin:0 0 12px}
+.feedback{margin-top:12px;font-weight:800;border-radius:14px}
+.feedback:empty{display:none}
+.feedback.hint{background:#FFF6D8;border:3px dashed var(--sun);padding:10px 14px}
+.feedback.good{background:#EAF7EE;border:3px solid var(--green-dark);color:var(--green-dark);padding:10px 14px}
+/* 判準卡 —— 課堂追問「你怎麼知道？」的素材，答對後一定要出現 */
+.criterion{
+  background:#EAF7EE;border:3px solid var(--green-dark);border-radius:18px;padding:12px 16px;margin-top:14px;
+}
+.criterion .k{font-weight:900;color:var(--green-dark);font-size:clamp(18px,2.1vw,25px)}
+.criterion .askagain{
+  margin-top:8px;font-size:clamp(13px,1.5vw,17px);color:var(--muted);font-weight:800;
+  border-top:2px dashed #B9D8C4;padding-top:8px;
+}
+.bigpoint{
+  background:#EAF7EE;border:3px solid var(--green-dark);border-radius:18px;
+  padding:14px 18px;font-weight:900;font-size:clamp(19px,2.3vw,28px);text-align:center;color:var(--green-dark);
+}
+.bigpoint b{text-decoration:underline;text-decoration-thickness:3px;text-underline-offset:5px}
+
+/* ==========================================================
+   開場
+   ========================================================== */
+.guessbox{margin-top:16px;text-align:center;background:#FFFDF8;border:3px solid var(--ink);border-radius:16px;padding:12px}
+.guessbox .g{font-size:clamp(19px,2.2vw,28px);font-weight:900}
+.guessbox .later{font-size:clamp(22px,2.8vw,36px);font-weight:900;color:var(--green-dark)}
+
+/* ==========================================================
+   ① 新芽從哪裡來　照片熱點＋觀察卡
+   ========================================================== */
+/* 直式/窄螢幕：特徵卡在最上面，點照片時看得到提示；橫式：照片在左、卡片在右 */
+.looklay{display:grid;grid-template-columns:minmax(0,1fr);gap:14px;grid-template-areas:"card" "main" "thumbs";align-items:start}
+.looklay .mainbox{grid-area:main}
+.looklay .thumbrow{grid-area:thumbs}
+.looklay .cardarea{grid-area:card}
+@media (min-width:1024px) and (orientation:landscape){
+  .looklay{grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);grid-template-rows:auto 1fr;
+           grid-template-areas:"main card" "main thumbs";gap:12px 16px}
+}
+.cardhead{display:flex;align-items:center;gap:4px 12px;flex-wrap:wrap;margin-bottom:6px}
+.cardhead .steptag,.cardhead .qtitle{margin:0}
+.fnq{font-weight:900;font-size:clamp(21px,2.5vw,32px);line-height:1.4;margin:0 0 6px}
+.how{font-weight:800;color:var(--muted);margin:4px 0 0}
+.obs{margin-top:12px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-weight:800}
+.chip{background:#FFF6D8;border:2px solid var(--sun);border-radius:999px;padding:4px 14px}
+
+/* 縮圖列（① 的四張） */
+.frames{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.frame-btn{
+  display:flex;align-items:center;gap:10px;border:3px solid var(--ink);border-radius:14px;background:var(--card);color:var(--ink);
+  padding:5px 10px 5px 5px;font:inherit;font-weight:800;cursor:pointer;min-height:64px;text-align:left;
+  box-shadow:0 3px 0 var(--ink);font-size:clamp(14px,1.45vw,19px);line-height:1.3;
+}
+.frame-btn img,.frame-btn .img-fallback{width:clamp(56px,5vw,84px);aspect-ratio:4/3;object-fit:cover;border-radius:8px;flex:none;font-size:9px;padding:2px}
+.frame-btn img{padding:0}
+.frame-btn.on{background:var(--green-dark);color:#fff}
+.frame-btn.done .tick{color:var(--green-dark);font-weight:900}
+.frame-btn.on .tick{color:#fff}
+
+/* ==========================================================
+   ② 繁殖小實驗　分頁
+   ========================================================== */
+.tabs{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.tab{
+  border:3px solid var(--ink);border-radius:16px 16px 6px 6px;background:var(--card);color:var(--ink);
+  padding:10px 22px;font:inherit;font-weight:900;cursor:pointer;min-height:60px;box-shadow:0 3px 0 var(--ink);
+}
+.tab.on{background:var(--green-dark);color:#fff}
+.saybox{
+  margin-top:14px;background:#FFFDF8;border:3px solid var(--ink);border-radius:16px;padding:12px 16px;
+  font-weight:900;font-size:clamp(20px,2.3vw,30px);line-height:1.45;
+}
+.saybox .no{display:inline-block;background:var(--sun);border:3px solid var(--ink);border-radius:999px;padding:0 12px;margin-right:8px;font-size:.8em}
+
+/* ==========================================================
+   ③ 分類白板
+   ========================================================== */
+.cardtray{
+  display:flex;flex-wrap:wrap;gap:12px;justify-content:center;
+  min-height:150px;padding:12px;border:3px dashed #C9C2B4;border-radius:18px;background:#FFFDF8;margin-top:12px;
+}
+.fcard{
+  width:clamp(118px,11vw,170px);background:var(--card);
+  border:3px solid var(--ink);border-radius:16px;padding:7px;text-align:center;
+  cursor:pointer;box-shadow:0 4px 0 rgba(30,30,30,.25);touch-action:none;user-select:none;
+  transition:transform .12s ease,box-shadow .12s ease;
+}
+.fcard img,.fcard .img-fallback{
+  width:100%;aspect-ratio:5/4;object-fit:cover;border-radius:10px;display:block;background:#F2EEE4;pointer-events:none;
+}
+.fcard .label{font-weight:900;font-size:clamp(14px,1.35vw,19px);line-height:1.3;margin-top:5px}
+.fcard.picked{transform:translateY(-6px) scale(1.04);box-shadow:0 10px 0 var(--sun),0 0 0 5px var(--sun)}
+.fcard.dragging{position:fixed;z-index:999;pointer-events:none;opacity:.92;box-shadow:0 14px 26px rgba(0,0,0,.35)}
+.fcard:focus-visible{outline:4px solid var(--water-dark);outline-offset:3px}
+.fcard .mark{display:none;font-weight:900;font-size:clamp(14px,1.4vw,19px);line-height:1.3;margin-top:4px}
+.fcard.judged .mark{display:block}
+.fcard.judged.ok .mark{color:var(--green-dark)}
+.fcard.judged.no .mark{color:#B03A30}
+.fcard.judged.no{border-color:var(--wrong)}
+
+.baskets{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:14px}
+@media(max-width:720px){.baskets{grid-template-columns:minmax(0,1fr)}}
+.basket{border:4px solid var(--ink);border-radius:20px;padding:10px;min-height:220px;background:#FFFDF8;cursor:pointer}
+.basket.hot{background:#FFF3C4;border-style:dashed}
+/* 鍵盤用的「放進這一籃」按鈕：平常藏起來（觸控直接點籃子），用 Tab 移到它時才出現 */
+.bdrop{
+  position:absolute;width:1px;height:1px;margin:-1px;padding:0;border:0;overflow:hidden;
+  clip:rect(0 0 0 0);white-space:nowrap;
+}
+.bdrop:focus{
+  position:static;width:auto;height:auto;margin:0;overflow:visible;clip:auto;
+  border:3px solid var(--ink);border-radius:999px;background:var(--card);color:var(--ink);
+  padding:6px 16px;min-height:48px;font:inherit;font-weight:900;cursor:pointer;
+  outline:4px solid var(--water-dark);outline-offset:3px;
+}
+.bhead{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap}
+.bletter{
+  width:clamp(38px,3.6vw,52px);aspect-ratio:1;border-radius:50%;border:3px solid var(--ink);background:#fff;
+  display:flex;align-items:center;justify-content:center;font-weight:900;font-size:clamp(20px,2.2vw,28px);flex:none;
+}
+.bname{font-size:clamp(20px,2.3vw,30px);font-weight:900;text-align:center;letter-spacing:1px;line-height:1.3}
+.bhint{text-align:center;font-weight:800;color:var(--muted);margin:4px 0 8px;font-size:clamp(15px,1.6vw,20px)}
+.drop{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;min-height:120px}
+.litnote{display:none;text-align:center;font-weight:900;color:var(--green-dark)}
+.basket.lit{border-color:var(--green-dark);background:#EAF7EE;box-shadow:0 0 0 5px #B9E3C6}
+.basket.lit .litnote{display:block}
+.scorebar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:14px}
+#sortMsg{font-weight:800}
+.derive{margin-top:18px;border-top:3px dashed #C9C2B4;padding-top:16px}
+.evidence{display:grid;grid-template-columns:minmax(0,1fr);gap:12px;align-items:center;margin-top:12px}
+@media(min-width:720px){.evidence{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}}
+.evidence .cap{color:var(--ink);font-size:clamp(18px,2vw,24px)}
+
+.chips{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin:14px 0}
+.chips .chip{font-weight:900;font-size:clamp(16px,1.8vw,22px)}
+
+/* ==========================================================
+   ⑤ 闖關驗收
+   ========================================================== */
+.quizbar{display:flex;align-items:center;gap:8px 14px;flex-wrap:wrap;
+  background:var(--card);border:3px solid var(--ink);border-radius:26px;padding:8px 18px;
+  box-shadow:var(--shadow);margin-bottom:14px;font-weight:900}
+.dots{display:flex;gap:8px}
+.dot{width:16px;height:16px;border-radius:50%;border:3px solid var(--ink);background:#fff}
+.dot.done{background:var(--green-dark)}
+.dot.now{background:var(--sun)}
+.qscore{margin-left:auto}
+.quizwrap{display:grid;grid-template-columns:minmax(0,1fr);gap:18px;align-items:start}
+@media (min-width:1024px) and (orientation:landscape){
+  .quizwrap{grid-template-columns:minmax(0,1fr) minmax(0,1.1fr)}
+}
+.quizwrap.nophoto{grid-template-columns:minmax(0,1fr)}
+.quizwrap.nophoto .qphoto{display:none}
+.result{text-align:center;padding:16px}
+.result .big{font-size:clamp(30px,5vw,58px);font-weight:900;color:var(--green-dark)}
+.rankline{font-weight:900;font-size:clamp(22px,2.8vw,36px);margin:6px 0}
+.ticket{
+  margin:14px auto;max-width:900px;background:#FFF6D8;border:3px dashed var(--sun);border-radius:16px;
+  padding:12px 16px;font-weight:800;font-size:clamp(18px,2.1vw,26px);text-align:left;line-height:1.8;
+}
+
+/* ---------- 頁尾：照片來源 ---------- */
+.credits{
+  font-size:clamp(12px,1.2vw,15px);color:var(--muted);margin-top:20px;line-height:1.55;
+  border-top:2px dashed #D9CFBE;padding-top:12px;
+}
+.credits a{color:var(--muted)}
+.credits p{margin:4px 0}
+
+
+@media (prefers-reduced-motion:reduce){
+  .screen,.tag,.hs.shake{animation:none}
+}
+
+  /* ===== RWD：手機 / 平板 / 筆電 / 75 吋觸控螢幕 ===== */
+  @media (max-width:1100px){
+    .station-btn{ padding:8px 10px; }
+  }
+  @media (max-width:640px){
+    #app{ padding:10px 10px 28px; }
+    .panel{ border-radius:14px; padding:12px 12px; }
+    .stations{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:6px; }
+    .station-btn{ padding:4px 4px; font-size:14px; min-height:52px; border-radius:16px; }
+    .btn{ padding:10px 18px; min-height:52px; }
+    .opt{ min-height:52px; padding:10px 14px; }
+    .tab{ padding:8px 14px; min-height:52px; }
+    .basket{ min-height:160px; }
+    .quizbar{ border-radius:18px; }
+    .frames{ grid-template-columns:minmax(0,1fr); }
+  }
+  @media (min-width:1800px){
+    /* 按鈕與選項都是 font:inherit，放大 body 字級它們就跟著長大 */
+    :root{ --hs:76px; }
+    body{ font-size:26px; }
+    #app{ max-width:1680px; padding:20px 30px 60px; }
+    .sitehead h1{ font-size:38px; }
+    .back{ min-height:64px; font-size:22px; padding:6px 24px; }
+    .station-btn{ min-height:72px; font-size:23px; padding:10px 26px; }
+    .btn{ min-height:80px; padding:16px 40px; }
+    .opt{ min-height:84px; font-size:28px; }
+    .tab{ min-height:80px; }
+    .frame-btn{ min-height:88px; font-size:22px; }
+    .fcard{ width:clamp(170px,11vw,230px); }
+    .basket{ min-height:300px; }
+    .tag{ font-size:22px; }
+    .bdrop:focus{ min-height:64px; }
+    .cap{ font-size:22px; }
+    .ask{ font-size:30px; }
+    .steptag{ font-size:23px; }
+    .sitehead .sub{ font-size:21px; }
+    .ask.big{ font-size:46px; }
+    .qtitle,.ptitle{ font-size:32px; }
+    .fnq{ font-size:38px; }
+    .saybox{ font-size:34px; }
+    .bigpoint{ font-size:33px; }
+    .criterion .k{ font-size:30px; }
+    .bname{ font-size:34px; }
+    .bhint,.fcard .label,.fcard .mark{ font-size:22px; }
+    .note,.lead{ font-size:20px; }
+    .evidence .cap{ font-size:26px; }
+    .pin{ width:24px; height:24px; }
+    .teacher-tip{ font-size:19px; }
+    .credits{ font-size:16px; }
+  }
+  @media (min-width:2600px){
+    :root{ --hs:100px; }
+    body{ font-size:34px; }
+    #app{ max-width:2280px; padding:30px 40px 80px; }
+    .sitehead h1{ font-size:50px; }
+    .back{ min-height:84px; font-size:30px; }
+    .station-btn{ min-height:96px; font-size:30px; padding:14px 34px; }
+    .btn{ min-height:104px; padding:22px 52px; }
+    .opt{ min-height:112px; font-size:36px; }
+    .tab{ min-height:104px; }
+    .frame-btn{ min-height:112px; font-size:29px; }
+    .fcard{ width:clamp(230px,10vw,310px); }
+    .basket{ min-height:390px; }
+    .tag{ font-size:30px; }
+    .cap{ font-size:29px; }
+    .ask{ font-size:39px; }
+    .steptag{ font-size:30px; }
+    .sitehead .sub{ font-size:27px; }
+    .ask.big{ font-size:60px; }
+    .qtitle,.ptitle{ font-size:42px; }
+    .fnq{ font-size:50px; }
+    .saybox{ font-size:44px; }
+    .bigpoint{ font-size:43px; }
+    .criterion .k{ font-size:39px; }
+    .bname{ font-size:44px; }
+    .bhint,.fcard .label,.fcard .mark{ font-size:29px; }
+    .note,.lead{ font-size:26px; }
+    .evidence .cap{ font-size:34px; }
+    .pin{ width:32px; height:32px; }
+    .teacher-tip{ font-size:25px; }
+    .credits{ font-size:21px; }
+  }
+
+/* ==========================================================
+   植物與人類生活 — 本課新增的元件
+   ========================================================== */
+.kidsay{
+  margin:0 0 10px;padding:6px 12px;border-left:5px solid var(--water);border-radius:0 10px 10px 0;
+  background:#F2F8FC;color:#34444C;font-weight:800;font-size:clamp(15px,1.6vw,20px);line-height:1.5;
+}
+.kidsay:empty{display:none}
+/* 開場：課本 54 頁的新聞標題 */
+.headline{text-align:center;margin:0 0 10px;padding:6px 12px;border:3px solid var(--ink);border-radius:16px;background:#FFFDF8}
+.headline .hl-title{font-weight:900;font-size:clamp(22px,2.8vw,38px);color:#2E6EA6;letter-spacing:1px;line-height:1.3}
+.headline .hl-sub{display:inline-block;margin-top:6px;padding:2px 14px;border-radius:999px;background:#FDE9D8;font-weight:800;font-size:clamp(14px,1.5vw,19px)}
+
+/* ② 分類白板：兩個籃子、情境卡片（文字比較長，卡片放寬） */
+.baskets.two{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(max-width:720px){.baskets.two{grid-template-columns:minmax(0,1fr)}}
+.fcard.txt{width:clamp(190px,19vw,280px);text-align:left}
+.fcard.txt img,.fcard.txt .img-fallback{aspect-ratio:16/9}
+.fcard.txt .label{font-size:clamp(14px,1.3vw,18px);font-weight:800;line-height:1.4}
+.fcard.txt .label b{font-weight:900}
+/* 沒有照片的情境卡：文字置中，不要留一大片空白 */
+.fcard.noimg{display:flex;flex-direction:column;justify-content:center;background:#FFFDF8;min-height:clamp(150px,13vw,210px)}
+.fcard.noimg .label{font-size:clamp(16px,1.5vw,21px);text-align:center}
+
+/* ③ 照片對照：左右兩組、每組上下兩張 */
+.stack{display:grid;gap:10px}
+.lotusrow{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;align-items:start}
+@media(max-width:720px){.lotusrow{grid-template-columns:minmax(0,1fr)}}
+/* 蓮葉效應示意動畫 */
+.demo{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:14px}
+@media(max-width:640px){.demo{grid-template-columns:minmax(0,1fr)}}
+.demobox{border:3px solid var(--ink);border-radius:16px;background:#FFFDF8;padding:8px 10px}
+.demobox .dname{font-weight:900;text-align:center;font-size:clamp(15px,1.6vw,20px)}
+.demobox svg{display:block;width:100%;height:auto}
+
+/* ④ 仿生點子：植物照片卡 */
+.ideacards{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.icard{
+  border:3px solid var(--ink);border-radius:16px;background:var(--card);padding:6px;cursor:pointer;
+  font:inherit;color:var(--ink);text-align:center;box-shadow:0 4px 0 rgba(30,30,30,.25);
+}
+.icard img,.icard .img-fallback{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:10px;display:block;background:#F2EEE4}
+.icard .nm{display:block;font-weight:900;margin-top:4px;font-size:clamp(14px,1.4vw,19px);line-height:1.3}
+.icard[aria-pressed="true"]{box-shadow:0 0 0 5px var(--sun),0 4px 0 var(--ink);background:#FFF3C4}
+.icard:focus-visible{outline:4px solid var(--water-dark);outline-offset:3px}
+.ideacards + .saybox,#ideaSay{margin-top:14px}
+.recall{margin-top:18px;border-top:3px dashed #C9C2B4;padding-top:16px}
+.recall .ask{margin-bottom:6px}
+.bigpoint small{display:block;margin-top:6px;font-size:.7em;color:#2F5E43;font-weight:800}
+
+/* 筆電（矮螢幕）：開場的選項要在第一屏看得到 */
+@media (min-width:1024px) and (max-height:760px){
+  .headline .hl-title{font-size:26px}
+  .headline .hl-sub{margin-top:2px}
+  #screen-open .ask.big{font-size:24px;padding:10px}
+  #screen-open .lead{margin:6px 0}
+  #screen-open .opt{min-height:52px;padding:8px 18px;font-size:18px}
+}
+@media (max-width:1023px),(orientation:portrait){
+  #econFig{--mh:34vh !important}
+  #qFig{--mh:34vh !important}
+}
+@media (min-width:1800px){
+  .kidsay{font-size:24px}
+  .headline .hl-title{font-size:46px}
+  .headline .hl-sub{font-size:23px}
+  .fcard.txt{width:clamp(280px,17vw,360px)}
+  .fcard.txt .label{font-size:22px}
+  .demobox .dname{font-size:24px}
+  .ideacards{grid-template-columns:repeat(auto-fill,minmax(210px,1fr))}
+  .icard .nm{font-size:23px}
+}
+@media (min-width:2600px){
+  .kidsay{font-size:31px}
+  .headline .hl-title{font-size:60px}
+  .headline .hl-sub{font-size:30px}
+  .fcard.txt{width:clamp(360px,16vw,470px)}
+  .fcard.txt .label{font-size:29px}
+  .demobox .dname{font-size:31px}
+  .ideacards{grid-template-columns:repeat(auto-fill,minmax(280px,1fr))}
+  .icard .nm{font-size:30px}
+}
+
+/* Unit 4 additions: the template palette, controls and classroom font sizes remain. */
+.qfig,.qchart{width:100%;height:auto;display:block}.diagram{max-width:650px;margin:12px auto}.diagram .note{margin:4px 0}
+.diagram svg{max-height:50vh}.must-list{margin:0;padding-left:1.5em}.must-list li{margin:8px 0}
+.tab{border-collapse:collapse;width:100%;table-layout:fixed;margin:10px 0}.tab th,.tab td{border:2px solid #777;padding:6px;overflow-wrap:anywhere}.tab th{background:#FFF6D8}
+.teacher-photo{max-width:600px;margin:14px auto}.teacher-photo img{display:block;max-width:100%;max-height:42vh;margin:auto}.teacher-placeholder{border:3px dashed #bbb;border-radius:14px;min-height:100px;display:flex;align-items:center;justify-content:center;padding:16px;color:#6B7A82}
+.lab-controls{display:flex;flex-wrap:wrap;gap:12px;align-items:center}.lab-controls label{display:flex;flex-wrap:wrap;gap:8px;align-items:center;min-width:0}.lab-controls input[type=range]{width:min(260px,100%);height:44px}.lab-controls input[type=number],.lab-controls select{min-height:44px;font:inherit;max-width:100%;width:auto}.lab-controls input[type=number]{width:110px}
+.lab-readout{font-weight:900;padding:10px;background:#F2F8FC;overflow-wrap:anywhere}.energy{margin:10px 0}.energy-total{display:flex;height:44px;border:3px solid var(--ink);max-width:100%;overflow:hidden}.energy-total span{display:flex;align-items:center;justify-content:center;white-space:nowrap;color:#111;font-weight:900}.energy-legend{display:flex;gap:16px;flex-wrap:wrap}.energy-legend span{font-weight:800}.check-question{margin:12px 0}.check-question h3{margin:6px 0}.station-summary{margin:8px 0}.course-links{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}.screen{min-width:0}.btn,.opt{max-width:100%;overflow-wrap:anywhere}.pair>*{min-width:0}.race-lane{margin:10px 0;border-bottom:3px solid #333;position:relative;height:60px;padding-top:4px}.runner{position:absolute;left:0;bottom:0;transform:translateX(-50%);font-weight:900;font-size:18px}.race-end{position:absolute;right:0;bottom:0;border-right:4px dashed #333;height:100%;padding-right:5px;font-size:14px}.lab-history{max-height:260px;overflow:auto}.heat-label{background:#FFD8BF}.worksheet-note{font-size:.85em}
+@media(max-width:640px){.pair{grid-template-columns:minmax(0,1fr)}.fcard.txt{width:min(100%,250px)}.tab{font-size:15px}.diagram svg{max-height:40vh}.headrow h1{overflow-wrap:anywhere}.energy-total{font-size:13px}}
+
+/* 課堂共學：教師流程收合，學生可以按需要取得線索與挑戰。 */
+details.teacher-tip>summary,details.must-review>summary,.learning-task>summary,.challenge>summary,.solution>summary{cursor:pointer;min-height:44px;padding:8px 4px;font-weight:800}
+details.teacher-tip{margin-bottom:12px}
+details.teacher-tip>summary{color:#665016}
+details.teacher-tip[open]>summary{border-bottom:1px dashed #baa975;margin-bottom:8px}
+.must-review>summary{font-size:1.1em}
+.participate{border-left:5px solid var(--water-dark);background:#f2f8fc;border-radius:0 12px 12px 0;padding:10px 14px;margin:10px 0 14px;overflow-wrap:anywhere}
+.participate p{margin:4px 0}.participate>p{font-weight:800}
+.learning-task{margin-top:6px}.learning-task>summary{color:#255268}
+.task-step{border-top:1px dashed #94abb5;padding:10px 0;margin:0}
+.task-step h3{font-size:1em;margin:0 0 4px}.challenge{border-top:1px dashed #94abb5;padding-top:6px}
+.attempt-check{display:flex;align-items:center;gap:10px;min-height:44px;margin:8px 0;cursor:pointer}
+.attempt-check input{flex:none;width:24px;height:24px;margin:0;accent-color:var(--green-dark)}
+.attempt-check:focus-within{outline:3px solid var(--water-dark);outline-offset:2px}
+.self-check{border-left:4px solid var(--green-dark);padding:8px 12px;margin-top:12px;background:#edf7ee}
+.self-check[hidden]{display:none}.task-check{margin:6px 0}
+.energy-total span{min-width:0;overflow:hidden;flex-shrink:0}
+.solution{border:2px dashed #a5b6a5;padding:6px 12px;border-radius:12px;margin:10px 0}
+summary:focus-visible{outline:3px solid var(--water-dark);outline-offset:3px}
+.part-callout{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}.part-callout path{stroke:#1e1e1e;stroke-width:3;fill:none}.part-callout circle{fill:#1e1e1e}.part-hotspot{border:3px solid #1e1e1e;border-radius:50%;background:white;color:#1e1e1e;cursor:pointer;font:inherit;font-weight:900;line-height:1}.part-hotspot[aria-pressed="true"]{background:#ffdf78;outline:3px solid #286b8b}.part-hotspot:focus-visible{outline:4px solid #286b8b;outline-offset:3px}.task-cue{font-size:.95em;color:#34444c;font-weight:400!important}.lab-controls select{min-width:44px}
+/* 同一螢幕：基本任務與原有選做題幹同時可見，核對答案仍收合。 */
+.task-start,.task-extension{min-width:0}.task-extension{padding-left:12px;border-left:4px solid var(--sun)}
+.seat-task{border-left:5px solid var(--water);background:#f2f8fc;padding:10px 14px;margin:10px 0}
+@media(min-width:1024px){.participate[data-learning-task]{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:22px;align-items:start}.participate[data-learning-task]>.learning-task,.participate[data-learning-task]>.challenge{margin-top:0}}
+.ladder{display:flex;align-items:stretch;justify-content:center;gap:10px;margin:12px 0}.ladder .step{flex:1 1 0;min-width:0;text-align:center;border:3px solid var(--ink);border-radius:14px;background:#fff;padding:10px}.ladder .step .nm{font-weight:900;font-size:1.1em}.ladder .arrow{align-self:center;font-size:1.6em;font-weight:900}
+@media(max-width:640px){.ladder{flex-direction:column;gap:4px}.ladder .arrow{transform:rotate(90deg);text-align:center}}
+@media(min-width:1800px){.scale-parts-photo{width:400px!important}}
+.steps{margin:4px 0;padding-left:1.6em}.steps li{margin:2px 0}
+</style><script>function imgFallback(img){const span=document.createElement("span");span.className="img-fallback";span.setAttribute("role","img");span.textContent="圖片未載入："+(img.alt||"課本圖片");img.replaceWith(span);}</script></head><body><div id="app"><header class="sitehead"><div class="headrow"><a class="back" href="../../index.html">← 回教材首頁</a><h1>彈簧秤與秤重工具</h1></div><p class="sub">五年級自然｜第四單元 力與運動　課本 92–93 頁</p><div class="course-links"><a class="back" href="彈簧秤與秤重工具_學習單.html">學習單</a><a class="back" href="彈簧秤與秤重工具_重點整理.html">重點整理</a></div><nav class="stations" aria-label="站別"><button class="station-btn" data-go="open">① 還有什麼工具？</button><button class="station-btn" data-go="parts">② 構造與原理</button><button class="station-btn" data-go="rules">③ 使用三規則</button><button class="station-btn" data-go="read">④ 虛擬彈簧秤</button><button class="station-btn" data-go="tools">⑤ 生活中的秤</button><button class="station-btn" data-go="quiz">⑥ 出場卡（自由複習）</button></nav></header><details class="teacher-tip"><summary>給老師｜本課教學安排</summary><p>⏱ ⑭｜暖身（伸長量＋彈性限度）3｜open2｜parts5｜rules9｜read7｜tools4｜習作P.36 3｜學習單7｜合計40。全班必做一、三，學習單代替出場卡；三題線上出場卡在家自由複習。</p><p>課前：找歸零鈕或螺絲，量物重時直立歸零，用已知100公克重砝碼檢查兩支最大250秤。已確認內部照片左短右長。器材夠可由老師決定每組傳一支摸摸看，不強制。低：數格子、圈選、助手歸零；中：構造與分類；高：視線偏差操作與解說、★／★★。</p><p>家長檢核：體重計只看內部照，不量或說出學生體重。不要拉超過最大刻度。</p><p>示範前每人先在預測格寫，再舉卡；2–3 位小助手男女輪值，優先邀請平常較被動的學生。小助手唸數字，全班複誦；用課前照片放大、白底板巡迴約 30 秒，或每排一位觀察代表上前看。高能力學生當數據審查員，中能力用「我看到＿＿，所以＿＿」，低能力可看詞語框與步驟卡。課堂選做未寫完不帶回家；回家只有習作，不派實驗。</p><p>④⑤站的藍框：左邊是全班一起做的步驟與說法（低、中），右邊是 ★ 挑戰（先做完的人），答案收在「想好了再打開」。第一次教這課，記下讀題、舉卡、觀察代表走動、同步填習作與收束的實際分鐘，依班級速度調整。用眼 30 分鐘要休息 10 分鐘；線上練習是自由練習。</p></details><section id="screen-open" class="screen"><h2 class="ptitle">① 還有什麼工具？</h2><details class="panel must-review"><summary>必會 3 句｜需要提示或複習時打開</summary><ol class="must-list"><li>彈簧秤利用彈簧受力後長度會改變、不受力時會恢復原狀的原理；指針最後停住的刻度，就是用力的大小。</li><li>使用彈簧秤要先歸零，上端和下端不可倒過來使用，讀刻度時眼睛要和指針在同一水平面上。</li><li>體重計、磅秤裡面也有彈簧；有彈簧不一定是測量工具，還要轉化成刻度才能讀出大小。</li></ol></details><div class="panel"><h2 class="ptitle">不只彈簧與砝碼</h2><p>課本問：除了用彈簧和砝碼，還有其他方法可以測量用力的大小嗎？</p><div class="guessbox" data-guess="{&quot;q&quot;: &quot;彈簧秤可以量手拉的力嗎？&quot;, &quot;opts&quot;: [&quot;可以&quot;, &quot;不可以&quot;], &quot;ans&quot;: &quot;可以；手拉時指針停住的刻度表示用力大小。&quot;, &quot;deferred&quot;: false}"></div></div><div class="navrow"><button class="btn green" data-next="parts">下一站：② 構造與原理 →</button></div><details class="teacher-tip"><summary>給老師｜① 還有什麼工具？ 2 分鐘</summary><p>暖身問伸長量怎麼算、如何檢查彈性限度；每人先寫預測再舉卡。</p></details></section>
+<section id="screen-parts" class="screen"><h2 class="ptitle">② 構造與原理</h2><div class="panel"><h2 class="ptitle">點照片觀察五個部分</h2><div class="scale-parts-photo" style="position:relative;width:277px;max-width:100%;margin:auto"><img src="../../題庫/photos/u4/scale-front-back.jpg" alt="課本彈簧秤正面與背面照片" width="277" height="568" style="width:100%;height:auto" onerror="imgFallback(this)" loading="lazy"><svg class="part-callout" viewBox="0 0 277 568" aria-hidden="true"><path d="M53 278 H133"/><circle cx="53" cy="278" r="4"/><path d="M68 213 H133"/><circle cx="68" cy="213" r="4"/></svg><button class="part-hotspot" style="position:absolute;left:24%;top:12%;width:44px;height:44px;transform:translate(-50%,-50%);padding:0" data-part="1" aria-label="觀察構造1"><span class="n">1</span></button><button class="part-hotspot" style="position:absolute;left:74%;top:27%;width:44px;height:44px;transform:translate(-50%,-50%);padding:0" data-part="2" aria-label="觀察構造2"><span class="n">2</span></button><button class="part-hotspot" style="position:absolute;left:48%;top:37.5%;width:44px;height:44px;transform:translate(-50%,-50%);padding:0" data-part="3" aria-label="觀察構造3"><span class="n">3</span></button><button class="part-hotspot" style="position:absolute;left:48%;top:49%;width:44px;height:44px;transform:translate(-50%,-50%);padding:0" data-part="4" aria-label="觀察構造4"><span class="n">4</span></button><button class="part-hotspot" style="position:absolute;left:23%;top:86%;width:44px;height:44px;transform:translate(-50%,-50%);padding:0" data-part="5" aria-label="觀察構造5"><span class="n">5</span></button></div><div id="partReadout" class="lab-readout" aria-live="polite">點照片上的①到⑤，觀察構造。</div></div><div class="panel"><h2 class="ptitle">外殼裡的彈簧</h2><figure class="figbox"><div class="fig" data-photo="scale-inside" style="--mh:36vh"></div><figcaption class="cap center">課本照片：把外殼打開。左邊沒有掛砝碼，彈簧比較短；右邊掛了砝碼，彈簧被拉長（砝碼在照片下方，沒有拍進來）。</figcaption></figure><div class="bigpoint">彈簧秤利用彈簧受力後長度會改變、不受力時會恢復原狀的原理；指針最後停住的刻度，就是用力的大小。</div></div><div class="navrow"><button class="btn green" data-next="rules">下一站：③ 使用三規則 →</button></div><details class="teacher-tip"><summary>給老師｜② 構造與原理 5 分鐘</summary><p>小助手指出吊環、彈簧、指針、刻度讀數與掛鉤，其他人同步寫名稱。③指針點在刻度窗最上面的 0（照片沒有掛東西）。內部照片已打開確認：左邊彈簧短＝沒掛，右邊彈簧長＝有掛。</p></details></section>
+<section id="screen-rules" class="screen"><h2 class="ptitle">③ 使用三規則</h2><div class="panel"><h2 class="ptitle">使用彈簧秤的三個規則</h2><div class="ladder"><div class="step"><div class="nm">① 先歸零</div></div><div class="arrow">→</div><div class="step"><div class="nm">② 上端、下端不倒過來</div></div><div class="arrow">→</div><div class="step"><div class="nm">③ 眼睛和指針同高</div></div></div><figure class="figbox"><div class="fig" data-photo="scale-zero" style="--mh:36vh"></div><figcaption class="cap center">課本照片：直立、未掛物品時先歸零。</figcaption></figure><figure class="figbox"><div class="fig" data-photo="scale-upside" style="--mh:36vh"></div><figcaption class="cap center">課本照片：倒掛後無法歸零。</figcaption></figure><figure class="diagram" data-fig="{&quot;type&quot;: &quot;springscale&quot;, &quot;val&quot;: 150, &quot;max&quot;: 250, &quot;minor&quot;: 10, &quot;step&quot;: 50, &quot;eyes&quot;: true, &quot;load&quot;: &quot;weight&quot;}" data-fallback="甲比指針高、乙和指針同高、丙比指針低。"><div class="note">示意：甲比指針高、乙和指針同高、丙比指針低。</div></figure><div class="check-question" data-choice="{&quot;q&quot;: &quot;沒歸零就掛東西，現在可直接讀嗎？&quot;, &quot;opts&quot;: [&quot;先取下，歸零後重新量&quot;, &quot;直接讀&quot;], &quot;ans&quot;: &quot;先取下，歸零後重新量&quot;, &quot;why&quot;: &quot;沒有歸零，讀數會多出或少掉一開始的數字，讀數不準。&quot;}"></div><div class="check-question" data-choice="{&quot;q&quot;: &quot;倒過來掛的秤可以繼續用嗎？&quot;, &quot;opts&quot;: [&quot;不可以，改正方向並歸零&quot;, &quot;可以&quot;], &quot;ans&quot;: &quot;不可以，改正方向並歸零&quot;, &quot;why&quot;: &quot;倒過來的彈簧秤無法歸零，讀到的數字不準。&quot;}"></div><div class="check-question" data-choice="{&quot;q&quot;: &quot;站著斜看指針，應怎麼做？&quot;, &quot;opts&quot;: [&quot;蹲低到和指針同高&quot;, &quot;從更高處看&quot;], &quot;ans&quot;: &quot;蹲低到和指針同高&quot;, &quot;why&quot;: &quot;讀刻度時眼睛要和指針在同一水平面上，看到的讀數才正確。&quot;}"></div><div class="criterion"><div class="k">倒過來的彈簧秤無法歸零，讀到的數字不準。</div><div class="askagain">你怎麼知道？我看到＿＿，所以＿＿。</div></div><figure class="teacher-photo"><img src="photos/teacher-scale.jpg" alt="老師課前試做的照片" loading="lazy" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'teacher-placeholder',textContent:'（老師課前試做的照片）'}))"><figcaption class="note">老師課前拍的試做照片；不是本次課堂的即時結果。</figcaption></figure></div><div class="navrow"><button class="btn green" data-next="read">下一站：④ 虛擬彈簧秤 →</button></div><details class="teacher-tip"><summary>給老師｜③ 使用三規則 9 分鐘</summary><p>示範用兩支最大250秤與砝碼。助手歸零、掛砝碼、蹲低同高唸讀數。抓錯三次：沒歸零、倒掛、上往下斜看；每次全班舉╳，正確重做。課前照片放 photos/teacher-scale.jpg。</p></details></section>
+<section id="screen-read" class="screen"><h2 class="ptitle">④ 虛擬彈簧秤</h2><div class="participate" data-learning-task="read"><div class="task-start"><p><b>一起讀刻度：</b></p><ol class="steps"><li>找兩個相鄰的數字，算相差多少。</li><li>數中間有幾小格，算出一小格是多少公克重。</li><li>從指針上面最近的數字往下數。</li></ol><p class="task-cue">說說看：「一小格是＿＿公克重，指針停在＿＿，所以是＿＿公克重。」</p></div><div class="task-extension"><p><b>★ 挑戰：</b>用力不變，只把眼睛移高或移低，讀到的數字會變。是彈簧秤受的力變了嗎？</p><details class="solution"><summary>想好了再打開</summary><p>不是。力沒有變，指針也沒有動；是眼睛斜著看，對到了別的刻度。眼睛要和指針同高再讀。</p></details></div></div><div class="panel"><h2 class="ptitle">操作與讀數（示意）</h2><div class="lab-controls"><label>換工具 <select id="scaleMax"><option value="250">最大 250 公克重的秤</option><option value="500">最大 500 公克重的秤</option></select></label><label>施力方式 <select id="scaleLoad"><option value="weight">掛砝碼</option><option value="hand">用手往下拉</option></select></label><label>用力大小 <input id="scaleForce" type="range" min="0" max="250" step="10" value="150"></label><label>眼睛位置 <select id="scaleEye"><option value="0">乙：和指針同高</option><option value="-1">甲：比指針高</option><option value="1">丙：比指針低</option></select></label><button class="btn" id="scaleZero">取下並歸零</button></div><div id="scaleDiagram" class="diagram"></div><div id="scaleReadout" class="lab-readout" aria-live="polite"></div><details class="solution" id="scaleSolution"><summary>先說出讀數，再打開看答案</summary><p id="scaleAnswer"></p></details><figure class="figbox"><div class="fig" data-photo="scale-pull" style="--mh:36vh"></div><figcaption class="cap center">課本照片：用手往下拉，指針讀數150公克重。</figcaption></figure><div class="criterion"><div class="k">讀刻度前先數：一小格代表多少公克重。單位是公克重，不是公分。</div><div class="askagain">你怎麼知道？我看到＿＿，所以＿＿。</div></div></div><div class="navrow"><button class="btn green" data-next="tools">下一站：⑤ 生活中的秤 →</button></div><details class="teacher-tip"><summary>給老師｜④ 虛擬彈簧秤 7 分鐘</summary><p>先問一小格幾公克重；250秤每小格10，500秤數字間隔100、每小格20。到最大刻度就換秤，不強拉。操作眼睛上下，解釋偏差；斜看時的讀數只是示意，差一小格是為了讓學生看出「會讀錯」，不是固定的誤差值。先讓全班說出一小格和讀數，再打開答案；改任何設定答案會自動收起。課本照片的150是照片本身的讀數，不是滑桿每次的答案。</p></details></section>
+<section id="screen-tools" class="screen"><h2 class="ptitle">⑤ 生活中的秤</h2><div class="participate" data-learning-task="tools"><div class="task-start"><p><b>一起判斷：</b>老師指一種工具，大家舉 ○ 或 ╳：「它能讀出重量或力的大小嗎？」</p><p class="task-cue">先看：它有沒有刻度？說說看：「＿＿有（沒有）刻度，所以是（不是）測量工具。」</p></div><div class="task-extension"><p><b>★ 挑戰：</b>怎麼知道一支彈簧秤量得準不準？</p><details class="solution"><summary>想好了再打開</summary><p>掛上已知重量的砝碼（例如 100 公克重），看讀數是不是 100 公克重。</p></details></div></div><div class="panel"><h2 class="ptitle">有彈簧，就一定是秤嗎？</h2><figure class="figbox"><div class="fig" data-photo="bathroom-scale-inside" style="--mh:36vh"></div><figcaption class="cap center">課本照片：體重計打開後，裡面也有彈簧。</figcaption></figure><figure class="figbox"><div class="fig" data-photo="kitchen-scale-inside" style="--mh:36vh"></div><figcaption class="cap center">課本照片：磅秤打開後，裡面有彈簧；彈簧被拉長時，指針跟著轉到刻度上。</figcaption></figure><table class="tab"><thead><tr><th>測量工具</th><th>有彈簧但不是測量工具</th></tr></thead><tbody><tr><td>彈簧秤、體重計、磅秤</td><td>摩托車避震器、遊樂器材、彈簧床</td></tr></tbody></table><div class="criterion"><div class="k">要成為測量工具：彈簧受力會改變長度、不受力會恢復原狀、在彈性限度內伸長有規律，還要轉化成刻度。</div><div class="askagain">你怎麼知道？我看到＿＿，所以＿＿。</div></div><div class="check-question" data-choice="{&quot;q&quot;: &quot;機車避震器有彈簧，是秤嗎？&quot;, &quot;opts&quot;: [&quot;不是，沒有測量大小的刻度&quot;, &quot;是，只要有彈簧&quot;], &quot;ans&quot;: &quot;不是，沒有測量大小的刻度&quot;, &quot;why&quot;: &quot;要成為測量工具：彈簧受力會改變長度、不受力會恢復原狀、在彈性限度內伸長有規律，還要轉化成刻度。&quot;}"></div><p class="bigpoint">水果攤：先放好空籃子，再歸零，放進水果後讀到的就是水果的重量。</p></div><div class="navrow"><button class="btn green" data-next="quiz">下一站：⑥ 出場卡（自由複習） →</button></div><details class="teacher-tip"><summary>給老師｜⑤ 生活中的秤 4 分鐘</summary><p>接習作P.36測量工具條件，上課3分鐘其餘回家；不量學生體重。</p></details></section>
+<section id="screen-quiz" class="screen"><h2 class="ptitle">⑥ 出場卡（自由複習）</h2><div class="ticket">課堂用學習單代替出場卡，下列三題在家自由複習，不是作業。</div><div class="quizbar"><span id="qprog"></span><span class="dots" id="dots"></span><span class="qscore">得分 <span id="score">0</span> / <span id="scoreMax"></span></span><span id="rank"></span></div><div class="btnrow"><button class="btn plain" id="classroomQuiz">課堂題</button><button class="btn plain" id="allQuiz">全部自由複習</button></div><p class="note">答錯可再試，該層得分減半。只顯示本次練習成果，不排學生名次。</p><div class="panel" id="quizPanel"><div id="qphoto"></div><div id="step1"><span class="steptag">第 1 層｜選答案</span><h3 class="qtitle" id="q1title"></h3><div id="q1opts"></div><div id="q1feed" class="feedback" aria-live="polite"></div></div><div id="step2" class="hidden"><span class="steptag">第 2 層｜你怎麼知道？</span><div id="q2opts"></div><div id="q2feed" class="feedback" aria-live="polite"></div></div><div id="criterion" class="criterion hidden"><div class="k" id="criterionText"></div><div class="askagain">用「我看到＿＿，所以＿＿」說出判準。</div></div><div class="btnrow"><button class="btn green hidden" id="nextBtn">下一題</button></div></div><div id="quizResult" class="panel hidden"><div class="result"><div class="big" id="finalScore"></div><p id="finalRank" class="rankline"></p><div class="ticket">讀刻度前，我先＿＿；讀時，眼睛要＿＿。</div><button id="againBtn" class="btn">再挑戰一次</button></div></div><details class="teacher-tip"><summary>給老師｜⑥ 出場卡（自由複習） 0 分鐘</summary><p>學習單7分鐘必做一、三；★／★★先完成者選做。</p></details></section><footer class="credits"><p>教學依據：<a href="https://reader.nani.com.tw/9200a013cbef8e66" target="_blank" rel="noopener noreferrer">南一自然課本，第 92–93 頁</a>（閱讀器可能需要登入）</p><p>圖片出處：南一自然五上課本，第 92–93 頁；課本圖片引用題庫已裁切檔案。課前試做照片由老師自行拍攝。所有模擬與 SVG 均為示意。</p></footer></div><script src="../../題庫/figures.js?v=20261006a"></script><script>
+const DATA={"name": "彈簧秤與秤重工具", "stations": [{"id": "open", "name": "① 還有什麼工具？"}, {"id": "parts", "name": "② 構造與原理"}, {"id": "rules", "name": "③ 使用三規則"}, {"id": "read", "name": "④ 虛擬彈簧秤"}, {"id": "tools", "name": "⑤ 生活中的秤"}, {"id": "quiz", "name": "⑥ 出場卡（自由複習）"}], "quiz": [{"q": "看圖，指針停住的讀數是多少？", "fig": {"type": "springscale", "val": 130, "max": 250, "minor": 10, "step": 50, "eyes": false, "load": "weight"}, "cap": "最大 250 公克重的彈簧秤。", "opts": ["130 公克重", "250 公克重", "130 公分"], "ans": "130 公克重", "why": "讀刻度前先數：一小格代表多少公克重。單位是公克重，不是公分。", "hint": "先讀一小格代表幾公克重，再從標出的刻度數到指針。"}, {"q": "○╳：彈簧秤可以倒過來掛東西。", "opts": ["○", "╳"], "ans": "╳", "why": "倒過來的彈簧秤無法歸零，讀到的數字不準。", "hint": "先想上端、下端倒過來後，能不能正確歸零。"}, {"q": "○╳：摩托車避震器裡有彈簧，所以它是測量工具。", "opts": ["○", "╳"], "ans": "╳", "why": "要成為測量工具：彈簧受力會改變長度、不受力會恢復原狀、在彈性限度內伸長有規律，還要轉化成刻度。", "hint": "找找它能不能把受力的大小變成可讀的刻度。"}], "must": ["彈簧秤利用彈簧受力後長度會改變、不受力時會恢復原狀的原理；指針最後停住的刻度，就是用力的大小。", "使用彈簧秤要先歸零，上端和下端不可倒過來使用，讀刻度時眼睛要和指針在同一水平面上。", "體重計、磅秤裡面也有彈簧；有彈簧不一定是測量工具，還要轉化成刻度才能讀出大小。"], "criteria": ["讀刻度前先數：一小格代表多少公克重。單位是公克重，不是公分。", "倒過來的彈簧秤無法歸零，讀到的數字不準。", "要成為測量工具：彈簧受力會改變長度、不受力會恢復原狀、在彈性限度內伸長有規律，還要轉化成刻度。"], "photoData": {"cart-push": [406, 315, "cart-push"], "leaf-fall": [392, 325, "leaf-fall"], "spring-0": [270, 540, "spring-0"], "spring-2": [270, 540, "spring-2"], "scale-zero": [380, 276, "scale-zero"], "scale-upside": [377, 276, "scale-upside"], "scale-pull": [380, 276, "scale-pull"], "scale-front-back": [277, 568, "scale-front-back"], "scale-weights": [396, 594, "scale-weights"], "scale-inside": [646, 475, "scale-inside"], "kitchen-scale": [414, 277, "kitchen-scale"], "kitchen-scale-inside": [229, 345, "kitchen-scale-inside"], "bathroom-scale-inside": [746, 497, "bathroom-scale-inside"], "tug": [900, 804, "tug"], "cart-wheel": [900, 600, "cart-wheel"], "sprint": [729, 323, "sprint"], "swing": [690, 460, "swing"], "slide": [681, 456, "slide"], "flashlight": [389, 259, "flashlight"], "fan": [481, 320, "fan"], "rub-hands": [631, 420, "rub-hands"], "solar-panel": [436, 290, "solar-panel"]}, "board": null, "classroom": [], "exit": true, "ticket": "讀刻度前，我先＿＿；讀時，眼睛要＿＿。"};
+const $=id=>document.getElementById(id);
+const PHOTO_DIR="../../題庫/photos/u4/";
+/* 本課自備的照片（磅秤內部照片：錶盤上的品牌字樣已模糊處理） */
+const PHOTO_LOCAL={"kitchen-scale-inside":"photos/kitchen-scale-inside.jpg"};
+const PHOTOS=DATA.photoData;
+function imgTag(id,name){
+  const n=name||PHOTOS[id][2];
+  /* lazy：還沒切到的站別不載入照片（教室電腦記憶體吃緊時會卡） */
+  return `<img src="${PHOTO_LOCAL[id]||PHOTO_DIR+id+".jpg"}" alt="${n}" data-name="${n}" draggable="false" loading="lazy" decoding="async" onerror="imgFallback(this)">`;
+}
+/* 照片框：設定原比例後放進照片（同時清掉舊的熱點與標籤） */
+function renderFig(el,id,name){
+  const p=PHOTOS[id];
+  el.style.setProperty("--ar",`${p[0]} / ${p[1]}`);
+  el.innerHTML=imgTag(id,name);
+  return el;
+}
+/* 疊在照片上的標籤。place：r 右、l 左、b 下、t 上、br/bl/tr/tl 斜角。
+   opt.hs＝旁邊是可點熱點（距離大一點）；否則自動加一個小圓點標出位置。 */
+function addTag(fig,x,y,html,place,opt){
+  opt=opt||{};
+  /* 熱點上方有號碼小牌子：往上放的標籤要多讓出牌子的高度，才不會蓋住號碼 */
+  const up=place==="t"||place==="tr"||place==="tl";
+  const off=opt.hs?(up?"(var(--hs) / 2 + var(--hs) * .55 + 12px)":"(var(--hs) / 2 + 6px)"):"14px";
+  const t=document.createElement("div");
+  t.className="tag"; t.innerHTML=html;
+  const s=t.style, m=Math.min(x,100-x);
+  switch(place){
+    case "r": s.left=`calc(${x}% + ${off})`; s.top=y+"%"; s.transform="translateY(-50%)"; s.maxWidth=`calc(${100-x}% - ${off} - 4px)`; break;
+    case "l": s.right=`calc(${100-x}% + ${off})`; s.top=y+"%"; s.transform="translateY(-50%)"; s.maxWidth=`calc(${x}% - ${off} - 4px)`; break;
+    case "t": s.left=x+"%"; s.bottom=`calc(${100-y}% + ${off})`; s.transform="translateX(-50%)"; s.maxWidth=`calc(${2*m}% - 8px)`; break;
+    case "br": s.left=`calc(${x}% - 14px)`; s.top=`calc(${y}% + ${off})`; s.maxWidth=`calc(${100-x}% + 10px)`; break;
+    case "bl": s.right=`calc(${100-x}% - 14px)`; s.top=`calc(${y}% + ${off})`; s.maxWidth=`calc(${x}% + 10px)`; break;
+    case "tr": s.left=`calc(${x}% - 14px)`; s.bottom=`calc(${100-y}% + ${off})`; s.maxWidth=`calc(${100-x}% + 10px)`; break;
+    case "tl": s.right=`calc(${100-x}% - 14px)`; s.bottom=`calc(${100-y}% + ${off})`; s.maxWidth=`calc(${x}% + 10px)`; break;
+    default:   s.left=x+"%"; s.top=`calc(${y}% + ${off})`; s.transform="translateX(-50%)"; s.maxWidth=`calc(${2*m}% - 8px)`;
+  }
+  if(opt.mw) s.maxWidth=opt.mw+"%";
+  if(!opt.hs){
+    const d=document.createElement("span");
+    d.className="pin"; d.style.left=x+"%"; d.style.top=y+"%";
+    fig.appendChild(d);
+  }
+  fig.appendChild(t);
+  return t;
+}
+/* 通用選擇題：答錯的選項標示並停用、可再試；答對就全部停用 */
+function choiceQ(host,opts,ans,onRight,onWrong,cls){
+  const box=document.createElement("div");
+  box.className="opts"+(cls?" "+cls:"");
+  opts.forEach(o=>{
+    const b=document.createElement("button");
+    b.type="button"; b.className="opt"; b.textContent=o;
+    b.addEventListener("click",()=>{
+      if(o===ans){
+        b.classList.add("ok");
+        box.querySelectorAll(".opt").forEach(x=>x.disabled=true);
+        if(onRight) onRight();
+      }else{
+        b.classList.add("no"); b.disabled=true;
+        if(onWrong) onWrong(o);
+      }
+    });
+    box.appendChild(b);
+  });
+  host.appendChild(box);
+  return box;
+}
+
+/* Temporary common source; builder embeds this in every lesson. No runtime dependency. */
+const STATIONS=DATA.stations.map(s=>s.id);
+function go(name,smooth){
+  if(!STATIONS.includes(name))name='open';
+  document.querySelectorAll('.station-btn').forEach(b=>{const on=b.dataset.go===name;b.classList.toggle('on',on);if(on)b.setAttribute('aria-current','step');else b.removeAttribute('aria-current');});
+  document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('active',s.id==='screen-'+name));
+  try{history.replaceState(null,'','#'+name);}catch(_){}
+  window.scrollTo({top:0,behavior:smooth?'smooth':'auto'});
+}
+window.addEventListener('hashchange',()=>go(decodeURIComponent(location.hash.slice(1)),false));
+document.querySelectorAll('.station-btn').forEach(b=>b.addEventListener('click',()=>go(b.dataset.go,true)));
+document.querySelectorAll('[data-next]').forEach(b=>b.addEventListener('click',()=>go(b.dataset.next,true)));
+document.querySelectorAll('[data-photo]').forEach(el=>renderFig(el,el.dataset.photo,el.nextElementSibling?.textContent||'課本圖片'));
+function renderDiagram(el,p,fallback){
+  el.dataset.fig=JSON.stringify(p);el.dataset.fallback=fallback;
+  try{el.innerHTML=window.QFIG?QFIG.render(p)+'<figcaption class="note">示意：'+fallback+'</figcaption>':'<div class="img-fallback">示意圖未載入：'+fallback+'</div>';}catch(_){el.textContent='示意圖未載入：'+fallback;}
+}
+document.querySelectorAll('[data-fig]').forEach(el=>renderDiagram(el,JSON.parse(el.dataset.fig),el.dataset.fallback));
+
+const STATION_HINTS={"read": "先歸零、眼睛同高。找相鄰兩個有數字的刻度→算相差多少→數中間幾小格→算一格多少，再從指針附近的數字數起。", "tools": "有彈簧還不夠；要能把受力後有規律的伸長轉成刻度，才能讀出大小。", "rules": "先確認歸零、上端下端的方向、眼睛與指針是否同高。", "gravity": "離開手後，手還有碰到球嗎？地球的引力還在嗎？", "weights": "要比較每次加重後的變化，先檢查每個重物的重量是否相同。", "extend": "伸長量要扣掉原長；是否超過彈性限度，要取下砝碼檢查。"};
+function choiceHint(el,q){return q.hint||STATION_HINTS[el.closest(".screen")?.id.replace("screen-","")]||"先指出題目中的物體和改變，再找對應的判準。";}
+document.querySelectorAll('[data-choice]').forEach(el=>{
+  const q=JSON.parse(el.dataset.choice),title=document.createElement('h3'),feed=document.createElement('div'),crit=document.createElement('div');
+  title.className='qtitle';title.textContent=q.q;el.appendChild(title);feed.className='feedback';feed.setAttribute('aria-live','polite');crit.className='criterion hidden';crit.textContent=q.why;
+  choiceQ(el,q.opts,q.ans,()=>{feed.className='feedback good';feed.textContent='答對了，請說出理由。';crit.classList.remove('hidden');},()=>{feed.className='feedback hint';feed.textContent='線索：'+choiceHint(el,q)+' 再選一次，並說出理由。';},'col');el.append(feed,crit);
+});
+const classGuess=new Map();
+document.querySelectorAll('[data-guess]').forEach((el,i)=>{
+  const q=JSON.parse(el.dataset.guess);el.innerHTML='<p class="g"></p><div class="opts"></div><p class="note">先寫預測，再舉反應卡；現在只記錄，不判對錯。</p><div class="guess-recall hidden"></div>';
+  el.querySelector('.g').textContent=q.q;
+  q.opts.forEach(o=>{const b=document.createElement('button');b.className='opt';b.textContent=o;b.setAttribute('aria-pressed','false');b.onclick=()=>{classGuess.set(i,o);const recap=el.querySelector('.guess-recap');if(recap)recap.disabled=false;el.querySelectorAll('.opt').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));};el.querySelector('.opts').appendChild(b);});
+  if(!q.deferred){const recap=document.createElement('button');recap.className='btn plain guess-recap';recap.disabled=true;recap.textContent='示範後：回收預測';recap.onclick=()=>{const host=el.querySelector('.guess-recall');host.className='guess-recall criterion';host.textContent='全班原先猜的是：'+(classGuess.get(i)||'尚未選擇')+'。觀察後：'+q.ans;};el.appendChild(recap);}else{el.querySelector('.note').textContent='只記錄預測，不先揭曉；老師記下本班投票，下一節一起回收。';}
+});
+
+/* Whiteboard: answers stay in WeakMap; no right/wrong before reveal. */
+const SORT_CARDS=DATA.board?.cards||[],BASKET_NAMES=DATA.board?.names||{};
+const cardCat=new WeakMap();let picked=null,sortRevealed=false;
+function buildSort(){
+  if(!$('tray'))return;$('tray').innerHTML='';picked=null;sortRevealed=false;
+  Object.keys(BASKET_NAMES).forEach(k=>{$('drop-'+k).innerHTML='';$('name-'+k).textContent='？？？';});$('derive').classList.add('hidden');
+  SORT_CARDS.forEach(o=>{
+    const el=document.createElement('div');el.className='fcard txt'+(o.photo?'':' noimg');el.tabIndex=0;el.setAttribute('role','button');el.setAttribute('aria-label',o.name);cardCat.set(el,o.cat);
+    el.innerHTML=(o.photo?imgTag(o.photo,o.name):'')+'<div class="label"></div><div class="mark"></div>';el.querySelector('.label').textContent=o.name;
+    attachDrag(el);el.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();if(!sortRevealed){togglePick(el);checkReady();}}});$('tray').appendChild(el);
+  });checkReady();
+}
+function togglePick(el){if(picked===el){el.classList.remove('picked');picked=null;}else{if(picked)picked.classList.remove('picked');picked=el;el.classList.add('picked');}}
+function clearHot(){document.querySelectorAll('.basket').forEach(b=>b.classList.remove('hot'));}
+function place(el,k){$('drop-'+k).appendChild(el);el.classList.remove('picked');if(picked===el)picked=null;checkReady();}
+function attachDrag(el){
+  let sx=0,sy=0,ox=0,oy=0,moved=false,down=false,suppress=false;
+  el.addEventListener('pointerdown',e=>{if(sortRevealed||(e.pointerType==='mouse'&&e.button!==0))return;down=true;moved=false;sx=e.clientX;sy=e.clientY;const r=el.getBoundingClientRect();ox=e.clientX-r.left;oy=e.clientY-r.top;try{el.setPointerCapture(e.pointerId);}catch(_){};});
+  el.addEventListener('pointermove',e=>{if(!down)return;if(sortRevealed){endDrag();down=false;return;}if(!moved&&Math.hypot(e.clientX-sx,e.clientY-sy)>12){moved=true;el.style.width=el.getBoundingClientRect().width+'px';el.classList.add('dragging');}if(moved){el.style.left=e.clientX-ox+'px';el.style.top=e.clientY-oy+'px';clearHot();document.elementFromPoint(e.clientX,e.clientY)?.closest('.basket')?.classList.add('hot');}});
+  el.addEventListener('pointerup',e=>{if(!down)return;down=false;if(moved){const under=document.elementFromPoint(e.clientX,e.clientY);endDrag();suppress=true;if(!sortRevealed){const b=under?.closest('.basket');if(b)place(el,b.dataset.basket);else if(under?.closest('.cardtray')){$('tray').appendChild(el);if(picked===el){el.classList.remove('picked');picked=null;}}}checkReady();setTimeout(()=>suppress=false,0);}});
+  el.addEventListener('click',()=>{if(!sortRevealed&&!suppress){togglePick(el);checkReady();}});
+  el.addEventListener('pointercancel',()=>{down=false;endDrag();});
+  function endDrag(){el.classList.remove('dragging');el.style.cssText='';moved=false;clearHot();}
+}
+function checkReady(){if(!$('tray')||sortRevealed)return;const left=$('tray').querySelectorAll('.fcard').length;$('revealBtn').disabled=left>0;$('sortMsg').textContent=picked?'已選「'+picked.querySelector('.label').textContent+'」，請放入籃子':left?'還有 '+left+' 張沒分':'都分好了，說完理由再揭曉。';}
+document.querySelectorAll('.basket').forEach(b=>{
+  b.addEventListener('click',e=>{if(!sortRevealed&&picked&&!e.target.closest('.fcard'))place(picked,b.dataset.basket);});
+  b.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target===b){e.preventDefault();if(!sortRevealed&&picked)place(picked,b.dataset.basket);}});
+});
+if($('tray')){
+  $('tray').addEventListener('click',e=>{if(!sortRevealed&&picked&&!e.target.closest('.fcard')){$('tray').appendChild(picked);picked.classList.remove('picked');picked=null;checkReady();}});
+  $('revealBtn').onclick=()=>{if($('revealBtn').disabled)return;sortRevealed=true;if(picked)picked.classList.remove('picked');picked=null;let right=0;Object.keys(BASKET_NAMES).forEach(k=>{$('name-'+k).textContent=BASKET_NAMES[k];$('drop-'+k).querySelectorAll('.fcard').forEach(el=>{const ok=cardCat.get(el)===k;el.classList.add('judged',ok?'ok':'no');el.querySelector('.mark').textContent=ok?'○ 放對了':'╳ 應放 '+BASKET_NAMES[cardCat.get(el)];if(ok)right++;});});$('sortMsg').textContent='共 '+SORT_CARDS.length+' 張，放對 '+right+' 張。';$('revealBtn').disabled=true;$('derive').innerHTML=DATA.board.why;$('derive').classList.remove('hidden');};
+  $('resetSort').onclick=buildSort;buildSort();
+}
+
+/* Two-layer practice, inherited template retry and score behavior. */
+const QUIZ=DATA.quiz,RANKS=[{s:0,t:'繼續找線索'},{s:.5,t:'能用證據說明'},{s:.9,t:'判準掌握了'}];
+let activeQuiz=QUIZ,qi=0,score=0,tries=0,quizClassMode=DATA.classroom.length>0;
+function fmt(n){return Number.isInteger(n)?String(n):n.toFixed(1);}
+function maxScore(){return activeQuiz.reduce((s,q)=>s+(q.r?2:1),0);}
+function rankOf(s){let t=RANKS[0].t;RANKS.forEach(r=>{if(s/Math.max(maxScore(),1)>=r.s)t=r.t;});return t;}
+function addScore(){score+=tries===0?1:.5;tries=0;$('score').textContent=fmt(score);$('rank').textContent=rankOf(score);}
+function renderDots(){$('dots').innerHTML=activeQuiz.map((_,i)=>'<span class="dot'+(i<qi?' done':i===qi?' now':'')+'"></span>').join('');}
+function renderQ(){
+  const q=activeQuiz[qi];tries=0;renderDots();$('qprog').textContent=(quizClassMode?'課堂 ':'')+'第 '+(qi+1)+' / '+activeQuiz.length+' 題'+(quizClassMode?'（原第'+(QUIZ.indexOf(q)+1)+'題）':'');$('scoreMax').textContent=maxScore();$('q1title').textContent=q.q;
+  ['q1opts','q2opts','qphoto'].forEach(id=>$(id).innerHTML='');['q1feed','q2feed'].forEach(id=>{$(id).className='feedback';$(id).textContent='';});['step2','criterion','nextBtn'].forEach(id=>$(id).classList.add('hidden'));
+  if(q.fig){const f=document.createElement('figure');f.className='diagram';$('qphoto').appendChild(f);renderDiagram(f,q.fig,q.cap||'依圖上的代號、數字與單位判讀。');}
+  $('step1').querySelector('.steptag').textContent=q.r?'第 1 層｜選答案':'出場卡｜選答案';
+  const showCriterion=()=>{$('criterionText').textContent=q.why;$('criterion').classList.remove('hidden');$('nextBtn').textContent=qi+1<activeQuiz.length?'下一題 →':'看結果 →';$('nextBtn').classList.remove('hidden');};
+  choiceQ($('q1opts'),q.opts,q.ans,()=>{addScore();$('q1feed').className='feedback good';$('q1feed').textContent='答對了！';if(q.r)$('step2').classList.remove('hidden');else showCriterion();},()=>{tries++;$('q1feed').className='feedback hint';$('q1feed').textContent='線索：'+q.hint+' 再試一次。';},'col');
+  if(q.r)choiceQ($('q2opts'),q.r,q.rAns,()=>{addScore();showCriterion();},()=>{tries++;$('q2feed').className='feedback hint';$('q2feed').textContent='把你選的答案和證據連起來：'+q.hint;},'col');
+}
+function resetQuiz(onlyClass=quizClassMode){quizClassMode=onlyClass&&DATA.classroom.length>0;$('classroomQuiz').setAttribute('aria-pressed',String(quizClassMode));$('allQuiz').setAttribute('aria-pressed',String(!quizClassMode));activeQuiz=onlyClass?QUIZ.filter((_,i)=>DATA.classroom.includes(i+1)):QUIZ;if(!activeQuiz.length)activeQuiz=QUIZ;qi=0;score=0;$('score').textContent='0';$('rank').textContent=RANKS[0].t;$('quizPanel').classList.remove('hidden');$('quizResult').classList.add('hidden');renderQ();}
+$('nextBtn').onclick=()=>{qi++;if(qi<activeQuiz.length)renderQ();else{renderDots();$('qprog').textContent='完成';$('quizPanel').classList.add('hidden');$('quizResult').classList.remove('hidden');$('finalScore').textContent='總分 '+fmt(score)+' / '+maxScore();$('finalRank').textContent=rankOf(score);}};
+$('againBtn').onclick=()=>resetQuiz(quizClassMode);$('allQuiz').onclick=()=>resetQuiz(false);$('classroomQuiz').onclick=()=>resetQuiz(true);
+if(!DATA.classroom.length){$('classroomQuiz').disabled=true;$('classroomQuiz').textContent='課堂用學習單';}
+resetQuiz(quizClassMode);
+
+
+const SCALE={max:250,force:150,eye:0,load:'weight'};
+function updateScale(){const minor=SCALE.max===250?10:20;const eyeName=['甲（比指針高）','乙（和指針同高）','丙（比指針低）'][SCALE.eye+1];renderDiagram($('scaleDiagram'),{type:'springscale',max:SCALE.max,step:SCALE.max===250?50:100,minor,val:SCALE.force,load:SCALE.load,eyes:true},'粗框的眼睛是現在的位置：'+eyeName+'。');$('scaleDiagram').querySelectorAll('svg ellipse').forEach((e,i)=>{if(i===SCALE.eye+1){e.setAttribute('stroke-width','5');}else{e.setAttribute('opacity','.3');}});const shown=Math.max(0,Math.min(SCALE.max,SCALE.force+SCALE.eye*minor));$('scaleSolution').open=false;$('scaleReadout').textContent=(SCALE.eye===0?'眼睛和指針同高：可以讀了。':'視線偏斜：眼睛要調到和指針同高再讀。')+(SCALE.force===SCALE.max?' 指針已到最大刻度，要換工具，不再拉。':'');$('scaleAnswer').textContent='這支秤一小格是 '+minor+' 公克重。示意讀數 '+shown+' 公克重；'+(SCALE.eye===0?'眼睛同高，這是正確讀數。':'這是視線偏差的示意讀數；請調到同高重新核對。');}
+$('scaleMax').onchange=()=>{SCALE.max=+$('scaleMax').value;$('scaleForce').max=SCALE.max;$('scaleForce').step=SCALE.max===250?10:20;SCALE.force=Math.min(SCALE.max,Math.round(SCALE.force/+$('scaleForce').step)*+$('scaleForce').step);$('scaleForce').value=SCALE.force;updateScale();};
+$('scaleForce').oninput=()=>{SCALE.force=+$('scaleForce').value;updateScale();};$('scaleEye').onchange=()=>{SCALE.eye=+$('scaleEye').value;updateScale();};$('scaleLoad').onchange=()=>{SCALE.load=$('scaleLoad').value;updateScale();};$('scaleZero').onclick=()=>{SCALE.force=0;SCALE.eye=0;$('scaleForce').value=0;$('scaleEye').value=0;updateScale();};
+const partNames=['吊環：上端吊起秤。','彈簧：藏在外殼裡面，從外面看不到；請看下面打開外殼的照片。','指針：現在停在 0。掛上東西後會往下移，最後停住的刻度就是用力的大小。','刻度讀數：單位是公克重。先數一小格代表多少公克重。','掛鉤：下端掛物品，或讓手向下拉。'];document.querySelectorAll('[data-part]').forEach(b=>b.onclick=()=>{document.querySelectorAll('[data-part]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));$('partReadout').textContent=partNames[+b.dataset.part-1];});updateScale();
+window.UNIT4_TEST=()=>{
+ let ok=true;const solution=$('scaleSolution');
+ document.querySelectorAll('[data-part]').forEach(b=>{b.click();ok=ok&&$('partReadout').textContent===partNames[+b.dataset.part-1];});
+ for(const max of [250,500]){solution.open=true;$('scaleMax').value=max;$('scaleMax').dispatchEvent(new Event('change'));ok=ok&&!solution.open;
+  for(const eye of [-1,0,1]){solution.open=true;$('scaleEye').value=eye;$('scaleEye').dispatchEvent(new Event('change'));const shown=Math.max(0,Math.min(max,SCALE.force+eye*(max===250?10:20)));ok=ok&&SCALE.eye===eye&&!solution.open&&$('scaleAnswer').textContent.includes('示意讀數 '+shown+' 公克重')&&!$('scaleReadout').textContent.includes('示意讀數')&&(eye===0||$('scaleReadout').textContent.includes('視線偏斜'));}
+  solution.open=true;$('scaleForce').value=max;$('scaleForce').dispatchEvent(new Event('input'));ok=ok&&!solution.open&&$('scaleReadout').textContent.includes('換工具');
+ }
+ solution.open=true;$('scaleLoad').value='hand';$('scaleLoad').dispatchEvent(new Event('change'));ok=ok&&SCALE.load==='hand'&&!solution.open;
+ solution.open=true;$('scaleZero').click();return ok&&SCALE.force===0&&SCALE.eye===0&&!solution.open&&$('scaleAnswer').textContent.includes('示意讀數 0 公克重');
+};
+
+
+// 口說、畫圖或書寫都可以；自我檢核不以勾選冒充學會。
+document.querySelectorAll('[data-learning-task]').forEach((task,i)=>{
+  const check=task.querySelector('.attempt-check input'),button=task.querySelector('.task-check'),answer=task.querySelector('.self-check');if(!check||!button||!answer)return;
+  answer.id='task-check-'+i;button.setAttribute('aria-controls',answer.id);
+  check.addEventListener('change',()=>{button.disabled=!check.checked;if(!check.checked){answer.hidden=true;button.setAttribute('aria-expanded','false');button.textContent='看自我檢核';}});
+  button.addEventListener('click',()=>{answer.hidden=!answer.hidden;button.setAttribute('aria-expanded',String(!answer.hidden));button.textContent=answer.hidden?'看自我檢核':'收起自我檢核';});
+});
+
+go(decodeURIComponent(location.hash.slice(1))||"open",false);
+</script></body></html>

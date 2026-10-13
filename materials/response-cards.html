@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>課堂反應卡</title>
+  <link rel="icon" href="../image/icon.svg">
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    /* ===== 螢幕上的說明與工具列 ===== */
+    .breadcrumb a, .site-footer a { display:inline-flex; align-items:center; min-height:44px; }   /* 觸控目標 */
+    .toolbar .btn { min-height:44px; }
+    .ws-intro p { margin:0; }
+    .howto { margin:6px 0 10px; padding-left:1.5em; }
+    .howto li { margin:3px 0; }
+    .uses { list-style:none; margin:0; padding:0; }
+    .uses li { margin:4px 0; padding-left:4.2em; text-indent:-4.2em; }
+    .uses .k { display:inline-block; width:3.6em; margin-right:.6em; text-indent:0; text-align:center;
+               border:1.5px solid var(--c-brand-strong); border-radius:8px; color:var(--c-brand-strong);
+               font-weight:700; font-size:.9em; line-height:1.6; }
+
+    /* ===== A4 卡片紙：螢幕預覽就是列印的樣子 =====
+       .sheet 寬 190mm（A4 扣掉左右邊界 10mm）；卡片 3 欄 × 4 列，每張 60 × 65mm，
+       合計 180 × 260mm，加上頁首一行，列印剛好一頁。 */
+    .sheet { width:190mm; margin:8px auto 24px; padding:6mm 5mm; background:#fff; color:#111;
+             box-shadow:0 2px 12px rgba(0,0,0,.25); }
+    .sheet-head { width:180mm; margin:0 auto 2.5mm; display:flex; align-items:baseline;
+                  justify-content:space-between; gap:4mm; font-size:10.5pt; line-height:1.3; }
+    .sheet-head .t { font-size:14pt; font-weight:700; letter-spacing:1px; white-space:nowrap; }
+    .cards { position:relative; display:grid; grid-template-columns:repeat(3, 60mm);
+             grid-template-rows:repeat(4, 65mm); width:180mm; margin:0 auto; }
+    .rc svg { display:block; width:100%; height:100%; }
+    /* SVG 座標單位＝0.1mm（viewBox 600 × 650 ＝ 60 × 65mm） */
+    .rc .tag  { fill:none; stroke:#666; stroke-width:4; }
+    .rc .use  { font-family:var(--font); font-weight:700; font-size:40px; fill:#333; dominant-baseline:central; }
+    .rc .big  { font-family:var(--font); font-weight:700; fill:#111; text-anchor:middle; dominant-baseline:central; }
+    .rc .shp  { fill:none; stroke:#111; stroke-width:24; stroke-linejoin:round; }   /* 酸鹼的形狀記號 */
+    .rc .mark { fill:none; stroke:#111; stroke-width:50; stroke-linecap:round; }    /* ○ 和 ╳ 直接用線畫，不靠字型 */
+    /* 裁切線：一張 SVG 疊在卡片上，虛線間距固定（3mm 線、2mm 空） */
+    .cutlines { position:absolute; top:0; left:0; width:100%; height:100%; overflow:visible; pointer-events:none; }
+    .cutlines path { fill:none; stroke:#333; stroke-width:4; stroke-dasharray:30 20; }
+    body.no-cut .cutlines, body.no-cut .cut-only { display:none; }
+
+    @media print {
+      @page { size:A4 portrait; margin:10mm; }
+      body { background:#fff; }
+      .sheet { margin:0; padding:0; width:auto; box-shadow:none; }
+      .cards { break-inside:avoid; page-break-inside:avoid; }
+    }
+
+    /* ===== RWD =====
+       卡片紙是 A4 列印物（.sheet 固定 190mm）。螢幕上把整張紙等比例縮到
+       裝置寬度（做法同學習單，雙指可放大看細節）；列印完全不受影響。 */
+    @media print { .sheet { zoom:1 !important; } }
+    @media screen and (max-width: 820px) {
+      .sheet { margin:4px auto 16px; }
+      .toolbar .btn { padding:12px 16px; }
+    }
+    @media (min-width: 1800px) {                    /* 75 吋：紙張放大到看得清楚 */
+      .sheet { zoom:1.45; }
+      .toolbar .btn { font-size:1.3rem; padding:14px 30px; min-height:58px; }
+    }
+    @media (min-width: 2600px) {
+      .sheet { zoom:2.1; }
+      .toolbar .btn { font-size:1.7rem; padding:18px 38px; min-height:72px; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="wrap">
+      <img src="../image/icon.svg" alt="站標">
+      <div>
+        <h1>課堂反應卡</h1>
+        <p>數位教材 · 延伸工具（每一個單元上課都能用）</p>
+      </div>
+    </div>
+  </header>
+
+  <nav class="breadcrumb wrap"><a href="../index.html">← 回首頁</a></nav>
+
+  <main>
+    <div class="wrap no-print">
+      <div class="ws-intro">
+        <p><strong>怎麼用：</strong>一人一套，整個單元重複使用。</p>
+        <ol class="howto">
+          <li><b>印</b>：A4 直式、縮放 100%，一張就是一個人的 12 張卡。建議印在<b>厚一點的紙</b>上（例如西卡紙），舉起來不會軟掉；<b>黑白印就可以</b>。</li>
+          <li><b>剪</b>：沿<b>虛線</b>剪成 12 張，每張<b>背面寫座號</b>，裝進<b>信封袋</b>保存。</li>
+          <li><b>舉</b>：先在學習單的預測格寫下來，老師說「舉卡」再一起舉（先寫後舉，不看鄰座）。</li>
+        </ol>
+        <ul class="uses">
+          <li><span class="k">酸鹼</span>酸（三角形）、中（圓形）、鹼（方形）：預測水溶液是酸性、中性還是鹼性。看形狀就分得出來，不靠顏色。</li>
+          <li><span class="k">對錯</span>○、╳：判斷對錯；看到老師正要做錯一步，舉 ╳ 喊停。</li>
+          <li><span class="k">選項</span>甲、乙、丙、丁：選擇題舉代號。</li>
+          <li><span class="k">導電</span>亮、不亮：預測發光二極體（LED）會不會亮。</li>
+          <li><span class="k">拔河</span>甲、乙、不動：預測迴紋針或紅布條往甲移動、往乙移動，還是不動。</li>
+        </ul>
+      </div>
+
+      <div class="toolbar">
+        <button class="btn" type="button" onclick="window.print()">🖨️ 列印反應卡（A4 一張）</button>
+        <button class="btn ghost" type="button" id="cutBtn" aria-pressed="true" onclick="toggleCut()">✂️ 顯示 / 隱藏裁切線</button>
+      </div>
+    </div>
+
+    <div class="sheet">
+      <div class="sheet-head">
+        <span class="t">課堂反應卡</span>
+        <span><span class="cut-only">✂ 沿虛線剪成 12 張．</span>每張背面寫座號．裝進信封袋重複使用</span>
+      </div>
+
+      <div class="cards">
+        <!-- 第 1 列：酸鹼（酸＝三角形、中＝圓形、鹼＝方形） -->
+        <div class="rc"><svg viewBox="0 0 600 650" role="img" aria-label="酸（三角形），用途：酸鹼">
+          <rect class="tag" x="28" y="28" width="108" height="64" rx="14"/><text class="use" x="42" y="60">酸鹼</text>
+          <polygon class="shp" points="300,125 35,585 565,585"/>
+          <text class="big" x="300" y="452" font-size="210">酸</text>
+        </svg></div>
+        <div class="rc"><svg viewBox="0 0 600 650" role="img" aria-label="中（圓形），用途：酸鹼">
+          <rect class="tag" x="28" y="28" width="108" height="64" rx="14"/><text class="use" x="42" y="60">酸鹼</text>
+          <circle class="shp" cx="300" cy="370" r="215"/>
+          <text class="big" x="300" y="370" font-size="230">中</text>
+        </svg></div>
+        <div class="rc"><svg viewBox="0 0 600 650" role="img" aria-label="鹼（方形），用途：酸鹼">
+          <rect class="tag" x="28" y="28" width="108" height="64" rx="14"/><text class="use" x="42" y="60">酸鹼</text>
+          <rect class="shp" x="90" y="160" width="420" height="420"/>
+          <text class="big" x="300" y="370" font-size="230">鹼</text>
+        </svg></div>
+
+        <!-- 第 2 列：對錯 ○ ╳、選項 甲 -->
+        <div class="rc"><svg viewBox="0 0 600 650" role="img" aria-label="○（對），用途：對錯">
+          <rect class="tag" x="28" y="28" width="108" height="64" rx="14"/><text class="use" x="42" y="60">對錯</text>
+          <circle class="mark" cx="300" cy="370" r="190"/>
+        </svg></div>
+        <div class="rc"><svg viewBox="0 0 600 650" role="img" aria-label="╳（錯），用途：對錯">
+          <rect class="tag" x="28" y="28" width="108" height="64" rx="14"/><text class="use" x="42" y="60">對錯</text>
+          <path class="mark" d="M135 205L465 535M465 205L135 535"/>
+        </svg></div>
+        <div class="rc"><svg viewBox="0 0 600 650" role="img" aria-label="甲，用途：選項、拔河">
+          <rect class="tag" x="28" y="28" width="228" height="64" rx="14"/><text class="use" x="42" y="60">選項、拔河</text>
+          <text class="big" x="300" y="375" font-size="380">甲</text>
+        </svg></div>
+
+        <!-- 第 3 列：選項 乙 丙 丁 -->
+        <div class="rc"><svg viewBox="0 0 600 650" role="img" aria-label="乙，用途：選項、拔河">
+          <rect class="tag" x="28" y="28" width="228" height="64" rx="14"/><text class="use" x="42" y="60">選項、拔河</text>
+          <text class="big" x="300" y="375" font-size="380">乙</text>
+        </svg></div>
+        <div class="rc"><svg viewBox="0 0 600 650" role="img" aria-label="丙，用途：選項">
+          <rect class="tag" x="28" y="28" width="108" height="64" rx="14"/><text class="use" x="42" y="60">選項</text>
+          <text class="big" x="300" y="375" font-size="380">丙</text>
+        </svg></div>
+        <div class="rc"><svg viewBox="0 0 600 650" role="img" aria-label="丁，用途：選項">
+          <rect class="tag" x="28" y="28" width="108" height="64" rx="14"/><text class="use" x="42" y="60">選項</text>
+          <text class="big" x="300" y="375" font-size="380">丁</text>
+        </svg></div>
+
+        <!-- 第 4 列：導電 亮 不亮、拔河 不動 -->
+        <div class="rc"><svg viewBox="0 0 600 650" role="img" aria-label="亮，用途：導電">
+          <rect class="tag" x="28" y="28" width="108" height="64" rx="14"/><text class="use" x="42" y="60">導電</text>
+          <text class="big" x="300" y="375" font-size="380">亮</text>
+        </svg></div>
+        <div class="rc"><svg viewBox="0 0 600 650" role="img" aria-label="不亮，用途：導電">
+          <rect class="tag" x="28" y="28" width="108" height="64" rx="14"/><text class="use" x="42" y="60">導電</text>
+          <text class="big" x="300" y="375" font-size="250">不亮</text>
+        </svg></div>
+        <div class="rc"><svg viewBox="0 0 600 650" role="img" aria-label="不動，用途：拔河">
+          <rect class="tag" x="28" y="28" width="108" height="64" rx="14"/><text class="use" x="42" y="60">拔河</text>
+          <text class="big" x="300" y="375" font-size="250">不動</text>
+        </svg></div>
+
+        <!-- 裁切線：外框＋3 欄 4 列的分隔線 -->
+        <svg class="cutlines" viewBox="0 0 1800 2600" preserveAspectRatio="none" aria-hidden="true">
+          <path d="M0 0H1800M0 650H1800M0 1300H1800M0 1950H1800M0 2600H1800M0 0V2600M600 0V2600M1200 0V2600M1800 0V2600"/>
+        </svg>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer no-print"><div class="wrap"><a href="../index.html">← 回首頁</a> · 豬豬的自然探索</div></footer>
+
+<script>
+/* 顯示 / 隱藏裁切線（隱藏時列印出來也沒有線） */
+function toggleCut() {
+  var hidden = document.body.classList.toggle('no-cut');
+  document.getElementById('cutBtn').setAttribute('aria-pressed', hidden ? 'false' : 'true');
+}
+
+/* 螢幕上讓整張 A4 等比例縮到裝置寬度（列印時由 @media print 還原成 1）。
+   .sheet 固定 190mm；小於這個寬度的裝置才縮，桌機以上不動。 */
+(function () {
+  var SHEET_PX = 190 * 96 / 25.4;                 /* 190mm 換算成 px */
+  var el = document.querySelector('.sheet');
+  if (!el) return;
+  function fit() {
+    var avail = document.documentElement.clientWidth - 10;
+    if (avail >= SHEET_PX) { el.style.zoom = ''; return; }   /* 夠寬就交還給 CSS */
+    el.style.zoom = Math.max(0.3, avail / SHEET_PX);
+  }
+  fit();
+  addEventListener('resize', fit);
+  addEventListener('orientationchange', fit);
+})();
+</script>
+</body>
+</html>
