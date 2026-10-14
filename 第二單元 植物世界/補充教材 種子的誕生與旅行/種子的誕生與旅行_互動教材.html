@@ -1,0 +1,3150 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>種子的誕生與旅行｜配音動畫</title>
+<link rel="icon" href="../../image/icon.svg" type="image/svg+xml">
+<style>
+/* ==========================================================
+   種子的誕生與旅行 — 配音動畫
+   使用情境：教室 75 吋觸控螢幕全班看（建議全螢幕），學生在家用手機、平板也能看。
+   畫面＝SVG（viewBox 1600×900），render(T) 只看時間決定畫面；
+   聲音＝預先混好的 MP3，播放時以音檔時間當主時鐘。
+   旁白稿、時間軸、配樂由 .handoff/seed-anim/ 的製作程式產生（assets/timeline.js）。
+   ========================================================== */
+:root{
+  --bg:#FDF6EC; --ink:#1E1E1E;
+  --green:#58B159; --green-dark:#2E7D4F;
+  --sun:#FFC93C; --coral:#FF7F66; --coral-dark:#E4574C;
+  --card:#FFFFFF; --muted:#6B7A82; --muted-dark:#5C6970;
+  --key:#B4410F;
+  --shadow:0 6px 18px rgba(46,86,110,.16);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  min-height:100vh;color:var(--ink);background:var(--bg);
+  font-family:-apple-system,"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif;
+  font-size:clamp(16px,1.6vw,20px);line-height:1.6;
+}
+#app{max-width:1280px;margin:0 auto;padding:10px 14px 34px}
+
+/* ---------- 頁首 ---------- */
+.sitehead{margin-bottom:10px}
+.headrow{display:flex;align-items:center;gap:6px 14px;flex-wrap:wrap}
+.back{
+  display:inline-flex;align-items:center;min-height:44px;padding:4px 16px;
+  border:3px solid var(--ink);border-radius:999px;background:var(--card);color:var(--ink);
+  font-weight:800;text-decoration:none;box-shadow:0 3px 0 var(--ink);font-size:clamp(14px,1.3vw,17px);
+}
+.back:active{transform:translateY(2px);box-shadow:0 1px 0 var(--ink)}
+.sitehead h1{margin:0;font-size:clamp(21px,2.5vw,31px);font-weight:900;letter-spacing:.5px}
+.sitehead .sub{color:var(--muted-dark);font-size:clamp(13px,1.3vw,17px);font-weight:700}
+
+/* ---------- 播放器 ---------- */
+#player{background:var(--card);border:3px solid var(--ink);border-radius:20px;box-shadow:var(--shadow);overflow:hidden;position:relative;
+  /* 舞台＋字幕＋控制列要一起塞進視窗高度（75 吋螢幕不用捲動就看得到控制列） */
+  max-width:max(560px, calc((100vh - 300px) * 16 / 9));margin:0 auto}
+#stageWrap{position:relative;width:100%;aspect-ratio:16/9;background:var(--bg);overflow:hidden;user-select:none;-webkit-user-select:none}
+@supports not (aspect-ratio:16/9){ #stageWrap{height:0;padding-top:56.25%} }
+#stage{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:manipulation}
+#stage text{font-family:"Microsoft JhengHei","PingFang TC","Noto Sans TC",sans-serif}
+
+/* 字幕：一般模式在舞台下方；全螢幕／匯出時疊在舞台裡 */
+#subBar{
+  min-height:3.3em;padding:8px 18px;border-top:3px solid var(--ink);background:#FFFDF7;
+  display:flex;align-items:center;justify-content:center;text-align:center;
+  font-weight:800;font-size:clamp(17px,2.05vw,30px);line-height:1.45;
+}
+#subBar b{color:var(--key)}
+#subBar.off{color:transparent}
+#subOv{
+  display:none;position:absolute;left:0;right:0;bottom:3.2%;margin:0 auto;width:fit-content;
+  max-width:92%;padding:.28em .8em;border-radius:.45em;background:rgba(24,24,24,.78);color:#fff;
+  font-weight:800;line-height:1.4;text-align:center;pointer-events:none;
+  font-size:calc(min(100vw, 177.78vh) * .026);
+}
+#subOv b{color:#FFD45C}
+#subOv:empty{display:none!important}
+
+/* 控制列 */
+#ctrl{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;padding:8px 12px;border-top:3px solid var(--ink);background:#fff}
+.cb{
+  min-width:48px;min-height:48px;padding:0 12px;border:3px solid var(--ink);border-radius:999px;
+  background:#fff;color:var(--ink);font:inherit;font-weight:900;cursor:pointer;
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;box-shadow:0 3px 0 var(--ink);
+  font-size:clamp(14px,1.35vw,17px);
+}
+.cb:active{transform:translateY(2px);box-shadow:0 1px 0 var(--ink)}
+.cb svg{width:22px;height:22px;flex:none}
+.cb.main{background:var(--sun);min-width:64px}
+.cb.tog[aria-pressed="true"]{background:var(--green-dark);color:#fff}
+.cb.tog[aria-pressed="false"]{background:#EDE8DE;color:#5C6970}
+.cb.tog[aria-pressed="false"] .lbl::after{content:" 關"}
+#time{font-weight:900;font-variant-numeric:tabular-nums;min-width:6.6em;text-align:center;font-size:clamp(14px,1.35vw,17px)}
+#prog{position:relative;flex:1 1 180px;height:44px;cursor:pointer;touch-action:none;min-width:140px}
+#prog .track{position:absolute;left:0;right:0;top:14px;height:16px;border:2px solid var(--ink);border-radius:999px;overflow:hidden;background:#EDE8DE;display:flex}
+#prog .seg{height:100%;border-right:2px solid rgba(30,30,30,.28)}
+#prog .seg.p1{background:#FFF0C2}
+#prog .seg.p2{background:#DDF1D3}
+#prog .seg.p0{background:#F3E9D9}
+#prog .fill{position:absolute;left:0;top:14px;height:16px;border-radius:999px 0 0 999px;background:rgba(255,201,60,.92);border:2px solid var(--ink);border-right:0;pointer-events:none}
+#prog .thumb{position:absolute;top:8px;width:28px;height:28px;margin-left:-14px;border-radius:50%;background:#fff;border:3px solid var(--ink);box-shadow:0 2px 0 var(--ink);pointer-events:none}
+#prog .tip{position:absolute;bottom:46px;transform:translateX(-50%);background:var(--ink);color:#fff;border-radius:8px;padding:2px 10px;font-size:14px;font-weight:800;white-space:nowrap;pointer-events:none;display:none}
+.ctrl-gap{flex:1 1 0}
+
+/* 開始畫面、課堂暫停卡、提示 */
+.ov{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:rgba(253,246,236,.86)}
+.ov.on{display:flex}
+.poster{text-align:center;padding:2%}
+.poster .big{
+  width:clamp(84px,13vw,170px);height:clamp(84px,13vw,170px);border-radius:50%;border:4px solid var(--ink);
+  background:var(--sun);box-shadow:0 6px 0 var(--ink);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;
+}
+.poster .big svg{width:46%;height:46%;margin-left:8%}
+.poster .big:active{transform:translateY(4px);box-shadow:0 2px 0 var(--ink)}
+.poster h2{margin:.5em 0 .1em;font-size:clamp(22px,3.6vw,52px);font-weight:900}
+.poster p{margin:0;font-weight:800;color:var(--muted-dark);font-size:clamp(13px,1.6vw,22px)}
+.card{
+  width:min(86%,820px);background:#fff;border:4px solid var(--ink);border-radius:22px;box-shadow:0 8px 0 var(--ink);
+  padding:clamp(12px,2.4vw,34px);text-align:center;
+}
+.card .hd{display:inline-block;background:var(--sun);border:3px solid var(--ink);border-radius:999px;padding:.05em .9em;font-weight:900;font-size:clamp(15px,2vw,28px)}
+.card .q{margin:.6em 0 .7em;font-weight:900;font-size:clamp(19px,3.1vw,46px);line-height:1.4}
+.card .tip2{color:var(--muted-dark);font-weight:800;font-size:clamp(12px,1.4vw,19px);margin-bottom:.6em}
+#toast{position:absolute;left:50%;top:4%;transform:translateX(-50%);background:var(--ink);color:#fff;border-radius:12px;padding:6px 16px;font-weight:800;font-size:clamp(13px,1.4vw,20px);display:none;max-width:90%;text-align:center}
+#buffering{position:absolute;right:2%;top:3%;width:clamp(26px,3vw,44px);height:clamp(26px,3vw,44px);border-radius:50%;border:5px solid rgba(30,30,30,.18);border-top-color:var(--ink);animation:spin 1s linear infinite;display:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+#rotateHint{display:none;padding:6px 12px;background:#FFF6D8;border-top:3px solid var(--ink);font-weight:800;font-size:15px;text-align:center}
+@media (orientation:portrait) and (max-width:640px){ #rotateHint{display:block} }
+
+/* 全螢幕（含 iPhone 用的「假全螢幕」） */
+#player.fs{position:fixed;inset:0;z-index:100;border:0;border-radius:0;background:#111;box-shadow:none;display:flex;flex-direction:column}
+#player.fs #stageWrap{flex:none;width:min(100vw, calc(100vh * 16 / 9));height:auto;margin:auto}
+#player.fs #subBar,#player.fs #rotateHint{display:none}
+#player.fs #subOv{display:block}
+#player.fs.subsoff #subOv{display:none}
+#player.fs #ctrl{position:absolute;left:0;right:0;bottom:0;background:rgba(255,255,255,.94);transition:opacity .35s}
+#player.fs.idle #ctrl{opacity:0;pointer-events:none}
+#player.fs.idle{cursor:none}
+
+/* 匯出（MP4）／截圖模式：只留舞台和字幕 */
+body.export{background:#000;overflow:hidden}
+body.export #app{max-width:none;padding:0}
+body.export .sitehead,body.export #ctrl,body.export #subBar,body.export #rotateHint,body.export #chapters,body.export .teacher,body.export footer{display:none!important}
+body.export #player{border:0;border-radius:0;box-shadow:none}
+body.export #stageWrap{position:fixed;inset:0;width:100vw;height:100vh;aspect-ratio:auto;padding:0}
+body.export #subOv{display:block;font-size:calc(min(100vw, 177.78vh) * .026)}
+body.export.nosub #subOv{display:none!important}
+
+/* ---------- 段落選單 ---------- */
+#chapters{margin-top:14px;display:grid;grid-template-columns:1fr;gap:12px}
+@media (min-width:900px){ #chapters{grid-template-columns:1fr 1.45fr} }
+.part{background:#fff;border:3px solid var(--ink);border-radius:18px;padding:10px 12px;box-shadow:var(--shadow)}
+.part h2{margin:0 0 6px;font-size:clamp(16px,1.6vw,21px);font-weight:900;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.part h2 .pbtn{margin-left:auto}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{
+  border:3px solid var(--ink);border-radius:14px;background:#fff;font:inherit;font-weight:800;cursor:pointer;
+  padding:4px 12px;min-height:44px;box-shadow:0 3px 0 var(--ink);font-size:clamp(14px,1.3vw,17px);text-align:left;
+}
+.chip small{color:var(--muted-dark);font-weight:800;margin-left:4px}
+.chip.on{background:var(--green-dark);color:#fff}
+.chip.on small{color:#E6F6EA}
+.chip:active{transform:translateY(2px);box-shadow:0 1px 0 var(--ink)}
+
+/* ---------- 給老師 ---------- */
+.teacher{margin-top:14px;background:#FFF6D8;border:3px dashed var(--sun);border-radius:16px;padding:8px 16px}
+.teacher summary{cursor:pointer;font-weight:900;font-size:clamp(16px,1.6vw,20px);min-height:44px;display:flex;align-items:center}
+.teacher h3{margin:12px 0 4px;font-size:1.02em}
+.teacher p,.teacher li{font-size:clamp(14px,1.35vw,17px)}
+.teacher ul{margin:4px 0;padding-left:1.3em}
+.teacher table{border-collapse:collapse;width:100%;font-size:clamp(13px,1.3vw,16px);background:#fff}
+.teacher th,.teacher td{border:2px solid var(--ink);padding:4px 8px;vertical-align:top;text-align:left}
+.teacher th{background:#FFE9A8}
+kbd{border:2px solid var(--ink);border-bottom-width:3px;border-radius:6px;padding:0 6px;background:#fff;font-family:inherit;font-weight:800;font-size:.9em}
+
+/* ---------- 頁尾 ---------- */
+footer.credits{margin-top:14px;color:var(--muted-dark);font-size:clamp(12px,1.2vw,15px);line-height:1.7}
+footer.credits ul{margin:4px 0;padding-left:1.2em}
+footer.credits a{color:var(--muted-dark)}
+
+/* 矮的螢幕（筆電、橫放的手機）：頁首與字幕縮小，控制列盡量留在畫面內 */
+@media (max-height:700px){
+  .sitehead .sub{display:none}
+  .sitehead h1{font-size:22px}
+  #subBar{font-size:clamp(15px,1.6vw,22px);min-height:2.9em;padding:4px 14px}
+}
+/* 大螢幕：字和按鈕跟著放大（75 吋觸控螢幕多半回報 1920 寬） */
+@media (min-width:1800px){
+  #app{max-width:1700px}
+  #ctrl{gap:8px}
+  .cb{min-height:54px;min-width:54px;font-size:18px;padding:0 10px}
+  .cb svg{width:26px;height:26px}
+  #time{font-size:18px;min-width:5.6em}
+}
+@media (min-width:2600px){
+  #app{max-width:2400px}
+  body{font-size:26px}
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <header class="sitehead">
+    <div class="headrow">
+      <a class="back" href="../../index.html">← 回首頁</a>
+      <div>
+        <h1>種子的誕生與旅行</h1>
+        <div class="sub">五年級自然｜第二單元 植物世界｜配音動畫（約 6 分鐘，有旁白、配樂、字幕）</div>
+      </div>
+    </div>
+  </header>
+
+  <section id="player" aria-label="動畫播放器">
+    <div id="stageWrap">
+      <svg id="stage" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid meet" role="img" aria-label="動畫畫面"></svg>
+      <div id="subOv" aria-hidden="true"></div>
+      <div id="buffering" aria-hidden="true"></div>
+      <div id="toast" role="status"></div>
+      <div class="ov on" id="poster">
+        <div class="poster">
+          <button class="big" id="bigPlay" type="button" aria-label="開始播放">
+            <svg viewBox="0 0 24 24"><path d="M6 3.5 L20 12 L6 20.5 Z" fill="#1E1E1E"/></svg>
+          </button>
+          <h2>種子的誕生與旅行</h2>
+          <p>從一朵花開始：授粉、結合、長成果實和種子，再看種子怎麼去遠方</p>
+        </div>
+      </div>
+      <div class="ov" id="pauseCard">
+        <div class="card">
+          <div class="hd">🤔 想一想</div>
+          <div class="q" id="pauseQ"></div>
+          <div class="tip2">先讓大家說說看，再按「繼續」看答案。</div>
+          <button class="cb main" id="pauseGo" type="button">
+            <svg viewBox="0 0 24 24"><path d="M7 4.5 L19 12 L7 19.5 Z" fill="currentColor"/></svg><span>繼續</span>
+          </button>
+        </div>
+      </div>
+    </div>
+    <div id="subBar" aria-live="off">&nbsp;</div>
+    <div id="rotateHint">📱 把手機橫過來、按「全螢幕」，畫面和字幕會比較大。</div>
+    <div id="ctrl">
+      <button class="cb" id="bPrev" type="button" title="上一段（PageUp）" aria-label="上一段">
+        <svg viewBox="0 0 24 24"><rect x="4" y="5" width="3" height="14" rx="1" fill="currentColor"/><path d="M20 5 L9 12 L20 19 Z" fill="currentColor"/></svg>
+      </button>
+      <button class="cb main" id="bPlay" type="button" title="播放／暫停（空白鍵）" aria-label="播放">
+        <svg viewBox="0 0 24 24" id="icoPlay"><path d="M7 4.5 L19 12 L7 19.5 Z" fill="currentColor"/></svg>
+        <svg viewBox="0 0 24 24" id="icoPause" style="display:none"><rect x="6" y="4.5" width="4" height="15" rx="1" fill="currentColor"/><rect x="14" y="4.5" width="4" height="15" rx="1" fill="currentColor"/></svg>
+      </button>
+      <button class="cb" id="bNext" type="button" title="下一段（PageDown）" aria-label="下一段">
+        <svg viewBox="0 0 24 24"><path d="M4 5 L15 12 L4 19 Z" fill="currentColor"/><rect x="17" y="5" width="3" height="14" rx="1" fill="currentColor"/></svg>
+      </button>
+      <div id="time">0:00 / 0:00</div>
+      <div id="prog" role="slider" aria-label="播放進度" tabindex="0" aria-valuemin="0">
+        <div class="track" id="progTrack"></div>
+        <div class="fill" id="progFill"></div>
+        <div class="thumb" id="progThumb"></div>
+        <div class="tip" id="progTip"></div>
+      </div>
+      <button class="cb tog" id="bVoice" type="button" aria-pressed="true" title="旁白開關（N）">
+        <svg viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path d="M16 8.5c1.2 1 1.8 2.2 1.8 3.5s-.6 2.5-1.8 3.5M18.5 6c2 1.6 3 3.6 3 6s-1 4.4-3 6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg><span class="lbl">旁白</span>
+      </button>
+      <button class="cb tog" id="bMusic" type="button" aria-pressed="true" title="配樂開關（M）">
+        <svg viewBox="0 0 24 24"><path d="M9 17.5V5.5l11-2.5v12" stroke="currentColor" stroke-width="2.4" fill="none" stroke-linejoin="round"/><ellipse cx="6.5" cy="17.5" rx="3" ry="2.4" fill="currentColor"/><ellipse cx="17.5" cy="15" rx="3" ry="2.4" fill="currentColor"/></svg><span class="lbl">配樂</span>
+      </button>
+      <button class="cb tog" id="bSubs" type="button" aria-pressed="true" title="字幕開關（C）">
+        <svg viewBox="0 0 24 24"><rect x="2.5" y="5" width="19" height="14" rx="3" stroke="currentColor" stroke-width="2.2" fill="none"/><path d="M6 13h5M13 13h5M6 16h8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span class="lbl">字幕</span>
+      </button>
+      <button class="cb tog" id="bClass" type="button" aria-pressed="false" title="課堂暫停：每段結束自動停下，出一題想一想">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.5" stroke="currentColor" stroke-width="2.2" fill="none"/><path d="M9.3 9.4a2.8 2.8 0 1 1 3.9 2.6c-.8.4-1.2.9-1.2 1.8v.6" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round"/><circle cx="12" cy="17.3" r="1.3" fill="currentColor"/></svg><span class="lbl">課堂暫停</span>
+      </button>
+      <button class="cb" id="bFull" type="button" title="全螢幕（F）" aria-label="全螢幕">
+        <svg viewBox="0 0 24 24"><path d="M3.5 9V3.5H9M15 3.5h5.5V9M20.5 15v5.5H15M9 20.5H3.5V15" stroke="currentColor" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+  </section>
+
+  <nav id="chapters" aria-label="段落選單"></nav>
+
+  <details class="teacher">
+    <summary>👩‍🏫 給老師：怎麼用、每段重點、注意事項</summary>
+    <h3>建議用法</h3>
+    <ul>
+      <li><b>上集「種子的誕生」</b>（①–④，約 2 分 15 秒）：接在〈繁殖器官的功能〉（課本 46–47 頁）之後，當成整理。</li>
+      <li><b>下集「種子的旅行」</b>（⑤–⑩，約 3 分 45 秒）：接在〈果實和種子的傳播方式〉（課本 48–51 頁）之後，或先播 ⑤ 引起動機再上課。</li>
+      <li>打開<b>「課堂暫停」</b>：每段播完會自動停下，出一題「想一想」，讓學生先預測，再按「繼續」看答案。</li>
+      <li>75 吋觸控螢幕建議按<b>全螢幕</b>；簡報筆的上一頁／下一頁鍵（<kbd>PageUp</kbd>／<kbd>PageDown</kbd>）可以直接切換段落。</li>
+    </ul>
+    <h3>每段重點</h3>
+    <div id="teacherTable"></div>
+    <h3>內容上的處理</h3>
+    <ul>
+      <li>旁白用課本的說法：「花粉和胚珠結合」「子房發育成果實、胚珠發育成種子」。畫面照實畫出<b>花粉長出細管穿過花柱</b>，避免學生以為花粉粒自己滑下去；「花粉管」是國中名詞，只在畫面角落小字帶過、旁白不唸。</li>
+      <li>「為什麼要傳到遠方」課本只寫到「在適合的環境繁殖下一代」，「和母株搶陽光、水分和養分」是我們補的推論，所以旁白一律說「可能」「比較不會」。</li>
+      <li>鳥吃果實那段照實說「有些種子會跟著糞便排出來」（重點整理列在「國中才會學」框，屬延伸）。</li>
+      <li>動畫是示意圖；每種傳播方式最後都接上<b>真實照片</b>，請學生對照「動畫裡的構造，照片上找得到嗎？」</li>
+    </ul>
+    <h3>鍵盤</h3>
+    <p><kbd>空白鍵</kbd> 播放／暫停　<kbd>←</kbd><kbd>→</kbd> 倒退／快轉 5 秒　<kbd>PageUp</kbd><kbd>PageDown</kbd> 上一段／下一段　<kbd>F</kbd> 全螢幕　<kbd>C</kbd> 字幕　<kbd>N</kbd> 旁白　<kbd>M</kbd> 配樂</p>
+  </details>
+
+  <footer class="credits">
+    <p><b>製作：</b>許博明老師（豬豬的自然探索）。旁白：電腦合成語音（微軟 曉雨）；動畫與配樂、音效：以程式繪製與合成。</p>
+    <p><b>照片來源</b></p>
+    <ul>
+      <li>四季橘的花、花瓣快掉光的四季橘、四季橘的小果實：照片：<a href="https://commons.wikimedia.org/wiki/File:0735Taal,_Pulilan,_Bulacan_22.jpg" target="_blank" rel="noopener">Judgefloro</a>，<a href="http://creativecommons.org/publicdomain/zero/1.0/deed.en" target="_blank" rel="noopener">CC0</a>（<a href="https://commons.wikimedia.org/wiki/File:0735Taal,_Pulilan,_Bulacan_25.jpg" target="_blank" rel="noopener">另一張</a>、<a href="https://commons.wikimedia.org/wiki/File:9247Calamansi_fruit,_seeds_and_leaves_16.jpg" target="_blank" rel="noopener">另一張</a>，已裁切）</li>
+      <li>剖開的小橘子：照片：<a href="https://commons.wikimedia.org/wiki/File:Sakurajima_komikan_1.jpg" target="_blank" rel="noopener">Jpbrigand2</a>，<a href="https://creativecommons.org/licenses/by-sa/4.0" target="_blank" rel="noopener">CC BY-SA 4.0</a>（已裁切）</li>
+      <li>蒲公英、青楓、非洲鳳仙、黃花酢漿草、大花咸豐草、雀榕、椰子、林投的照片：取自南一版自然五上課本第 48–51 頁。</li>
+    </ul>
+    <p>課本內容：南一版自然五上第 46–51 頁。<a href="../../index.html">← 回首頁</a></p>
+  </footer>
+</div>
+
+<script src="assets/timeline.js?v=2e85c123"></script>
+<script>
+/* ==========================================================
+   1. 共用工具：時間軸查詢、緩動、SVG 產生器、配色
+   ========================================================== */
+"use strict";
+const TL = window.SEED_TL;
+const $ = id => document.getElementById(id);
+const NS = "http://www.w3.org/2000/svg";
+const W0 = 1600, H0 = 900;
+
+const C = {
+  bg:"#FDF6EC", ink:"#1E1E1E", green:"#58B159", greenD:"#2E7D4F", leaf:"#4FA64F", leafD:"#2E7D4F",
+  sprout:"#A8D66A", soil:"#7A4E32", soilL:"#9C6B45", sand:"#E9CF9E", sandD:"#C9A47C",
+  sun:"#FFC93C", sky:"#CFEAF6", skyD:"#8FD3F4", coral:"#FF7F66", coralD:"#E4574C",
+  water:"#4FB0E5", waterD:"#2E86C1", gold:"#F2B33D", pollen:"#FFC93C", orange:"#F7931E",
+  cream:"#FFF6DC", white:"#FFFFFF", brown:"#8A5A34", grey:"#9AA5AD", hill:"#B9DC8C", hill2:"#9ACB6E"
+};
+const FONT = '"Microsoft JhengHei","PingFang TC","Noto Sans TC",sans-serif';
+
+/* ---- 數學 ---- */
+const clamp = (x, a = 0, b = 1) => x < a ? a : x > b ? b : x;
+const lerp = (a, b, t) => a + (b - a) * t;
+const Ease = {
+  lin: t => t,
+  io: t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2,
+  out: t => 1 - Math.pow(1 - t, 3),
+  in: t => t * t * t,
+  sine: t => -(Math.cos(Math.PI * t) - 1) / 2,
+  back: t => { const c1 = 1.70158, c3 = c1 + 1; return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2); },
+  outQ: t => 1 - (1 - t) * (1 - t),
+  elastic: t => t === 0 || t === 1 ? t : Math.pow(2, -10 * t) * Math.sin((t * 10 - .75) * (2 * Math.PI) / 3) + 1
+};
+/** t 在 [t0, t0+dur] 之間的進度（0～1），可指定緩動 */
+const P = (t, t0, dur, ef) => (ef || Ease.io)(clamp((t - t0) / Math.max(1e-6, dur)));
+/** 先升後降的「出現」進度：t0 開始淡入 fin 秒，t1 開始淡出 fout 秒 */
+const vis = (t, t0, t1, fin = .35, fout = .35) => Math.min(P(t, t0, fin, Ease.out), 1 - P(t, t1, fout, Ease.in));
+function lerpColor(a, b, t) {
+  const pa = parseInt(a.slice(1), 16), pb = parseInt(b.slice(1), 16);
+  const r = Math.round(lerp(pa >> 16, pb >> 16, t)), g = Math.round(lerp(pa >> 8 & 255, pb >> 8 & 255, t)), bl = Math.round(lerp(pa & 255, pb & 255, t));
+  return "#" + ((1 << 24) | (r << 16) | (g << 8) | bl).toString(16).slice(1);
+}
+/** 固定種子的亂數（每次畫出來都一樣，倒帶才不會變） */
+function rng(seed) {
+  let a = seed >>> 0;
+  return () => { a = (a + 0x6D2B79F5) >>> 0; let t = a; t = Math.imul(t ^ t >>> 15, t | 1); t ^= t + Math.imul(t ^ t >>> 7, t | 61); return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+}
+
+/* ---- 時間軸查詢 ---- */
+const LINE = {}, CH = {};
+TL.lines.forEach((l, i) => { l.i = i; LINE[l.id] = l; });
+TL.chapters.forEach((c, i) => { c.i = i; CH[c.id] = c; });
+const Ls = id => LINE[id].s, Le = id => LINE[id].e;
+/** 關鍵詞在旁白裡的位置；語音合成用的文字若換過同音字（彈→談），改用字幕原文找（字數相同） */
+function kwIndex(l, kw, n) {
+  for (const text of [l.tts, l.sub.replace(/[\[\]]/g, "")]) {
+    let idx = -1;
+    for (let k = 0; k < n; k++) { idx = text.indexOf(kw, idx + 1); if (idx < 0) break; }
+    if (idx >= 0) return idx;
+  }
+  return -1;
+}
+/** 旁白唸到關鍵詞 kw 的時間（第 n 次出現） */
+function Wt(id, kw, n = 1) {
+  const l = LINE[id];
+  if (!l) { console.error("沒有這句旁白", id); return 0; }
+  const idx = kwIndex(l, kw, n);
+  if (idx < 0) { console.error("旁白裡找不到", id, kw); return l.s; }
+  for (const [a, b, t0, t1] of l.w) {
+    if (idx >= a && idx < b) return t0 + (t1 - t0) * (idx - a) / Math.max(1, b - a);
+    if (a > idx) return t0;
+  }
+  return l.e;
+}
+/** 關鍵詞唸完的時間 */
+function We(id, kw, n = 1) {
+  const l = LINE[id];
+  const idx = kwIndex(l, kw, n);
+  const last = idx + kw.length - 1;
+  for (const [a, b, t0, t1] of l.w) if (last >= a && last < b) return t1;
+  return Wt(id, kw, n) + .4;
+}
+const Bs = n => { if (!TL.beats[n]) { console.error("沒有這段", n); return 0; } return TL.beats[n][0]; };
+const Bd = n => TL.beats[n] ? TL.beats[n][1] : 0;
+const Be = n => Bs(n) + Bd(n);
+
+/* ---- SVG 產生器 ---- */
+function E(tag, attrs, parent) {
+  const e = document.createElementNS(NS, tag);
+  if (attrs) for (const k in attrs) if (attrs[k] != null) e.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(e);
+  return e;
+}
+const G = (parent, attrs) => E("g", attrs, parent);
+function S(e, attrs) { for (const k in attrs) e.setAttribute(k, attrs[k]); return e; }
+/** 位移＋旋轉＋縮放（常用的 transform 字串） */
+const tf = (x, y, r = 0, s = 1, sy) => `translate(${x.toFixed(2)},${y.toFixed(2)})` + (r ? ` rotate(${r.toFixed(2)})` : "") + (s !== 1 || sy != null ? ` scale(${(+s).toFixed(4)}${sy != null ? "," + (+sy).toFixed(4) : ""})` : "");
+/** 設定透明度與顯示（透明時直接隱藏，省效能） */
+function op(e, a) {
+  if (a <= 0.001) { if (e.__d !== "none") { e.style.display = "none"; e.__d = "none"; } return; }
+  if (e.__d !== "") { e.style.display = ""; e.__d = ""; }
+  e.setAttribute("opacity", a >= .999 ? 1 : a.toFixed(3));
+}
+function T(parent, x, y, text, attrs) {
+  const t = E("text", Object.assign({ x, y, "font-family": FONT, "font-weight": 900, "text-anchor": "middle", "dominant-baseline": "central", fill: C.ink }, attrs || {}), parent);
+  t.textContent = text;
+  return t;
+}
+/** 估計中文字串寬度（中文字＝1em，英數＝0.58em） */
+function textW(s, size) { let w = 0; for (const ch of s) w += /[\x00-\xff]/.test(ch) ? .58 : 1; return w * size; }
+/** 有描邊的粗線條（先畫黑色粗線，再畫彩色細線） */
+function stroke2(parent, d, color, w, ow = 3.2, extra) {
+  const g = G(parent);
+  E("path", Object.assign({ d, fill: "none", stroke: C.ink, "stroke-width": w + ow * 2, "stroke-linecap": "round", "stroke-linejoin": "round" }, extra || {}), g);
+  const p = E("path", Object.assign({ d, fill: "none", stroke: color, "stroke-width": w, "stroke-linecap": "round", "stroke-linejoin": "round" }, extra || {}), g);
+  g.inner = p;
+  return g;
+}
+
+/* ---- 共用元件：標籤（引線會慢慢畫出來，再彈出膠囊） ---- */
+function makeLabel(parent, text, x, y, tx, ty, o = {}) {
+  const size = o.size || 38, col = o.color || C.ink, bg = o.bg || "#fff";
+  const g = G(parent);
+  const w = textW(text, size) + size * 1.1, h = size * 1.55;
+  let line = null, dot = null, len = 0;
+  if (tx != null) {
+    const ax = x, ay = y;
+    line = E("line", { x1: ax, y1: ay, x2: tx, y2: ty, stroke: col === C.ink ? C.ink : col, "stroke-width": 5, "stroke-linecap": "round" }, g);
+    len = Math.hypot(tx - ax, ty - ay);
+    line.setAttribute("stroke-dasharray", len);
+    dot = E("circle", { cx: tx, cy: ty, r: 8, fill: "#fff", stroke: col, "stroke-width": 5 }, g);
+  }
+  const pill = G(g);
+  E("rect", { x: -w / 2, y: -h / 2, width: w, height: h, rx: h / 2, fill: bg, stroke: col, "stroke-width": 5 }, pill);
+  const tx2 = T(pill, 0, 2, text, { "font-size": size, fill: o.textColor || C.ink });
+  g.text = tx2;
+  g.show = (p) => {          // p: 0～1
+    if (p <= 0) { op(g, 0); return; }
+    op(g, Math.min(1, p * 3));
+    if (line) { line.setAttribute("stroke-dashoffset", len * (1 - clamp(p * 1.8))); op(dot, clamp(p * 4)); }
+    const q = clamp((p - (line ? .4 : 0)) / (line ? .6 : 1));
+    pill.setAttribute("transform", tf(x, y, 0, q <= 0 ? .001 : Ease.back(q)));
+    op(pill, q > 0 ? 1 : 0);
+  };
+  g.show(0);
+  return g;
+}
+
+/* ---- 共用元件：照片卡（拍立得） ---- */
+function makePhoto(parent, href, cap, w, h, o = {}) {
+  const g = G(parent);
+  const pad = 14, capH = o.capH || 62;
+  const id = "clip" + Math.random().toString(36).slice(2, 8);
+  E("rect", { x: -w / 2 - pad + 6, y: -h / 2 - pad + 8, width: w + pad * 2, height: h + pad * 2 + capH, rx: 16, fill: "rgba(30,30,30,.18)" }, g);
+  E("rect", { x: -w / 2 - pad, y: -h / 2 - pad, width: w + pad * 2, height: h + pad * 2 + capH, rx: 16, fill: "#fff", stroke: C.ink, "stroke-width": 4 }, g);
+  const cp = E("clipPath", { id }, g);
+  E("rect", { x: -w / 2, y: -h / 2, width: w, height: h, rx: 8 }, cp);
+  const img = E("image", { href, x: -w / 2, y: -h / 2, width: w, height: h, preserveAspectRatio: o.par || "xMidYMid slice", "clip-path": `url(#${id})` }, g);
+  img.setAttribute("decoding", "async");
+  E("rect", { x: -w / 2, y: -h / 2, width: w, height: h, rx: 8, fill: "none", stroke: C.ink, "stroke-width": 2 }, g);
+  const capT = T(g, 0, h / 2 + pad + capH / 2 - 2, cap, { "font-size": o.capSize || 30 });
+  g.img = img; g.cap = capT;
+  g.place = (p, x, y, r = 0) => { op(g, p > 0 ? Math.min(1, p * 2) : 0); g.setAttribute("transform", tf(x, y + (1 - p) * 60, r * p, Math.max(.001, lerp(.7, 1, Ease.back(clamp(p)))))); };
+  g.place(0, 0, 0);
+  PHOTOS.push(href);
+  return g;
+}
+const PHOTOS = [];
+
+/* ---- 共用元件：放大鏡小窗（圓形，內容另外畫進 g.inner） ---- */
+function makeLens(parent, cx, cy, r, o = {}) {
+  const g = G(parent);
+  const id = "lens" + Math.random().toString(36).slice(2, 8);
+  const cp = E("clipPath", { id }, g);
+  E("circle", { cx: 0, cy: 0, r }, cp);
+  E("circle", { cx: 6, cy: 9, r: r + 6, fill: "rgba(30,30,30,.18)" }, g);
+  E("circle", { cx: 0, cy: 0, r, fill: o.bg || "#FFFDF4" }, g);
+  const inner = G(g, { "clip-path": `url(#${id})` });
+  E("circle", { cx: 0, cy: 0, r, fill: "none", stroke: C.ink, "stroke-width": 7 }, g);
+  E("path", { d: `M${r * .72},${r * .72} L${r * 1.08},${r * 1.08}`, stroke: C.ink, "stroke-width": 16, "stroke-linecap": "round" }, g);
+  g.inner = inner;
+  g.place = (p, x = cx, y = cy) => { op(g, p > 0 ? 1 : 0); g.setAttribute("transform", tf(x, y, 0, Math.max(.001, Ease.back(clamp(p))))); };
+  g.place(0);
+  return g;
+}
+
+/* ---- 場景登記 ---- */
+const SCENES = [];
+const svg = $("stage");
+const LAYER = { scenes: G(svg), fx: G(svg), ui: G(svg) };
+function scene(id, build) {
+  const ch = CH[id];
+  if (!ch) { console.error("沒有這段", id); return; }
+  const root = G(LAYER.scenes, { "data-scene": id });
+  root.style.display = "none";
+  const api = build(root, ch) || {};
+  SCENES.push({ id, ch, root, render: api.render || (() => {}), vis: false });
+}
+/** 每段共用的背景（天空＋遠山＋地面） */
+function makeSky(parent, o = {}) {
+  const g = G(parent);
+  E("rect", { x: -400, y: -400, width: 2400, height: 1700, fill: o.sky || C.sky }, g);
+  return g;
+}
+</script>
+
+<script>
+/* ==========================================================
+   2. 繪圖庫：花、蜜蜂、葉子、小苗、樹……（各段共用）
+   規範：扁平插畫、粗黑描邊；植物與器官一律不畫臉；剖面標「示意圖」。
+   ========================================================== */
+"use strict";
+const OUT = 4.5;   // 主要描邊粗細
+
+/** 花瓣（基部在 0,0，朝上，長 L 寬 w） */
+const petalPath = (L, w) => `M0,0 C${w * .55},${-L * .06} ${w * .66},${-L * .7} ${w * .14},${-L * .97} Q0,${-L * 1.03} ${-w * .14},${-L * .97} C${-w * .66},${-L * .7} ${-w * .55},${-L * .06} 0,0 Z`;
+/** 葉子（基部在 0,0，朝上） */
+const leafPath = (L, w) => `M0,0 C${w * .62},${-L * .14} ${w * .58},${-L * .74} 0,${-L} C${-w * .58},${-L * .74} ${-w * .62},${-L * .14} 0,0 Z`;
+
+function makeLeaf(parent, x, y, ang, L, w, o = {}) {
+  const g = G(parent, { transform: tf(x, y, ang) });
+  E("path", { d: leafPath(L, w), fill: o.fill || C.leaf, stroke: C.ink, "stroke-width": o.sw || OUT, "stroke-linejoin": "round" }, g);
+  E("path", { d: `M0,-4 Q${w * .06},${-L * .5} 0,${-L * .9}`, fill: "none", stroke: o.vein || "#2E7D4F", "stroke-width": 3, "stroke-linecap": "round" }, g);
+  if (!o.noShine) E("path", { d: `M${-w * .18},${-L * .3} Q${-w * .26},${-L * .55} ${-w * .12},${-L * .76}`, fill: "none", stroke: "rgba(255,255,255,.45)", "stroke-width": 4, "stroke-linecap": "round" }, g);
+  return g;
+}
+
+/* ---------- 四季橘的花（側視圖，花托在 0,0，往上是負 y） ---------- */
+const FLOWER = {
+  petals: [[-76, 186, 82], [-41, 200, 88], [-7, 158, 72], [35, 204, 88], [71, 184, 80]],
+  // 雄蕊：[基部 x, 頂端 x, 頂端 y, 前排?]
+  stamens: [[-30, -104, -158, 0], [-20, -70, -184, 0], [-10, -34, -198, 0], [10, 34, -198, 0], [20, 70, -184, 0], [30, 104, -158, 0],
+            [-34, -128, -128, 1], [34, 128, -128, 1]],
+  ovary: { cx: 0, cy: -52, rx: 40, ry: 46 },
+  ovules: [[-12, -70], [12, -70], [-12, -40], [12, -40]],
+  stigma: { cx: 0, cy: -228, r: 23 }
+};
+function makeFlower(parent, o = {}) {
+  const F = { g: G(parent) };
+  const g = F.g;
+  if (!o.noStem) F.stem = stroke2(g, o.stemPath || "M0,6 C5,90 -8,170 2,300", C.green, 13);
+  F.petalG = G(g);
+  F.petals = FLOWER.petals.map(([a, L, w], i) => {
+    const pg = G(F.petalG);
+    const path = E("path", { d: petalPath(L, w), fill: "#fff", stroke: C.ink, "stroke-width": OUT, "stroke-linejoin": "round" }, pg);
+    E("path", { d: `M0,-8 C3,${-L * .4} -3,${-L * .68} 0,${-L * .86}`, fill: "none", stroke: "#E9E1CF", "stroke-width": 3.2, "stroke-linecap": "round" }, pg);
+    E("path", { d: `M0,-6 C${w * .2},${-L * .1} ${w * .2},${-L * .3} 0,${-L * .36} C${-w * .2},${-L * .3} ${-w * .2},${-L * .1} 0,-6Z`, fill: "#FFF4D6" }, pg);
+    const base = [Math.sin(a * Math.PI / 180) * 24, -6];
+    const p = { g: pg, path, a, L, base };
+    pg.setAttribute("transform", tf(base[0], base[1], a));
+    return p;
+  });
+  // 花萼
+  F.sepal = E("path", { d: "M-40,8 Q-38,-14 -22,-12 Q-12,-26 0,-14 Q12,-26 22,-12 Q38,-14 40,8 Q0,26 -40,8 Z", fill: C.green, stroke: C.ink, "stroke-width": OUT, "stroke-linejoin": "round" }, g);
+  // 花盤（花蜜在這裡）
+  F.disc = E("ellipse", { cx: 0, cy: -8, rx: 44, ry: 13, fill: "#E8D85A", stroke: C.ink, "stroke-width": 3.5 }, g);
+  const mk = (tip, back) => {
+    const [bx, tx, ty] = tip;
+    const sg = G(back ? F.stBack : F.stFront);
+    const d = `M${bx},-10 C${bx},${ty * .45} ${tx * .92},${ty * .78} ${tx},${ty + 17}`;
+    const halo = E("path", { d, fill: "none", stroke: "#FFD86B", "stroke-width": 26, "stroke-linecap": "round", opacity: 0 }, sg);
+    const fil = stroke2(sg, d, "#FBF6E6", 6.5, 2.6);
+    const ag = G(sg, { transform: tf(tx, ty, (tx / 128) * 18) });
+    const lobeL = E("ellipse", { cx: -5.5, cy: 0, rx: 8, ry: 18, fill: C.sun, stroke: C.ink, "stroke-width": 3.4 }, ag);
+    const lobeR = E("ellipse", { cx: 5.5, cy: 0, rx: 8, ry: 18, fill: C.sun, stroke: C.ink, "stroke-width": 3.4 }, ag);
+    const dust = G(ag);
+    const r = rng(Math.abs(tx * 31 + ty));
+    for (let k = 0; k < 9; k++) E("circle", { cx: (r() - .5) * 22, cy: (r() - .5) * 30, r: 2.6 + r() * 1.6, fill: "#F5A800", stroke: "#B37400", "stroke-width": 1 }, dust);
+    op(dust, 0);
+    return { g: sg, halo, fil, ag, lobeL, lobeR, dust, tip: [tx, ty], base: [bx, -10], d };
+  };
+  F.stBack = G(g);
+  F.pistil = G(g);
+  F.stFront = G(g);
+  F.stamens = FLOWER.stamens.map(s => mk(s, !s[3]));
+  // 雌蕊
+  const P0 = F.pistil;
+  F.pHalo = E("path", { d: "M-46,-52 a46,50 0 1,0 92,0 a46,50 0 1,0 -92,0 M-16,-96 L-16,-214 a24,24 0 1,1 32,0 L16,-96 Z", fill: "#FFB4A4", stroke: "#FFB4A4", "stroke-width": 22, "stroke-linejoin": "round", opacity: 0 }, P0);
+  F.style = E("path", { d: "M-10,-92 L-9,-212 Q0,-218 9,-212 L10,-92 Z", fill: "#9ACB6E", stroke: C.ink, "stroke-width": 4, "stroke-linejoin": "round" }, P0);
+  F.ovaryG = G(P0);
+  const ov = FLOWER.ovary;
+  F.ovary = E("ellipse", { cx: ov.cx, cy: ov.cy, rx: ov.rx, ry: ov.ry, fill: "#6DBB5A", stroke: C.ink, "stroke-width": OUT }, F.ovaryG);
+  F.ovShine = E("ellipse", { cx: -16, cy: -70, rx: 9, ry: 16, fill: "rgba(255,255,255,.35)", transform: "rotate(18 -16 -70)" }, F.ovaryG);
+  // 子房剖面小窗（看得到胚珠）
+  F.win = G(F.ovaryG);
+  E("ellipse", { cx: 0, cy: -55, rx: 29, ry: 35, fill: "#EAF6D6", stroke: C.ink, "stroke-width": 3 }, F.win);
+  E("path", { d: "M0,-86 L0,-24", stroke: "#4E9A45", "stroke-width": 4, "stroke-linecap": "round" }, F.win);
+  F.ovules = FLOWER.ovules.map(([x, y]) => {
+    const og = G(F.win);
+    E("path", { d: `M0,${y} L${x * .5},${y}`, stroke: "#4E9A45", "stroke-width": 3 }, og);
+    const e = E("ellipse", { cx: x, cy: y, rx: 7.5, ry: 10, fill: "#FFF1C6", stroke: C.ink, "stroke-width": 2.6 }, og);
+    return e;
+  });
+  op(F.win, 0);
+  F.stigG = G(P0);
+  F.stigma = E("circle", { cx: 0, cy: FLOWER.stigma.cy, r: FLOWER.stigma.r, fill: "#E5D44E", stroke: C.ink, "stroke-width": OUT }, F.stigG);
+  for (let k = 0; k < 7; k++) {
+    const a = -150 + k * 20;
+    E("circle", { cx: Math.cos(a * Math.PI / 180) * 17, cy: FLOWER.stigma.cy + Math.sin(a * Math.PI / 180) * 17, r: 3.4, fill: "#F4E886" }, F.stigG);
+  }
+  F.stigDust = G(F.stigG);
+  const r2 = rng(77);
+  for (let k = 0; k < 7; k++) E("circle", { cx: (r2() - .5) * 30, cy: FLOWER.stigma.cy - 6 + (r2() - .5) * 18, r: 4, fill: "#F5A800", stroke: "#B37400", "stroke-width": 1.2 }, F.stigDust);
+  op(F.stigDust, 0);
+  /* 動作 */
+  F.setOpen = (p) => {          // 0＝花苞，1＝盛開
+    F.petals.forEach((pt, i) => {
+      const a = lerp(pt.a * .12, pt.a, p);
+      pt.g.setAttribute("transform", tf(pt.base[0] * p, pt.base[1], a, lerp(.55, 1, p), lerp(.62, 1, p)));
+    });
+    const s = clamp((p - .35) / .65);
+    F.stamens.forEach(st => { st.g.setAttribute("transform", `translate(0,${(1 - s) * 30}) scale(${lerp(.4, 1, s)})`); op(st.g, s > .02 ? 1 : 0); });
+    P0.setAttribute("transform", `translate(0,${(1 - s) * 30}) scale(${lerp(.4, 1, s)})`);
+  };
+  F.split = (p) => {            // 花藥裂開、冒出花粉
+    F.stamens.forEach(st => {
+      st.lobeL.setAttribute("transform", `translate(${-2.5 * p},0) rotate(${-8 * p})`);
+      st.lobeR.setAttribute("transform", `translate(${2.5 * p},0) rotate(${8 * p})`);
+      op(st.dust, p);
+    });
+  };
+  F.halo = (stam, pist) => {
+    F.stamens.forEach(st => S(st.halo, { opacity: (stam * .9).toFixed(3) }));
+    S(F.pHalo, { opacity: (pist * .9).toFixed(3) });
+  };
+  F.setWin = (p) => { op(F.win, p > 0 ? 1 : 0); F.win.setAttribute("transform", `translate(0,-55) scale(${Math.max(.001, Ease.back(clamp(p)))}) translate(0,55)`); };
+  return F;
+}
+/** 花上某個部位在舞台上的位置（花放在 (x,y)、縮放 s） */
+const at = (x, y, s, lx, ly) => [x + lx * s, y + ly * s];
+
+/* ---------- 蜜蜂（身體中心在 0,0，面向右） ---------- */
+function makeBee(parent) {
+  const B = { g: G(parent) };
+  const g = B.g;
+  B.wingB = E("ellipse", { cx: -10, cy: -26, rx: 28, ry: 15, fill: "rgba(255,255,255,.82)", stroke: C.ink, "stroke-width": 3.2 }, g);
+  for (const [x1, x2] of [[-24, -20], [-4, -2], [16, 18]]) E("path", { d: `M${x1},20 L${x2},34`, stroke: C.ink, "stroke-width": 4, "stroke-linecap": "round" }, g);
+  E("path", { d: "M-46,2 L-58,6 L-46,10 Z", fill: C.ink }, g);
+  const id = "beeclip" + Math.random().toString(36).slice(2, 7);
+  const cp = E("clipPath", { id }, g);
+  E("ellipse", { cx: 0, cy: 4, rx: 44, ry: 28 }, cp);
+  E("ellipse", { cx: 0, cy: 4, rx: 44, ry: 28, fill: C.sun }, g);
+  const st = G(g, { "clip-path": `url(#${id})` });
+  for (const x of [-26, -8, 10]) E("rect", { x, y: -30, width: 10, height: 70, fill: "#2B2B2B" }, st);
+  B.dust = G(g);
+  const r = rng(9);
+  B.dots = [];
+  for (let k = 0; k < 22; k++) {
+    const a = r() * Math.PI * 2, rr = Math.sqrt(r());
+    B.dots.push(E("circle", { cx: Math.cos(a) * 36 * rr, cy: 4 + Math.sin(a) * 22 * rr, r: 3.2 + r() * 1.6, fill: "#F5A800", stroke: "#B37400", "stroke-width": 1 }, B.dust));
+  }
+  E("ellipse", { cx: 0, cy: 4, rx: 44, ry: 28, fill: "none", stroke: C.ink, "stroke-width": OUT }, g);
+  E("circle", { cx: 44, cy: -2, r: 19, fill: "#2B2B2B", stroke: C.ink, "stroke-width": 3 }, g);
+  E("circle", { cx: 50, cy: -7, r: 6.5, fill: "#fff" }, g);
+  E("circle", { cx: 52, cy: -7, r: 3.2, fill: C.ink }, g);
+  E("path", { d: "M44,-20 Q46,-40 60,-44 M38,-19 Q36,-40 46,-50", fill: "none", stroke: C.ink, "stroke-width": 3.5, "stroke-linecap": "round" }, g);
+  B.wingF = E("ellipse", { cx: -2, cy: -30, rx: 30, ry: 16, fill: "rgba(255,255,255,.88)", stroke: C.ink, "stroke-width": 3.2 }, g);
+  B.set = (x, y, t, o = {}) => {
+    const flap = Math.sin(t * 2 * Math.PI * (o.rest ? 0 : 22));
+    B.wingF.setAttribute("transform", `rotate(${-18 + flap * 28} -2 -18)`);
+    B.wingB.setAttribute("transform", `rotate(${-30 + flap * 24} -10 -16)`);
+    g.setAttribute("transform", tf(x, y, o.rot || 0, (o.s || 1) * (o.flip ? -1 : 1), o.s || 1));
+    const n = Math.round((o.pollen || 0) * B.dots.length);
+    B.dots.forEach((d, i) => op(d, i < n ? 1 : 0));
+  };
+  return B;
+}
+
+/* ---------- 小苗（基部在 0,0）：h 高度、v 健康度 0～1 ---------- */
+function makeSeedling(parent, o = {}) {
+  const g = G(parent);
+  const stem = E("path", { fill: "none", stroke: C.ink, "stroke-width": 9, "stroke-linecap": "round" }, g);
+  const stemIn = E("path", { fill: "none", stroke: "#6CC05B", "stroke-width": 4.5, "stroke-linecap": "round" }, g);
+  const lg = G(g);
+  const l1 = E("path", { d: leafPath(34, 26), stroke: C.ink, "stroke-width": 3.5, "stroke-linejoin": "round" }, lg);
+  const l2 = E("path", { d: leafPath(34, 26), stroke: C.ink, "stroke-width": 3.5, "stroke-linejoin": "round" }, lg);
+  const l3 = E("path", { d: leafPath(28, 20), stroke: C.ink, "stroke-width": 3.2, "stroke-linejoin": "round" }, lg);
+  g.set = (x, y, h, v = 1, s = 1, sway = 0) => {
+    if (h <= 0.5) { op(g, 0); return; }
+    op(g, 1);
+    const droop = (1 - v);
+    const bend = sway + droop * 18;
+    const tx = bend * .9, ty = -h;
+    const d = `M0,0 Q${bend * .3},${-h * .55} ${tx},${ty}`;
+    stem.setAttribute("d", d); stemIn.setAttribute("d", d);
+    const col = lerpColor("#6CC05B", "#C8B860", droop);
+    const ls = clamp(h / 40) * s * lerp(1, .78, droop);
+    const la = lerp(58, 104, droop);
+    S(l1, { fill: col, transform: tf(tx, ty, -la, ls) });
+    S(l2, { fill: col, transform: tf(tx, ty, la, ls) });
+    S(l3, { fill: col, transform: tf(tx, ty, bend * .4, h > 60 ? ls * clamp((h - 60) / 40) : .001) });
+    stemIn.setAttribute("stroke", col);
+    g.setAttribute("transform", tf(x, y, 0, s));
+  };
+  return g;
+}
+
+/* ---------- 地面、草叢、光點 ---------- */
+function makeGround(parent, y, o = {}) {
+  const g = G(parent);
+  E("path", { d: `M-200,${y} C300,${y - 18} 900,${y + 14} 1800,${y - 10} L1800,1100 L-200,1100 Z`, fill: o.fill || "#B98A5E", stroke: C.ink, "stroke-width": OUT }, g);
+  E("path", { d: `M-200,${y + 40} C400,${y + 26} 1000,${y + 56} 1800,${y + 34} L1800,1100 L-200,1100 Z`, fill: o.fill2 || "#A3764E" }, g);
+  return g;
+}
+function makeGrassLine(parent, y, o = {}) {
+  const g = G(parent);
+  E("path", { d: `M-200,${y} C300,${y - 22} 900,${y + 12} 1800,${y - 14} L1800,${y + 40} L-200,${y + 40} Z`, fill: o.fill || "#8CCB5E", stroke: C.ink, "stroke-width": OUT }, g);
+  const r = rng(o.seed || 3);
+  let d = "";
+  for (let x = -40; x < 1640; x += 26 + r() * 30) {
+    const h = 14 + r() * 18, yy = y - 4 + Math.sin(x / 300) * 8;
+    d += `M${x},${yy} l${4 + r() * 3},${-h} l${4 + r() * 3},${h} `;
+  }
+  E("path", { d, fill: o.fill || "#8CCB5E", stroke: C.ink, "stroke-width": 3, "stroke-linejoin": "round" }, g);
+  return g;
+}
+function makeHills(parent, y, o = {}) {
+  const g = G(parent);
+  E("path", { d: `M-200,${y} C100,${y - 120} 350,${y - 130} 600,${y - 40} C800,${y - 140} 1100,${y - 160} 1300,${y - 50} C1450,${y - 100} 1650,${y - 110} 1800,${y - 40} L1800,${y + 400} L-200,${y + 400} Z`, fill: o.fill || C.hill, stroke: C.ink, "stroke-width": 4 }, g);
+  return g;
+}
+function makeSun(parent, x, y, r = 60) {
+  const g = G(parent, { transform: tf(x, y) });
+  const rays = G(g);
+  for (let k = 0; k < 12; k++) {
+    const a = k * 30;
+    E("path", { d: `M0,${-r - 14} L0,${-r - 36}`, stroke: C.ink, "stroke-width": 8, "stroke-linecap": "round", transform: `rotate(${a})` }, rays);
+    E("path", { d: `M0,${-r - 14} L0,${-r - 36}`, stroke: C.sun, "stroke-width": 4, "stroke-linecap": "round", transform: `rotate(${a})` }, rays);
+  }
+  E("circle", { r, fill: C.sun, stroke: C.ink, "stroke-width": OUT }, g);
+  g.rays = rays;
+  return g;
+}
+function makeCloud(parent, x, y, s = 1) {
+  const g = G(parent, { transform: tf(x, y, 0, s) });
+  E("path", { d: "M-90,20 Q-104,-10 -70,-16 Q-66,-52 -24,-46 Q-6,-76 32,-56 Q70,-62 74,-26 Q104,-20 96,12 Q90,30 60,28 L-62,30 Q-86,32 -90,20 Z", fill: "#fff", stroke: C.ink, "stroke-width": 4, "stroke-linejoin": "round" }, g);
+  return g;
+}
+/** 閃光（4 角星） */
+function makeSpark(parent, size = 30, color = "#FFE16B") {
+  const g = G(parent);
+  const s = size;
+  E("path", { d: `M0,${-s} Q${s * .16},${-s * .16} ${s},0 Q${s * .16},${s * .16} 0,${s} Q${-s * .16},${s * .16} ${-s},0 Q${-s * .16},${-s * .16} 0,${-s} Z`, fill: color, stroke: C.ink, "stroke-width": 3.2, "stroke-linejoin": "round" }, g);
+  g.at = (x, y, p) => { if (p <= 0 || p >= 1) { op(g, 0); return; } op(g, 1); const k = Math.sin(p * Math.PI); g.setAttribute("transform", tf(x, y, p * 90, .2 + k)); };
+  g.at(0, 0, 0);
+  return g;
+}
+/** 很寬的山丘（鏡頭會橫移的場景用，一條路徑畫到底，沒有接縫） */
+function makeLongHills(parent, y, x0, x1, o = {}) {
+  const amp = o.amp || 110, a = o.a || 0, b = o.b || 1.3;
+  let d = `M${x0},${y + 400} L${x0},${y}`;
+  for (let x = x0; x <= x1; x += 30) d += ` L${x},${(y - amp * (.55 + .28 * Math.sin(x / 230 + a) + .17 * Math.sin(x / 101 + b))).toFixed(1)}`;
+  d += ` L${x1},${y + 400} Z`;
+  return E("path", { d, fill: o.fill || C.hill, stroke: C.ink, "stroke-width": 4, "stroke-linejoin": "round" }, parent);
+}
+function makeLongGrass(parent, y, x0, x1, o = {}) {
+  const g = G(parent);
+  let d = `M${x0},${y + 60} L${x0},${y}`;
+  for (let x = x0; x <= x1; x += 40) d += ` L${x},${(y + Math.sin(x / 300) * 10).toFixed(1)}`;
+  d += ` L${x1},${y + 60} Z`;
+  E("path", { d, fill: o.fill || "#8CCB5E", stroke: C.ink, "stroke-width": OUT }, g);
+  const r = rng(o.seed || 3);
+  let t = "";
+  for (let x = x0; x < x1; x += 26 + r() * 30) { const h = 14 + r() * 18, yy = y - 2 + Math.sin(x / 300) * 10; t += `M${x.toFixed(0)},${yy.toFixed(1)} l${(4 + r() * 3).toFixed(1)},${(-h).toFixed(1)} l${(4 + r() * 3).toFixed(1)},${h.toFixed(1)} `; }
+  E("path", { d: t, fill: o.fill || "#8CCB5E", stroke: C.ink, "stroke-width": 3, "stroke-linejoin": "round" }, g);
+  E("rect", { x: x0, y: y + 26, width: x1 - x0, height: 600, fill: o.fill2 || "#7FBF55" }, g);
+  return g;
+}
+/** 柔和的背景光點（遠景，增加景深） */
+function makeBokeh(parent, seed, n, cols) {
+  const g = G(parent);
+  const r = rng(seed);
+  for (let k = 0; k < n; k++) E("circle", { cx: r() * 1600, cy: r() * 900, r: 30 + r() * 90, fill: cols[k % cols.length], opacity: .35 + r() * .3 }, g);
+  return g;
+}
+/** 大標題（白字黑框＋陰影） */
+function makeTitle(parent, text, size, o = {}) {
+  const g = G(parent);
+  T(g, 6, 8, text, { "font-size": size, fill: "rgba(30,30,30,.25)" });
+  T(g, 0, 0, text, { "font-size": size, fill: o.fill || "#fff", stroke: C.ink, "stroke-width": size * .16, "stroke-linejoin": "round", "paint-order": "stroke" });
+  return g;
+}
+
+/* ---------- 蒲公英的一顆果實（瘦果在下、細毛在上；原點＝果實底端） ---------- */
+function makeDandelionFruit(parent, o = {}) {
+  const g = G(parent);
+  const s = o.s || 1;
+  const inner = G(g, { transform: `scale(${s})` });
+  const hairs = [];
+  for (let k = 0; k < 13; k++) {
+    const a = (-78 + k * 13) * Math.PI / 180;
+    const x = Math.sin(a) * 40, y = -72 - Math.cos(a) * 26;
+    hairs.push(`M0,-72 Q${x * .5},${-72 - Math.cos(a) * 18} ${x},${y}`);
+  }
+  const hd = hairs.join(" ");
+  E("path", { d: hd + " M0,-70 L0,-24", fill: "none", stroke: "#7C8A93", "stroke-width": 4.2, "stroke-linecap": "round" }, inner);
+  E("path", { d: hd, fill: "none", stroke: "#fff", "stroke-width": 2.2, "stroke-linecap": "round" }, inner);
+  E("path", { d: "M0,-70 L0,-24", stroke: "#F3EDE0", "stroke-width": 2.2 }, inner);
+  E("path", { d: "M0,0 C5,-6 5,-18 0,-26 C-5,-18 -5,-6 0,0 Z", fill: "#8A5A34", stroke: C.ink, "stroke-width": 2.6 }, inner);
+  return g;
+}
+/** 青楓的帶翅果實（原點＝種子；翅膀往右延伸） */
+function makeSamara(parent, o = {}) {
+  const g = G(parent);
+  const inner = G(g, { transform: `scale(${o.s || 1})` });
+  E("path", { d: "M2,-4 C30,-26 74,-22 92,-6 C96,4 80,10 58,8 C36,6 16,8 4,6 Z", fill: o.wing || "#E58A5C", stroke: C.ink, "stroke-width": 3.2, "stroke-linejoin": "round" }, inner);
+  E("path", { d: "M8,0 C30,-6 56,-8 86,-4 M14,2 C32,0 50,1 70,4 M12,-2 C30,-14 52,-16 76,-12", fill: "none", stroke: "rgba(140,50,30,.55)", "stroke-width": 2 }, inner);
+  E("ellipse", { cx: 0, cy: 0, rx: 11, ry: 9, fill: o.seed || "#B8563A", stroke: C.ink, "stroke-width": 3.2 }, inner);
+  return g;
+}
+
+/* ---------- 鏡頭：關鍵影格 [時間, 秒數, cx, cy, 倍率]，第一格是起始狀態 ---------- */
+function makeCam(keys) {
+  return (t) => {
+    let cx = keys[0][2], cy = keys[0][3], lz = Math.log(keys[0][4]);
+    for (let i = 1; i < keys.length; i++) {
+      const [t0, d, x, y, z] = keys[i];
+      const p = P(t, t0, d, Ease.io);
+      if (p <= 0) break;
+      cx = lerp(cx, x, p); cy = lerp(cy, y, p); lz = lerp(lz, Math.log(z), p);
+    }
+    const z = Math.exp(lz);
+    return { cx, cy, z, tr: `translate(800,450) scale(${z.toFixed(4)}) translate(${(-cx).toFixed(2)},${(-cy).toFixed(2)})` };
+  };
+}
+/** 說明卡（白底黑框圓角，會彈出來） */
+function makeCard(parent, w, h, o = {}) {
+  const g = G(parent);
+  E("rect", { x: -w / 2 + 8, y: -h / 2 + 10, width: w, height: h, rx: 26, fill: "rgba(30,30,30,.2)" }, g);
+  E("rect", { x: -w / 2, y: -h / 2, width: w, height: h, rx: 26, fill: o.fill || "#fff", stroke: o.stroke || C.ink, "stroke-width": 5 }, g);
+  g.body = G(g);
+  g.place = (p, x, y, r = 0) => { op(g, p > 0 ? Math.min(1, p * 2) : 0); g.setAttribute("transform", tf(x, y, r * (1 - p), Math.max(.001, Ease.back(clamp(p))))); };
+  g.place(0, 0, 0);
+  return g;
+}
+/** 打勾／打叉圓章 */
+function makeMark(parent, ok, r = 34) {
+  const g = G(parent);
+  E("circle", { r, fill: ok ? C.greenD : C.coralD, stroke: C.ink, "stroke-width": 4 }, g);
+  E("path", { d: ok ? `M${-r * .45},0 L${-r * .1},${r * .36} L${r * .5},${-r * .38}` : `M${-r * .36},${-r * .36} L${r * .36},${r * .36} M${r * .36},${-r * .36} L${-r * .36},${r * .36}`, fill: "none", stroke: "#fff", "stroke-width": r * .26, "stroke-linecap": "round", "stroke-linejoin": "round" }, g);
+  return g;
+}
+/** 玉米（雄花在頂端、雌花的玉米鬚在側邊；原點＝莖基部） */
+function makeCorn(parent, o = {}) {
+  const g = G(parent);
+  stroke2(g, "M0,0 C4,-120 -4,-250 0,-360", "#7DBE55", 14);
+  for (const [y, side, L] of [[-60, 1, 150], [-130, -1, 170], [-210, 1, 150], [-280, -1, 120]]) {
+    E("path", { d: `M0,${y} C${side * 40},${y - 50} ${side * L * .8},${y - 40} ${side * L},${y + 30} C${side * L * .7},${y - 20} ${side * 30},${y - 30} 0,${y + 14} Z`, fill: "#8CCB5E", stroke: C.ink, "stroke-width": 3.5, "stroke-linejoin": "round" }, g);
+  }
+  // 雄花（頂端的穗）
+  const tas = G(g, { transform: "translate(0,-360)" });
+  for (const [a, L] of [[0, 90], [-28, 70], [28, 70], [-52, 55], [52, 55]]) {
+    const gg = G(tas, { transform: `rotate(${a})` });
+    E("path", { d: `M0,0 L0,${-L}`, stroke: C.ink, "stroke-width": 8, "stroke-linecap": "round" }, gg);
+    E("path", { d: `M0,0 L0,${-L}`, stroke: "#D8C27A", "stroke-width": 4, "stroke-linecap": "round" }, gg);
+    for (let k = 1; k < 5; k++) E("ellipse", { cx: (k % 2 ? 5 : -5), cy: -L * k / 5, rx: 4, ry: 6, fill: "#F2D46B", stroke: C.ink, "stroke-width": 1.8 }, gg);
+  }
+  // 雌花（玉米鬚）
+  const ear = G(g, { transform: "translate(8,-170) rotate(28)" });
+  E("ellipse", { cx: 0, cy: -40, rx: 22, ry: 52, fill: "#9CCB62", stroke: C.ink, "stroke-width": 3.5 }, ear);
+  E("path", { d: "M-6,-90 C-30,-120 -24,-140 -40,-160 M0,-92 C-6,-125 6,-140 -2,-168 M6,-90 C24,-118 18,-140 30,-158", fill: "none", stroke: "#C98F5A", "stroke-width": 4, "stroke-linecap": "round" }, ear);
+  g.tassel = [0, -425];
+  g.silk = [80, -312];
+  return g;
+}
+
+/* ---------- 四種傳播方式的圖示（白色圓底） ---------- */
+const METHODS = {
+  wind: { name: "風力傳播", short: "風力", col: "#8FD3F4" },
+  self: { name: "自身彈力傳播", short: "自身彈力", col: "#FFC93C" },
+  animal: { name: "動物力傳播", short: "動物力", col: "#E8B66B" },
+  water: { name: "水力傳播", short: "水力", col: "#4FB0E5" }
+};
+function makeMethodIcon(parent, kind, r = 70) {
+  const g = G(parent);
+  E("circle", { r, fill: "#fff", stroke: C.ink, "stroke-width": 5 }, g);
+  E("circle", { r: r - 9, fill: METHODS[kind].col, opacity: .32 }, g);
+  const k = r / 70;
+  const i = G(g, { transform: `scale(${k})` });
+  if (kind === "wind") {
+    for (const [y, L] of [[-22, 70], [0, 86], [22, 60]]) {
+      const d = `M${-L / 2},${y} L${L / 2 - 14},${y} C${L / 2 + 6},${y} ${L / 2 + 6},${y - 22} ${L / 2 - 8},${y - 20}`;
+      E("path", { d, fill: "none", stroke: C.ink, "stroke-width": 11, "stroke-linecap": "round" }, i);
+      E("path", { d, fill: "none", stroke: "#4FB0E5", "stroke-width": 6, "stroke-linecap": "round" }, i);
+    }
+  } else if (kind === "self") {
+    E("path", { d: "M0,-44 L10,-16 L40,-26 L20,-2 L42,22 L12,16 L4,44 L-8,18 L-38,30 L-20,4 L-42,-18 L-12,-14 Z", fill: "#FFC93C", stroke: C.ink, "stroke-width": 5, "stroke-linejoin": "round" }, i);
+    for (const [x, y] of [[-46, -40], [46, -38], [48, 36]]) E("circle", { cx: x, cy: y, r: 7, fill: "#8A5A34", stroke: C.ink, "stroke-width": 3 }, i);
+  } else if (kind === "animal") {
+    E("ellipse", { cx: 0, cy: 14, rx: 24, ry: 20, fill: "#8A5A34", stroke: C.ink, "stroke-width": 4 }, i);
+    for (const [x, y, rr] of [[-26, -14, 10], [-9, -30, 10], [11, -30, 10], [27, -14, 10]]) E("circle", { cx: x, cy: y, r: rr, fill: "#8A5A34", stroke: C.ink, "stroke-width": 4 }, i);
+  } else if (kind === "water") {
+    for (const y of [-6, 18]) {
+      const d = `M-46,${y} C-34,${y - 14} -22,${y - 14} -10,${y} C2,${y + 14} 14,${y + 14} 26,${y} C34,${y - 10} 42,${y - 10} 48,${y - 4}`;
+      E("path", { d, fill: "none", stroke: C.ink, "stroke-width": 11, "stroke-linecap": "round" }, i);
+      E("path", { d, fill: "none", stroke: "#2E86C1", "stroke-width": 6, "stroke-linecap": "round" }, i);
+    }
+    E("path", { d: "M0,-44 C10,-30 14,-24 14,-18 C14,-10 7,-4 0,-4 C-7,-4 -14,-10 -14,-18 C-14,-24 -10,-30 0,-44 Z", fill: "#4FB0E5", stroke: C.ink, "stroke-width": 4 }, i);
+  }
+  return g;
+}
+/** 大樹（四季橘樹）：原點＝樹幹底部 */
+function makeTree(parent, o = {}) {
+  const g = G(parent);
+  const h = o.h || 300, R = o.R || 230;
+  E("path", { d: `M-34,0 C-26,${-h * .4} -30,${-h * .7} -12,${-h} L14,${-h} C28,${-h * .7} 24,${-h * .4} 34,0 Z`, fill: "#8A5A34", stroke: C.ink, "stroke-width": OUT, "stroke-linejoin": "round" }, g);
+  E("path", { d: `M-4,${-h * .62} C-40,${-h * .8} -70,${-h * .86} -96,${-h * .98} M6,${-h * .7} C40,${-h * .86} 70,${-h * .9} 92,${-h * 1.02}`, fill: "none", stroke: C.ink, "stroke-width": 14, "stroke-linecap": "round" }, g);
+  E("path", { d: `M-4,${-h * .62} C-40,${-h * .8} -70,${-h * .86} -96,${-h * .98} M6,${-h * .7} C40,${-h * .86} 70,${-h * .9} 92,${-h * 1.02}`, fill: "none", stroke: "#8A5A34", "stroke-width": 8, "stroke-linecap": "round" }, g);
+  const cy = -h - R * .42;
+  const blobs = [[0, 0, 1], [-.55, .18, .62], [.55, .2, .64], [-.3, -.42, .6], [.32, -.4, .6], [0, .36, .58]];
+  const canopy = G(g);
+  blobs.forEach(([x, y, rr]) => E("circle", { cx: x * R, cy: cy + y * R, r: rr * R * .72, fill: o.leaf || "#4FA64F", stroke: C.ink, "stroke-width": OUT }, canopy));
+  blobs.forEach(([x, y, rr]) => E("circle", { cx: x * R, cy: cy + y * R, r: rr * R * .72 - 3, fill: o.leaf || "#4FA64F" }, canopy));
+  const r = rng(o.seed || 8);
+  for (let k = 0; k < 14; k++) E("path", { d: `M${(r() - .5) * R * 1.4},${cy + (r() - .5) * R * .9} q12,-10 24,0`, fill: "none", stroke: "#2E7D4F", "stroke-width": 4, "stroke-linecap": "round" }, canopy);
+  g.fruits = [];
+  if (o.fruits) {
+    for (let k = 0; k < o.fruits; k++) {
+      const a = r() * Math.PI * 2, rr = Math.sqrt(r()) * R * .8;
+      const fx = Math.cos(a) * rr, fy = cy + Math.sin(a) * rr * .62 + R * .08;
+      const f = G(g, { transform: tf(fx, fy) });
+      E("circle", { r: 15, fill: C.orange, stroke: C.ink, "stroke-width": 3.4 }, f);
+      E("circle", { cx: -5, cy: -5, r: 4, fill: "rgba(255,255,255,.5)" }, f);
+      g.fruits.push({ f, x: fx, y: fy });
+    }
+  }
+  g.canopyY = cy; g.R = R; g.h = h;
+  return g;
+}
+
+/** 三次貝茲曲線上的點 */
+const bez = (p0, p1, p2, p3, u) => { const v = 1 - u; return [v * v * v * p0[0] + 3 * v * v * u * p1[0] + 3 * v * u * u * p2[0] + u * u * u * p3[0], v * v * v * p0[1] + 3 * v * v * u * p1[1] + 3 * v * u * u * p2[1] + u * u * u * p3[1]]; };
+/** 幾段三次貝茲曲線 → 折線（自己算長度，隱藏中的元素也能用）：{d, len, at(p)} */
+function polyPath(segs, n = 22) {
+  const pts = [];
+  segs.forEach((sg, i) => { for (let k = i ? 1 : 0; k <= n; k++) pts.push(bez(sg[0], sg[1], sg[2], sg[3], k / n)); });
+  const cum = [0];
+  for (let i = 1; i < pts.length; i++) cum.push(cum[i - 1] + Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]));
+  const len = cum[cum.length - 1];
+  const d = "M" + pts.map(q => q[0].toFixed(1) + "," + q[1].toFixed(1)).join(" L");
+  const at = (p) => {
+    const L = clamp(p) * len;
+    let i = 1;
+    while (i < cum.length - 1 && cum[i] < L) i++;
+    const u = (L - cum[i - 1]) / Math.max(1e-6, cum[i] - cum[i - 1]);
+    return [lerp(pts[i - 1][0], pts[i][0], u), lerp(pts[i - 1][1], pts[i][1], u)];
+  };
+  return { d, len, at };
+}
+
+/* ---------- 示意圖標記（右上角小膠囊） ---------- */
+function makeSchematicTag(parent, right = 1572, y = 54, text = "示意圖") {
+  const w = textW(text, 28) + 34;
+  const g = G(parent, { transform: tf(right - w / 2, y) });
+  E("rect", { x: -w / 2, y: -24, width: w, height: 48, rx: 24, fill: "#EDE8DE", stroke: C.ink, "stroke-width": 3.5 }, g);
+  T(g, 0, 1, text, { "font-size": 28, fill: "#5C6970" });
+  return g;
+}
+</script>
+
+<script>
+/* ==========================================================
+   3. 各段場景
+   ========================================================== */
+"use strict";
+/* ==================== 0 片頭 ==================== */
+scene("intro", (root, ch) => {
+  makeSky(root, { sky: "#FFF3D6" });
+  makeBokeh(root, 5, 9, ["#FFE7A8", "#E6F2CF", "#FFE0CF"]);
+  const sun = makeSun(root, 1400, 150, 58);
+  makeCloud(root, 250, 150, .95);
+  makeCloud(root, 980, 110, .75);
+  makeHills(root, 770, { fill: "#CFE6A8" });
+  makeGrassLine(root, 772, { seed: 11 });
+  const X = 430, Y = 786;
+  const tS = Bs("intro.sprout"), land = tS + .75;
+  const tGrow0 = land + .55, tGrow1 = Ls("c0-1") + 2.3, tOpen = Ls("c0-1") + 2.0;
+  // 落下的種子＋土花
+  const seedG = G(root);
+  E("path", { d: "M0,-15 C11,-11 13,7 0,15 C-13,7 -11,-11 0,-15 Z", fill: "#9C6B3E", stroke: C.ink, "stroke-width": 4 }, seedG);
+  const puff = [0, 1, 2, 3].map(k => E("circle", { r: 9, fill: "#D9B98C", stroke: C.ink, "stroke-width": 3 }, root));
+  const sprout = makeSeedling(root);
+  // 長大的植株
+  const plant = G(root);
+  const stemD = `M${X},${Y} C${X + 8},${Y - 110} ${X - 12},${Y - 220} ${X},${Y - 320} C${X + 4},${Y - 350} ${X},${Y - 370} ${X},${Y - 380}`;
+  const stem = stroke2(plant, stemD, C.green, 13);
+  stem.querySelectorAll("path").forEach(p => p.setAttribute("stroke-dasharray", "430"));
+  const leaves = [[X + 3, Y - 120, 54, 122, 68, .3], [X - 4, Y - 215, -52, 112, 62, .55], [X + 2, Y - 300, 40, 84, 48, .78]]
+    .map(([x, y, a, L, w, at0]) => { const lg = G(plant); makeLeaf(lg, 0, 0, a, L, w); return { lg, x, y, at0 }; });
+  const fG = G(plant);
+  const flower = makeFlower(fG, { noStem: true });
+  // 飄過的果實（預告下集）
+  const drift = G(root);
+  const r = rng(21);
+  const flyers = [];
+  for (let k = 0; k < 7; k++) {
+    const isS = k === 2 || k === 5;
+    const f = isS ? makeSamara(drift, { s: 1.15 }) : makeDandelionFruit(drift, { s: .8 + r() * .35 });
+    flyers.push({ f, isS, y0: 120 + r() * 420, d: r() * 2.2, v: 230 + r() * 120, ph: r() * 6 });
+  }
+  // 片名
+  const title = G(root);
+  E("rect", { x: -470, y: -92, width: 940, height: 184, rx: 40, fill: "#FFC93C", stroke: C.ink, "stroke-width": 6 }, title);
+  makeTitle(title, "種子的誕生與旅行", 104);
+  const sub = T(title, 0, 150, "五年級自然｜第二單元 植物世界", { "font-size": 38, fill: "#5C6970" });
+  const sp = [makeSpark(root, 34), makeSpark(root, 24), makeSpark(root, 28)];
+  return {
+    render(t) {
+      sun.rays.setAttribute("transform", `rotate(${t * 8})`);
+      // 種子落下 → 冒芽
+      const fall = P(t, tS, .75, Ease.in);
+      if (t < land + .6) { op(seedG, 1); seedG.setAttribute("transform", tf(X, lerp(-40, Y - 10, fall), fall * 260)); } else op(seedG, 0);
+      puff.forEach((c, k) => {
+        const p = P(t, land, .55, Ease.out);
+        const a = (k / 3 - .5) * 2.2;
+        if (p <= 0 || p >= 1) { op(c, 0); return; }
+        op(c, 1 - p);
+        S(c, { cx: X + Math.sin(a) * 46 * p, cy: Y - 8 - Math.cos(a) * 30 * p, r: 9 + p * 6 });
+      });
+      const sh = P(t, land + .1, .55, Ease.back) * 46;
+      sprout.set(X, Y - 4, sh, 1, 1, Math.sin(t * 3) * 2);
+      op(sprout, 1 - P(t, tGrow0 + .2, .4));
+      // 莖長高、葉子打開
+      const gp = P(t, tGrow0, tGrow1 - tGrow0, Ease.out);
+      stem.querySelectorAll("path").forEach(p => p.setAttribute("stroke-dashoffset", 430 * (1 - gp)));
+      op(stem, gp > 0 ? 1 : 0);
+      leaves.forEach(L => {
+        const lp = clamp((gp - L.at0) / .25);
+        L.lg.setAttribute("transform", tf(L.x, L.y, 0, Math.max(.001, Ease.back(lp))));
+        op(L.lg, lp > 0 ? 1 : 0);
+      });
+      // 花苞 → 開花
+      const bud = clamp((gp - .9) / .1);
+      const open = P(t, tOpen, 1.5, Ease.out);
+      fG.setAttribute("transform", tf(X, Y - 380, Math.sin(t * 1.3) * 1.5, .92 * Math.max(.001, Ease.back(bud))));
+      op(fG, bud > 0 ? 1 : 0);
+      flower.setOpen(open);
+      // 飄過的果實
+      const t2 = Ls("c0-2") - .4;
+      flyers.forEach(F => {
+        const u = t - t2 - F.d;
+        if (u <= 0) { op(F.f, 0); return; }
+        const x = -120 + u * F.v, y = F.y0 - u * 28 + Math.sin(u * 1.6 + F.ph) * 22;
+        if (x > 1720) { op(F.f, 0); return; }
+        op(F.f, 1);
+        F.f.setAttribute("transform", tf(x, y, F.isS ? u * 520 : Math.sin(u * 2 + F.ph) * 12));
+      });
+      // 片名
+      const tp = P(t, Ls("c0-3") + .05, .9, Ease.back);
+      title.setAttribute("transform", tf(1085, 400 + Math.sin(t * 1.6) * 4, (1 - tp) * -6, Math.max(.001, tp)));
+      op(title, tp > 0 ? 1 : 0);
+      op(sub, P(t, Ls("c0-3") + .6, .5));
+      sp[0].at(600, 250, P(t, Ls("c0-3") + .5, .9, Ease.lin));
+      sp[1].at(1480, 300, P(t, Ls("c0-3") + .75, .9, Ease.lin));
+      sp[2].at(1440, 560, P(t, Ls("c0-3") + 1.0, .9, Ease.lin));
+    }
+  };
+});
+
+/* ==================== 1 花的構造 ==================== */
+scene("flower", (root, ch) => {
+  makeSky(root, { sky: "#FFF3D6" });
+  makeBokeh(root, 12, 11, ["#FFE7A8", "#E6F2CF", "#FFE9C9"]);
+  const cam = G(root);
+  const X = 800, Y = 640, s = 1.42;
+  // 枝條與葉子
+  makeLeaf(cam, X - 6, Y + 175, -58, 190, 104);
+  makeLeaf(cam, X + 10, Y + 250, 62, 170, 96);
+  const fl = G(cam, { transform: tf(X, Y, 0, s) });
+  const F = makeFlower(fl);
+  F.setOpen(1);
+  const A = (lx, ly) => at(X, Y, s, lx, ly);
+  const GOLD = "#C98A00", COR = "#E4574C";
+  const L = {
+    stam: makeLabel(cam, "雄蕊", 300, 205, null, null, { size: 48, color: GOLD, bg: "#FFF3C8" }),
+    anth: makeLabel(cam, "花藥", 300, 335, ...A(-104, -158), { color: GOLD }),
+    fila: makeLabel(cam, "花絲", 300, 485, ...A(-78, -74), { color: GOLD }),
+    pist: makeLabel(cam, "雌蕊", 1300, 175, null, null, { size: 48, color: COR, bg: "#FFE3DC" }),
+    stig: makeLabel(cam, "柱頭", 1300, 285, ...A(21, -232), { color: COR }),
+    styl: makeLabel(cam, "花柱", 1300, 395, ...A(9, -160), { color: COR }),
+    ovar: makeLabel(cam, "子房", 1300, 535, ...A(40, -52), { color: COR }),
+    ovul: makeLabel(cam, "胚珠", 1300, 660, ...A(14, -40), { color: COR })
+  };
+  const tSt = Wt("c1-1", "雄蕊"), tPi = Wt("c1-3", "雌蕊");
+  const show = (lab, t0, t) => lab.show(P(t, t0 - .12, .75, Ease.lin) * (1 - P(t, ch.e - .7, .4)));
+  return {
+    render(t) {
+      const z = lerp(1, 1.06, P(t, ch.s, ch.e - ch.s, Ease.sine));
+      cam.setAttribute("transform", `translate(800,450) scale(${z.toFixed(4)}) translate(-800,-450)`);
+      fl.setAttribute("transform", tf(X, Y, Math.sin(t * .9) * .8, s));
+      F.halo(vis(t, tSt - .1, tSt + 2.2, .3, .6), vis(t, tPi - .1, tPi + 2.0, .3, .6));
+      show(L.stam, tSt, t);
+      show(L.anth, Wt("c1-2", "花藥"), t);
+      show(L.fila, Wt("c1-2", "花絲"), t);
+      show(L.pist, tPi, t);
+      show(L.stig, Wt("c1-3", "柱頭"), t);
+      show(L.styl, Wt("c1-3", "花柱"), t);
+      show(L.ovar, Wt("c1-3", "子房"), t);
+      show(L.ovul, Wt("c1-4", "胚珠"), t);
+      // 子房放大、打開小窗看胚珠
+      const w = P(t, Ls("c1-4") - .1, .8, Ease.out);
+      F.setWin(w);
+      const k = 1 + .32 * P(t, Ls("c1-4") - .2, .7, Ease.back);
+      F.ovaryG.setAttribute("transform", `translate(0,-52) scale(${k.toFixed(4)}) translate(0,52)`);
+    }
+  };
+});
+
+/* ==================== 2 授粉 ==================== */
+scene("pollination", (root, ch) => {
+  makeSky(root, { sky: "#FFF3D6" });
+  makeBokeh(root, 31, 11, ["#FFE7A8", "#E6F2CF", "#FFE9C9"]);
+  const world = G(root);
+  const AX = 470, BX = 1130, FY = 640;
+  makeLeaf(world, AX + 40, FY + 210, -64, 170, 92);
+  makeLeaf(world, BX - 40, FY + 230, 60, 160, 88);
+  makeLeaf(world, 800, FY + 290, -12, 150, 80);
+  const gA = G(world, { transform: tf(AX, FY) }), gB = G(world, { transform: tf(BX, FY) });
+  const A = makeFlower(gA, { stemPath: "M0,6 C5,90 40,200 150,330" });
+  const B = makeFlower(gB, { stemPath: "M0,6 C-5,90 -40,200 -150,330" });
+  A.setOpen(1); B.setOpen(1);
+  // 花藥裂開後飄出的花粉
+  const puffG = G(world);
+  const r = rng(44);
+  const puffs = [];
+  for (let k = 0; k < 26; k++) {
+    const st = FLOWER.stamens[k % 6];
+    puffs.push({ c: E("circle", { r: 4.2, fill: "#F5A800", stroke: "#B37400", "stroke-width": 1.2 }, puffG), x: AX + st[1] + (r() - .5) * 14, y: FY + st[2] + (r() - .5) * 20, vx: (r() - .5) * 70, vy: -20 - r() * 50, d: r() * 1.2 });
+  }
+  const bee = makeBee(world);
+  const spark = makeSpark(world, 32);
+  const spark2 = makeSpark(world, 22);
+  const tSplit = Wt("c2-1", "裂開");
+  const tIn = Ls("c2-2") - .25, tLand = Ls("c2-2") + 1.5, tOff = Bs("poll.flyoff");
+  const tHover = Ls("c2-3") + 1.2, tTouch = Wt("c2-3", "柱頭") - .35, tLeave = Le("c2-3") + .25;
+  const landA = [AX + 16, FY - 196], touchB = [BX + 4, FY - 262];
+  const cam = makeCam([
+    [ch.s, 0, AX, FY - 200, 1.75],
+    [Le("c2-1") - .4, 1.4, 800, 470, 1],
+    [tTouch - 1.1, 1.1, BX, FY - 230, 1.85],
+    [Ls("c2-5") - .3, .9, 800, 470, 1]
+  ]);
+  // ---- 前景說明卡（不跟鏡頭動）----
+  const ov = G(root);
+  const dim = E("rect", { x: 0, y: 0, width: 1600, height: 900, fill: "#FFF3D6" }, ov);
+  const term = makeCard(ov, 820, 250, { fill: "#FFFDF4" });
+  const termTitle = makeLabel(term.body, "授粉", 0, -62, null, null, { size: 62, color: C.coralD, bg: "#FFE3DC" });
+  termTitle.show(1);
+  const row = G(term.body, { transform: "translate(0,62)" });
+  makeLabel(row, "雄蕊的花粉", -215, 0, null, null, { size: 40, color: "#C98A00", bg: "#FFF3C8" }).show(1);
+  E("path", { d: "M-40,0 L40,0 M22,-16 L42,0 L22,16", fill: "none", stroke: C.ink, "stroke-width": 7, "stroke-linecap": "round", "stroke-linejoin": "round" }, row);
+  makeLabel(row, "雌蕊的柱頭", 215, 0, null, null, { size: 40, color: C.coralD, bg: "#FFE3DC" }).show(1);
+  // 花瓣 ✗ vs 柱頭 ✓
+  const cNo = makeCard(ov, 500, 430), cOk = makeCard(ov, 500, 430);
+  (function () {
+    const pg = G(cNo.body, { transform: "translate(0,-40) rotate(-62)" });
+    E("path", { d: petalPath(260, 120), transform: "translate(0,130)", fill: "#fff", stroke: C.ink, "stroke-width": OUT }, pg);
+    E("path", { d: "M0,120 C3,40 -3,-30 0,-90", fill: "none", stroke: "#E9E1CF", "stroke-width": 4 }, pg);
+    for (const [x, y] of [[-14, 10], [10, -20], [22, 26], [-6, 52], [-24, -40]]) E("circle", { cx: x, cy: y, r: 7, fill: "#F5A800", stroke: "#B37400", "stroke-width": 1.6 }, pg);
+    const m = makeMark(cNo.body, false, 38); m.setAttribute("transform", "translate(180,-160)");
+    T(cNo.body, 0, 150, "停在花瓣上", { "font-size": 40 });
+    T(cNo.body, 0, 196, "不算授粉", { "font-size": 34, fill: C.coralD });
+    const sg = G(cOk.body, { transform: "translate(0,-30)" });
+    E("path", { d: "M-16,170 L-14,-30 Q0,-40 14,-30 L16,170 Z", fill: "#9ACB6E", stroke: C.ink, "stroke-width": OUT }, sg);
+    E("circle", { cx: 0, cy: -70, r: 50, fill: "#E5D44E", stroke: C.ink, "stroke-width": OUT }, sg);
+    for (const [x, y] of [[-20, -96], [6, -110], [26, -88], [-30, -70], [14, -66], [-6, -86]]) E("circle", { cx: x, cy: y, r: 7, fill: "#F5A800", stroke: "#B37400", "stroke-width": 1.6 }, sg);
+    const m2 = makeMark(cOk.body, true, 38); m2.setAttribute("transform", "translate(180,-160)");
+    E("rect", { x: -250, y: 112, width: 500, height: 103, fill: "#fff" }, cOk.body);
+    T(cOk.body, 0, 150, "傳到柱頭上", { "font-size": 40 });
+    T(cOk.body, 0, 196, "才是授粉", { "font-size": 34, fill: C.greenD });
+  })();
+  // 誰來傳花粉：動物 vs 風
+  const cBee = makeCard(ov, 500, 470), cCorn = makeCard(ov, 500, 470);
+  const miniFlower = G(cBee.body, { transform: "translate(-40,60) scale(.62)" });
+  const mf = makeFlower(miniFlower, { stemPath: "M0,6 C2,60 -2,110 0,150" }); mf.setOpen(1); mf.split(1);
+  const miniBee = makeBee(cBee.body);
+  T(cBee.body, 0, 168, "靠動物幫忙", { "font-size": 40 });
+  T(cBee.body, 0, 212, "例：蜜蜂", { "font-size": 30, fill: "#5C6970" });
+  const cornG = G(cCorn.body, { transform: "translate(-30,150) scale(.74)" });
+  const corn = makeCorn(cornG);
+  const windG = G(cCorn.body);
+  const winds = [0, 1, 2].map(k => E("path", { d: "M-200,0 C-140,-26 -80,26 -20,0 C20,-16 50,-10 70,0", fill: "none", stroke: "#8FB8D8", "stroke-width": 7, "stroke-linecap": "round" }, windG));
+  const cornPollen = [];
+  for (let k = 0; k < 9; k++) cornPollen.push(E("circle", { r: 5.5, fill: "#F2D46B", stroke: C.ink, "stroke-width": 1.6 }, cCorn.body));
+  T(cCorn.body, 0, 168, "靠風", { "font-size": 40 });
+  T(cCorn.body, 0, 212, "例：玉米", { "font-size": 30, fill: "#5C6970" });
+  const tasW = [-30 + corn.tassel[0] * .74, 150 + corn.tassel[1] * .74], silkW = [-30 + corn.silk[0] * .74, 150 + corn.silk[1] * .74];
+
+  return {
+    render(t) {
+      const cm = cam(t);
+      world.setAttribute("transform", cm.tr);
+      const sp = P(t, tSplit - .25, .6);
+      A.split(sp); B.split(sp);
+      puffs.forEach(p => {
+        const u = t - tSplit - p.d;
+        if (u <= 0 || u > 2.6) { op(p.c, 0); return; }
+        op(p.c, 1 - clamp((u - 1.8) / .8));
+        S(p.c, { cx: p.x + p.vx * u, cy: p.y + p.vy * u + 12 * u * u });
+      });
+      // 蜜蜂
+      let bx, by, flip = true, rot = 0, rest = false, pol = 0;
+      if (t < tIn) { op(bee.g, 0); }
+      else {
+        op(bee.g, 1);
+        if (t < tLand) {
+          const u = Ease.io(clamp((t - tIn) / (tLand - tIn)));
+          [bx, by] = bez([1760, 200], [1300, 60], [760, 120], landA, u);
+          rot = -8 + u * 26;
+        } else if (t < tOff) {
+          bx = landA[0] + Math.sin(t * 9) * 3; by = landA[1] + Math.sin(t * 13) * 2; rot = 20; rest = (t - tLand) % 1.4 > .9;
+        } else if (t < tHover) {
+          const u = Ease.io(clamp((t - tOff) / (tHover - tOff)));
+          [bx, by] = bez(landA, [AX + 160, FY - 520], [BX - 260, FY - 560], [BX - 70, FY - 340], u);
+          flip = false; rot = -10 + u * 10;
+        } else if (t < tLeave) {
+          const u = Ease.io(clamp((t - tHover) / (tTouch - tHover)));
+          bx = lerp(BX - 70, touchB[0], u) + (u >= 1 ? Math.sin(t * 9) * 2 : 0);
+          by = lerp(FY - 340, touchB[1], u) + (u >= 1 ? Math.sin(t * 12) * 2 : 0);
+          flip = false; rot = lerp(0, 22, u);
+        } else {
+          const u = Ease.in(clamp((t - tLeave) / 1.6));
+          [bx, by] = bez(touchB, [BX + 120, FY - 420], [BX + 300, FY - 620], [1800, 60], u);
+          flip = false; rot = -16;
+        }
+        pol = P(t, Wt("c2-2", "沾滿") - .5, 1.3) * (1 - .45 * P(t, tTouch, .5));
+        bee.set(bx, by, t, { flip, rot: flip ? -rot : rot, rest, pollen: pol, s: 1.05 });
+      }
+      op(B.stigDust, P(t, tTouch + .05, .35));
+      spark.at(touchB[0] + 46, touchB[1] - 34, P(t, tTouch + .2, .9, Ease.lin));
+      spark2.at(touchB[0] - 40, touchB[1] - 10, P(t, tTouch + .4, .8, Ease.lin));
+      // 前景卡片
+      const tT = Wt("c2-4", "授粉");
+      term.place(vis(t, tT - .15, Ls("c2-5") - .45, .5, .35), 800, 165);
+      const cmp = vis(t, Ls("c2-5") - .2, Ls("c2-6") - .45, .5, .35);
+      const agt = vis(t, Ls("c2-6") - .2, ch.e - .6, .5, .4);
+      op(dim, Math.max(cmp, agt) * .72);
+      cNo.place(cmp, 520, 395, -4); cOk.place(P(t, Ls("c2-5") + .25, .5, Ease.out) * (1 - P(t, Ls("c2-6") - .45, .35)), 1080, 395, 4);
+      cBee.place(P(t, Wt("c2-6", "蜜蜂") - .4, .5, Ease.out) * (1 - P(t, ch.e - .6, .4)), 520, 395, -4);
+      cCorn.place(P(t, Wt("c2-6", "玉米") - .4, .5, Ease.out) * (1 - P(t, ch.e - .6, .4)), 1080, 395, 4);
+      // 小蜜蜂繞著小花飛
+      const a = t * 1.6;
+      miniBee.set(60 + Math.cos(a) * 110, -40 + Math.sin(a * 2) * 40, t, { s: .62, flip: Math.sin(a) > 0, pollen: .7 });
+      // 風吹花粉
+      winds.forEach((w, k) => { const u = (t * .7 + k / 3) % 1; S(w, { transform: tf(-60 + u * 260, -150 + k * 70), opacity: Math.sin(u * Math.PI).toFixed(3) }); });
+      cornPollen.forEach((c, k) => {
+        const u = (t * .45 + k / cornPollen.length) % 1;
+        const x = lerp(tasW[0], silkW[0], u) + Math.sin(u * 7 + k) * 12, y = lerp(tasW[1], silkW[1], u) - Math.sin(u * Math.PI) * 50;
+        S(c, { cx: x, cy: y, opacity: Math.sin(u * Math.PI).toFixed(3) });
+      });
+    }
+  };
+});
+
+/* ==================== 3 花粉和胚珠結合（雌蕊縱切示意圖） ==================== */
+scene("fertilization", (root, ch) => {
+  makeSky(root, { sky: "#FFF7E2" });
+  E("circle", { cx: 800, cy: 470, r: 470, fill: "#FFEFC9", opacity: .7 }, root);
+  const world = G(root);
+  const CX = 800;
+  // ---- 雌蕊（外皮＋剖開後的內部）----
+  const inside = G(world), skin = G(world), deco = G(world);
+  // 內部：花柱中間的通道、子房的空腔、中軸、胚珠
+  E("path", { d: `M${CX - 26},186 L${CX - 22},470 L${CX + 22},470 L${CX + 26},186 Z`, fill: "#9ACB6E", stroke: C.ink, "stroke-width": OUT }, inside);
+  E("path", { d: `M${CX - 9},196 L${CX - 8},470 L${CX + 8},470 L${CX + 9},196 Z`, fill: "#D9EEC1" }, inside);
+  E("ellipse", { cx: CX, cy: 600, rx: 205, ry: 160, fill: "#6DBB5A", stroke: C.ink, "stroke-width": OUT }, inside);
+  E("ellipse", { cx: CX, cy: 604, rx: 172, ry: 128, fill: "#EAF6D6", stroke: C.ink, "stroke-width": 3.5 }, inside);
+  E("rect", { x: CX - 11, y: 470, width: 22, height: 262, rx: 11, fill: "#8CCB6E", stroke: C.ink, "stroke-width": 3 }, inside);
+  E("path", { d: `M${CX - 22},470 L${CX + 22},470`, stroke: "#D9EEC1", "stroke-width": 6 }, inside);
+  const OV = [[CX - 92, 548, -1], [CX + 92, 548, 1], [CX - 96, 670, -1], [CX + 96, 670, 1]];
+  const ovules = OV.map(([x, y, sd], i) => {
+    const g = G(inside);
+    E("path", { d: `M${CX + sd * 10},${y + 6} C${CX + sd * 30},${y + 8} ${x - sd * 44},${y + 14} ${x - sd * 34},${y + 4}`, fill: "none", stroke: C.ink, "stroke-width": 10, "stroke-linecap": "round" }, g);
+    E("path", { d: `M${CX + sd * 10},${y + 6} C${CX + sd * 30},${y + 8} ${x - sd * 44},${y + 14} ${x - sd * 34},${y + 4}`, fill: "none", stroke: "#8CCB6E", "stroke-width": 5, "stroke-linecap": "round" }, g);
+    const glow = E("ellipse", { cx: x, cy: y, rx: 50, ry: 60, fill: "#FFE27A", opacity: 0 }, g);
+    const body = E("ellipse", { cx: x, cy: y, rx: 40, ry: 50, fill: "#FFF1C6", stroke: C.ink, "stroke-width": 4 }, g);
+    E("path", { d: `M${x - 9},${y - 49} Q${x},${y - 40} ${x + 9},${y - 49}`, fill: "#EAF6D6", stroke: C.ink, "stroke-width": 3 }, g);   // 珠孔（花粉管從這裡進去）
+    const egg = E("circle", { cx: x, cy: y - 22, r: 11, fill: "#FFD1C2", stroke: C.ink, "stroke-width": 2.6 }, g);
+    return { g, glow, body, egg, x, y };
+  });
+  // 柱頭
+  const stigG = G(inside);
+  E("ellipse", { cx: CX, cy: 158, rx: 92, ry: 48, fill: "#E5D44E", stroke: C.ink, "stroke-width": OUT }, stigG);
+  for (let k = 0; k < 9; k++) { const a = Math.PI * (1.08 + k * .105); E("circle", { cx: CX + Math.cos(a) * 80, cy: 158 + Math.sin(a) * 40, r: 7, fill: "#F4E886", stroke: C.ink, "stroke-width": 2 }, stigG); }
+  const GR = [[CX - 54, 116], [CX - 14, 106], [CX + 26, 108], [CX + 62, 120]];
+  const grains = GR.map(([x, y], k) => {
+    const g = G(inside, { transform: tf(x, y) });
+    E("circle", { r: 15, fill: "#F5A800", stroke: C.ink, "stroke-width": 3.4 }, g);
+    for (const [a, b] of [[-5, -5], [5, -3], [-2, 6], [6, 6]]) E("circle", { cx: a, cy: b, r: 2.2, fill: "#B37400" }, g);
+    return g;
+  });
+  // 外皮（剖開前看到的樣子）：之後淡出
+  E("path", { d: `M${CX - 26},186 L${CX - 22},470 L${CX + 22},470 L${CX + 26},186 Z`, fill: "#9ACB6E", stroke: C.ink, "stroke-width": OUT }, skin);
+  E("ellipse", { cx: CX, cy: 600, rx: 205, ry: 160, fill: "#6DBB5A", stroke: C.ink, "stroke-width": OUT }, skin);
+  E("ellipse", { cx: CX - 80, cy: 540, rx: 26, ry: 52, fill: "rgba(255,255,255,.3)", transform: `rotate(20 ${CX - 80} 540)` }, skin);
+  // 剖開的刀光
+  const knife = E("line", { x1: CX, y1: 100, x2: CX, y2: 100, stroke: "#fff", "stroke-width": 10, "stroke-linecap": "round" }, deco);
+  const knife2 = E("line", { x1: CX, y1: 100, x2: CX, y2: 100, stroke: C.coralD, "stroke-width": 4, "stroke-dasharray": "14 10" }, deco);
+  // 花粉長出的細管（四條，各找一顆胚珠）
+  const tubeSegs = [
+    [[[CX - 14, 118], [CX - 12, 150], [CX - 4, 170], [CX - 3, 200]], [[CX - 3, 200], [CX - 4, 300], [CX - 2, 400], [CX - 4, 468]], [[CX - 4, 468], [CX - 6, 486], [CX - 70, 474], [CX - 92, 500]]],
+    [[[CX + 26, 120], [CX + 22, 150], [CX + 8, 172], [CX + 4, 200]], [[CX + 4, 200], [CX + 5, 300], [CX + 3, 400], [CX + 5, 468]], [[CX + 5, 468], [CX + 8, 486], [CX + 72, 474], [CX + 92, 500]]],
+    [[[CX - 54, 128], [CX - 46, 160], [CX - 12, 172], [CX - 6, 200]], [[CX - 6, 200], [CX - 7, 300], [CX - 6, 400], [CX - 7, 470]], [[CX - 7, 470], [CX - 20, 520], [CX - 22, 600], [CX - 30, 612]], [[CX - 30, 612], [CX - 44, 622], [CX - 86, 600], [CX - 96, 622]]],
+    [[[CX + 62, 132], [CX + 52, 162], [CX + 14, 174], [CX + 7, 200]], [[CX + 7, 200], [CX + 8, 300], [CX + 6, 400], [CX + 8, 470]], [[CX + 8, 470], [CX + 22, 520], [CX + 22, 600], [CX + 30, 612]], [[CX + 30, 612], [CX + 44, 622], [CX + 88, 600], [CX + 96, 622]]]
+  ];
+  const tubeG = G(inside);
+  const tubes = tubeSegs.map((sg, i) => {
+    const pp = polyPath(sg);
+    const st = stroke2(tubeG, pp.d, "#F2B33D", 8, 2.6);
+    st.querySelectorAll("path").forEach(p => p.setAttribute("stroke-dasharray", pp.len.toFixed(1) + " 9999"));
+    const tipHalo = E("circle", { r: 20, fill: "rgba(255,226,110,.55)" }, tubeG);
+    const tip = E("circle", { r: 9, fill: "#FFF3A0", stroke: C.ink, "stroke-width": 2.6 }, tubeG);
+    return { pp, st, tip, tipHalo, ov: ovules[i] };
+  });
+  // 標籤
+  const COR = C.coralD;
+  const labs = {
+    stig: makeLabel(world, "柱頭", 430, 150, CX - 92, 158, { color: COR }),
+    styl: makeLabel(world, "花柱", 430, 330, CX - 24, 330, { color: COR }),
+    ovar: makeLabel(world, "子房", 430, 480, CX - 168, 520, { color: COR }),
+    ovul: makeLabel(world, "胚珠", 1180, 400, CX + 104, 512, { color: COR })
+  };
+  const tagS = makeSchematicTag(root, 1572, 54, "剖開來看（示意圖）");
+  // 問號：花粉要怎麼到胚珠？
+  const qG = G(world);
+  E("path", { d: `M${CX - 130},150 C${CX - 260},250 ${CX - 260},420 ${CX - 170},520`, fill: "none", stroke: C.coralD, "stroke-width": 6, "stroke-dasharray": "16 12", "stroke-linecap": "round" }, qG);
+  E("circle", { cx: CX - 300, cy: 330, r: 56, fill: "#fff", stroke: C.ink, "stroke-width": 5 }, qG);
+  T(qG, CX - 300, 334, "？", { "font-size": 72, fill: C.coralD });
+  // 「結合」字卡、國中名詞小字
+  const fuseLab = makeLabel(world, "結合！", 452, 640, CX - 126, 556, { size: 46, color: "#C98A00", bg: "#FFF3C8" });
+  const note = G(root, { transform: "translate(40,672)" });
+  E("rect", { x: 0, y: 0, width: 560, height: 66, rx: 20, fill: "#fff", stroke: C.ink, "stroke-width": 3.5 }, note);
+  const mg = G(note, { transform: "translate(38,33)" });
+  E("circle", { cx: -3, cy: -3, r: 12, fill: "none", stroke: C.ink, "stroke-width": 4 }, mg);
+  E("path", { d: "M6,6 L15,15", stroke: C.ink, "stroke-width": 5, "stroke-linecap": "round" }, mg);
+  T(note, 72, 34, "國中會學到：這條細管叫做「花粉管」", { "font-size": 27, "text-anchor": "start", fill: "#5C6970" });
+  // 定位：整朵花的哪裡？
+  const loc = G(root, { transform: "translate(150,250)" });
+  E("circle", { r: 112, fill: "#FFF3D6", stroke: C.ink, "stroke-width": 5 }, loc);
+  const locIn = G(loc);
+  const cpid = "loc" + Math.random().toString(36).slice(2, 7);
+  const cp = E("clipPath", { id: cpid }, loc); E("circle", { r: 108 }, cp);
+  locIn.setAttribute("clip-path", `url(#${cpid})`);
+  const mini = G(locIn, { transform: "translate(0,62) scale(.42)" });
+  makeFlower(mini).setOpen(1);
+  E("rect", { x: -16, y: 62 - 250 * .42, width: 32, height: 250 * .42 - 6, rx: 6, fill: "none", stroke: C.coralD, "stroke-width": 5 }, loc);
+  T(loc, 0, 136, "放大雌蕊", { "font-size": 28, fill: "#5C6970" });
+
+  const tAsk = Wt("c3-1", "怎麼"), tCut = Wt("c3-2", "剖開");
+  const tTube = Wt("c3-3", "管子") - .35, tOvary = Wt("c3-3", "子房") + .3, tFound = Ls("c3-4") + .35, tFuse = Wt("c3-4", "結合");
+  const tOthers = [Ls("c3-5") - .4, Ls("c3-5") + .3, Ls("c3-5") + 1.0];
+  const arrive = [tFound, Wt("c3-5", "好幾顆花粉") + .3, Wt("c3-5", "各自") + .5, Wt("c3-5", "不同的胚珠") + .2];
+  const cam = makeCam([
+    [ch.s, 0, 800, 470, 1],
+    [tFound - .8, 1.0, CX - 60, 520, 1.32],
+    [Ls("c3-5") - .3, 1.0, 800, 470, 1]
+  ]);
+  return {
+    render(t) {
+      world.setAttribute("transform", cam(t).tr);
+      // 剖開
+      const kp = P(t, tCut - .1, .65, Ease.io);
+      S(knife, { y1: 100, y2: lerp(100, 770, kp) }); S(knife2, { y1: 100, y2: lerp(100, 770, kp) });
+      op(knife, kp > 0 ? 1 - P(t, tCut + .7, .4) : 0); op(knife2, kp > 0 ? 1 - P(t, tCut + .7, .4) : 0);
+      op(skin, 1 - P(t, tCut + .45, .55));
+      op(tagS, P(t, tCut + .5, .5));
+      op(qG, vis(t, tAsk - .2, tCut - .2, .45, .4));
+      labs.stig.show(P(t, tCut + .8, .7, Ease.lin)); labs.styl.show(P(t, tCut + 1.0, .7, Ease.lin));
+      labs.ovar.show(P(t, tCut + 1.2, .7, Ease.lin)); labs.ovul.show(P(t, tCut + 1.4, .7, Ease.lin) * (1 - P(t, tFound - .6, .4)));
+      op(loc, vis(t, ch.s + .3, tTube, .5, .5));
+      op(note, P(t, tTube + 1.2, .6));
+      // 花粉管
+      const starts = [tTube, ...tOthers];
+      tubes.forEach((tb, i) => {
+        const t0 = starts[i], t1 = arrive[i];
+        let pr;
+        if (i === 0) pr = t < tOvary ? .8 * P(t, t0, tOvary - t0, Ease.lin) : .8 + .2 * P(t, tOvary, t1 - tOvary, Ease.out);
+        else pr = P(t, t0, t1 - t0, Ease.sine);
+        tb.st.querySelectorAll("path").forEach(p => p.setAttribute("stroke-dashoffset", (tb.pp.len * (1 - pr)).toFixed(1)));
+        op(tb.st, pr > 0 ? 1 : 0);
+        const [x, y] = tb.pp.at(pr);
+        const on = pr > 0 && pr < 1;
+        op(tb.tip, on ? 1 : 0); op(tb.tipHalo, on ? 1 : 0);
+        S(tb.tip, { cx: x, cy: y }); S(tb.tipHalo, { cx: x, cy: y, r: 18 + Math.sin(t * 9) * 3 });
+        grains[i].setAttribute("transform", tf(GR[i][0], GR[i][1], 0, 1 + .12 * Math.sin(Math.PI * clamp((t - t0) / .6))));
+        // 結合：胚珠亮起來
+        const tf0 = i === 0 ? tFuse : t1 + .25;
+        const fu = P(t, tf0 - .1, .6, Ease.out);
+        S(tb.ov.glow, { opacity: (fu * (.65 + .2 * Math.sin(t * 4 + i))).toFixed(3) });
+        S(tb.ov.body, { fill: lerpColor("#FFF1C6", "#FFE08A", fu) });
+        tb.ov.egg.setAttribute("transform", `translate(${tb.ov.x},${tb.ov.y - 22}) scale(${1 + .5 * Math.sin(Math.PI * clamp((t - tf0) / .5))}) translate(${-tb.ov.x},${-(tb.ov.y - 22)})`);
+      });
+      fuseLab.show(vis(t, tFuse - .05, Ls("c3-5") - .2, .7, .4));
+    }
+  };
+});
+
+/* ==================== 4 長成果實和種子 ==================== */
+/** 小橘子的橫切面（中心在 0,0） */
+function makeCitrusSection(parent, R = 200) {
+  const g = G(parent);
+  E("circle", { r: R, fill: "#F7931E", stroke: C.ink, "stroke-width": 5 }, g);
+  E("circle", { r: R * .92, fill: "#FFF1D6" }, g);
+  const n = 9, seeds = [];
+  for (let k = 0; k < n; k++) {
+    const a0 = (k / n) * Math.PI * 2 + .045, a1 = ((k + 1) / n) * Math.PI * 2 - .045;
+    const r0 = R * .13, r1 = R * .86;
+    E("path", { d: `M${(Math.cos(a0) * r0).toFixed(1)},${(Math.sin(a0) * r0).toFixed(1)} L${(Math.cos(a0) * r1).toFixed(1)},${(Math.sin(a0) * r1).toFixed(1)} A${r1},${r1} 0 0,1 ${(Math.cos(a1) * r1).toFixed(1)},${(Math.sin(a1) * r1).toFixed(1)} L${(Math.cos(a1) * r0).toFixed(1)},${(Math.sin(a1) * r0).toFixed(1)} Z`, fill: "#FFB347", stroke: "#EE8A1A", "stroke-width": 4, "stroke-linejoin": "round" }, g);
+    for (let j = 0; j < 3; j++) {
+      const am = (a0 + a1) / 2 + (j - 1) * .1, rr = R * (.36 + j * .17);
+      const x = Math.cos(am) * rr, y = Math.sin(am) * rr;
+      E("ellipse", { cx: x, cy: y, rx: 11, ry: 5, fill: "#FFCD80", transform: `rotate(${(am * 180 / Math.PI).toFixed(1)} ${x.toFixed(1)} ${y.toFixed(1)})` }, g);
+    }
+  }
+  E("circle", { r: R * .13, fill: "#FFF1D6", stroke: "#EE8A1A", "stroke-width": 3 }, g);
+  for (const k of [0, 3, 5, 7]) {
+    const am = ((k + .5) / n) * Math.PI * 2;
+    const x = Math.cos(am) * R * .42, y = Math.sin(am) * R * .42;
+    const sg = G(g, { transform: tf(x, y, am * 180 / Math.PI - 90) });
+    const glow = E("ellipse", { rx: 24, ry: 32, fill: "#FFF27A", opacity: 0 }, sg);
+    E("path", { d: "M0,-24 C13,-13 14,11 0,22 C-14,11 -13,-13 0,-24 Z", fill: "#FFF7E4", stroke: C.ink, "stroke-width": 3.2 }, sg);
+    seeds.push({ glow, x, y });
+  }
+  g.seeds = seeds;
+  return g;
+}
+/** 月曆（一頁一頁翻） */
+function makeCalendar(parent) {
+  const g = G(parent);
+  E("rect", { x: -72, y: -58, width: 144, height: 132, rx: 18, fill: "#fff", stroke: C.ink, "stroke-width": 5 }, g);
+  E("path", { d: "M-72,-22 L-72,-40 Q-72,-58 -54,-58 L54,-58 Q72,-58 72,-40 L72,-22 Z", fill: C.coralD, stroke: C.ink, "stroke-width": 5 }, g);
+  for (let r = 0; r < 3; r++) for (let c = 0; c < 4; c++) E("rect", { x: -54 + c * 28, y: -6 + r * 24, width: 18, height: 14, rx: 3, fill: "#EDE8DE" }, g);
+  const page = G(g);
+  E("rect", { x: -66, y: -20, width: 132, height: 88, rx: 8, fill: "#FFFDF4", stroke: C.ink, "stroke-width": 3 }, page);
+  for (const x of [-38, 38]) E("rect", { x: x - 6, y: -74, width: 12, height: 30, rx: 6, fill: "#5C6970", stroke: C.ink, "stroke-width": 3 }, g);
+  g.flip = (u) => { const f = u % 1; page.setAttribute("transform", `translate(0,-20) scale(1,${Math.max(.02, 1 - f).toFixed(3)}) translate(0,20)`); op(page, f < .95 ? 1 : 0); };
+  return g;
+}
+scene("fruit", (root, ch) => {
+  makeSky(root, { sky: "#FFF3D6" });
+  makeBokeh(root, 41, 10, ["#FFE7A8", "#E6F2CF", "#FFE9C9"]);
+  const world = G(root);
+  const X = 800, Y = 640, s = 1.3;
+  const plantG = G(world);
+  makeLeaf(plantG, X + 10, Y + 160, 58, 170, 94);
+  makeLeaf(plantG, X - 6, Y + 230, -60, 160, 88);
+  const fl = G(plantG, { transform: tf(X, Y, 0, s) });
+  const F = makeFlower(fl);
+  F.setOpen(1); F.split(1); op(F.stigDust, 1);
+  // 果實表面的油點（長成果實後才出現）
+  const dots = G(F.ovaryG);
+  const rd = rng(5);
+  for (let k = 0; k < 26; k++) { const a = rd() * Math.PI * 2, rr = Math.sqrt(rd()) * .82; E("circle", { cx: Math.cos(a) * 40 * rr, cy: -52 + Math.sin(a) * 46 * rr, r: .9 + rd() * .5, fill: "#D9741A" }, dots); }
+  const sec = G(world);
+  const SECY = 412;
+  const section = makeCitrusSection(sec, 206);
+  const knife = E("line", { stroke: "#fff", "stroke-width": 12, "stroke-linecap": "round" }, world);
+  const ring = E("circle", { cx: X, cy: SECY, r: 206, fill: "none", stroke: "#FFD54A", "stroke-width": 22 }, world);
+  const cal = makeCalendar(root);
+  cal.setAttribute("transform", tf(1440, 190));
+  const calT = T(root, 1440, 300, "過了一段時間…", { "font-size": 32, fill: "#5C6970" });
+  const labFruit = makeLabel(root, "子房 → 果實", 330, 250, 612, 400, { size: 44, color: C.coralD, bg: "#FFE3DC" });
+  const lens = makeLens(root, 1300, 520, 128);
+  const ovL = G(lens.inner, { transform: "translate(-58,-6)" });
+  E("ellipse", { rx: 26, ry: 34, fill: "#FFE08A", stroke: C.ink, "stroke-width": 4 }, ovL);
+  E("path", { d: "M-20,0 L18,0 M6,-12 L20,0 L6,12", transform: "translate(0,-6)", fill: "none", stroke: C.ink, "stroke-width": 6, "stroke-linecap": "round", "stroke-linejoin": "round" }, lens.inner);
+  const sdL = G(lens.inner, { transform: "translate(58,-6)" });
+  E("path", { d: "M0,-30 C17,-16 18,14 0,28 C-18,14 -17,-16 0,-30 Z", fill: "#FFF7E4", stroke: C.ink, "stroke-width": 4 }, sdL);
+  T(lens.inner, -58, 52, "胚珠", { "font-size": 26 }); T(lens.inner, 58, 52, "種子", { "font-size": 26 });
+  const labSeed = makeLabel(root, "種子", 1280, 300, X + 86, SECY, { size: 44, color: C.coralD, bg: "#FFE3DC" });
+  const labProt = makeLabel(root, "果實保護種子", 300, 250, 596, 360, { size: 40, color: "#C98A00", bg: "#FFF3C8" });
+  // 真實照片
+  const ov = G(root);
+  const dim = E("rect", { x: 0, y: 0, width: 1600, height: 900, fill: "#FFF3D6" }, ov);
+  const head = makeLabel(ov, "真實的照片", 800, 172, null, null, { size: 40, color: C.greenD, bg: "#E3F4DA" });
+  const PH = "../繁殖器官的功能/photos/";
+  const cards = [["fruit-1-flower", "四季橘的花"], ["fruit-2-ovary", "花瓣快掉光，子房膨大"], ["fruit-3-green", "四季橘的小果實"], ["fruit-4-cut", "剖開的小橘子（另一種）"]]
+    .map(([f, cap]) => makePhoto(ov, PH + f + ".jpg", cap, 300, 225, { capSize: 25, capH: 56 }));
+  const arrows = [0, 1, 2].map(k => { const a = E("path", { d: "M-12,-14 L8,0 L-12,14", fill: "none", stroke: C.ink, "stroke-width": 7, "stroke-linecap": "round", "stroke-linejoin": "round" }, ov); return a; });
+
+  const tW = Wt("c4-2", "凋謝"), tF = Wt("c4-2", "掉落"), tG = Wt("c4-2", "子房");
+  const tFr = Wt("c4-3", "果實"), tSd = Wt("c4-3", "種子"), tCut = Wt("c4-4", "切開");
+  const sgn = a => a < 0 ? -1 : 1;
+  return {
+    render(t) {
+      // 月曆翻頁
+      const cv = vis(t, ch.s + .5, Ls("c4-4") - .3, .5, .4);
+      op(cal, cv); op(calT, cv);
+      cal.flip(Math.max(0, t - Ls("c4-1")) * 1.6);
+      // 花瓣：變褐、下垂、飄落
+      F.petals.forEach((pt, i) => {
+        const w = P(t, tW - .5 + i * .12, 1.3);
+        const u = t - (tF + i * .2);
+        const fall = u > 0 ? u : 0;
+        const dx = sgn(pt.a) * (40 * fall + 10 * w), dy = 380 * fall * fall + 6 * w;
+        pt.g.setAttribute("transform", tf(pt.base[0] + dx, pt.base[1] + dy, pt.a + sgn(pt.a) * (24 * w + 120 * fall)));
+        S(pt.path, { fill: lerpColor("#FFFFFF", "#D8C08E", w) });
+        op(pt.g, 1 - clamp((fall - .9) / .5));
+      });
+      F.stamens.forEach((st, i) => {
+        const w = P(t, tW - .2 + (i % 4) * .1, 1.2);
+        const u = t - (tF + .3 + (i % 5) * .15);
+        const fall = u > 0 ? u : 0;
+        st.g.setAttribute("transform", `translate(${(sgn(st.tip[0]) * 30 * fall).toFixed(1)},${(5 * w + 420 * fall * fall).toFixed(1)}) rotate(${(sgn(st.tip[0]) * (8 * w + 90 * fall)).toFixed(1)})`);
+        S(st.fil.inner, { stroke: lerpColor("#FBF6E6", "#C9B27E", w) });
+        S(st.lobeL, { fill: lerpColor("#FFC93C", "#A8823A", w) }); S(st.lobeR, { fill: lerpColor("#FFC93C", "#A8823A", w) });
+        op(st.g, 1 - clamp((fall - .8) / .4));
+      });
+      // 柱頭和花柱也乾掉、掉下來
+      const sw = P(t, tF + .4, 1.0), su = Math.max(0, t - (Le("c4-2") - .3));
+      const stTr = `translate(${(-20 * su).toFixed(1)},${(6 * sw + 380 * su * su).toFixed(1)}) rotate(${(-14 * sw - 70 * su).toFixed(1)} 0 -92)`;
+      F.style.setAttribute("transform", stTr); F.stigG.setAttribute("transform", stTr);
+      S(F.style, { fill: lerpColor("#9ACB6E", "#B8A46A", sw) });
+      S(F.stigma, { fill: lerpColor("#E5D44E", "#B8A46A", sw) });
+      op(F.style, 1 - clamp((su - .7) / .4)); op(F.stigG, 1 - clamp((su - .7) / .4));
+      op(F.disc, 1 - P(t, tF, 1));
+      // 子房長大 → 果實（從花托上往上長）
+      const g1 = P(t, tG - .2, Le("c4-2") - tG + .4, Ease.sine);
+      const g2 = P(t, Ls("c4-3") - .1, tFr - Ls("c4-3") + .5, Ease.sine);
+      const k = 1 + .9 * g1 + 2.75 * g2;
+      F.ovaryG.setAttribute("transform", `translate(0,-6) scale(${(k * (1 + .12 * g2)).toFixed(4)},${k.toFixed(4)}) translate(0,6)`);
+      const ripe = P(t, tFr - .2, 1.2);
+      S(F.ovary, { fill: lerpColor(lerpColor("#6DBB5A", "#5DAE4A", g1), "#F7931E", ripe) });
+      op(dots, ripe);
+      labFruit.show(vis(t, tFr - .1, tCut - .3, .8, .3));
+      lens.place(vis(t, tSd - .25, tCut - .3, .5, .3));
+      // 切開
+      const kp = P(t, tCut - .15, .45, Ease.io);
+      S(knife, { x1: X - 260, y1: SECY - 250, x2: lerp(X - 260, X + 260, kp), y2: lerp(SECY - 250, SECY + 250, kp) });
+      op(knife, kp > 0 ? 1 - P(t, tCut + .35, .3) : 0);
+      const cs = P(t, tCut + .25, .5, Ease.back);
+      op(sec, cs > 0 ? 1 : 0);
+      sec.setAttribute("transform", tf(X, SECY, 0, Math.max(.001, cs)));
+      op(F.ovaryG, cs > .6 ? 0 : 1);
+      op(plantG, 1 - P(t, tCut + .3, .5));
+      const sdT = Wt("c4-4", "種子");
+      section.seeds.forEach((sd, i) => S(sd.glow, { opacity: (P(t, sdT - .2 + i * .08, .4) * (.55 + .3 * Math.sin(t * 5 + i))).toFixed(3) }));
+      labSeed.show(vis(t, sdT - .1, Ls("c4-6") - .5, .7, .3));
+      // 果實保護種子
+      const pr = vis(t, Ls("c4-5") - .1, Ls("c4-6") - .4, .5, .3);
+      S(ring, { opacity: (pr * (.55 + .35 * Math.sin(t * 5))).toFixed(3), r: (206 + 6 * Math.sin(t * 5)).toFixed(1) });
+      labProt.show(pr);
+      // 照片
+      const ph = vis(t, Ls("c4-6") - .5, ch.e - .5, .5, .4);
+      op(dim, ph * .82); head.show(ph);
+      const tc = [Ls("c4-6") + .1, Wt("c4-6", "花謝") - .1, Wt("c4-6", "長成") - .1, Le("c4-6") + .25];
+      cards.forEach((c, i) => c.place(P(t, tc[i], .55, Ease.out) * (1 - P(t, ch.e - .55, .35)), 800 + (i - 1.5) * 352, 420, i % 2 ? 4 : -4));
+      arrows.forEach((a, i) => { S(a, { transform: tf(800 + (i - 1) * 352, 400) }); op(a, P(t, tc[i + 1], .4) * (1 - P(t, ch.e - .55, .35))); });
+    }
+  };
+});
+
+/* ==================== 5 為什麼要傳到遠方 ==================== */
+scene("why", (root, ch) => {
+  makeSky(root, { sky: "#CFEAF6" });
+  const world = G(root), ovl = G(root);
+  const SX = 1090, SY = 112;
+  const raysG = G(world);
+  const rays = [];
+  // 陽光：往左照到樹冠就被擋住；往右可以照到空地
+  for (const [ex, ey] of [[700, 300], [640, 360], [690, 430], [900, 700], [1080, 700], [1260, 700], [1440, 700]]) {
+    const ang = Math.atan2(ey - SY, ex - SX), w = 26;
+    const nx = -Math.sin(ang) * w, ny = Math.cos(ang) * w;
+    rays.push(E("path", { d: `M${SX},${SY} L${ex + nx},${ey + ny} L${ex - nx},${ey - ny} Z`, fill: "#FFE680", opacity: .45 }, raysG));
+  }
+  const sun = makeSun(world, SX, SY, 56);
+  makeCloud(world, 1420, 150, .85);
+  makeHills(world, 640, { fill: "#C6E3A0" });
+  makeGrassLine(world, 702, { seed: 23, fill: "#8CCB5E" });
+  E("rect", { x: -400, y: 730, width: 2400, height: 400, fill: "#7FBF55" }, world);
+  const TX = 430, GY = 704;
+  const shadeG = G(world);
+  E("path", { d: `M220,470 L640,470 L700,${GY} L150,${GY} Z`, fill: "rgba(30,60,30,.16)" }, shadeG);
+  E("ellipse", { cx: TX, cy: GY + 4, rx: 290, ry: 30, fill: "rgba(30,60,30,.28)" }, shadeG);
+  const tree = makeTree(world, { h: 240, R: 190, fruits: 12, seed: 8 });
+  tree.setAttribute("transform", tf(TX, GY));
+  // 掉在樹下的果實 → 冒出一大群小苗
+  const r = rng(61);
+  const crowd = [];
+  for (let k = 0; k < 15; k++) crowd.push({ x: 262 + k * 24 + (r() - .5) * 10, s: makeSeedling(world), h: 42 + r() * 26, d: r() * .9 });
+  const dropG = G(world);
+  const drops = tree.fruits.map((f, i) => ({ f, c: (() => { const g = G(dropG); E("circle", { r: 15, fill: C.orange, stroke: C.ink, "stroke-width": 3.4 }, g); return g; })(), x: TX + f.x, y: GY + f.y, gx: 270 + r() * 340, gy: GY - 12 + (r() - .5) * 10, d: i * .09 }));
+  // 資源：陽光、水分、養分（不夠分）
+  const res = [["陽光", "sun"], ["水分", "water"], ["養分", "food"]].map(([name, kind], i) => {
+    const g = G(world);
+    E("circle", { r: 34, fill: "#fff", stroke: C.ink, "stroke-width": 4 }, g);
+    if (kind === "sun") { E("circle", { r: 16, fill: C.sun, stroke: C.ink, "stroke-width": 3 }, g); for (let k = 0; k < 8; k++) E("path", { d: "M0,-21 L0,-28", stroke: C.ink, "stroke-width": 4, "stroke-linecap": "round", transform: `rotate(${k * 45})` }, g); }
+    if (kind === "water") E("path", { d: "M0,-22 C9,-9 14,-2 14,5 C14,14 7,20 0,20 C-7,20 -14,14 -14,5 C-14,-2 -9,-9 0,-22 Z", fill: C.water, stroke: C.ink, "stroke-width": 3.4 }, g);
+    if (kind === "food") for (const [x, y] of [[-9, -6], [8, -9], [0, 8], [12, 9], [-12, 10]]) E("circle", { cx: x, cy: y, r: 6, fill: C.gold, stroke: C.ink, "stroke-width": 2.4 }, g);
+    E("rect", { x: -40, y: 38, width: 80, height: 38, rx: 19, fill: "#fff", stroke: C.ink, "stroke-width": 3 }, g);
+    T(g, 0, 57, name, { "font-size": 28 });
+    return { g, x: 300 + i * 130, y: 520 };
+  });
+  const fightG = G(world);
+  const fights = [];
+  for (let k = 0; k < 9; k++) fights.push(E("path", { fill: "none", stroke: C.coralD, "stroke-width": 4, "stroke-dasharray": "8 7", "stroke-linecap": "round" }, fightG));
+  const labCrowd = makeLabel(ovl, "擠在母株腳邊", 800, 130, null, null, { size: 44, color: C.coralD, bg: "#FFE3DC" });
+  // 傳到遠方的那一顆
+  const FX = 1290;
+  const trailPP = polyPath([[[600, 330], [820, 120], [1150, 220], [FX, GY - 8]]]);
+  const trail = E("path", { d: trailPP.d, fill: "none", stroke: "#8A5A34", "stroke-width": 5, "stroke-dasharray": "4 12", "stroke-linecap": "round" }, world);
+  const seedG = G(world);
+  E("circle", { r: 26, fill: "#FFE680", opacity: .6 }, seedG);
+  E("path", { d: "M0,-15 C11,-11 13,7 0,15 C-13,7 -11,-11 0,-15 Z", fill: "#9C6B3E", stroke: C.ink, "stroke-width": 4 }, seedG);
+  const far = makeSeedling(world);
+  const farMark = makeMark(world, true, 30);
+  const labFar = makeLabel(ovl, "到遠一點的地方", 1290, 250, null, null, { size: 38, color: C.greenD, bg: "#E3F4DA" });
+  // 問號與四種方法
+  const q = G(ovl);
+  E("circle", { r: 62, fill: "#fff", stroke: C.ink, "stroke-width": 5 }, q);
+  T(q, 0, 4, "？", { "font-size": 80, fill: C.coralD });
+  const panel = G(ovl);
+  E("rect", { x: -540, y: -150, width: 1080, height: 300, rx: 36, fill: "rgba(255,253,244,.94)", stroke: C.ink, "stroke-width": 5 }, panel);
+  const icons = ["wind", "self", "animal", "water"].map((k, i) => {
+    const g = G(panel);
+    makeMethodIcon(g, k, 74);
+    T(g, 0, 112, METHODS[k].name, { "font-size": 36 });
+    return g;
+  });
+  const tDrop = Wt("c5-1", "掉在"), tCrowd = Wt("c5-2", "擠在"), tShade = Wt("c5-2", "遮住");
+  const tRes = [Wt("c5-3", "陽光"), Wt("c5-3", "水分"), Wt("c5-3", "養分")], tWeak = Wt("c5-3", "不容易");
+  const tLeave = Wt("c5-4", "離開"), tFar = Wt("c5-4", "遠一點"), tGrow = Wt("c5-5", "長成");
+  const cam = makeCam([
+    [ch.s, 0, 800, 450, 1],
+    [tCrowd - .7, 1.1, 440, 590, 1.75],
+    [Ls("c5-4") - .45, 1.2, 800, 450, 1]
+  ]);
+  return {
+    render(t) {
+      world.setAttribute("transform", cam(t).tr);
+      sun.rays.setAttribute("transform", `rotate(${t * 6})`);
+      rays.forEach((ry, i) => S(ry, { opacity: (.32 + .12 * Math.sin(t * 2 + i)).toFixed(3) }));
+      // 果實落下
+      drops.forEach((d, i) => {
+        const u = P(t, tDrop - .3 + d.d, .55, Ease.in);
+        const rot = P(t, Bs("why.think") + .3 + i * .05, 1.2);
+        if (u <= 0) { op(d.f.f, 1); op(d.c, 0); return; }
+        op(d.f.f, 0);
+        const bounce = u >= 1 ? Math.abs(Math.sin((t - tDrop - d.d + .3 - .55) * 9)) * 10 * Math.max(0, 1 - (t - tDrop - d.d + .3 - .55) * 2) : 0;
+        d.c.setAttribute("transform", tf(lerp(d.x, d.gx, u), lerp(d.y, d.gy, u) - bounce, 0, 1 - .6 * rot));
+        op(d.c, 1 - rot);
+      });
+      // 小苗冒出來 → 擠在一起 → 長不好
+      const weak = P(t, tWeak - .2, 1.6);
+      crowd.forEach((c, i) => {
+        const g = P(t, Bs("why.think") + .4 + c.d, 1.1, Ease.out);
+        const h = c.h * g * (1 + .35 * weak);
+        c.s.set(c.x, GY, h, 1 - .78 * weak, 1.05, Math.sin(t * 1.7 + i) * 2);
+      });
+      op(shadeG, P(t, tShade - .2, .6));
+      labCrowd.show(vis(t, tCrowd - .1, Ls("c5-4") - .5, .7, .4));
+      res.forEach((rs, i) => {
+        const p = vis(t, tRes[i] - .15, Ls("c5-4") - .1, .5, .4);
+        op(rs.g, p > 0 ? 1 : 0);
+        rs.g.setAttribute("transform", tf(rs.x, rs.y, 0, Math.max(.001, Ease.back(clamp(p)))));
+      });
+      fights.forEach((f, k) => {
+        const ri = k % 3, c = crowd[(k * 5 + 2) % crowd.length];
+        const p = vis(t, tRes[ri] + .1, Ls("c5-4") - .1, .5, .3);
+        if (p <= 0) { op(f, 0); return; }
+        const [x0, y0] = [c.x, GY - c.h * .8], [x1, y1] = [res[ri].x, res[ri].y + 30];
+        S(f, { d: `M${x0},${y0} Q${(x0 + x1) / 2 + 20},${y0 - 40} ${lerp(x0, x1, .9)},${lerp(y0, y1, .9)}`, "stroke-dashoffset": (-t * 30).toFixed(1) });
+        op(f, p);
+      });
+      // 一顆種子飛到遠方
+      const fl = P(t, tLeave - .2, tFar - tLeave + 1.0, Ease.io);
+      S(trail, { "stroke-dasharray": `4 12`, "stroke-dashoffset": 0 });
+      trail.setAttribute("stroke-dasharray", `${(trailPP.len * fl).toFixed(1)} 9999`);
+      op(trail, fl > 0 ? (1 - P(t, Ls("c5-6"), .6)) * .9 : 0);
+      const [sx, sy] = trailPP.at(fl);
+      op(seedG, fl > 0 && fl < 1 ? 1 : (fl >= 1 && t < tGrow - .2 ? 1 : 0));
+      seedG.setAttribute("transform", tf(sx, sy, t * 200));
+      const gp = P(t, tGrow - .9, 2.2, Ease.out);
+      far.set(FX, GY, 30 + 120 * gp, 1, 1 + .5 * gp, Math.sin(t * 1.4) * 2);
+      op(far, fl >= 1 ? 1 : 0);
+      const mk = P(t, Wt("c5-5", "適合") - .1, .5, Ease.back);
+      op(farMark, mk > 0 ? 1 : 0); farMark.setAttribute("transform", tf(FX + 110, GY - 170, 0, Math.max(.001, mk)));
+      labFar.show(vis(t, tFar - .2, Ls("c5-6") + .8, .7, .4));
+      // 問號 → 四種方法
+      const qp = vis(t, Wt("c5-6", "怎麼去") - .2, Ls("c5-7") + .2, .5, .3);
+      op(q, qp > 0 ? 1 : 0); q.setAttribute("transform", tf(800, 330, Math.sin(t * 3) * 6, Math.max(.001, Ease.back(clamp(qp)))));
+      const pp = P(t, Wt("c5-7", "好幾種") - .35, .45, Ease.out) * (1 - P(t, ch.e - .55, .35));
+      op(panel, pp > 0 ? 1 : 0); panel.setAttribute("transform", tf(800, 360, 0, lerp(.85, 1, pp)));
+      icons.forEach((ic, i) => {
+        const p = P(t, Wt("c5-7", "好幾種") - .1 + i * .22, .5, Ease.back);
+        op(ic, p > 0 ? 1 : 0);
+        ic.setAttribute("transform", tf((i - 1.5) * 255, -26, 0, Math.max(.001, p)));
+      });
+    }
+  };
+});
+
+/* ---------- 傳播方式的標題：先在中間放大出現，再縮到右上角當徽章 ---------- */
+function makeMethodTitle(parent, kind, X = 800, Y = 400) {
+  const g = G(parent);
+  const card = G(g);
+  E("rect", { x: -330, y: -150, width: 660, height: 300, rx: 40, fill: "rgba(255,253,244,.96)", stroke: C.ink, "stroke-width": 6 }, card);
+  const ic = makeMethodIcon(card, kind, 84);
+  ic.setAttribute("transform", "translate(0,-38)");
+  T(card, 0, 92, METHODS[kind].name, { "font-size": 64 });
+  const badge = G(g);
+  const bw = textW(METHODS[kind].name, 32) + 96;
+  E("rect", { x: -bw / 2, y: -34, width: bw, height: 68, rx: 34, fill: "#fff", stroke: C.ink, "stroke-width": 5 }, badge);
+  const bi = makeMethodIcon(badge, kind, 28);
+  bi.setAttribute("transform", tf(-bw / 2 + 38, 0));
+  T(badge, 18, 1, METHODS[kind].name, { "font-size": 32 });
+  g.render = (t, ch, tOut) => {
+    const pin = P(t, ch.s + .3, .6, Ease.back), pout = P(t, tOut, .6, Ease.io);
+    op(card, pin > 0 && pout < 1 ? 1 : 0);
+    card.setAttribute("transform", tf(lerp(X, 1400, pout), lerp(Y, 60, pout), 0, Math.max(.001, pin * lerp(1, .2, pout))));
+    const b = P(t, tOut + .45, .4, Ease.out) * (1 - P(t, ch.e - .5, .35));
+    op(badge, b);
+    badge.setAttribute("transform", tf(1572 - bw / 2, 60));
+  };
+  return g;
+}
+/** 風（白色氣流線，螢幕座標） */
+function makeWindLines(parent, n = 6, seed = 3) {
+  const g = G(parent);
+  const r = rng(seed);
+  const L = [];
+  for (let k = 0; k < n; k++) {
+    const d = "M0,0 C70,-26 140,24 210,0 C260,-16 300,-12 330,0";
+    const w = G(g);
+    E("path", { d, fill: "none", stroke: "#6FA8D0", "stroke-width": 11, "stroke-linecap": "round" }, w);
+    E("path", { d, fill: "none", stroke: "#fff", "stroke-width": 5, "stroke-linecap": "round" }, w);
+    L.push({ w, y: 140 + r() * 520, d: r(), v: .7 + r() * .4 });
+  }
+  g.render = (t, amt) => L.forEach(l => {
+    const u = (t * l.v * .55 + l.d) % 1;
+    if (amt <= 0) { op(l.w, 0); return; }
+    op(l.w, amt * Math.sin(u * Math.PI));
+    l.w.setAttribute("transform", tf(-360 + u * 2200, l.y + Math.sin(t + l.d * 6) * 10));
+  });
+  return g;
+}
+/** 蒲公英（原點＝花莖底部，頭在 (0,-H)）：回傳每顆果實的資料 */
+function makeDandelion(parent, H = 390, n = 28, seed = 4) {
+  const g = G(parent);
+  for (const [a, L] of [[-62, 150], [58, 160], [-20, 120], [24, 130]]) {
+    const lg = G(g, { transform: `rotate(${a})` });
+    E("path", { d: `M0,0 L-10,${-L * .2} L-26,${-L * .25} L-14,${-L * .4} L-30,${-L * .5} L-14,${-L * .62} L-24,${-L * .78} L-6,${-L * .8} L0,${-L} L6,${-L * .8} L24,${-L * .78} L14,${-L * .62} L30,${-L * .5} L14,${-L * .4} L26,${-L * .25} L10,${-L * .2} Z`, fill: "#6DBB5A", stroke: C.ink, "stroke-width": 3.5, "stroke-linejoin": "round" }, lg);
+  }
+  stroke2(g, `M0,0 C10,${-H * .4} -12,${-H * .75} 0,${-H}`, "#8CCB5E", 8, 2.6);
+  E("circle", { cx: 0, cy: -H, r: 96, fill: "#fff", opacity: .4 }, g);
+  const fruits = [];
+  const r = rng(seed);
+  for (let k = 0; k < n; k++) {
+    const th = (k / n) * Math.PI * 2 + r() * .1;
+    const f = makeDandelionFruit(g, { s: .92 });
+    fruits.push({ f, th, x0: Math.cos(th) * 8, y0: -H + Math.sin(th) * 8, rot0: th * 180 / Math.PI + 90 });
+  }
+  E("circle", { cx: 0, cy: -H, r: 11, fill: "#C9B27E", stroke: C.ink, "stroke-width": 3 }, g);
+  g.fruits = fruits;
+  return g;
+}
+/** 楓葉形的葉子（青楓） */
+function makeMapleLeaf(parent, x, y, ang, s = 1) {
+  const g = G(parent, { transform: tf(x, y, ang, s) });
+  E("path", { d: "M0,0 L0,30", stroke: C.ink, "stroke-width": 4, "stroke-linecap": "round" }, g);
+  E("path", { d: "M0,-4 L-8,-26 L-44,-18 L-34,-36 L-62,-58 L-30,-58 L-34,-92 L-12,-74 L0,-108 L12,-74 L34,-92 L30,-58 L62,-58 L34,-36 L44,-18 L8,-26 Z", fill: "#6DBB5A", stroke: C.ink, "stroke-width": 3.6, "stroke-linejoin": "round" }, g);
+  E("path", { d: "M0,-6 L0,-96 M0,-26 L-50,-56 M0,-26 L50,-56 M0,-14 L-38,-24 M0,-14 L38,-24", fill: "none", stroke: "#2E7D4F", "stroke-width": 2.4, "stroke-linecap": "round" }, g);
+  return g;
+}
+
+/* ==================== 6 風力傳播 ==================== */
+scene("wind", (root, ch) => {
+  makeSky(root, { sky: "#BFE3F5" });
+  const world = G(root), ovl = G(root);
+  for (const [x, y, s] of [[300, 140, .9], [980, 110, .7], [1700, 160, .85], [2400, 120, .75], [3100, 150, .9], [3800, 120, .7]]) makeCloud(world, x, y, s);
+  makeLongHills(world, 660, -400, 6000, { fill: "#C9E6AA" });
+  makeLongGrass(world, 722, -400, 6000, { seed: 30 });
+  // 遠方的小花，讓人感覺「越飄越遠」
+  const rr = rng(12);
+  for (let k = 0; k < 40; k++) { const x = 900 + rr() * 4200, y = 700 + rr() * 30; E("circle", { cx: x, cy: y, r: 6, fill: ["#FFC93C", "#FF7F66", "#fff"][k % 3], stroke: C.ink, "stroke-width": 2 }, world); }
+  const DX = 420, DY = 724, H = 390;
+  const dand = makeDandelion(world, H, 28, 4);
+  dand.setAttribute("transform", tf(DX, DY));
+  const heroHalo = E("circle", { r: 92, fill: "none", stroke: C.coralD, "stroke-width": 5, "stroke-dasharray": "14 10" }, dand);
+  op(heroHalo, 0);
+  // 青楓的枝條
+  const MX = 3150;
+  const maple = G(world);
+  stroke2(maple, `M${MX + 560},20 C${MX + 300},60 ${MX + 60},130 ${MX - 250},250`, "#8A5A34", 18, 3);
+  for (const [x, y, a, s] of [[MX + 420, 52, 160, 1], [MX + 180, 100, 200, .95], [MX - 40, 160, 150, 1], [MX - 200, 230, 210, .9], [MX + 300, 70, 20, .85]]) makeMapleLeaf(maple, x, y, a, s);
+  const pairs = [[MX + 320, 80], [MX + 80, 140], [MX - 130, 205]].map(([x, y], i) => {
+    const pg = G(maple);
+    E("path", { d: `M${x},${y} L${x},${y + 40}`, stroke: C.ink, "stroke-width": 4 }, pg);
+    const L = G(pg), R = G(pg);
+    makeSamara(L, { s: 1.15, wing: "#E07A52" }); makeSamara(R, { s: 1.15, wing: "#E07A52" });
+    L.setAttribute("transform", tf(x - 6, y + 46, 0, -1, 1) + " rotate(-12)");
+    R.setAttribute("transform", tf(x + 6, y + 46, 12));
+    return { L, R, x, y };
+  });
+  const flySam = pairs.map(p => { const f = makeSamara(world, { s: 1.4, wing: "#E07A52" }); op(f, 0); return { f, x: p.x + 6, y: p.y + 46 }; });
+  const wind = makeWindLines(ovl, 7, 5);
+  const title = makeMethodTitle(ovl, "wind", 1060, 380);
+  // 放大鏡：一顆蒲公英果實（細毛／果實），後面再剖開看種子
+  const lens = makeLens(ovl, 1180, 400, 190);
+  const lf = makeDandelionFruit(lens.inner, { s: 2.6 });
+  lf.setAttribute("transform", "translate(0,128)");
+  const cutG = G(lens.inner, { transform: "translate(0,128) scale(2.6)" });
+  E("path", { d: "M0,-2 C4,-7 4,-17 0,-24 C-4,-17 -4,-7 0,-2 Z", fill: "#FFF7E4", stroke: C.ink, "stroke-width": 1.2 }, cutG);
+  const labHair = makeLabel(ovl, "白色細毛", 1480, 200, 1250, 250, { color: C.greenD });
+  const labFruit = makeLabel(ovl, "果實", 1470, 560, 1194, 500, { color: C.coralD });
+  const labSeed = makeLabel(ovl, "種子包在果實裡面", 1180, 660, 1180, 470, { color: C.coralD, size: 34 });
+  const labWing = makeLabel(ovl, "薄翅", 1010, 400, 791, 228, { color: C.coralD });   // 目標＝鏡頭停在青楓時，右邊那片翅膀
+  // 真實照片
+  const dim = E("rect", { x: 0, y: 0, width: 1600, height: 900, fill: "#FFF3D6" }, ovl);
+  const head = makeLabel(ovl, "真實的照片", 800, 160, null, null, { size: 40, color: C.greenD, bg: "#E3F4DA" });
+  const PH = "../果實和種子的傳播方式/photos/";
+  const ph1 = makePhoto(ovl, PH + "dandelion-seedhead.jpg", "蒲公英的果實", 440, 310, { capSize: 30 });
+  const ph2 = makePhoto(ovl, PH + "maple-samara.jpg", "青楓的果實", 440, 310, { capSize: 30 });
+
+  const tTitleOut = Le("c6-1") + .1;
+  const tGust = Wt("c6-3", "風一吹");
+  const tHair = Wt("c6-2", "細毛"), tFr = Wt("c6-2", "果實");
+  const tWing = Wt("c6-5", "翅膀"), tSpin = Wt("c6-6", "竹蜻蜓") - .3;
+  const cam = makeCam([
+    [ch.s, 0, 800, 450, 1],
+    [tGust + .5, Be("wind.follow") - tGust - .2, 2200, 430, 1],
+    [Ls("c6-5") - .6, 1.6, MX + 150, 420, 1]
+  ]);
+  const order = dand.fruits.map((_, i) => i).sort((a, b) => ((a * 7) % 11) - ((b * 7) % 11));
+  const stay = new Set([3, 10, 17, 24, 6, 20]);
+  return {
+    render(t) {
+      const cm = cam(t);
+      world.setAttribute("transform", cm.tr);
+      title.render(t, ch, tTitleOut);
+      // 風
+      const wAmt = Math.max(vis(t, tGust - .3, Be("wind.follow"), .4, .8), vis(t, tSpin - .4, ch.e - 3.6, .4, .6));
+      wind.render(t, wAmt);
+      // 蒲公英的果實被吹走
+      dand.fruits.forEach((F, k) => {
+        const hero = k === order[0];
+        const td = tGust - .1 + order.indexOf(k) * .09;
+        const u = t - td;
+        const sway = Math.sin(t * 1.5) * 3;
+        if (stay.has(k) || u <= 0) {
+          F.f.setAttribute("transform", tf(F.x0, F.y0, F.rot0 + sway * .3));
+          op(F.f, 1); return;
+        }
+        const r = rng(k * 13 + 1); const v = 300 + r() * 260, rise = 40 + r() * 70, ph = r() * 6;
+        let x, y;
+        if (hero) { x = F.x0 + 1560 * Ease.outQ(clamp(u / 4.6)) + 36 * Math.max(0, u - 4.6); y = F.y0 + 70 * Ease.sine(clamp(u / 4)) + Math.sin(u * 1.4) * 22; }
+        else { x = F.x0 + v * u; y = F.y0 - rise * u + Math.sin(u * 1.7 + ph) * 30; }
+        const rot = lerp(F.rot0, Math.sin(u * 1.3 + ph) * 12, clamp(u / 1.1));
+        const sc = hero ? lerp(1, 1.55, clamp(u / 2.5)) : 1;
+        F.f.setAttribute("transform", tf(x, y, rot, sc));
+        op(F.f, hero ? 1 : 1 - clamp((u - 5) / 1.5));
+        if (hero) { op(heroHalo, clamp((u - 1) / 1) * (1 - P(t, Ls("c6-5") - .2, .5))); S(heroHalo, { cx: x, cy: y - 52 * sc, transform: `rotate(${(t * 30).toFixed(1)} ${x.toFixed(1)} ${(y - 52 * sc).toFixed(1)})` }); }
+      });
+      // 放大鏡
+      const lp = Math.max(vis(t, Ls("c6-2") - .1, tGust + .5, .5, .35), vis(t, Ls("c6-4") + .1, Ls("c6-5") - .5, .5, .35));
+      lens.place(lp);
+      op(lf, 1);
+      op(cutG, P(t, Wt("c6-4", "種子") - .3, .4));
+      labHair.show(vis(t, Wt("c6-2", "蓬鬆") - .1, tGust + .4, .7, .3));
+      labFruit.show(Math.max(vis(t, tFr - .1, tGust + .4, .7, .3), vis(t, Wt("c6-4", "果實") - .1, Ls("c6-5") - .5, .7, .3)));
+      labSeed.show(vis(t, Wt("c6-4", "種子") - .1, Ls("c6-5") - .5, .7, .3));
+      // 青楓：薄翅、像竹蜻蜓一樣轉
+      const wp = vis(t, tWing - .1, Ls("c6-6") + 1.0, .7, .4);
+      labWing.show(wp);
+      pairs.forEach((p, i) => {
+        const td = tSpin + i * .35;
+        const u = t - td;
+        op(p.R, u > 0 ? 0 : 1);
+        const fs = flySam[i];
+        if (u <= 0) { op(fs.f, 0); return; }
+        op(fs.f, 1 - clamp((u - 4.2) / .8));
+        fs.f.setAttribute("transform", tf(fs.x + 150 * u + Math.sin(u * 2) * 30, fs.y + 85 * u, u * 900 + i * 40));
+      });
+      // 真實照片
+      const pp = vis(t, Bs("wind.photos") - .1, ch.e - .45, .5, .35);
+      op(dim, pp * .82); head.show(pp);
+      ph1.place(P(t, Bs("wind.photos"), .55, Ease.out) * (1 - P(t, ch.e - .45, .35)), 560, 450, -3);
+      ph2.place(P(t, Bs("wind.photos") + .3, .55, Ease.out) * (1 - P(t, ch.e - .45, .35)), 1040, 450, 3);
+    }
+  };
+});
+
+/* ==================== 7 自身彈力傳播 ==================== */
+/** 小花（5 片圓瓣，正面） */
+function makeSmallFlower(parent, x, y, r = 30, col = "#FF8FB1", center = "#FFE16B") {
+  const g = G(parent, { transform: tf(x, y) });
+  for (let k = 0; k < 5; k++) E("ellipse", { cx: 0, cy: -r * .55, rx: r * .48, ry: r * .62, fill: col, stroke: C.ink, "stroke-width": 3, transform: `rotate(${k * 72})` }, g);
+  E("circle", { r: r * .26, fill: center, stroke: C.ink, "stroke-width": 3 }, g);
+  return g;
+}
+/** 酢漿草的三片心形小葉 */
+function makeClover(parent, x, y, s = 1, a = 0) {
+  const g = G(parent, { transform: tf(x, y, a, s) });
+  for (let k = 0; k < 3; k++) E("path", { d: "M0,0 C-6,-8 -26,-14 -24,-30 C-22,-42 -8,-42 0,-32 C8,-42 22,-42 24,-30 C26,-14 6,-8 0,0 Z", fill: "#7CC46A", stroke: C.ink, "stroke-width": 3, transform: `rotate(${k * 120})` }, g);
+  return g;
+}
+scene("self", (root, ch) => {
+  makeSky(root, { sky: "#DDF0F7" });
+  const world = G(root), ovl = G(root);
+  makeLongHills(world, 640, -600, 2400, { fill: "#CFE6B0", a: 2 });
+  makeLongGrass(world, 722, -600, 2400, { seed: 44, fill: "#9BD06E", fill2: "#86C15C" });
+  const GY = 724;
+  // ---- 非洲鳳仙 ----
+  const IX = 600;
+  const plant = G(world);
+  for (const [x2, y2] of [[IX - 90, 520], [IX - 20, 470], [IX + 60, 500], [IX + 110, 560], [IX - 140, 600]]) stroke2(plant, `M${IX},${GY} Q${(IX + x2) / 2},${(GY + y2) / 2 + 40} ${x2},${y2}`, "#A9D98A", 9, 2.6);
+  const lv = rng(71);
+  for (let k = 0; k < 16; k++) { const a = -90 + (lv() - .5) * 170; const rr = 90 + lv() * 150; const x = IX + Math.cos(a * Math.PI / 180) * rr * .9, y = GY - 60 + Math.sin(a * Math.PI / 180) * rr * .8; makeLeaf(plant, x, y, a + 90 + (lv() - .5) * 40, 70 + lv() * 30, 46, { fill: "#4FA64F" }); }
+  for (const [x, y] of [[IX - 120, 520], [IX - 10, 440], [IX + 130, 500], [IX + 40, 560]]) makeSmallFlower(plant, x, y, 30);
+  // 小果實（靜態）
+  const podPath = "M0,0 C26,-30 28,-110 0,-150 C-28,-110 -26,-30 0,0 Z";
+  for (const [x, y, a, s] of [[IX - 70, 470, -20, .55], [IX + 90, 450, 18, .6], [IX - 150, 560, -35, .5]]) {
+    const pg = G(plant, { transform: tf(x, y, a, s) });
+    E("path", { d: podPath, fill: "#B9E39A", stroke: C.ink, "stroke-width": 6 }, pg);
+    E("path", { d: "M0,-8 L0,-140", stroke: "#5FA052", "stroke-width": 6 }, pg);
+  }
+  // 主角果實
+  const PX = 760, PY = 452, PA = 24;
+  stroke2(plant, `M${IX + 40},${GY - 150} Q${PX - 60},${PY + 60} ${PX},${PY}`, "#A9D98A", 7, 2.4);
+  const pod = G(world, { transform: tf(PX, PY, PA) });
+  const podBody = G(pod);
+  E("path", { d: podPath, fill: "#B9E39A", stroke: C.ink, "stroke-width": OUT }, podBody);
+  E("path", { d: "M0,-6 L0,-142 M-12,-14 C-20,-60 -18,-110 -4,-140 M12,-14 C20,-60 18,-110 4,-140", fill: "none", stroke: "#5FA052", "stroke-width": 4.5 }, podBody);
+  E("path", { d: "M0,-150 L0,-168", stroke: C.ink, "stroke-width": 4, "stroke-linecap": "round" }, podBody);
+  E("path", { d: "M0,0 L0,14", stroke: C.ink, "stroke-width": 6 }, pod);
+  // 彈開後捲起來的果皮（4 片）
+  const valves = [[-1, -14, 1], [-1, -5, 1], [1, 5, 1], [1, 14, 1]].map(([dir, off]) => ({ dir, off, st: stroke2(pod, "M0,0", "#B9E39A", 11, 3) }));
+  const col = E("path", { d: "M0,0 L0,-120", stroke: "#E9F2D2", "stroke-width": 6, "stroke-linecap": "round" }, pod);
+  const valvePath = (v, bt) => {
+    const curl = bt <= 0 ? 0 : (1 - Math.exp(-bt / .06)) * 560;
+    let x = v.off * .5, y = 0, d = `M${x.toFixed(1)},${y.toFixed(1)}`;
+    const n = 18, L = 150;
+    for (let i = 1; i <= n; i++) {
+      const s = i / n;
+      const ang = (-90 + v.dir * (8 + 40 * Math.min(1, bt * 8)) * s + v.dir * curl * Math.pow(s, 1.5)) * Math.PI / 180;
+      x += Math.cos(ang) * L / n; y += Math.sin(ang) * L / n;
+      d += ` L${x.toFixed(1)},${y.toFixed(1)}`;
+    }
+    return d;
+  };
+  // 種子
+  const sr = rng(91);
+  const seeds = [];
+  for (let k = 0; k < 7; k++) {
+    const s0 = .25 + k * .09;
+    const lx = (sr() - .5) * 10, ly = -150 * s0;
+    const a = PA * Math.PI / 180;
+    const x0 = PX + lx * Math.cos(a) - ly * Math.sin(a), y0 = PY + lx * Math.sin(a) + ly * Math.cos(a);
+    const vx = (k % 2 ? 1 : -1) * (180 + sr() * 520), vy = -(320 + sr() * 480);
+    seeds.push({ c: E("circle", { r: 9, fill: "#6B4423", stroke: C.ink, "stroke-width": 3 }, world), x0, y0, vx, vy });
+  }
+  const g = 1500;
+  const seedAt = (s, bt) => {
+    if (bt <= 0) return [s.x0, s.y0];
+    const tl = (-s.vy + Math.sqrt(s.vy * s.vy + 2 * g * (GY - 8 - s.y0))) / g;
+    const tt = Math.min(bt, tl);
+    return [s.x0 + s.vx * tt, s.y0 + s.vy * tt + .5 * g * tt * tt];
+  };
+  // ---- 黃花酢漿草 ----
+  const OX = 1360;
+  const ox = G(world);
+  for (const [x2, y2] of [[OX - 60, 560], [OX + 50, 590], [OX - 10, 520]]) stroke2(ox, `M${OX},${GY} Q${(OX + x2) / 2},${(GY + y2) / 2} ${x2},${y2}`, "#9BD06E", 5, 2);
+  makeClover(ox, OX - 60, 560, 1.1, 10); makeClover(ox, OX + 50, 590, 1, -20); makeClover(ox, OX - 120, 640, .9, 30);
+  makeSmallFlower(ox, OX - 10, 515, 20, "#FFD84A", "#E8A400");
+  stroke2(ox, `M${OX},${GY} Q${OX + 30},${GY - 120} ${OX + 40},${GY - 200}`, "#9BD06E", 5, 2);
+  const cap = G(ox, { transform: tf(OX + 40, GY - 200) });
+  E("path", { d: "M-9,0 L-8,-74 Q0,-84 8,-74 L9,0 Z", fill: "#8CCB5E", stroke: C.ink, "stroke-width": 3.4 }, cap);
+  E("path", { d: "M-3,-4 L-3,-74 M3,-4 L3,-74", stroke: "#4E9A45", "stroke-width": 2 }, cap);
+  const oseeds = [];
+  const or = rng(17);
+  for (let k = 0; k < 6; k++) oseeds.push({ c: E("circle", { r: 6.5, fill: "#6B4423", stroke: C.ink, "stroke-width": 2.4 }, world), x0: OX + 40 + (k % 2 ? 6 : -6), y0: GY - 230 - k * 6, vx: (k % 2 ? 1 : -1) * (160 + or() * 260), vy: -(200 + or() * 300) });
+  // 啪！
+  const pop = G(ovl);
+  E("path", { d: "M0,-120 L30,-48 L110,-70 L58,-6 L120,52 L36,40 L20,118 L-18,46 L-100,78 L-54,10 L-118,-46 L-36,-40 Z", fill: "#FFE16B", stroke: C.ink, "stroke-width": 6, "stroke-linejoin": "round" }, pop);
+  T(pop, 0, 4, "啪！", { "font-size": 84, fill: C.coralD, stroke: "#fff", "stroke-width": 8, "paint-order": "stroke" });
+  // 倒帶、慢動作
+  const rew = makeLabel(ovl, "倒帶中…", 800, 130, null, null, { size: 40, color: "#5C6970", bg: "#EDE8DE" });
+  const slow = makeLabel(ovl, "慢動作", 800, 130, null, null, { size: 44, color: C.coralD, bg: "#FFE3DC" });
+  const vig = E("rect", { x: 0, y: 0, width: 1600, height: 900, fill: "none", stroke: "rgba(30,30,30,.35)", "stroke-width": 90 }, ovl);
+  // 不是被太陽曬爆
+  const cA = makeCard(ovl, 430, 320), cB = makeCard(ovl, 430, 320);
+  const sunI = makeSun(cA.body, 0, -40, 44); const mA = makeMark(cA.body, false, 34); mA.setAttribute("transform", "translate(150,-110)");
+  T(cA.body, 0, 100, "不是被太陽曬爆", { "font-size": 36 });
+  const spring = G(cB.body, { transform: "translate(0,-40)" });
+  E("path", { d: "M-60,40 C-60,-10 -20,-10 -20,20 C-20,50 20,50 20,20 C20,-10 60,-10 60,40", fill: "none", stroke: C.ink, "stroke-width": 16, "stroke-linecap": "round" }, spring);
+  E("path", { d: "M-60,40 C-60,-10 -20,-10 -20,20 C-20,50 20,50 20,20 C20,-10 60,-10 60,40", fill: "none", stroke: "#7CC46A", "stroke-width": 9, "stroke-linecap": "round" }, spring);
+  const mB = makeMark(cB.body, true, 34); mB.setAttribute("transform", "translate(150,-110)");
+  T(cB.body, 0, 100, "果實自己的力量", { "font-size": 36 });
+  const title = makeMethodTitle(ovl, "self", 1080, 330);
+  // 照片
+  const dim = E("rect", { x: 0, y: 0, width: 1600, height: 900, fill: "#FFF3D6" }, ovl);
+  const head = makeLabel(ovl, "真實的照片", 800, 160, null, null, { size: 40, color: C.greenD, bg: "#E3F4DA" });
+  const PH = "../果實和種子的傳播方式/photos/";
+  const ph1 = makePhoto(ovl, PH + "impatiens-pod-open.jpg", "非洲鳳仙成熟彈開後", 420, 310, { capSize: 30 });
+  const ph2 = makePhoto(ovl, PH + "oxalis-pod-open.jpg", "黃花酢漿草成熟彈開後", 420, 310, { capSize: 30 });
+
+  const tB = Wt("c7-3", "啪"), tRw0 = Ls("c7-5"), tRw1 = Le("c7-5") + .05, tS0 = Bs("self.slowmo"), tS1 = Be("self.slowmo");
+  const tOx = Wt("c7-6", "彈出去") - .15;
+  // 「果實彈開的時間」：正常 → 倒帶 → 慢動作（0.2 倍）→ 停在最後
+  const burstT = (t) => {
+    if (t < tRw0) return t - tB;
+    if (t < tRw1) return lerp(tRw0 - tB, -.25, Ease.io(clamp((t - tRw0) / (tRw1 - tRw0))));
+    if (t < tS0) return -.25;
+    return Math.min(-.25 + (t - tS0) * .2 + Math.max(0, t - tS1) * 2, tRw0 - tB);
+  };
+  const cam = makeCam([
+    [ch.s, 0, 800, 450, 1],
+    [Ls("c7-2") - .4, 1.1, PX - 10, PY - 40, 1.75],
+    [tB + .3, .9, 820, 470, 1.12],
+    [tRw0, .8, PX - 10, PY - 40, 1.75],
+    [tS0, tS1 - tS0, PX - 10, PY - 50, 2.05],
+    [Ls("c7-6") - .5, 1.2, OX + 20, GY - 220, 1.7],
+    [Ls("c7-7") - .2, 1.0, 1000, 450, 1]
+  ]);
+  return {
+    render(t) {
+      world.setAttribute("transform", cam(t).tr);
+      title.render(t, ch, Le("c7-1") + .05);
+      const bt = burstT(t);
+      // 快彈開前：果實在發抖
+      const shake = bt < 0 && t > Ls("c7-2") + .8 ? Math.sin(t * 60) * 2.2 * clamp((t - Ls("c7-2") - .8) / 1.5) : 0;
+      pod.setAttribute("transform", tf(PX + shake, PY, PA + shake * .6));
+      op(podBody, bt < 0 ? 1 : 0);
+      valves.forEach(v => { op(v.st, bt >= 0 ? 1 : 0); if (bt >= 0) v.st.querySelectorAll("path").forEach(p => p.setAttribute("d", valvePath(v, bt))); });
+      op(col, bt >= 0 ? 1 : 0);
+      seeds.forEach(s => { const [x, y] = seedAt(s, bt); S(s.c, { cx: x.toFixed(1), cy: y.toFixed(1) }); op(s.c, bt > 0 ? 1 : 0); });
+      const pp = P(t, tB - .05, .9, Ease.lin);
+      op(pop, pp > 0 && pp < 1 ? 1 - Math.max(0, pp - .6) / .4 : 0);
+      pop.setAttribute("transform", tf(1080, 250, -8, .6 + .5 * Ease.back(clamp(pp * 2.5))));
+      rew.show(vis(t, tRw0, tRw1, .3, .3));
+      slow.show(vis(t, tS0 - .1, tS1 + .2, .4, .3));
+      op(vig, vis(t, tS0 - .2, tS1 + .2, .4, .3));
+      // 酢漿草
+      oseeds.forEach(s => {
+        const u = t - tOx;
+        if (u <= 0) { S(s.c, { cx: s.x0, cy: s.y0 }); op(s.c, 0); return; }
+        op(s.c, 1);
+        const tl = (-s.vy + Math.sqrt(s.vy * s.vy + 2 * g * (GY - 6 - s.y0))) / g, tt = Math.min(u, tl);
+        S(s.c, { cx: (s.x0 + s.vx * tt).toFixed(1), cy: (s.y0 + s.vy * tt + .5 * g * tt * tt).toFixed(1) });
+      });
+      cap.setAttribute("transform", tf(OX + 40, GY - 200, Math.sin(Math.PI * clamp((t - tOx) / .3)) * 6));
+      // 不是曬爆
+      sunI.rays.setAttribute("transform", `rotate(${t * 20})`);
+      cA.place(P(t, Wt("c7-7", "太陽") - .3, .5, Ease.out) * (1 - P(t, Bs("self.photos") - .3, .3)), 560, 420, -4);
+      cB.place(P(t, Wt("c7-7", "自己的力量") - .3, .5, Ease.out) * (1 - P(t, Bs("self.photos") - .3, .3)), 1040, 420, 4);
+      // 照片
+      const ph = vis(t, Bs("self.photos") - .1, ch.e - .45, .5, .35);
+      op(dim, ph * .82); head.show(ph);
+      ph1.place(P(t, Bs("self.photos"), .55, Ease.out) * (1 - P(t, ch.e - .45, .35)), 560, 450, -3);
+      ph2.place(P(t, Bs("self.photos") + .3, .55, Ease.out) * (1 - P(t, ch.e - .45, .35)), 1040, 450, 3);
+    }
+  };
+});
+
+/* ==================== 8 動物力傳播 ==================== */
+/** 小狗（側面、面向右；原點＝腳底中間） */
+function makeDog(parent) {
+  const D = { g: G(parent) };
+  const g = D.g;
+  const TAN = "#E8B66B", TAN2 = "#C98F4A", PALE = "#F6D9A6";
+  const leg = (x, far) => {
+    const lg = G(g);
+    E("path", { d: `M${x - 11},-98 L${x - 10},-10 Q${x},-2 ${x + 10},-10 L${x + 11},-98 Z`, fill: far ? TAN2 : TAN, stroke: C.ink, "stroke-width": 4, "stroke-linejoin": "round" }, lg);
+    E("ellipse", { cx: x + 5, cy: -6, rx: 15, ry: 8, fill: far ? TAN2 : TAN, stroke: C.ink, "stroke-width": 4 }, lg);
+    return { lg, x };
+  };
+  D.tail = G(g);
+  E("path", { d: "M-90,-128 C-118,-140 -128,-170 -116,-192", fill: "none", stroke: C.ink, "stroke-width": 20, "stroke-linecap": "round" }, D.tail);
+  E("path", { d: "M-90,-128 C-118,-140 -128,-170 -116,-192", fill: "none", stroke: TAN, "stroke-width": 12, "stroke-linecap": "round" }, D.tail);
+  D.far = [leg(70, 1), leg(-62, 1)];
+  E("ellipse", { cx: 0, cy: -118, rx: 100, ry: 46, fill: TAN, stroke: C.ink, "stroke-width": OUT }, g);
+  E("path", { d: "M-60,-86 C-20,-74 40,-74 80,-92", fill: "none", stroke: PALE, "stroke-width": 16, "stroke-linecap": "round" }, g);
+  E("path", { d: "M-40,-82 l-6,10 l10,-4 M0,-78 l-4,12 l9,-6 M40,-80 l-2,12 l8,-8", fill: "none", stroke: C.ink, "stroke-width": 3, "stroke-linecap": "round", "stroke-linejoin": "round" }, g);
+  D.near = [leg(52, 0), leg(-80, 0)];
+  // 頭
+  const head = G(g);
+  E("path", { d: "M70,-130 L88,-110", stroke: C.coralD, "stroke-width": 14, "stroke-linecap": "round" }, head);
+  E("circle", { cx: 104, cy: -160, r: 42, fill: TAN, stroke: C.ink, "stroke-width": OUT }, head);
+  E("ellipse", { cx: 138, cy: -146, rx: 28, ry: 20, fill: PALE, stroke: C.ink, "stroke-width": 4 }, head);
+  E("ellipse", { cx: 162, cy: -152, rx: 9, ry: 7, fill: C.ink }, head);
+  E("circle", { cx: 112, cy: -170, r: 6.5, fill: C.ink }, head);
+  E("circle", { cx: 114, cy: -172, r: 2.2, fill: "#fff" }, head);
+  E("path", { d: "M138,-134 Q146,-128 154,-134", fill: "none", stroke: C.ink, "stroke-width": 3, "stroke-linecap": "round" }, head);
+  E("path", { d: "M84,-196 C60,-196 58,-160 70,-132 C80,-140 88,-170 96,-190 Z", fill: TAN2, stroke: C.ink, "stroke-width": 4, "stroke-linejoin": "round" }, head);
+  D.stick = G(g);
+  D.set = (x, y, phase, o = {}) => {
+    const a = Math.sin(phase) * (o.still ? 0 : 24);
+    D.near[0].lg.setAttribute("transform", `rotate(${a.toFixed(1)} ${D.near[0].x} -96)`);
+    D.far[0].lg.setAttribute("transform", `rotate(${(-a).toFixed(1)} ${D.far[0].x} -96)`);
+    D.near[1].lg.setAttribute("transform", `rotate(${(-a).toFixed(1)} ${D.near[1].x} -96)`);
+    D.far[1].lg.setAttribute("transform", `rotate(${a.toFixed(1)} ${D.far[1].x} -96)`);
+    D.tail.setAttribute("transform", `rotate(${(Math.sin((o.t || 0) * 9) * 12).toFixed(1)} -90 -128)`);
+    const bob = o.still ? 0 : Math.abs(Math.sin(phase)) * 4;
+    g.setAttribute("transform", tf(x, y - bob) + (o.shake ? ` rotate(${o.shake.toFixed(1)} 0 -110)` : "") + (o.s ? ` scale(${o.s})` : ""));
+  };
+  return D;
+}
+/** 大花咸豐草的一顆果實（細長、頂端有帶倒鉤的芒；原點＝底端） */
+function makeBidensFruit(parent, s = 1) {
+  const g = G(parent);
+  const i = G(g, { transform: `scale(${s})` });
+  E("path", { d: "M0,0 L0,-36 M0,-36 L-6,-48 M0,-36 L6,-48", fill: "none", stroke: "#2B2420", "stroke-width": 3.6, "stroke-linecap": "round" }, i);
+  return g;
+}
+/** 大花咸豐草一叢（原點＝地面）；回傳果序（一球果實）的位置 */
+function makeBidens(parent, x, y, seed = 1) {
+  const g = G(parent, { transform: tf(x, y) });
+  const r = rng(seed);
+  const heads = [];
+  const tops = [[-80, -210, "f"], [-30, -265, "s"], [20, -230, "f"], [70, -275, "s"], [110, -200, "s"], [-120, -170, "s"], [150, -240, "f"]];
+  tops.forEach(([tx, ty, kind]) => {
+    stroke2(g, `M${tx * .3},0 Q${tx * .6},${ty * .5} ${tx},${ty}`, "#6DAA4A", 5, 2);
+    for (const k of [.35, .6]) { const lx = lerp(tx * .3, tx, k), ly = ty * k; makeLeaf(g, lx, ly, -55, 46, 22, { fill: "#5FA552", sw: 3, noShine: 1 }); makeLeaf(g, lx, ly, 55, 46, 22, { fill: "#5FA552", sw: 3, noShine: 1 }); }
+    if (kind === "f") {
+      const fg = G(g, { transform: tf(tx, ty) });
+      for (let k = 0; k < 5; k++) E("ellipse", { cx: 0, cy: -20, rx: 10, ry: 16, fill: "#fff", stroke: C.ink, "stroke-width": 2.8, transform: `rotate(${k * 72})` }, fg);
+      E("circle", { r: 11, fill: "#F2C230", stroke: C.ink, "stroke-width": 2.8 }, fg);
+    } else {
+      const hg = G(g, { transform: tf(tx, ty) });
+      const list = [];
+      for (let k = 0; k < 14; k++) {
+        const a = -170 + k * (160 / 13) + (r() - .5) * 8;
+        const f = makeBidensFruit(hg, .9);
+        f.setAttribute("transform", `rotate(${(a + 90).toFixed(1)})`);
+        list.push(f);
+      }
+      E("circle", { r: 6, fill: "#6B5A3A", stroke: C.ink, "stroke-width": 2 }, hg);
+      heads.push({ x: x + tx, y: y + ty, hg, list });
+    }
+  });
+  g.heads = heads;
+  return g;
+}
+/** 白頭翁（側面、面向右；原點＝腳） */
+function makeBulbul(parent) {
+  const B = { g: G(parent) };
+  const g = B.g;
+  const body = G(g);
+  E("path", { d: "M-40,-40 L-96,-58 L-92,-38 L-40,-26 Z", fill: "#6E7A50", stroke: C.ink, "stroke-width": 3.5, "stroke-linejoin": "round" }, body);
+  E("ellipse", { cx: 0, cy: -42, rx: 50, ry: 30, fill: "#93A06C", stroke: C.ink, "stroke-width": OUT }, body);
+  E("path", { d: "M-20,-22 C0,-12 30,-16 44,-34", fill: "none", stroke: "#EDEBDD", "stroke-width": 14, "stroke-linecap": "round" }, body);
+  E("circle", { cx: 44, cy: -66, r: 25, fill: "#2B2B2B", stroke: C.ink, "stroke-width": 3.5 }, body);
+  E("ellipse", { cx: 32, cy: -78, rx: 13, ry: 10, fill: "#fff", stroke: C.ink, "stroke-width": 2.4 }, body);
+  E("circle", { cx: 55, cy: -70, r: 6, fill: "#fff" }, body);
+  E("circle", { cx: 56, cy: -70, r: 3.2, fill: C.ink }, body);
+  E("circle", { cx: 50, cy: -56, r: 5, fill: "#fff", opacity: .85 }, body);
+  B.beak = E("path", { d: "M66,-66 L84,-62 L66,-58 Z", fill: "#3A3A3A", stroke: C.ink, "stroke-width": 2.6, "stroke-linejoin": "round" }, body);
+  B.legs = E("path", { d: "M-6,-14 L-8,0 M10,-14 L12,0", stroke: C.ink, "stroke-width": 4, "stroke-linecap": "round" }, g);
+  B.wing = G(g);
+  E("path", { d: "M-34,-52 C-10,-70 22,-62 28,-44 C10,-32 -16,-30 -40,-36 Z", fill: "#A8B04A", stroke: C.ink, "stroke-width": 3.5, "stroke-linejoin": "round" }, B.wing);
+  B.fig = E("circle", { cx: 88, cy: -62, r: 10, fill: "#D2335A", stroke: C.ink, "stroke-width": 2.6 }, g);
+  op(B.fig, 0);
+  B.set = (x, y, t, o = {}) => {
+    const flap = o.fly ? Math.sin(t * 2 * Math.PI * 7) : 0;
+    B.wing.setAttribute("transform", o.fly ? `rotate(${(-40 * flap - 10).toFixed(1)} -4 -50)` : "");
+    op(B.legs, o.fly ? 0 : 1);
+    g.setAttribute("transform", tf(x, y, o.rot || 0, (o.s || 1) * (o.flip ? -1 : 1), o.s || 1));
+    op(B.fig, o.fig ? 1 : 0);
+  };
+  return B;
+}
+scene("animal", (root, ch) => {
+  makeSky(root, { sky: "#CDEAF5" });
+  const A = G(root), Bw = G(root), ovl = G(root);
+  // ---- 第一幕：大花咸豐草＋小狗 ----
+  for (const [x, y, s] of [[260, 150, .9], [1000, 110, .7], [1800, 140, .85], [2500, 120, .8]]) makeCloud(A, x, y, s);
+  makeLongHills(A, 640, -600, 3400, { fill: "#C9E6AA", a: 1 });
+  makeLongGrass(A, 722, -600, 3400, { seed: 51 });
+  E("path", { d: "M-600,744 L3400,744 L3400,780 L-600,780 Z", fill: "#D9C08E", opacity: .8 }, A);
+  const GY = 726;
+  const bid = makeBidens(A, 620, GY, 5);
+  const dog = makeDog(A);
+  // 鉤在狗身上的果實（掛在狗的身體上，跟著狗走）
+  const sticks = [[46, -90, 150], [8, -84, 200], [-34, -88, 165], [70, -112, 130], [-66, -96, 215], [26, -104, 185]].map(([x, y, a]) => {
+    const f = makeBidensFruit(dog.stick, 1.7); f.setAttribute("transform", tf(x, y, a)); op(f, 0); return { f, x, y, a };
+  });
+  const fallen = sticks.map(() => { const f = makeBidensFruit(A, 1.7); op(f, 0); return f; });
+  const sprA = [0, 1, 2].map(() => makeSeedling(A));
+  const tDog0 = Ls("c8-2") + 1.95, tHook = Wt("c8-3", "鉤在"), tFar = Wt("c8-3", "帶到"), tDrop = Wt("c8-3", "掉下來");
+  const dogX = (t) => {
+    const u = t - tDog0;
+    if (u <= 0) return -170;
+    const tStop = tDrop - .15;
+    const v0 = 230, x1 = -170 + v0 * Math.max(0, Math.min(u, tHook + .3 - tDog0));
+    if (t <= tHook + .3) return x1;
+    const u2 = Math.min(t, tStop) - (tHook + .3);
+    return x1 + 230 * u2 + 110 * u2 * u2;
+  };
+  const xStop = dogX(tDrop);
+  // ---- 第二幕：雀榕＋白頭翁 ----
+  for (const [x, y, s] of [[300, 120, .8], [1200, 140, .9], [2100, 110, .8], [2800, 150, .7]]) makeCloud(Bw, x, y, s);
+  makeLongHills(Bw, 650, -600, 3600, { fill: "#C6E3A0", a: 3 });
+  makeLongGrass(Bw, 722, -600, 3600, { seed: 61 });
+  const br = G(Bw);
+  stroke2(br, "M-200,90 C100,140 420,190 980,300", "#7A5034", 22, 3.5);
+  stroke2(br, "M420,190 C470,140 560,120 640,128", "#7A5034", 12, 3);
+  for (const [x, y, a, s] of [[90, 130, 200, 1], [260, 170, 150, .95], [520, 200, 210, 1], [700, 250, 140, .9], [860, 280, 205, .95], [600, 126, 120, .8], [330, 160, 30, .85]]) makeLeaf(br, x, y, a, 110 * s, 58 * s, { fill: "#3E9A4A" });
+  const figs = [];
+  const fr = rng(33);
+  for (const [cx, cy] of [[180, 160], [380, 190], [560, 226], [700, 262], [520, 150], [772, 196]]) for (let k = 0; k < 4; k++) {
+    const x = cx + (fr() - .5) * 40, y = cy + 14 + fr() * 20;
+    const fg = G(br, { transform: tf(x, y) });
+    const body = E("circle", { r: 15, fill: "#C2355A", stroke: C.ink, "stroke-width": 3.2 }, fg);
+    for (let j = 0; j < 4; j++) E("circle", { cx: (fr() - .5) * 16, cy: (fr() - .5) * 16, r: 2, fill: "#FFC2D1" }, fg);
+    figs.push({ fg, body, x, y });
+  }
+  const BX0 = 862, BY0 = 288;                 // 白頭翁停在樹枝上的位置；嘴巴在 (BX0-88, BY0-65)
+  const eaten = figs.reduce((b, f) => (Math.hypot(f.x - (BX0 - 88), f.y - (BY0 - 65)) < Math.hypot(b.x - (BX0 - 88), b.y - (BY0 - 65)) ? f : b), figs[0]);
+  const scents = [0, 1, 2, 3].map(k => E("path", { d: "M0,0 C-12,-14 12,-28 0,-42 C-12,-56 12,-70 0,-84", fill: "none", stroke: "#FF8FB1", "stroke-width": 6, "stroke-linecap": "round" }, Bw));
+  const POST = 2300;
+  // 木柵欄（三根柱子＋兩條橫木），白頭翁停在中間那根上
+  for (const y of [560, 640]) E("rect", { x: POST - 420, y, width: 840, height: 20, rx: 6, fill: "#B98A5E", stroke: C.ink, "stroke-width": 4 }, Bw);
+  for (const dx of [-330, 0, 330]) E("path", { d: `M${POST + dx - 18},730 L${POST + dx - 18},${dx ? 512 : 480} L${POST + dx},${dx ? 494 : 462} L${POST + dx + 18},${dx ? 512 : 480} L${POST + dx + 18},730 Z`, fill: "#9C6B45", stroke: C.ink, "stroke-width": OUT, "stroke-linejoin": "round" }, Bw);
+  const bird = makeBulbul(Bw);
+  const poop = G(Bw);
+  E("path", { d: "M-14,4 C-18,-8 -6,-16 2,-12 C10,-18 20,-6 14,4 C10,12 -10,12 -14,4 Z", fill: "#F4F1E8", stroke: C.ink, "stroke-width": 3 }, poop);
+  E("ellipse", { cx: 0, cy: -1, rx: 7, ry: 5, fill: "#6B5040" }, poop);
+  const pseed = G(Bw);
+  E("path", { d: "M0,-9 C7,-6 8,4 0,9 C-8,4 -7,-6 0,-9 Z", fill: "#8A5A34", stroke: C.ink, "stroke-width": 2.6 }, pseed);
+  const ring = E("circle", { r: 40, fill: "none", stroke: C.coralD, "stroke-width": 5, "stroke-dasharray": "12 9" }, Bw);
+  const sprB = makeSeedling(Bw);
+  // ---- 前景 ----
+  const title = makeMethodTitle(ovl, "animal", 1060, 360);
+  const chip1 = makeLabel(ovl, "附在動物身上", 590, 136, null, null, { size: 36, color: "#8A5A34", bg: "#FFF0DA" });
+  const chip2 = makeLabel(ovl, "吸引動物採食", 1010, 136, null, null, { size: 36, color: "#8A5A34", bg: "#FFF0DA" });
+  const lens = makeLens(ovl, 1170, 420, 190);
+  const big = G(lens.inner, { transform: "translate(0,250) scale(4.2)" });
+  E("path", { d: "M0,0 C-3,-20 -3,-48 0,-62 C3,-48 3,-20 0,0 Z", fill: "#3B2A20", stroke: C.ink, "stroke-width": .9 }, big);
+  for (const [dx, a] of [[-1, -22], [0, 0], [1, 22]]) {
+    const aw = G(big, { transform: `translate(0,-62) rotate(${a})` });
+    E("path", { d: "M0,0 L0,-18", stroke: "#3B2A20", "stroke-width": 2.2, "stroke-linecap": "round" }, aw);
+    for (let k = 1; k <= 4; k++) E("path", { d: `M0,${-k * 4} L-3.4,${-k * 4 + 3.2} M0,${-k * 4} L3.4,${-k * 4 + 3.2}`, stroke: "#3B2A20", "stroke-width": 1.3, "stroke-linecap": "round" }, aw);
+  }
+  const labBarb = makeLabel(ovl, "倒鉤", 1460, 250, 1206, 350, { color: C.coralD, size: 40 });
+  const labHook = makeLabel(ovl, "鉤在毛上", 800, 300, 0, 0, { color: C.coralD, size: 36 });
+  const labEat = makeLabel(ovl, "顏色鮮豔", 360, 420, 0, 0, { color: "#C2355A", size: 36 });
+  const sw = makeSpark(ovl, 26), sw2 = makeSpark(ovl, 20);
+  const dimIn = E("rect", { x: 0, y: 0, width: 1600, height: 900, fill: C.bg }, ovl);
+  const dim = E("rect", { x: 0, y: 0, width: 1600, height: 900, fill: "#FFF3D6" }, ovl);
+  const head = makeLabel(ovl, "真實的照片", 800, 160, null, null, { size: 40, color: C.greenD, bg: "#E3F4DA" });
+  const PH = "../果實和種子的傳播方式/photos/";
+  const ph1 = makePhoto(ovl, PH + "bidens-fruit.jpg", "大花咸豐草的果實", 460, 270, { capSize: 30 });
+  const ph2 = makePhoto(ovl, PH + "ficus-superba.jpg", "雀榕的果實", 400, 280, { capSize: 30 });
+
+  const tSwitch = Ls("c8-4") - .45;
+  const tBird = Wt("c8-4", "鳥兒") - .9, tLand = Wt("c8-4", "鳥兒") + .5, tPeck = Wt("c8-4", "吃");
+  const tFly = Wt("c8-5", "飛到") - .1, tPerch = Wt("c8-5", "地方") + .6;
+  const tPoop = Wt("c8-6", "糞便"), tPoopLand = tPoop + .55, tOn = Wt("c8-6", "落在");
+  const camB = makeCam([[tSwitch, 0, 620, 330, 1.25], [tFly - .1, tPerch - tFly + .1, POST - 60, 470, 1.12]]);
+  const landA = [[-40, 6], [10, 10], [55, 4], [-70, 12], [90, 8], [30, 14]];
+  return {
+    render(t) {
+      const inA = t < tSwitch;
+      op(A, inA ? 1 : 0); op(Bw, inA ? 0 : 1);
+      op(dimIn, vis(t, tSwitch - .35, tSwitch, .35, .35));
+      title.render(t, ch, Le("c8-1") - 2.6);
+      const cp = P(t, Wt("c8-1", "兩種") - .1, .6, Ease.lin);
+      chip1.show(cp); chip2.show(P(t, Wt("c8-1", "兩種") + .2, .6, Ease.lin));
+      op(chip1, cp > 0 ? (inA || t < tSwitch + .1 ? 1 : .45) * (1 - P(t, Bs("animal.photos") - .3, .3)) : 0);
+      op(chip2, cp > 0 ? (inA ? .45 : 1) * (1 - P(t, Bs("animal.photos") - .3, .3)) : 0);
+      if (inA) {
+        const x = dogX(t);
+        const cx = clamp(x + 80, 800, 2600);
+        const z = 1;
+        A.setAttribute("transform", `translate(800,450) scale(${z}) translate(${-cx},${-450})`);
+        const walking = t < tDrop - .15;
+        const shake = t > tDrop - .1 && t < tDrop + .7 ? Math.sin(t * 45) * 7 * (1 - clamp((t - tDrop - .1) / .8)) : 0;
+        dog.set(x, GY, (x + 170) / 34, { t, still: !walking, shake });
+        // 果實鉤上去、掉下來
+        sticks.forEach((sk, i) => {
+          const th = tHook - .35 + i * .12;
+          const on = t >= th && t < tDrop + .05 + i * .06;
+          op(sk.f, on ? 1 : 0);
+          const tf0 = tDrop + .05 + i * .06, u = t - tf0;
+          const f = fallen[i];
+          if (u <= 0) { op(f, 0); return; }
+          op(f, 1);
+          const sx = xStop + sk.x, sy = GY + sk.y;
+          const tl = Math.sqrt(2 * (GY + landA[i][1] - 10 - sy) / 1400);
+          const tt = Math.min(u, tl);
+          f.setAttribute("transform", tf(sx + landA[i][0] * tt / tl, sy + .5 * 1400 * tt * tt, sk.a + 200 * tt));
+        });
+        // 果序上被鉤走的果實不見
+        bid.heads.forEach((h, j) => h.list.forEach((f, k) => op(f, (k % 3 === j % 3 && t > tHook - .3 + j * .15) ? 0 : 1)));
+        sprA.forEach((sp, i) => { const g2 = P(t, Bs("animal.drop") + .1 + i * .2, .8, Ease.out); sp.set(xStop + landA[i * 2][0], GY + 2, 50 * g2, 1, .9, 0); });
+        lens.place(vis(t, Ls("c8-2") - .1, Ls("c8-3") + .2, .5, .35));
+        labBarb.show(vis(t, Wt("c8-2", "倒") - .1, Ls("c8-3") + .1, .7, .3));
+        const hp = vis(t, tHook - .1, tFar, .6, .3);
+        if (hp > 0) { S(labHook.querySelector("line"), { x2: 800 + (x + 30 - cx), y2: GY - 84 }); S(labHook.querySelector("circle"), { cx: 800 + (x + 30 - cx), cy: GY - 84 }); }
+        labHook.show(hp);
+      } else {
+        const cm = camB(t);
+        Bw.setAttribute("transform", cm.tr);
+        // 果實顏色鮮豔、氣味甜美
+        const bright = P(t, Wt("c8-4", "鮮豔") - .2, .6);
+        figs.forEach((f, i) => { S(f.body, { fill: lerpColor("#C2355A", "#FF3D6E", bright * (.6 + .4 * Math.sin(t * 4 + i))) }); });
+        op(eaten.fg, t < tPeck + .15 ? 1 : 0);
+        const sp = vis(t, Wt("c8-4", "甜美") - .2, tBird + .8, .5, .5);
+        scents.forEach((s, k) => { const u = (t * .8 + k / 4) % 1; S(s, { transform: tf(240 + k * 160, 230 - u * 60), opacity: (sp * Math.sin(u * Math.PI)).toFixed(3) }); });
+        // 白頭翁
+        let bx, by, fly = false, flip = false, fig = false, rot = 0;
+        if (t < tBird) { bx = 1900; by = -200; }
+        else if (t < tLand) { const u = Ease.io(clamp((t - tBird) / (tLand - tBird))); [bx, by] = bez([1500, 40], [1250, 0], [1000, 200], [BX0, BY0], u); fly = true; flip = true; }
+        else if (t < tFly) { bx = BX0; by = BY0; flip = true; rot = t > tPeck - .15 && t < tPeck + .35 ? 14 : 0; fig = t >= tPeck && t < tPeck + .7; }
+        else if (t < tPerch) { const u = Ease.io(clamp((t - tFly) / (tPerch - tFly))); [bx, by] = bez([BX0, BY0], [1250, 60], [1900, 120], [POST, 470], u); fly = u < .98; }
+        else { bx = POST; by = 470; }
+        bird.set(bx, by, t, { fly, flip, fig, rot: flip ? -rot : rot, s: 1.05 });
+        // 糞便與種子
+        const pu = t - tPoop;
+        if (pu <= 0) { op(poop, 0); op(pseed, 0); }
+        else {
+          op(poop, 1);
+          const yy = Math.min(470 - 30 + .5 * 1600 * pu * pu, GY - 4);
+          poop.setAttribute("transform", tf(POST - 46, yy, 0, 1.2));
+          op(pseed, t > tPoopLand ? 1 : 0);
+          pseed.setAttribute("transform", tf(POST - 46 + 16, GY - 8, 30));
+        }
+        const rp = vis(t, tOn - .1, Bs("animal.photos") - .2, .4, .3);
+        op(ring, rp); S(ring, { cx: POST - 30, cy: GY - 8, transform: `rotate(${(t * 40).toFixed(1)} ${POST - 30} ${GY - 8})` });
+        const sg = P(t, Bs("animal.sprout") - .2, 1.2, Ease.out);
+        sprB.set(POST - 30, GY - 2, 60 * sg, 1, 1.1, Math.sin(t * 2) * 2);
+        labEat.show(vis(t, Wt("c8-4", "鮮豔") - .1, tBird, .6, .3));
+        if (labEat.querySelector("line")) { const [ex, ey] = [(560 - cm.cx) * cm.z + 800, (240 - cm.cy) * cm.z + 450]; S(labEat.querySelector("line"), { x2: ex, y2: ey }); S(labEat.querySelector("circle"), { cx: ex, cy: ey }); }
+      }
+      // 真實照片
+      const pp = vis(t, Bs("animal.photos") - .1, ch.e - .45, .5, .35);
+      op(dim, pp * .82); head.show(pp);
+      ph1.place(P(t, Bs("animal.photos"), .55, Ease.out) * (1 - P(t, ch.e - .45, .35)), 540, 450, -3);
+      ph2.place(P(t, Bs("animal.photos") + .3, .55, Ease.out) * (1 - P(t, ch.e - .45, .35)), 1060, 450, 3);
+    }
+  };
+});
+
+/* ==================== 9 水力傳播 ==================== */
+/** 椰子樹（原點＝樹幹底部；樹冠往右上方） */
+function makePalm(parent, x, y, o = {}) {
+  const g = G(parent, { transform: tf(x, y, 0, o.s || 1) });
+  const tx = o.tx || 250, ty = o.ty || -380;
+  const trunk = `M0,0 C${tx * .2},${ty * .45} ${tx * .55},${ty * .85} ${tx},${ty}`;
+  E("path", { d: trunk, fill: "none", stroke: C.ink, "stroke-width": 40, "stroke-linecap": "round" }, g);
+  E("path", { d: trunk, fill: "none", stroke: "#B98A5E", "stroke-width": 31, "stroke-linecap": "round" }, g);
+  for (let k = 1; k < 9; k++) { const p = bez([0, 0], [tx * .2, ty * .45], [tx * .55, ty * .85], [tx, ty], k / 9); E("path", { d: `M${p[0] - 13},${p[1] + 3} q13,6 26,0`, fill: "none", stroke: "#8A5A34", "stroke-width": 3.4, "stroke-linecap": "round" }, g); }
+  const crown = G(g, { transform: tf(tx, ty) });
+  for (const a of [-170, -135, -100, -62, -25, 10, 40]) {
+    const fg = G(crown, { transform: `rotate(${a})` });
+    const L = 190;
+    E("path", { d: `M0,0 C${L * .4},-26 ${L * .8},-6 ${L},40`, fill: "none", stroke: C.ink, "stroke-width": 9, "stroke-linecap": "round" }, fg);
+    E("path", { d: `M0,0 C${L * .4},-26 ${L * .8},-6 ${L},40`, fill: "none", stroke: "#3E8F45", "stroke-width": 4, "stroke-linecap": "round" }, fg);
+    let d = "";
+    for (let k = 1; k <= 9; k++) { const p = bez([0, 0], [L * .4, -26], [L * .8, -6], [L, 40], k / 10); const len = 46 * (1 - k / 13); d += `M${p[0].toFixed(1)},${p[1].toFixed(1)} l${(len * .3).toFixed(1)},${len.toFixed(1)} M${p[0].toFixed(1)},${p[1].toFixed(1)} l${(len * .55).toFixed(1)},${(-len * .7).toFixed(1)} `; }
+    E("path", { d, fill: "none", stroke: "#3E8F45", "stroke-width": 7, "stroke-linecap": "round" }, fg);
+  }
+  g.crown = [x + tx * (o.s || 1), y + ty * (o.s || 1)];
+  return g;
+}
+/** 一顆椰子（側面） */
+function makeCoconut(parent, r = 30) {
+  const g = G(parent);
+  E("ellipse", { rx: r * 1.08, ry: r, fill: "#7E8F3C", stroke: C.ink, "stroke-width": OUT }, g);
+  E("path", { d: `M${-r * .6},${-r * .5} Q0,${-r * 1.1} ${r * .7},${-r * .45}`, fill: "none", stroke: "rgba(255,255,255,.35)", "stroke-width": 6, "stroke-linecap": "round" }, g);
+  E("circle", { cx: r * .85, cy: -r * .15, r: r * .18, fill: "#5E6B2A" }, g);
+  return g;
+}
+/** 海浪（很寬的一層，可左右移動） */
+function makeSea(parent, y, x0, x1, col, amp, wl, sw = 4) {
+  let d = `M${x0},${y + 600} L${x0},${y}`;
+  for (let x = x0; x <= x1 + wl; x += wl / 2) d += ` q${wl / 4},${-amp} ${wl / 2},0`;
+  d += ` L${x1 + wl},${y + 600} Z`;
+  return E("path", { d, fill: col, stroke: C.ink, "stroke-width": sw, "stroke-linejoin": "round" }, parent);
+}
+scene("water", (root, ch) => {
+  const sky = E("rect", { x: -10, y: -10, width: 1620, height: 920, fill: "#BFE3F5" }, root);
+  const night = G(root);
+  const rs = rng(77);
+  for (let k = 0; k < 40; k++) E("circle", { cx: rs() * 1600, cy: rs() * 420, r: 1.5 + rs() * 2.5, fill: "#FFF7D6" }, night);
+  const moon = E("path", { d: "M0,-46 A46,46 0 1,0 0,46 A34,34 0 1,1 0,-46 Z", fill: "#FFF0A8", stroke: C.ink, "stroke-width": 4 }, night);
+  const sunG = makeSun(root, 0, 0, 52);
+  const world = G(root), ovl = G(root);
+  for (const [x, y, s] of [[200, 150, .8], [900, 110, .75], [1700, 160, .9], [2500, 120, .8], [3200, 140, .85]]) makeCloud(world, x, y, s);
+  // 遠方的小島
+  const IS = 3260;
+  E("path", { d: `M${IS - 380},622 C${IS - 260},560 ${IS + 260},548 ${IS + 420},622 Z`, fill: "#F2D9A6", stroke: C.ink, "stroke-width": OUT }, world);
+  makePalm(world, IS + 160, 586, { s: .55, tx: -140, ty: -380 });
+  makePalm(world, IS + 260, 590, { s: .45, tx: 160, ty: -360 });
+  const seaBack = makeSea(world, 586, -600, 4400, "#8CD0F0", 10, 160, 3);
+  // 海灘＋椰子樹
+  E("path", { d: "M-600,560 L560,560 C640,560 700,600 760,640 L760,900 L-600,900 Z", fill: "#F2D9A6", stroke: C.ink, "stroke-width": OUT }, world);
+  const palm = makePalm(world, 200, 580, { tx: 280, ty: -380 });
+  const hang = [[0, 24], [-36, 34], [30, 40]].map(([dx, dy]) => { const c = makeCoconut(world, 26); c.setAttribute("transform", tf(palm.crown[0] + dx, palm.crown[1] + dy)); return c; });
+  const seaMid = makeSea(world, 606, -600, 4400, "#5CB8E6", 12, 200, 3.5);
+  const coco = makeCoconut(world, 30);
+  const sprout = G(world);
+  for (const a of [-30, 0, 32]) { const lg = G(sprout, { transform: `rotate(${a})` }); E("path", { d: leafPath(70, 26), fill: "#58B159", stroke: C.ink, "stroke-width": 3.5 }, lg); }
+  const seaFront = makeSea(world, 626, -600, 4400, "#3E9AD0", 14, 240, 4);
+  const seaFill = E("rect", { x: -600, y: 660, width: 5200, height: 400, fill: "#3E9AD0" }, world);
+  const nightOv = E("rect", { x: -10, y: -10, width: 1620, height: 920, fill: "#0B1A33" }, ovl);
+  const title = makeMethodTitle(ovl, "water", 1060, 360);
+  // 放大鏡：椰子剖面（纖維、空氣）
+  const lens = makeLens(ovl, 1170, 370, 196, { bg: "#EAF6FF" });
+  const cs = G(lens.inner);
+  E("circle", { r: 158, fill: "#7E8F3C", stroke: C.ink, "stroke-width": 5 }, cs);
+  E("circle", { r: 146, fill: "#D9B07A" }, cs);
+  const fr = rng(19);
+  let fib = "";
+  for (let k = 0; k < 70; k++) { const a = fr() * Math.PI * 2, r0 = 86 + fr() * 10, r1 = 140 - fr() * 8; fib += `M${(Math.cos(a) * r0).toFixed(1)},${(Math.sin(a) * r0).toFixed(1)} L${(Math.cos(a + .08) * r1).toFixed(1)},${(Math.sin(a + .08) * r1).toFixed(1)} `; }
+  E("path", { d: fib, stroke: "#A8783F", "stroke-width": 3, "stroke-linecap": "round" }, cs);
+  const airs = [];
+  for (let k = 0; k < 16; k++) { const a = fr() * Math.PI * 2, rr = 98 + fr() * 36; airs.push(E("ellipse", { cx: Math.cos(a) * rr, cy: Math.sin(a) * rr, rx: 7 + fr() * 5, ry: 5 + fr() * 3, fill: "#F2FAFF", stroke: "#2E86C1", "stroke-width": 2.2 }, cs)); }
+  E("circle", { r: 84, fill: "#6B4423", stroke: C.ink, "stroke-width": 4 }, cs);
+  E("circle", { r: 70, fill: "#fff", stroke: "#DCD3C2", "stroke-width": 3 }, cs);
+  E("circle", { r: 52, fill: "#DDEFFF" }, cs);
+  const labFib = makeLabel(ovl, "纖維", 840, 230, 1050, 300, { color: "#8A5A34", size: 40 });
+  const labAir = makeLabel(ovl, "儲藏空氣", 1460, 620, 1282, 458, { color: C.waterD, size: 40 });
+  const labFloat = makeLabel(ovl, "浮在海面上", 800, 380, 0, 0, { color: C.waterD, size: 38 });
+  const days = makeLabel(ovl, "漂了好多天……", 800, 150, null, null, { size: 40, color: "#5C6970", bg: "#fff" });
+  // 林投（小卡）
+  const pc = makeCard(ovl, 560, 400);
+  const pg = G(pc.body);
+  for (const [a, L] of [[-150, 170], [-120, 150], [-60, 160], [-30, 170]]) E("path", { d: `M-110,-40 l${(Math.cos(a * Math.PI / 180) * L).toFixed(1)},${(Math.sin(a * Math.PI / 180) * L).toFixed(1)}`, stroke: C.ink, "stroke-width": 15, "stroke-linecap": "round" }, pg);
+  for (const [a, L] of [[-150, 170], [-120, 150], [-60, 160], [-30, 170]]) E("path", { d: `M-110,-40 l${(Math.cos(a * Math.PI / 180) * L).toFixed(1)},${(Math.sin(a * Math.PI / 180) * L).toFixed(1)}`, stroke: "#5FA552", "stroke-width": 9, "stroke-linecap": "round" }, pg);
+  const pf = G(pg, { transform: "translate(-110,30)" });
+  E("circle", { r: 74, fill: "#F26B3A", stroke: C.ink, "stroke-width": 5 }, pf);
+  for (let k = 0; k < 10; k++) { const a = k * 36; E("path", { d: "M0,0 L-20,-62 L20,-62 Z", fill: k % 2 ? "#F5803F" : "#E85D30", stroke: C.ink, "stroke-width": 2.6, transform: `rotate(${a})` }, pf); }
+  E("circle", { r: 26, fill: "#E85D30", stroke: C.ink, "stroke-width": 3 }, pf);
+  const pcid = "pcard" + Math.random().toString(36).slice(2, 7);
+  const pclip = E("clipPath", { id: pcid }, pc.body); E("rect", { x: -280, y: -200, width: 560, height: 400, rx: 26 }, pclip);
+  const pwater = G(pc.body, { "clip-path": `url(#${pcid})` });
+  const pw = G(pwater);
+  const pkey = G(pwater);
+  E("path", { d: "M0,-26 L-22,22 L22,22 Z", fill: "#F5803F", stroke: C.ink, "stroke-width": 3.4, "stroke-linejoin": "round" }, pkey);
+  E("path", { d: "M-22,22 L22,22 L16,30 L-16,30 Z", fill: "#7CC46A", stroke: C.ink, "stroke-width": 3 }, pkey);
+  const pwave = makeSea(pw, 120, -320, 320, "#5CB8E6", 10, 80, 3);
+  const pwave2 = makeSea(pwater, 136, -320, 320, "#3E9AD0", 10, 100, 3);
+  E("rect", { x: -280, y: -200, width: 560, height: 400, rx: 26, fill: "none", stroke: C.ink, "stroke-width": 5 }, pc.body);
+  const pcap = makeLabel(pc.body, "林投的果實", 120, -130, null, null, { size: 34, color: "#C2541E", bg: "#FFE9DA" });
+  pcap.show(1);
+  // 照片
+  const dim = E("rect", { x: 0, y: 0, width: 1600, height: 900, fill: "#FFF3D6" }, ovl);
+  const head = makeLabel(ovl, "真實的照片", 800, 160, null, null, { size: 40, color: C.greenD, bg: "#E3F4DA" });
+  const PH = "../果實和種子的傳播方式/photos/";
+  const ph1 = makePhoto(ovl, PH + "coconut-beach.jpg", "漂在水面上的椰子", 440, 300, { capSize: 30 });
+  const ph2 = makePhoto(ovl, PH + "pandanus-float.jpg", "林投的果實漂在水面上", 440, 300, { capSize: 30 });
+
+  const tFall = Wt("c9-2", "椰子") - .1, tSea = tFall + .9, tFloat = Wt("c9-2", "浮在");
+  const tDrift = Ls("c9-3") - .2, tArrive = Ls("c9-4") - .15, tSprout = Wt("c9-4", "發芽") - .2;
+  const v0 = Bs("water.voyage"), v1 = Be("water.voyage");
+  const SEA_Y = 608;
+  const cocoX = (t) => {
+    if (t < tDrift) return 790 + 30 * clamp((t - tSea) / 4);
+    const u = clamp((t - tDrift) / (tArrive - tDrift));
+    return lerp(820, IS - 120, Ease.sine(u));
+  };
+  const cam = makeCam([[ch.s, 0, 760, 420, 1]]);
+  return {
+    render(t) {
+      // 日夜交替（只在漂流途中）
+      const dn = clamp((t - v0) / (v1 - v0));
+      const nightAmt = dn > 0 && dn < 1 ? Math.sin(dn * Math.PI) : 0;
+      S(sky, { fill: lerpColor(lerpColor("#BFE3F5", "#FFC6A8", clamp(nightAmt * 2)), "#1F3557", clamp((nightAmt - .5) * 2)) });
+      op(nightOv, clamp((nightAmt - .45) * 2) * .42);
+      op(night, clamp((nightAmt - .55) * 3));
+      moon.setAttribute("transform", tf(lerp(1500, 300, dn), 160 + Math.sin(dn * Math.PI) * -40));
+      const sunX = dn > 0 && dn < 1 ? lerp(1300, 1700, clamp(dn * 2.2)) : 1330;
+      sunG.setAttribute("transform", tf(sunX, 130 + (dn > 0 && dn < 1 ? clamp(dn * 2.2) * 300 : 0)));
+      op(sunG, dn > 0 && dn < 1 ? 1 - clamp((dn - .3) * 4) + clamp((dn - .85) * 6) : 1);
+      sunG.rays.setAttribute("transform", `rotate(${t * 8})`);
+      // 鏡頭跟著椰子
+      const x = cocoX(t);
+      const cx = Math.max(760, Math.min(x + 60, IS - 40));
+      world.setAttribute("transform", `translate(800,450) translate(${-cx},-420)`);
+      // 海浪動起來
+      seaBack.setAttribute("transform", `translate(${(-t * 18) % 160},0)`);
+      seaMid.setAttribute("transform", `translate(${(t * 26) % 200},0)`);
+      seaFront.setAttribute("transform", `translate(${(-t * 34) % 240},0)`);
+      // 椰子：掉下來 → 落海 → 漂流 → 上岸發芽
+      op(hang[0], t < tFall ? 1 : 0);
+      let cy, rot = 0;
+      if (t < tFall) { op(coco, 0); }
+      else {
+        op(coco, 1);
+        if (t < tSea) {
+          const u = (t - tFall) / (tSea - tFall);
+          const sx = palm.crown[0], sy = palm.crown[1] + 24;
+          const px = lerp(sx, 790, u), py = sy + (SEA_Y - sy) * u * u;
+          coco.setAttribute("transform", tf(px, py, u * 200)); cy = py;
+        } else if (t < tArrive) {
+          cy = SEA_Y + Math.sin(t * 2.6) * 7 - 4;
+          rot = Math.sin(t * 1.9) * 10;
+          coco.setAttribute("transform", tf(x, cy, rot));
+        } else {
+          const u = clamp((t - tArrive) / .6);
+          cy = lerp(SEA_Y - 4, 566, Ease.out(u));
+          coco.setAttribute("transform", tf(lerp(IS - 120, IS - 70, u), cy, lerp(rot, -12, u)));
+        }
+      }
+      const sp = P(t, tSprout, 1.1, Ease.back);
+      op(sprout, sp > 0 ? 1 : 0);
+      sprout.setAttribute("transform", tf(IS - 62, 536, -10, Math.max(.001, sp)));
+      title.render(t, ch, Le("c9-1") + .05);
+      lens.place(vis(t, Wt("c9-2", "纖維") - .35, tFloat - .1, .5, .35));
+      labFib.show(vis(t, Wt("c9-2", "纖維") - .1, tFloat - .2, .7, .3));
+      labAir.show(vis(t, Wt("c9-2", "空氣") - .2, tFloat - .2, .7, .3));
+      airs.forEach((a, i) => S(a, { fill: P(t, Wt("c9-2", "空氣") - .2, .4) > 0 ? lerpColor("#F2FAFF", "#BFE6FF", .5 + .5 * Math.sin(t * 5 + i)) : "#F2FAFF" }));
+      const fp = vis(t, tFloat - .1, Ls("c9-3") + .4, .6, .3);
+      if (fp > 0) { const ex = 800 + (x - cx), ey = 450 + (SEA_Y - 30 - 420); S(labFloat.querySelector("line"), { x2: ex, y2: ey }); S(labFloat.querySelector("circle"), { cx: ex, cy: ey }); }
+      labFloat.show(fp);
+      days.show(vis(t, v0 - .1, v1, .4, .4));
+      // 林投小卡
+      const pp = vis(t, Ls("c9-5") - .3, Bs("water.photos") - .3, .5, .35);
+      pc.place(pp, 1110, 400, 4);
+      pwave.setAttribute("transform", `translate(${(t * 30) % 80},0)`);
+      pwave2.setAttribute("transform", `translate(${(-t * 24) % 100},0)`);
+      const ku = clamp((t - Wt("c9-5", "漂浮") + .4) / 3);
+      pkey.setAttribute("transform", tf(lerp(30, 200, ku), 110 + Math.sin(t * 3) * 6, Math.sin(t * 2) * 10));
+      // 照片
+      const ph = vis(t, Bs("water.photos") - .1, ch.e - .45, .5, .35);
+      op(dim, ph * .82); head.show(ph);
+      ph1.place(P(t, Bs("water.photos"), .55, Ease.out) * (1 - P(t, ch.e - .45, .35)), 560, 450, -3);
+      ph2.place(P(t, Bs("water.photos") + .3, .55, Ease.out) * (1 - P(t, ch.e - .45, .35)), 1040, 450, 3);
+    }
+  };
+});
+
+/* ==================== 10 總結＋片尾 ==================== */
+/** 一株正在長大、會開花的小植物（原點＝地面） */
+function makeGrowPlant(parent, kind) {
+  const g = G(parent);
+  const stem = stroke2(g, "M0,0 C6,-60 -6,-120 0,-170", "#6CC05B", 8, 2.6);
+  stem.querySelectorAll("path").forEach(p => p.setAttribute("stroke-dasharray", "180"));
+  const leaves = [[0, -50, -52], [0, -50, 52], [0, -100, -48], [0, -100, 48]].map(([x, y, a]) => { const lg = G(g, { transform: tf(x, y) }); makeLeaf(lg, 0, 0, a, 54, 30, { sw: 3.4 }); return lg; });
+  const fl = G(g, { transform: "translate(0,-172)" });
+  if (kind === "citrus") { const f = makeFlower(fl, { noStem: true }); f.setOpen(1); fl.firstChild.setAttribute("transform", "scale(.3)"); }
+  else if (kind === "daisy") { for (let k = 0; k < 8; k++) E("ellipse", { cx: 0, cy: -16, rx: 7, ry: 14, fill: "#fff", stroke: C.ink, "stroke-width": 2.6, transform: `rotate(${k * 45})` }, fl); E("circle", { r: 9, fill: "#F2C230", stroke: C.ink, "stroke-width": 2.6 }, fl); }
+  else if (kind === "pink") makeSmallFlower(fl, 0, 0, 26);
+  else { for (let k = 0; k < 14; k++) E("ellipse", { cx: 0, cy: -14, rx: 4, ry: 13, fill: "#FFD84A", stroke: C.ink, "stroke-width": 2, transform: `rotate(${k * 25.7})` }, fl); E("circle", { r: 8, fill: "#F2B33D", stroke: C.ink, "stroke-width": 2.4 }, fl); }
+  g.set = (grow, bloom, sway) => {
+    stem.querySelectorAll("path").forEach(p => p.setAttribute("stroke-dashoffset", (180 * (1 - grow)).toFixed(1)));
+    op(g, grow > 0 ? 1 : 0);
+    leaves.forEach((lg, i) => { const p = clamp((grow - (i < 2 ? .3 : .6)) / .3); lg.setAttribute("transform", `${lg.getAttribute("transform").split(" scale")[0]} scale(${Math.max(.001, Ease.back(p)).toFixed(3)})`); });
+    fl.setAttribute("transform", tf(sway, -172, sway * .5, Math.max(.001, Ease.back(clamp(bloom)))));
+    op(fl, bloom > 0 ? 1 : 0);
+  };
+  return g;
+}
+scene("finale", (root, ch) => {
+  makeSky(root, { sky: "#CFEAF6" });
+  const land = G(root);
+  const sun = makeSun(land, 1380, 140, 58);
+  makeCloud(land, 300, 150, .9); makeCloud(land, 980, 110, .7);
+  makeLongHills(land, 660, -200, 1800, { fill: "#C9E6AA", a: 4 });
+  makeLongGrass(land, 720, -200, 1800, { seed: 81 });
+  const plants = ["dand", "pink", "daisy", "citrus"].map((k, i) => ({ p: makeGrowPlant(land, k), x: 260 + i * 360 }));
+  const ovl = G(root);
+  const panel = E("rect", { x: -10, y: -10, width: 1620, height: 920, fill: "#FFF7E2" }, ovl);
+  // ① 回顧：授粉 → 結合 → 子房變果實 → 胚珠變種子
+  const recap = [0, 1, 2, 3].map(i => makeCard(ovl, 320, 330));
+  (function () {
+    const a = G(recap[0].body, { transform: "translate(0,40) scale(.5)" }); const f = makeFlower(a, { stemPath: "M0,6 C2,60 -2,110 0,150" }); f.setOpen(1); f.split(1); op(f.stigDust, 1);
+    const b = recap[1].body;
+    E("path", { d: "M-10,-120 L-8,-20 L8,-20 L10,-120 Z", fill: "#9ACB6E", stroke: C.ink, "stroke-width": 4 }, b);
+    E("ellipse", { cx: 0, cy: -132, rx: 40, ry: 20, fill: "#E5D44E", stroke: C.ink, "stroke-width": 4 }, b);
+    E("ellipse", { cx: 0, cy: 34, rx: 92, ry: 68, fill: "#6DBB5A", stroke: C.ink, "stroke-width": 4 }, b);
+    E("ellipse", { cx: 0, cy: 36, rx: 74, ry: 52, fill: "#EAF6D6", stroke: C.ink, "stroke-width": 3 }, b);
+    E("ellipse", { cx: -30, cy: 36, rx: 28, ry: 34, fill: "#FFE27A", opacity: .7 }, b);
+    E("ellipse", { cx: -30, cy: 36, rx: 20, ry: 26, fill: "#FFE08A", stroke: C.ink, "stroke-width": 3 }, b);
+    E("ellipse", { cx: 30, cy: 36, rx: 20, ry: 26, fill: "#FFF1C6", stroke: C.ink, "stroke-width": 3 }, b);
+    stroke2(b, "M-4,-140 L-2,-20 C-2,-4 -30,-6 -30,10", "#F2B33D", 5, 2);
+    const c = recap[2].body;
+    E("circle", { cx: 0, cy: -10, r: 80, fill: C.orange, stroke: C.ink, "stroke-width": 5 }, c);
+    E("path", { d: "M-20,-92 Q0,-110 22,-92 Q0,-80 -20,-92 Z", fill: C.green, stroke: C.ink, "stroke-width": 3 }, c);
+    E("ellipse", { cx: -28, cy: -40, rx: 14, ry: 22, fill: "rgba(255,255,255,.4)", transform: "rotate(25 -28 -40)" }, c);
+    const d = G(recap[3].body, { transform: "translate(0,-10) scale(.42)" }); makeCitrusSection(d, 200).seeds.forEach(sd => S(sd.glow, { opacity: .6 }));
+  })();
+  const capTexts = [["花粉傳到柱頭", "授粉"], ["和胚珠結合", "結合"], ["子房 → 果實", ""], ["胚珠 → 種子", ""]];
+  recap.forEach((c, i) => { T(c.body, 0, 128, capTexts[i][0], { "font-size": 32 }); });
+  const recapArrows = [0, 1, 2].map(() => E("path", { d: "M-14,-16 L8,0 L-14,16", fill: "none", stroke: C.ink, "stroke-width": 8, "stroke-linecap": "round", "stroke-linejoin": "round" }, ovl));
+  // ② 四種傳播方式
+  const MK = ["wind", "self", "animal", "water"];
+  const FEAT = { wind: ["細毛、薄翅", "蒲公英、青楓"], self: ["果皮捲起、彈出", "非洲鳳仙、酢漿草"], animal: ["倒鉤；鮮豔甜美", "大花咸豐草、雀榕"], water: ["纖維、儲藏空氣", "椰子、林投"] };
+  const mcards = MK.map(k => {
+    const c = makeCard(ovl, 330, 360);
+    const ic = makeMethodIcon(c.body, k, 62); ic.setAttribute("transform", "translate(0,-92)");
+    T(c.body, 0, 10, METHODS[k].name, { "font-size": 38 });
+    T(c.body, 0, 66, FEAT[k][0], { "font-size": 28, fill: "#B4410F" });
+    T(c.body, 0, 118, "例：" + FEAT[k][1], { "font-size": 24, fill: "#5C6970" });
+    return c;
+  });
+  const ladder = G(ovl, { transform: "translate(800,692)" });
+  const steps = [["離開母株", -440], ["比較不會搶", 0], ["在適合的環境長大", 440]].map(([txt, x]) => { const l = makeLabel(ladder, txt, x, 0, null, null, { size: 36, color: C.greenD, bg: "#E3F4DA" }); return l; });
+  const ladArrows = [-220, 220].map(x => E("path", { d: `M${x - 26},0 L${x + 22},0 M${x + 6},-14 L${x + 24},0 L${x + 6},14`, fill: "none", stroke: C.ink, "stroke-width": 6, "stroke-linecap": "round", "stroke-linejoin": "round" }, ladder));
+  // ③ 生命的循環
+  const ring = G(ovl, { transform: "translate(800,410)" });
+  const RR = 250;
+  const ringPath = E("circle", { r: RR, fill: "none", stroke: "#8CCB5E", "stroke-width": 14, "stroke-dasharray": "34 22" }, ring);
+  const NODES = [["開花", -90], ["授粉、結合", -18], ["果實和種子", 54], ["傳播到遠方", 126], ["長成新植物", 198]];
+  const nodes = NODES.map(([txt, a], i) => {
+    const x = Math.cos(a * Math.PI / 180) * RR, y = Math.sin(a * Math.PI / 180) * RR;
+    const g = G(ring, { transform: tf(x, y) });
+    E("circle", { r: 66, fill: "#fff", stroke: C.ink, "stroke-width": 5 }, g);
+    const ic = G(g);
+    if (i === 0) { const f = makeFlower(G(ic, { transform: "translate(0,30) scale(.3)" }), { noStem: true }); f.setOpen(1); }
+    if (i === 1) { for (const [px, py] of [[-14, -6], [6, -14], [14, 8], [-6, 12], [0, 0]]) E("circle", { cx: px, cy: py, r: 9, fill: "#F5A800", stroke: C.ink, "stroke-width": 2.4 }, ic); }
+    if (i === 2) { E("circle", { cx: -10, cy: 6, r: 30, fill: C.orange, stroke: C.ink, "stroke-width": 4 }, ic); E("path", { d: "M26,-26 C36,-18 37,-2 26,6 C15,-2 16,-18 26,-26 Z", fill: "#FFF7E4", stroke: C.ink, "stroke-width": 3 }, ic); }
+    if (i === 3) { const d = makeDandelionFruit(ic, { s: .62 }); d.setAttribute("transform", "translate(0,26)"); }
+    if (i === 4) { const sd = makeSeedling(ic); sd.set(0, 30, 52, 1, 1, 0); }
+    const lw = textW(txt, 30) + 34;
+    E("rect", { x: -lw / 2, y: 70, width: lw, height: 48, rx: 24, fill: "#fff", stroke: C.ink, "stroke-width": 4 }, g);
+    T(g, 0, 95, txt, { "font-size": 30 });
+    return { g, x, y };
+  });
+  const lifeT = T(ring, 0, 6, "生命延續", { "font-size": 54, fill: C.greenD });
+  // ④ 片名、⑤ 製作者
+  const endG = G(ovl);
+  E("rect", { x: -480, y: -96, width: 960, height: 192, rx: 42, fill: "#FFC93C", stroke: C.ink, "stroke-width": 6 }, endG);
+  makeTitle(endG, "種子的誕生與旅行", 104);
+  T(endG, 0, 160, "五年級自然｜第二單元 植物世界", { "font-size": 38, fill: "#5C6970" });
+  const credit = G(ovl);
+  E("rect", { x: -520, y: -250, width: 1040, height: 500, rx: 48, fill: "#fff", stroke: C.ink, "stroke-width": 7 }, credit);
+  const pig = E("image", { href: "../../image/icon.svg", x: -64, y: -224, width: 128, height: 128 }, credit);
+  PHOTOS.push("../../image/icon.svg");
+  T(credit, 0, -40, TL.credit ? TL.credit.maker + "　製作" : "許博明老師　製作", { "font-size": 84 });
+  T(credit, 0, 58, (TL.credit && TL.credit.site) || "豬豬的自然探索", { "font-size": 44, fill: C.greenD });
+  T(credit, 0, 118, (TL.credit && TL.credit.url) || "syu-boming.github.io/sci", { "font-size": 34, fill: "#5C6970", "font-family": "Segoe UI, Arial, sans-serif" });
+  T(credit, 0, 190, "旁白：電腦合成語音（微軟 曉雨）．動畫與配樂：程式繪製與合成", { "font-size": 26, fill: "#5C6970" });
+  const sparks = [makeSpark(ovl, 30), makeSpark(ovl, 22), makeSpark(ovl, 26)];
+  const hd1 = makeLabel(ovl, "從一朵花到種子", 800, 150, null, null, { size: 44, color: "#C98A00", bg: "#FFF3C8" });
+  const hd2 = makeLabel(ovl, "果實和種子怎麼去遠方？", 800, 108, null, null, { size: 44, color: C.greenD, bg: "#E3F4DA" });
+
+  const tR = [Wt("c10-1", "柱頭") - .3, Wt("c10-1", "結合") - .3, Wt("c10-2", "成果實") - .2, Wt("c10-2", "種子") - .3];
+  const tRecapOut = Bs("fin.cards") + .1;
+  const tM = [Wt("c10-3", "風力") - .2, Wt("c10-3", "自身") - .2, Wt("c10-3", "動物力") - .2, Wt("c10-3", "水力") - .2];
+  const tL = [Wt("c10-3", "離開") - .1, Wt("c10-4", "在") + .1, Wt("c10-4", "適合") - .1];
+  const tCardsOut = Bs("fin.grow") - .3;
+  const tGrow = Bs("fin.grow"), tBloom = Wt("c10-5", "開出") - .2;
+  const tRing = Ls("c10-6") - .3, tEnd = Bs("fin.end"), tCred = Bs("fin.credit");
+  return {
+    render(t) {
+      sun.rays.setAttribute("transform", `rotate(${t * 8})`);
+      // 底色面板：回顧與卡片時蓋住風景，植物長大時打開
+      const pnl = Math.max(1 - P(t, tCardsOut, .6), P(t, tRing - .2, .6) * .78, P(t, tEnd - .3, .5));
+      op(panel, pnl);
+      hd1.show(vis(t, ch.s + .3, tRecapOut, .7, .35));
+      hd2.show(vis(t, Ls("c10-3") - .3, tCardsOut, .7, .35));
+      recap.forEach((c, i) => c.place(P(t, tR[i], .55, Ease.out) * (1 - P(t, tRecapOut, .35)), 800 + (i - 1.5) * 365, 400, i % 2 ? 3 : -3));
+      recapArrows.forEach((a, i) => { S(a, { transform: tf(800 + (i - 1) * 365, 400) }); op(a, P(t, tR[i + 1], .3) * (1 - P(t, tRecapOut, .35))); });
+      mcards.forEach((c, i) => c.place(P(t, tM[i], .55, Ease.out) * (1 - P(t, tCardsOut, .35)), 800 + (i - 1.5) * 365, 330, i % 2 ? 3 : -3));
+      steps.forEach((s, i) => s.show(P(t, tL[i], .6, Ease.lin) * (1 - P(t, tCardsOut, .35))));
+      ladArrows.forEach((a, i) => op(a, P(t, tL[i + 1], .3) * (1 - P(t, tCardsOut, .35))));
+      // 植物長大、開花
+      plants.forEach((pl, i) => {
+        const gr = P(t, tGrow + i * .25, 2.2, Ease.out), bl = P(t, tBloom + i * .2, .7, Ease.lin);
+        pl.p.setAttribute("transform", tf(pl.x, 724));
+        pl.p.set(gr, bl, Math.sin(t * 1.6 + i) * 3);
+      });
+      sparks.forEach((sp, i) => sp.at(plants[i + 1].x + 30, 520, P(t, tBloom + .3 + i * .2, .8, Ease.lin)));
+      // 生命的循環
+      const rp = vis(t, tRing, tEnd - .2, .5, .4);
+      op(ring, rp > 0 ? 1 : 0);
+      ring.setAttribute("transform", tf(800, 410, 0, lerp(.85, 1, rp)));
+      nodes.forEach((n, i) => { const p = P(t, tRing + i * .22, .5, Ease.back) * (1 - P(t, tEnd - .2, .4)); op(n.g, p > 0 ? 1 : 0); n.g.setAttribute("transform", tf(n.x, n.y, 0, Math.max(.001, p))); });
+      S(ringPath, { "stroke-dashoffset": (-t * 40).toFixed(1), opacity: rp.toFixed(3) });
+      op(lifeT, P(t, Wt("c10-6", "延續") - .3, .5) * (1 - P(t, tEnd - .2, .4)));
+      // 片名 → 製作者
+      const ep = P(t, tEnd, .7, Ease.back) * (1 - P(t, tCred - .3, .4));
+      op(endG, ep > 0 ? 1 : 0); endG.setAttribute("transform", tf(800, 380, 0, Math.max(.001, ep)));
+      const cp = P(t, tCred, .7, Ease.back);
+      op(credit, cp > 0 ? 1 : 0); credit.setAttribute("transform", tf(800, 440, 0, Math.max(.001, cp)));
+      op(pig, cp > 0 ? 1 : 0);
+    }
+  };
+});
+
+/* 尚未完成的段落：先用占位畫面 */
+TL.chapters.forEach(ch => {
+  if (SCENES.some(s => s.id === ch.id)) return;
+  scene(ch.id, (root) => {
+    makeSky(root, { sky: ch.part === 1 ? "#FFF3D6" : ch.part === 2 ? "#E3F4DA" : "#FDF6EC" });
+    const t = T(root, 800, 420, ch.no ? `${ch.no}　${ch.title}` : "種子的誕生與旅行", { "font-size": 90 });
+    const sub = T(root, 800, 540, "（畫面製作中）", { "font-size": 40, fill: "#6B7A82" });
+    return { render(T) { t.setAttribute("transform", tf(0, Math.sin(T * 2) * 6)); } };
+  });
+});
+</script>
+
+<script>
+/* ==========================================================
+   4. 播放器：時鐘、控制列、字幕、段落、課堂暫停、全螢幕、匯出
+   ========================================================== */
+"use strict";
+(function () {
+  const Q = new URLSearchParams(location.search);
+  const EXPORT = Q.has("export");
+  const DUR = TL.dur;
+  const PAUSE_Q = {
+    flower: "花粉要送到哪裡，才算授粉？",
+    pollination: "花粉到了柱頭上，要怎麼找到子房裡的胚珠？",
+    fertilization: "授粉以後，花的哪個部分會變成果實？哪個會變成種子？",
+    fruit: "如果種子全部掉在媽媽腳邊，會發生什麼事？",
+    why: "蒲公英的果實有白色細毛，你猜它怎麼去遠方？",
+    wind: "非洲鳳仙沒有細毛也沒有翅膀，它怎麼把種子送出去？",
+    self: "大花咸豐草的果實有倒鉤，猜猜看誰會幫它？",
+    animal: "椰子又大又重、飛不起來，它怎麼去遠方？",
+    water: "你在學校或家附近，看過哪一種靠這些方法傳播的果實或種子？"
+  };
+  const NO = ["", "①", "②", "③", "④", "⑤", "⑥", "⑦", "⑧", "⑨", "⑩"];
+  const fmt = s => { s = Math.max(0, s); const m = Math.floor(s / 60); return m + ":" + String(Math.floor(s % 60)).padStart(2, "0"); };
+  const lsGet = (k, d) => { try { const v = localStorage.getItem(k); return v === null ? d : v; } catch (_) { return d; } };
+  const lsSet = (k, v) => { try { localStorage.setItem(k, v); } catch (_) {} };
+
+  const S0 = {
+    T: 0, playing: false, raf: 0, lastA: -1, lastP: 0, lastFrame: 0, waiting: false,
+    voice: lsGet("seedfilm-voice", "1") !== "0", music: lsGet("seedfilm-music", "1") !== "0",
+    subs: lsGet("seedfilm-subs", "1") !== "0", klass: false,
+    audio: null, track: null, audioOK: true, unlocked: false
+  };
+
+  /* ---------- 畫面：轉場、段名膠囊 ---------- */
+  const dip = E("rect", { x: -10, y: -10, width: W0 + 20, height: H0 + 20, fill: C.bg }, LAYER.fx);
+  const pill = G(LAYER.ui);
+  const pillBg = E("rect", { x: 0, y: 0, height: 64, rx: 32, fill: "#fff", stroke: C.ink, "stroke-width": 5 }, pill);
+  const pillNo = E("circle", { cx: 32, cy: 32, r: 24, fill: C.greenD }, pill);
+  const pillNoT = T(pill, 32, 33, "", { "font-size": 30, fill: "#fff" });
+  const pillT = T(pill, 66, 33, "", { "font-size": 32, "text-anchor": "start" });
+  let pillCh = null;
+  function renderUI(T) {
+    // 段落之間：淡出到奶油色再淡入
+    let a = 0;
+    for (let i = 1; i < TL.chapters.length; i++) {
+      const b = TL.chapters[i].s, d = Math.abs(T - b);
+      if (d < .42) a = Math.max(a, 1 - Ease.sine(d / .42));
+    }
+    if (T < .5) a = Math.max(a, 1 - Ease.sine(T / .5));
+    op(dip, a);
+    // 段名膠囊
+    const ch = chapterAt(T);
+    if (ch && ch.no > 0) {
+      if (pillCh !== ch) {
+        pillCh = ch;
+        pillNoT.textContent = ch.no;
+        pillT.textContent = ch.title;
+        S(pillBg, { width: 66 + textW(ch.title, 32) + 26 });
+        S(pillNo, { fill: ch.part === 1 ? "#C98A00" : C.greenD });
+      }
+      const tEndCut = ch.id === "finale" && TL.beats["fin.end"] ? TL.beats["fin.end"][0] - .3 : ch.e - .45;   // 片尾卡不要段名
+      const p = P(T, ch.s + .25, .5, Ease.out) * (1 - P(T, tEndCut, .3, Ease.in));
+      pill.setAttribute("transform", tf(28 - (1 - p) * 60, 24));
+      op(pill, p);
+    } else op(pill, 0);
+  }
+
+  function chapterAt(T) {
+    const cs = TL.chapters;
+    for (let i = cs.length - 1; i >= 0; i--) if (T >= cs[i].s) return cs[i];
+    return cs[0];
+  }
+
+  function renderAt(T) {
+    for (const s of SCENES) {
+      const on = T >= s.ch.s && (T < s.ch.e || (s.ch.i === TL.chapters.length - 1 && T <= DUR + 1));
+      if (on !== s.vis) { s.root.style.display = on ? "" : "none"; s.vis = on; }
+      if (on) {
+        try { s.render(T); } catch (e) { if (!s.err) { s.err = 1; console.error("場景出錯", s.id, e); } }
+      }
+    }
+    renderUI(T);
+    renderSubs(T);
+    if (!EXPORT) renderCtrl(T);
+  }
+
+  /* ---------- 字幕 ---------- */
+  const esc = s => s.replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const fmtSub = s => esc(s).replace(/\[([^\]]+)\]/g, "<b>$1</b>");
+  let subIdx = -2;
+  function lineAt(T) {
+    const L = TL.lines;
+    let lo = 0, hi = L.length - 1, k = -1;
+    while (lo <= hi) { const m = (lo + hi) >> 1; if (L[m].s - .12 <= T) { k = m; lo = m + 1; } else hi = m - 1; }
+    if (k < 0) return -1;
+    const next = L[k + 1];
+    const until = Math.min(next ? next.s - .12 : Infinity, L[k].e + .9);
+    return T < until ? k : -1;
+  }
+  function renderSubs(T) {
+    const i = lineAt(T);
+    if (i === subIdx) return;
+    subIdx = i;
+    const html = i < 0 ? "" : fmtSub(TL.lines[i].sub);
+    $("subBar").innerHTML = html || "&nbsp;";
+    $("subOv").innerHTML = html;
+  }
+
+  /* ---------- 控制列 ---------- */
+  const prog = $("prog"), fill = $("progFill"), thumb = $("progThumb"), tip = $("progTip");
+  TL.chapters.forEach(c => {
+    const d = document.createElement("div");
+    d.className = "seg p" + c.part;
+    d.style.width = ((c.e - c.s) / DUR * 100) + "%";
+    $("progTrack").appendChild(d);
+  });
+  prog.setAttribute("aria-valuemax", Math.round(DUR));
+  let lastCtrlCh = null, lastSec = -1;
+  function renderCtrl(T) {
+    const f = clamp(T / DUR) * 100;
+    fill.style.width = f + "%";
+    thumb.style.left = f + "%";
+    const sec = Math.floor(T);
+    if (sec !== lastSec) {
+      lastSec = sec;
+      $("time").textContent = fmt(T) + " / " + fmt(DUR);
+      prog.setAttribute("aria-valuenow", sec);
+      prog.setAttribute("aria-valuetext", fmt(T));
+    }
+    const ch = chapterAt(T);
+    if (ch !== lastCtrlCh) {
+      lastCtrlCh = ch;
+      document.querySelectorAll(".chip").forEach(b => b.classList.toggle("on", b.dataset.ch === ch.id));
+    }
+  }
+  function setPlayIcon() {
+    $("icoPlay").style.display = S0.playing ? "none" : "";
+    $("icoPause").style.display = S0.playing ? "" : "none";
+    $("bPlay").setAttribute("aria-label", S0.playing ? "暫停" : "播放");
+  }
+
+  /* 段落選單 */
+  const nav = $("chapters");
+  [[1, "上集：種子的誕生", "①–④"], [2, "下集：種子的旅行", "⑤–⑩"]].forEach(([part, name, rng]) => {
+    const box = document.createElement("div");
+    box.className = "part";
+    const cs = TL.chapters.filter(c => c.part === part);
+    const len = cs[cs.length - 1].e - cs[0].s;
+    box.innerHTML = `<h2>${name}<small style="font-weight:800;color:#5C6970">${rng}，約 ${fmt(len)}</small><button class="cb pbtn" type="button" data-ch="${cs[0].id}">▶ 從這集開始</button></h2><div class="chips"></div>`;
+    const chips = box.querySelector(".chips");
+    cs.forEach(c => {
+      const b = document.createElement("button");
+      b.type = "button"; b.className = "chip"; b.dataset.ch = c.id;
+      b.innerHTML = `${NO[c.no]} ${c.title}<small>${fmt(c.e - c.s)}</small>`;
+      chips.appendChild(b);
+    });
+    nav.appendChild(box);
+  });
+  nav.addEventListener("click", e => {
+    const b = e.target.closest("[data-ch]");
+    if (!b) return;
+    seek(CH[b.dataset.ch].s);
+    play();
+    $("player").scrollIntoView({ behavior: "smooth", block: "nearest" });
+  });
+
+  /* 給老師的表格 */
+  (function () {
+    const rows = TL.chapters.filter(c => c.no > 0).map(c => {
+      const subs = TL.lines.filter(l => l.ch === c.id).map(l => fmtSub(l.sub)).join("");
+      const q = PAUSE_Q[c.id] ? `<br><small>課堂暫停卡：${esc(PAUSE_Q[c.id])}</small>` : "";
+      return `<tr><td style="white-space:nowrap">${NO[c.no]} ${c.title}<br><small>${fmt(c.s)}–${fmt(c.e)}</small></td><td>${subs}${q}</td></tr>`;
+    }).join("");
+    $("teacherTable").innerHTML = `<table><tr><th style="width:9em">段落</th><th>旁白（粗體＝重點詞）</th></tr>${rows}</table>`;
+  })();
+
+  /* ---------- 聲音與時鐘 ---------- */
+  function trackName() {
+    if (!S0.audioOK) return null;
+    return S0.voice && S0.music ? "mix" : S0.voice ? "voice" : S0.music ? "music" : null;
+  }
+  function audioEl() {
+    if (S0.audio) return S0.audio;
+    const a = new Audio();
+    a.preload = "auto";
+    a.addEventListener("waiting", () => { S0.waiting = true; $("buffering").style.display = "block"; });
+    a.addEventListener("playing", () => { S0.waiting = false; $("buffering").style.display = "none"; });
+    a.addEventListener("canplay", () => { $("buffering").style.display = "none"; });
+    a.addEventListener("ended", () => {          // 音檔播完＝整支播完
+      if (!S0.playing) return;
+      S0.T = DUR; S0.playing = false; setPlayIcon(); renderAt(DUR); idleKick();
+    });
+    a.addEventListener("error", () => {
+      if (!S0.track) return;
+      S0.audioOK = false; S0.track = null; S0.waiting = false;
+      $("buffering").style.display = "none";
+      toast("聲音檔載入失敗，先用字幕播放。");
+    });
+    S0.audio = a;
+    return a;
+  }
+  /* 備援：伺服器不支援分段下載時，音檔沒辦法跳轉 → 整個下載到記憶體（blob）再播，就能隨意跳 */
+  const BLOB = {};
+  function useBlob(name) {
+    if (S0.blobTry === name) return;
+    S0.blobTry = name;
+    fetch(`assets/${name}.mp3?v=${TL.av || TL.v}`).then(r => r.ok ? r.blob() : Promise.reject(r.status)).then(bl => {
+      BLOB[name] = URL.createObjectURL(bl);
+      if (S0.track !== name) return;
+      const a = S0.audio;
+      a.src = BLOB[name]; a.load();
+      a.addEventListener("loadedmetadata", () => { try { a.currentTime = S0.T; } catch (_) {} if (S0.playing) { const pr = a.play(); if (pr && pr.catch) pr.catch(() => {}); } }, { once: true });
+    }).catch(() => {});
+  }
+  function setTrack(name) {
+    const a = audioEl();
+    if (S0.track === name) return a;
+    S0.track = name;
+    a.pause();
+    if (name) { a.src = BLOB[name] || `assets/${name}.mp3?v=${TL.av || TL.v}`; a.load(); }
+    else { a.removeAttribute("src"); a.load(); }
+    S0.lastA = -1;
+    return a;
+  }
+  function syncAudio() {
+    const a = S0.audio;
+    if (!a || !S0.track) return;
+    const go = () => { if (Math.abs(a.currentTime - S0.T) > .08) { try { a.currentTime = S0.T; } catch (_) {} } };
+    if (a.readyState >= 1) go(); else a.addEventListener("loadedmetadata", go, { once: true });
+  }
+  function play() {
+    if (EXPORT) return;
+    if (S0.T >= DUR - .05) seek(0);
+    $("poster").classList.remove("on");
+    $("pauseCard").classList.remove("on");
+    S0.playing = true; setPlayIcon();
+    const name = trackName();
+    const a = setTrack(name);
+    if (name) {
+      syncAudio();
+      const pr = a.play();
+      if (pr && pr.catch) pr.catch(err => {
+        if (err && err.name === "NotAllowedError") { S0.playing = false; setPlayIcon(); toast("請再按一次播放。"); }
+      });
+    }
+    S0.lastFrame = performance.now(); S0.lastA = -1;
+    loop();
+    idleKick();
+  }
+  function pause() {
+    S0.playing = false; setPlayIcon();
+    if (S0.audio) S0.audio.pause();
+    if (S0.raf) { cancelAnimationFrame(S0.raf); S0.raf = 0; }
+    renderAt(S0.T);
+    idleKick();
+  }
+  function seek(t) {
+    S0.T = clamp(t, 0, DUR);
+    S0.lastA = -1;
+    if (S0.audio && S0.track) syncAudio();
+    renderAt(S0.T);
+  }
+  function clockNow(perf) {
+    if (!S0.playing) return S0.T;
+    const a = S0.audio;
+    if (S0.track && a && S0.audioOK) {
+      if (a.paused || a.readyState < 3 || S0.waiting || a.seeking) return S0.T;
+      const at = a.currentTime;
+      // 音檔時間和畫面差太多＝剛才的跳轉沒成功（伺服器不支援分段下載、或還沒下載到那裡）：再跳一次，畫面先停著等
+      if (Math.abs(at - S0.T) > .5) {
+        try { a.currentTime = S0.T; } catch (_) {}
+        S0.lastA = -1;
+        if (!S0.mis) S0.mis = perf;
+        else if (perf - S0.mis > 1200) useBlob(S0.track);
+        $("buffering").style.display = "block";
+        return S0.T;
+      }
+      if (S0.mis) { S0.mis = 0; $("buffering").style.display = "none"; }
+      if (at !== S0.lastA) { S0.lastA = at; S0.lastP = perf; }
+      let t = at + Math.min(.25, (perf - S0.lastP) / 1000) * (a.playbackRate || 1);
+      if (t < S0.T && S0.T - t < .08) t = S0.T;      // 避免補間造成的小倒退
+      return t;
+    }
+    return S0.T + Math.min(.1, (perf - S0.lastFrame) / 1000);
+  }
+  /* 課堂暫停：在每段淡出前停下 */
+  const STOPS = TL.chapters.filter(c => PAUSE_Q[c.id]).map(c => ({ at: c.e - .5, ch: c }));
+  function loop() {
+    if (S0.raf) return;
+    const step = perf => {
+      S0.raf = 0;
+      let t = clockNow(perf);
+      S0.lastFrame = perf;
+      if (S0.klass && S0.playing) {
+        const hit = STOPS.find(s => S0.T < s.at && t >= s.at);
+        if (hit) {
+          S0.T = hit.at; pause();
+          $("pauseQ").textContent = PAUSE_Q[hit.ch.id];
+          $("pauseCard").classList.add("on");
+          return;
+        }
+      }
+      S0.T = Math.min(t, DUR);
+      renderAt(S0.T);
+      if (S0.T >= DUR) { S0.playing = false; setPlayIcon(); if (S0.audio) S0.audio.pause(); return; }
+      if (S0.playing) S0.raf = requestAnimationFrame(step);
+    };
+    S0.raf = requestAnimationFrame(step);
+  }
+  function toggle() { S0.playing ? pause() : play(); }
+  function curIdx() { return chapterAt(S0.T + .01).i; }
+  function prevCh() {
+    const c = chapterAt(S0.T + .01);
+    const target = (S0.T - c.s > 2.5 || c.i === 0) ? c : TL.chapters[c.i - 1];
+    seek(target.s); if (S0.playing) play();
+  }
+  function nextCh() {
+    const i = curIdx();
+    if (i < TL.chapters.length - 1) { seek(TL.chapters[i + 1].s); if (S0.playing) play(); }
+  }
+  let toastTimer = 0;
+  function toast(msg) {
+    const el = $("toast");
+    el.textContent = msg; el.style.display = "block";
+    clearTimeout(toastTimer); toastTimer = setTimeout(() => el.style.display = "none", 3200);
+  }
+
+  /* 開關 */
+  function setTog(btn, on) { btn.setAttribute("aria-pressed", on ? "true" : "false"); }
+  function applyTrack() {
+    const name = trackName();
+    if (name === S0.track) return;
+    const was = S0.playing;
+    if (S0.audio) S0.audio.pause();
+    setTrack(name);
+    if (was) { S0.playing = false; play(); }
+  }
+  function setVoice(on) { S0.voice = on; lsSet("seedfilm-voice", on ? "1" : "0"); setTog($("bVoice"), on); applyTrack(); }
+  function setMusic(on) { S0.music = on; lsSet("seedfilm-music", on ? "1" : "0"); setTog($("bMusic"), on); applyTrack(); }
+  function setSubs(on) {
+    S0.subs = on; lsSet("seedfilm-subs", on ? "1" : "0"); setTog($("bSubs"), on);
+    $("subBar").classList.toggle("off", !on);
+    $("player").classList.toggle("subsoff", !on);
+  }
+  function setKlass(on) { S0.klass = on; setTog($("bClass"), on); if (on) toast("課堂暫停：每段播完會自動停下，出一題想一想。"); }
+
+  /* 全螢幕（iPhone 不支援元素全螢幕 → 改用「假全螢幕」） */
+  const player = $("player");
+  function isFs() { return !!(document.fullscreenElement || document.webkitFullscreenElement) || player.classList.contains("pseudo"); }
+  function enterFs() {
+    const fn = player.requestFullscreen || player.webkitRequestFullscreen;
+    if (fn) {
+      const r = fn.call(player);
+      if (r && r.catch) r.catch(() => { player.classList.add("pseudo", "fs"); });
+    } else player.classList.add("pseudo", "fs");
+    try { screen.orientation && screen.orientation.lock && screen.orientation.lock("landscape").catch(() => {}); } catch (_) {}
+  }
+  function exitFs() {
+    if (player.classList.contains("pseudo")) { player.classList.remove("pseudo", "fs"); return; }
+    const fn = document.exitFullscreen || document.webkitExitFullscreen;
+    if (fn) fn.call(document);
+  }
+  function onFsChange() {
+    const real = !!(document.fullscreenElement || document.webkitFullscreenElement);
+    if (!player.classList.contains("pseudo")) player.classList.toggle("fs", real);
+    idleKick();
+  }
+  document.addEventListener("fullscreenchange", onFsChange);
+  document.addEventListener("webkitfullscreenchange", onFsChange);
+  let idleTimer = 0;
+  function idleKick() {
+    player.classList.remove("idle");
+    clearTimeout(idleTimer);
+    if (S0.playing) idleTimer = setTimeout(() => { if (S0.playing && player.classList.contains("fs")) player.classList.add("idle"); }, 2600);
+  }
+  player.addEventListener("pointermove", idleKick);
+  player.addEventListener("pointerdown", idleKick);
+
+  /* 進度條拖曳 */
+  let drag = null;
+  function posToT(clientX) { const r = prog.getBoundingClientRect(); return clamp((clientX - r.left) / r.width) * DUR; }
+  prog.addEventListener("pointerdown", e => {
+    drag = { was: S0.playing };
+    prog.setPointerCapture(e.pointerId);
+    if (S0.playing) { S0.playing = false; if (S0.audio) S0.audio.pause(); setPlayIcon(); }
+    S0.T = posToT(e.clientX); renderAt(S0.T);
+    $("poster").classList.remove("on"); $("pauseCard").classList.remove("on");
+  });
+  prog.addEventListener("pointermove", e => {
+    const t = posToT(e.clientX);
+    if (drag) { S0.T = t; renderAt(t); }
+    const c = chapterAt(t);
+    tip.textContent = (c.no ? NO[c.no] + " " + c.title : "片頭") + "　" + fmt(t);
+    tip.style.left = clamp(t / DUR) * 100 + "%"; tip.style.display = "block";
+  });
+  const endDrag = () => { if (!drag) return; const d = drag; drag = null; seek(S0.T); if (d.was) play(); };
+  prog.addEventListener("pointerup", endDrag);
+  prog.addEventListener("pointercancel", endDrag);
+  prog.addEventListener("pointerleave", () => { if (!drag) tip.style.display = "none"; });
+  prog.addEventListener("keydown", e => {
+    if (e.key === "ArrowLeft" || e.key === "ArrowRight") { e.preventDefault(); e.stopPropagation(); seek(S0.T + (e.key === "ArrowLeft" ? -5 : 5)); if (S0.playing) play(); }
+  });
+
+  /* 按鈕 */
+  $("bigPlay").addEventListener("click", () => play());
+  $("bPlay").addEventListener("click", e => { toggle(); e.currentTarget.blur(); });
+  $("bPrev").addEventListener("click", e => { prevCh(); e.currentTarget.blur(); });
+  $("bNext").addEventListener("click", e => { nextCh(); e.currentTarget.blur(); });
+  $("bVoice").addEventListener("click", e => { setVoice(!S0.voice); e.currentTarget.blur(); });
+  $("bMusic").addEventListener("click", e => { setMusic(!S0.music); e.currentTarget.blur(); });
+  $("bSubs").addEventListener("click", e => { setSubs(!S0.subs); e.currentTarget.blur(); });
+  $("bClass").addEventListener("click", e => { setKlass(!S0.klass); e.currentTarget.blur(); });
+  $("bFull").addEventListener("click", e => { isFs() ? exitFs() : enterFs(); e.currentTarget.blur(); });
+  $("pauseGo").addEventListener("click", () => play());
+  $("stage").addEventListener("click", () => { if (!$("poster").classList.contains("on")) toggle(); });
+
+  /* 鍵盤（簡報筆的 PageUp／PageDown＝上一段／下一段） */
+  document.addEventListener("keydown", e => {
+    if (e.altKey || e.ctrlKey || e.metaKey) return;
+    const tag = (e.target && e.target.tagName) || "";
+    if (/INPUT|TEXTAREA|SELECT/.test(tag)) return;
+    const k = e.key;
+    if (k === " " || k === "k" || k === "K") { if (tag === "BUTTON" && k === " ") return; e.preventDefault(); toggle(); }
+    else if (k === "ArrowLeft") { e.preventDefault(); seek(S0.T - 5); if (S0.playing) play(); }
+    else if (k === "ArrowRight") { e.preventDefault(); seek(S0.T + 5); if (S0.playing) play(); }
+    else if (k === "PageUp") { e.preventDefault(); prevCh(); }
+    else if (k === "PageDown") { e.preventDefault(); nextCh(); }
+    else if (k === "f" || k === "F") { isFs() ? exitFs() : enterFs(); }
+    else if (k === "c" || k === "C") setSubs(!S0.subs);
+    else if (k === "n" || k === "N") setVoice(!S0.voice);
+    else if (k === "m" || k === "M") setMusic(!S0.music);
+    else if (k === "Escape" && player.classList.contains("pseudo")) exitFs();
+  });
+
+  /* 初始狀態 */
+  setTog($("bVoice"), S0.voice); setTog($("bMusic"), S0.music); setSubs(S0.subs); setTog($("bClass"), false);
+  setPlayIcon();
+
+  /* 匯出／截圖模式：?export=1[&t=秒][&nosub=1]，提供 SEED.renderAt(t) 給製作程式逐格擷取 */
+  if (EXPORT) {
+    document.body.classList.add("export");
+    if (Q.has("nosub")) document.body.classList.add("nosub");
+    $("poster").classList.remove("on");
+  }
+  const ready = Promise.all([
+    document.fonts ? document.fonts.ready : Promise.resolve(),
+    ...[...new Set(PHOTOS)].map(src => new Promise(res => { const im = new Image(); im.onload = im.onerror = () => (im.decode ? im.decode().catch(() => {}) : Promise.resolve()).then(res); im.src = src; }))
+  ]);
+  window.SEED = {
+    renderAt: t => { S0.T = t; renderAt(t); return true; }, ready, dur: DUR, version: TL.v,
+    /* 測試用：目前的播放狀態 */
+    state: () => ({ T: +S0.T.toFixed(3), playing: S0.playing, track: S0.track, audioOK: S0.audioOK, klass: S0.klass,
+      at: S0.audio ? +S0.audio.currentTime.toFixed(3) : null, rs: S0.audio ? S0.audio.readyState : null,
+      sub: $("subBar").textContent, pause: $("pauseCard").classList.contains("on"), fs: player.classList.contains("fs") })
+  };
+  const t0 = parseFloat(Q.get("t"));
+  if (!isNaN(t0)) { S0.T = clamp(t0, 0, DUR); $("poster").classList.remove("on"); }
+  renderAt(S0.T);
+  ready.then(() => renderAt(S0.T));
+})();
+</script>
+</body>
+</html>
