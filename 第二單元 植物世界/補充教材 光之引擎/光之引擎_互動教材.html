@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>光之引擎｜植物體內的水分運輸動畫</title>
+<link rel="icon" href="../../image/icon.svg" type="image/svg+xml">
+<style>
+/* 光之引擎：許博明老師用 Blender 製作的動畫（YouTube 嵌入） */
+:root{--bg:#050a09;--ink:#e8f1ec;--muted:#9db3aa;--line:rgba(170,235,215,.28);--gold:#ffb43d;--cyan:#4fd6ff}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink)}
+body{font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;line-height:1.7}
+.wrap{max-width:1280px;margin:0 auto;padding:16px 18px 48px}
+header{display:flex;align-items:center;gap:10px 18px;flex-wrap:wrap;margin-bottom:14px}
+.back{color:var(--ink);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:6px 16px;font-size:15px;letter-spacing:.08em}
+.back:hover{border-color:#fff}
+h1{margin:0;font-weight:300;letter-spacing:.32em;font-size:clamp(24px,3.4vw,44px);color:#fff}
+.sub{color:var(--muted);font-size:clamp(13px,1.3vw,17px);letter-spacing:.12em}
+/* 影片：寬螢幕時以視窗高度為限，75 吋螢幕不用捲動就能看完整畫面 */
+.video{position:relative;width:min(100%, calc((100vh - 150px) * 16 / 9));min-width:min(100%,560px);aspect-ratio:16/9;margin:0 auto;
+  background:#000;border:1px solid var(--line);border-radius:12px;overflow:hidden;box-shadow:0 0 40px rgba(79,214,255,.08)}
+.video iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.hint{text-align:center;color:var(--muted);font-size:14px;margin:10px 0 0}
+.hint a{color:var(--cyan)}
+section{margin-top:30px}
+h2{font-weight:400;letter-spacing:.2em;font-size:20px;color:#fff;margin:0 0 8px}
+p,li{color:#c9dbd4;font-size:15.5px}
+ul{padding-left:1.3em;margin:6px 0}
+b{color:#fff}
+.c{color:var(--cyan)} .g{color:var(--gold)}
+footer{margin-top:34px;color:var(--muted);font-size:14px}
+footer a{color:var(--muted)}
+@media (min-width:1800px){ .wrap{max-width:1700px} p,li{font-size:18px} h2{font-size:24px} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <a class="back" href="../../index.html">← 回首頁</a>
+    <div>
+      <h1>光之引擎</h1>
+      <div class="sub">五年級自然｜第二單元 植物世界｜植物體內的水分運輸・動畫</div>
+    </div>
+  </header>
+
+  <div class="video">
+    <iframe src="https://www.youtube-nocookie.com/embed/VL20J7T1AMA?rel=0" title="光之引擎"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+      referrerpolicy="strict-origin-when-cross-origin" allowfullscreen loading="lazy"></iframe>
+  </div>
+  <p class="hint">播放後可按影片右下角的全螢幕。學校網路若擋 YouTube 嵌入，請改用
+    <a href="https://www.youtube.com/watch?v=VL20J7T1AMA" target="_blank" rel="noopener">在 YouTube 開啟</a>。</p>
+
+  <section>
+    <h2>對照課本重點</h2>
+    <ul>
+      <li>根部吸收水分，水沿著<b class="c">木質部（導管）</b>往上送到葉片。</li>
+      <li>葉片的<b>蒸散作用</b>：水變成水蒸氣從氣孔散到空氣中，也把下面的水往上拉。</li>
+      <li>葉片行<b>光合作用</b>：用光的能量，把水和二氧化碳製造成養分（糖），並放出氧氣。</li>
+      <li>葉片做出的<b class="g">養分（糖）</b>，再經莖送到根、嫩芽、果實等需要的地方。</li>
+    </ul>
+    <p>搭配課本第 34–38 頁〈植物體內水的運輸〉，以及本站的〈植物體內的水分運輸〉互動教材與重點整理。</p>
+  </section>
+
+  <footer>製作：許博明老師（豬豬的自然探索），以 Blender 製作。<a href="../../index.html">← 回首頁</a></footer>
+</div>
+</body>
+</html>
