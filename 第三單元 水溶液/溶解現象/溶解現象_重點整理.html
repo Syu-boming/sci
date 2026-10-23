@@ -6,7 +6,7 @@
   <title>溶解現象　重點整理</title>
   <link rel="icon" href="../../image/icon.svg">
   <style>
-    :root{--c-ink:#2c2f31;--c-soft:#55606a;--c-bg:#fff9f0;--c-brand:#f5a623;--c-brandS:#e8890b;--c-brandSoft:#fff2d9;--c-no:#e5484d;--c-noSoft:#fdeaea;--radius:16px;
+    :root{--c-ink:#2c2f31;--c-soft:#55606a;--c-bg:#fff9f0;--c-brand:#f5a623;--c-brandS:#e8890b;--c-brandSoft:#fff2d9;--c-brandT:#9A4F00;--c-no:#e5484d;--c-noSoft:#fdeaea;--radius:16px;
       --font:"Noto Sans TC","PingFang TC","Microsoft JhengHei","微軟正黑體",system-ui,-apple-system,sans-serif;}
     *{box-sizing:border-box;}
     body{margin:0;font-family:var(--font);color:var(--c-ink);background:var(--c-bg);line-height:1.75;font-size:18px;}
@@ -17,17 +17,17 @@
     .site-header h1{margin:0;font-size:1.5rem;}
     .site-header p{margin:2px 0 0;opacity:.92;font-size:.95rem;}
     .breadcrumb{padding:14px 0;font-size:.95rem;}
-    .breadcrumb a{color:var(--c-brandS);text-decoration:none;margin-right:14px;display:inline-block;padding:8px 0;}
+    .breadcrumb a{color:var(--c-brandT);text-decoration:none;margin-right:14px;display:inline-block;padding:8px 0;}
     .breadcrumb a:hover{text-decoration:underline;}
     .keypoint{background:#fff;border:1px solid #ece3d6;border-left:5px solid var(--c-brand);border-radius:12px;
       padding:14px 16px;margin:12px 0;box-shadow:0 6px 20px rgba(90,70,30,.08);}
     .keypoint.danger{border-left-color:var(--c-no);background:var(--c-noSoft);}
-    .keypoint b{color:var(--c-brandS);}
+    .keypoint b{color:var(--c-brandT);}
     .keypoint.danger b{color:var(--c-no);}
     .keytab{width:100%;border-collapse:collapse;margin:14px 0;background:#fff;border-radius:12px;overflow:hidden;
       box-shadow:0 6px 20px rgba(90,70,30,.08);}
     .keytab th,.keytab td{border:1px solid #ece3d6;padding:10px 12px;text-align:center;}
-    .keytab th{background:var(--c-brandSoft);color:var(--c-brandS);}
+    .keytab th{background:var(--c-brandSoft);color:var(--c-brandT);}
     .keytab td.l{text-align:left;}
     .keytab caption{caption-side:top;text-align:left;font-weight:700;padding:0 2px 6px;color:var(--c-ink);}
     h2{font-size:1.3rem;}
@@ -35,9 +35,9 @@
     .btn{cursor:pointer;border:none;border-radius:999px;padding:10px 20px;font-family:inherit;font-size:1rem;font-weight:700;background:var(--c-brand);color:#fff;min-height:44px;}
     .btn:hover{background:var(--c-brandS);}
     .site-footer{margin:40px 0 26px;text-align:center;color:var(--c-soft);font-size:.9rem;}
-    .site-footer a{color:var(--c-brandS);}
+    .site-footer a{color:var(--c-brandT);}
     .print-title{display:none;}
-    .keytab td.grp{font-weight:800;color:var(--c-brandS);background:#fffaf1;}
+    .keytab td.grp{font-weight:800;color:var(--c-brandT);background:#fffaf1;}
     .keytab td.nw{white-space:nowrap;}
     .nobr{white-space:nowrap;}
     /* 階梯圖 */
@@ -84,7 +84,7 @@
     .eqline .it.same{border-style:dashed;border-color:var(--c-brandS);}
     .eqline .op{font-weight:900;font-size:1.25em;}
     .eqline .res{font-weight:800;color:var(--c-brandS);}
-    a.ext{color:var(--c-brandS);font-weight:700;}
+    a.ext{color:var(--c-brandT);font-weight:700;}
 
     @media print{
       @page{size:A4;margin:14mm;}
@@ -202,7 +202,7 @@
     <section class="sec">
       <h2>🧂 看不見不等於消失（課本 64–65 頁）</h2>
       <div class="keypoint">課本 64 頁：煮湯時，最後在湯裡加入食鹽攪拌，食鹽顆粒就不見了。食鹽去哪裡了？實驗室裡的東西<b>一律不嘗</b>，我們用<b>電子秤</b>找證據。</div>
-      <div class="keypoint">🔬 做法：用<b>量筒</b>量 <b>30 毫升</b>的水倒進燒杯，把食鹽倒進水裡，<b>攪拌到食鹽完全溶解</b>，再秤溶解後的總重量。</div>
+      <div class="keypoint">🔬 做法：用<b>量筒</b>量 <b>30 毫升</b>的水倒進燒杯；電子秤先<b>歸零</b>，秤溶解前的總重量；把食鹽倒進水裡，<b>攪拌到食鹽完全溶解</b>，再秤溶解後的總重量。</div>
       <div class="eqbox">
         <div class="eqttl">📘 課本 82 頁的重量式</div>
         <div class="eqline">
@@ -212,7 +212,7 @@
         </div>
         <div class="eqttl">✏️ 習作 24 頁的參考數據（單位：公克重）</div>
         <div class="eqline">
-          <span class="it">71<small>水和燒杯</small></span><span class="op">＋</span><span class="it">7<small>食鹽</small></span>
+          <span class="it">71<small>水和燒杯</small></span><span class="op">＋</span><span class="it">7<small>食鹽和紙</small></span>
           <span class="op">＝</span><span class="it same">78<small>溶解前的總重量</small></span>
           <span class="op">→</span><span class="it same">78<small>溶解後的總重量</small></span>
           <span class="res">一樣重！</span>
@@ -241,7 +241,7 @@
         <div class="arrow">→</div>
         <div class="step"><div class="box">⚖️</div><div class="nm">② 先歸零</div><div class="ds">電子秤先按<b>「歸零」</b>，再秤</div></div>
         <div class="arrow">→</div>
-        <div class="step"><div class="box">📋</div><div class="nm">③ 秤溶解前</div><div class="ds">秤「水和燒杯」、秤「食鹽和紙」</div></div>
+        <div class="step"><div class="box">📋</div><div class="nm">③ 秤溶解前</div><div class="ds">秤「水和燒杯」、秤「食鹽和紙」，再把兩樣一起放上秤，讀出溶解前的總重量</div></div>
         <div class="arrow">→</div>
         <div class="step"><div class="box">🥄</div><div class="nm">④ 攪拌</div><div class="ds">攪拌到<b>完全溶解</b>，攪拌棒拿出來</div></div>
         <div class="arrow">→</div>
@@ -278,7 +278,7 @@
       <table class="keytab">
         <caption>生活中：把溶解在水中的物質取出來再利用</caption>
         <tr><th style="width:30%">例子</th><th>怎麼做</th><th style="width:24%">取回什麼</th></tr>
-        <tr><td class="grp">🧂 曬鹽</td><td class="l">高溫日晒，讓<b>海水</b>的水分蒸發</td><td>粗鹽</td></tr>
+        <tr><td class="grp">🧂 曬鹽</td><td class="l">高溫日曬，讓<b>海水</b>的水分蒸發</td><td>粗鹽</td></tr>
         <tr><td class="grp">🍬 熬紅糖</td><td class="l">高溫熬煮，讓<b>甘蔗汁</b>的水分蒸發</td><td>紅糖</td></tr>
       </table>
       <div class="keypoint crit">💡 蒸發時跑掉的只有水，溶解的食鹽會留下來。</div>
@@ -299,9 +299,10 @@
     </section>
 
     <aside class="extra sec">
-      <div class="ttl">🔎 <b>想多知道一點（國中才會學）</b><small>看看就好，不考</small></div>
+      <div class="ttl">🔎 <b>想多知道一點（之後會學）</b><small>看看就好，不考</small></div>
       <ul>
-        <li>食鹽溶解時，會分散成非常小、眼睛看不見的粒子，均勻分布在水裡。</li>
+        <li>食鹽溶解時，會分散成非常非常小的小粒子（眼睛、放大鏡、顯微鏡都看不到），均勻分布在水裡。</li>
+        <li>想看看這些小粒子：打開 <a class="ext" href="../補充教材%20一顆也沒少/一顆也沒少_互動教材.html">〈一顆也沒少〉3D 粒子動畫</a>（想像放大很多很多倍畫出來的；真的放大鏡、顯微鏡都看不到）。</li>
       </ul>
     </aside>
 
@@ -309,11 +310,23 @@
       <h2>🎯 想多練習</h2>
       <div class="keypoint soft">自由練習，<b>不是作業</b>；用眼 30 分鐘要休息 10 分鐘。<br>
         打開 <a class="ext" href="../../題庫/index.html?exam=exam2">第二次評量線上題庫</a> →「📚 主題練習」→ 選「<b>溶解現象與重量</b>」（課本 64–65）和「<b>把溶解的物質取回來</b>」（課本 66）。<br>
-        <span class="note">「素養題組」裡的〈邊攪拌邊看秤的讀數〉〈晾在窗邊的食鹽水〉〈泳衣上的白色痕跡〉，也是這一課的內容。</span></div>
+        <span class="note">「素養題組」裡的〈邊攪拌邊看秤的讀數〉〈晾在窗邊的食鹽水〉〈泳衣上的白色痕跡〉也是這一課的內容；素養題組是隨機抽題，可能會抽到還沒教的題組；遇到還沒教的，可以按「🏠 題庫首頁」離開。</span></div>
     </section>
 
   </main>
 
   <footer class="site-footer"><div class="wrap"><a href="../../index.html">← 回首頁</a> · <a href="溶解現象_互動教材.html">互動教材</a> · <a href="溶解現象_學習單.html">學習單</a> · 豬豬的自然探索 · 教學依據：<a href="https://reader.nani.com.tw/9200a013cbef8e66" target="_blank" rel="noopener">南一自然課本，第 62–66 頁</a>（另引用課本第 82 頁圖解筆記、習作第 24 頁參考數據）</div></footer>
+<script>
+/* 從〈溶解現象〉互動教材另開的分頁：按「回〈溶解現象〉」就把這個分頁關掉，回到原來那個還留著紀錄的分頁（瀏覽器不讓關時，才照連結開） */
+(function(){
+  if(new URLSearchParams(location.search).get("from")!=="lesson") return;
+  document.querySelectorAll('a[href*="溶解現象_互動教材.html"]').forEach(function(a){
+    a.addEventListener("click",function(ev){
+      if(history.length>1||ev.metaKey||ev.ctrlKey||ev.shiftKey) return;
+      ev.preventDefault(); window.close(); setTimeout(function(){ location.href=a.href; },400);
+    });
+  });
+})();
+</script>
 </body>
 </html>

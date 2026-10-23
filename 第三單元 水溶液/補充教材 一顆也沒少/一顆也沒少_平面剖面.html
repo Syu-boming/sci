@@ -1,0 +1,1852 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>一顆也沒少（平面剖面版）｜食鹽溶解與蒸發的粒子動畫</title>
+<link rel="icon" href="../../image/icon.svg" type="image/svg+xml">
+<style>
+/* ==========================================================
+   一顆也沒少（平面剖面版）— 樣式表
+   把燒杯從中間切開、從側面看的平面版；不支援 WebGPU 的裝置由 3D 版自動轉到這一頁（改用 Canvas 2D）。
+   使用情境：教室 75 吋觸控螢幕全班一起看、老師暫停提問；學生回家用手機、平板自己看。
+   沿用〈溶解現象〉的調色盤與元件。整個舞臺是電腦模擬的示意畫面，畫面上標「示意」。
+   白色字只放在深綠 #2E7D4F 上；顏色不是唯一線索，有顏色的地方一律也寫成字。
+   ========================================================== */
+:root{
+  --bg:#FDF6EC;         /* 奶油底色 */
+  --ink:#1E1E1E;        /* 描邊近黑 */
+  --green:#58B159;
+  --green-dark:#2E7D4F; /* 深綠（唯一可以放白字的底色） */
+  --water:#4FB0E5;      /* 水滴藍 */
+  --water-dark:#2E86C1;
+  --sun:#FFC93C;        /* 陽光黃 */
+  --coral:#FF7F66;
+  --coral-dark:#E4574C;
+  --card:#FFFFFF;
+  --muted:#6B7A82;
+  --shadow:0 6px 18px rgba(46,86,110,.16);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  min-height:100vh;color:var(--ink);background:var(--bg);
+  font-family:-apple-system,"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif;
+  font-size:clamp(17px,1.9vw,22px);line-height:1.6;
+}
+#app{max-width:1500px;margin:0 auto;padding:12px 16px 40px}
+.hidden{display:none !important}
+
+/* ---------- 頁首 ---------- */
+.sitehead{margin-bottom:10px}
+.headrow{display:flex;align-items:center;gap:6px 16px;flex-wrap:wrap}
+.back{
+  display:inline-flex;align-items:center;min-height:44px;padding:4px 16px;
+  border:3px solid var(--ink);border-radius:999px;background:var(--card);color:var(--ink);
+  font-weight:800;text-decoration:none;box-shadow:0 3px 0 var(--ink);font-size:clamp(15px,1.4vw,18px);
+}
+.back:active{transform:translateY(2px);box-shadow:0 1px 0 var(--ink)}
+.sitehead h1{margin:0;font-size:clamp(22px,2.6vw,32px);font-weight:900;letter-spacing:.5px;line-height:1.25}
+.sitehead .sub{color:var(--muted);font-size:clamp(13px,1.35vw,17px);font-weight:700}
+.sibs{display:flex;gap:8px;flex-wrap:wrap;margin-left:auto}
+.sibs a{
+  display:inline-flex;align-items:center;min-height:44px;padding:2px 14px;border:2px solid var(--ink);border-radius:999px;
+  background:#FFFDF8;color:var(--ink);font-weight:800;text-decoration:none;font-size:clamp(14px,1.3vw,17px);
+}
+
+/* ---------- 播放器：舞臺＋側欄 ---------- */
+.player{display:grid;grid-template-columns:minmax(0,1fr);gap:14px;align-items:start}
+@media (min-width:1024px) and (orientation:landscape){
+  .player{grid-template-columns:minmax(0,1.6fr) minmax(320px,1fr)}
+}
+/* 單欄（手機、平板直拿）時，字幕和提問排在章節按鈕前面，捲一點就能同時看到動畫和字幕 */
+@media not all and (min-width:1024px) and (orientation:landscape){ .side>.panel:nth-child(2){order:-1} }
+.player:fullscreen{background:var(--bg);padding:14px 18px;overflow:auto}
+.player:-webkit-full-screen{background:var(--bg);padding:14px 18px;overflow:auto}
+.stagecol{min-width:0}
+.stage{
+  position:relative;width:min(100%, calc((100vh - 230px) * var(--ar,1.25)));min-width:min(100%,300px);
+  aspect-ratio:var(--ar,1.25);margin:0 auto;
+  background:#FFFDF8;border:3px solid var(--ink);border-radius:20px;overflow:hidden;box-shadow:var(--shadow);
+}
+.player:fullscreen .stage{width:min(100%, calc((100vh - 120px) * var(--ar,1.25)))}
+.stage > svg,.stage > canvas.full{position:absolute;left:0;top:0;width:100%;height:100%;display:block}
+.stage > svg{pointer-events:none}
+#svgFront .grab{pointer-events:all;cursor:grab;touch-action:none}
+#svgFront .tap{pointer-events:all;touch-action:pan-y}
+#svgFront .grab:focus{outline:none}
+#svgFront .grab:focus-visible .ring{stroke:var(--water-dark);stroke-width:6}
+#cvLens{position:absolute;display:block;border-radius:50%;border:6px solid var(--ink);background:#F7FBFE;
+  box-shadow:0 4px 14px rgba(0,0,0,.25);pointer-events:none}
+.stage .loading{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-weight:900;color:var(--muted);font-size:clamp(16px,2vw,24px);background:rgba(255,253,248,.85)}
+
+/* 控制列 */
+.ctrls{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:12px}
+.cbtn{
+  border:3px solid var(--ink);border-radius:999px;background:var(--card);color:var(--ink);
+  font:inherit;font-weight:900;padding:6px 16px;min-height:52px;cursor:pointer;
+  box-shadow:0 3px 0 var(--ink);font-size:clamp(15px,1.5vw,19px);line-height:1.2;
+}
+.cbtn:active{transform:translateY(2px);box-shadow:0 1px 0 var(--ink)}
+.cbtn.main{background:var(--sun);min-width:7.2em}
+.cbtn[aria-pressed="true"]{background:var(--green-dark);color:#fff}
+.cbtn[disabled]{opacity:.45;cursor:not-allowed}
+.toggles{display:flex;flex-wrap:wrap;gap:8px}
+.toggles .cbtn{flex:1 1 auto}
+.modenote{text-align:center;color:var(--muted);font-weight:700;font-size:clamp(12px,1.2vw,15px);margin:8px 0 0}
+
+/* 側欄 */
+.side{display:flex;flex-direction:column;gap:12px;min-width:0}
+.panel{background:var(--card);border:3px solid var(--ink);border-radius:20px;padding:12px 16px;box-shadow:var(--shadow)}
+.chaps{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.chap{
+  border:3px solid var(--ink);border-radius:16px;background:var(--card);color:var(--ink);font:inherit;
+  font-weight:900;padding:6px 10px;min-height:56px;cursor:pointer;box-shadow:0 3px 0 var(--ink);line-height:1.25;
+  font-size:clamp(15px,1.5vw,19px);
+}
+.chap.on{background:var(--green-dark);color:#fff}
+.pills{list-style:none;margin:10px 0 0;padding:0;display:flex;flex-wrap:wrap;gap:6px}
+.pill{
+  border:3px solid var(--ink);border-radius:999px;background:#FFFDF8;color:var(--ink);font:inherit;font-weight:900;
+  min-height:46px;padding:2px 12px;cursor:pointer;font-size:clamp(14px,1.35vw,17px);
+}
+.pill.on{background:var(--sun)}
+.pill.done{background:#EAF7EE}
+.steptitle{font-weight:900;color:var(--green-dark);font-size:clamp(16px,1.6vw,20px)}
+.cap{margin:6px 0 0;font-weight:900;font-size:clamp(20px,2.3vw,30px);line-height:1.5;min-height:4.6em}
+.cap .ev{display:block;margin-top:6px;font-size:.82em;line-height:1.55}
+.ask{
+  background:#FFF6D8;border:3px dashed var(--sun);border-radius:16px;
+  padding:10px 14px;font-weight:900;font-size:clamp(18px,2vw,25px);text-align:center;
+}
+.btnrow{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:10px}
+.btn{
+  border:3px solid var(--ink);border-radius:999px;background:var(--sun);color:var(--ink);
+  padding:8px 22px;font:inherit;font-weight:900;cursor:pointer;box-shadow:0 4px 0 var(--ink);min-height:52px;
+}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--ink)}
+.btn.plain{background:var(--card)}
+.btn.green{background:var(--green-dark);color:#fff}
+.bigpoint{
+  margin-top:10px;background:#EAF7EE;border:3px solid var(--green-dark);border-radius:18px;
+  padding:10px 14px;font-weight:900;font-size:clamp(18px,2vw,26px);text-align:center;color:var(--green-dark);
+}
+.bigpoint small{display:block;margin-top:6px;font-size:.72em;color:#2F5E43;font-weight:800}
+.legend{display:grid;gap:6px;font-weight:800;font-size:clamp(14px,1.4vw,18px);line-height:1.35}
+.legend .row{display:flex;align-items:center;gap:10px}
+.dotw,.dots,.sq{flex:none;display:inline-block}
+.dotw{width:22px;height:22px;border-radius:50%;background:#9ED3F2;border:3px solid var(--water-dark)}
+.dots{width:18px;height:18px;border-radius:50%;background:#fff;border:3px solid #59646B}
+.sq{width:20px;height:20px;background:#fff;border:3px solid #6B7A82}
+.legend .shiyi{color:var(--muted);font-size:.85em}
+.counter .ctitle{font-weight:900;font-size:clamp(15px,1.5vw,19px)}
+.counter .ctitle small{color:var(--muted);font-weight:800;font-size:.8em}
+.cbar{display:flex;height:22px;margin-top:6px;border:3px solid var(--ink);border-radius:999px;overflow:hidden;background:#fff}
+.cbar .seg{display:block;height:100%;transition:flex-basis .2s linear}
+.cbar .vis{background:linear-gradient(135deg,#fff,#DDE2E5)}
+.cbar .dis{background:radial-gradient(circle,#59646B 1.6px,transparent 2.2px) 0 0/9px 9px,#F2F8FC;border-left:2px solid var(--ink)}
+.cnums{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:6px;font-weight:800;font-size:clamp(14px,1.4vw,18px);line-height:1.4}
+.cnums span{display:inline-flex;align-items:center;gap:6px}
+.cnums i.sq,.cnums i.dots{width:16px;height:16px}
+
+/* 看完了 */
+.summary{margin-top:16px}
+.summary h2{margin:0 0 10px;font-size:clamp(20px,2.3vw,30px);font-weight:900}
+.sumgrid{display:grid;grid-template-columns:minmax(0,1fr);gap:12px}
+@media (min-width:800px){.sumgrid{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}}
+.sumcard{border:3px solid var(--ink);border-radius:16px;background:#FFFDF8;padding:10px 14px;font-weight:800;line-height:1.6}
+.sumcard b.k{display:block;font-size:1.15em;color:var(--green-dark);font-weight:900}
+.must{display:block;font-size:.62em;color:#2F5E43;letter-spacing:1px;margin-bottom:2px}
+
+/* 給老師 */
+.teacher-tip{
+  margin:18px 0 0;font-size:clamp(13px,1.4vw,16px);color:var(--muted);
+  border-left:5px solid var(--sun);padding:6px 12px;background:#FFFCF2;border-radius:0 10px 10px 0;
+}
+.teacher-tip b.time{color:#7A5B00}
+.teacher-tip p{margin:4px 0}
+.credits{font-size:clamp(12px,1.2vw,15px);color:var(--muted);margin-top:20px;line-height:1.55;border-top:2px dashed #D9CFBE;padding-top:12px}
+.credits p{margin:4px 0}
+
+@media (max-width:640px){
+  #app{padding:10px 10px 28px}
+  .panel{border-radius:14px;padding:10px 12px}
+  .cbtn{padding:4px 10px;min-height:48px;font-size:15px}
+  .cap{min-height:5.6em}
+  .sibs{margin-left:0}
+}
+@media (min-width:1800px){
+  body{font-size:26px}
+  #app{max-width:2000px;padding:20px 30px 60px}
+  .sitehead h1{font-size:38px}
+  .back,.sibs a{min-height:60px;font-size:21px;padding:4px 22px}
+  .cbtn{min-height:70px;font-size:24px;padding:8px 26px}
+  .chap{min-height:72px;font-size:24px}
+  .pill{min-height:60px;font-size:22px;padding:4px 18px}
+  .steptitle{font-size:24px}
+  .cap{font-size:36px}
+  .ask{font-size:30px}
+  .bigpoint{font-size:32px}
+  .legend{font-size:22px}
+  .teacher-tip{font-size:19px}
+  .credits{font-size:16px}
+  .modenote{font-size:18px}
+  .btn{min-height:68px;padding:10px 30px}
+}
+@media (min-width:2600px){
+  body{font-size:34px}
+  #app{max-width:2800px}
+  .sitehead h1{font-size:50px}
+  .back,.sibs a{min-height:80px;font-size:28px}
+  .cbtn{min-height:92px;font-size:32px;padding:10px 34px}
+  .chap{min-height:96px;font-size:32px}
+  .pill{min-height:80px;font-size:29px}
+  .steptitle{font-size:31px}
+  .cap{font-size:46px}
+  .ask{font-size:39px}
+  .bigpoint{font-size:42px}
+  .legend{font-size:29px}
+  .teacher-tip{font-size:25px}
+  .credits{font-size:21px}
+  .modenote{font-size:24px}
+  .btn{min-height:88px}
+}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <header class="sitehead">
+    <div class="headrow">
+      <a class="back" href="../../index.html">← 回教材首頁</a>
+      <h1>一顆也沒少（平面剖面版）</h1>
+      <span class="sub">五年級自然｜第三單元 水溶液　補充教材：把燒杯從中間切開看的粒子動畫（課本 64–66 頁）</span>
+      <span class="sibs">
+        <a id="link3D" href="一顆也沒少_互動教材.html">🧊 3D 立體版</a>
+        <a href="../溶解現象/溶解現象_互動教材.html#weigh">↩ 回〈溶解現象〉① 秤秤看</a>
+        <a href="../溶解現象/溶解現象_互動教材.html#dry">↩ ③ 取回溶質</a>
+      </span>
+    </div>
+  </header>
+
+  <section class="player" id="player" aria-label="溶解與蒸發的粒子動畫">
+    <div class="stagecol">
+      <div class="stage" id="stage" role="img" aria-label="示意動畫">
+        <svg id="svgBack" viewBox="0 0 1000 800" preserveAspectRatio="xMidYMid meet" aria-hidden="true" font-family="-apple-system,'PingFang TC','Noto Sans TC','Microsoft JhengHei',sans-serif">
+          <rect x="-200" y="-200" width="1400" height="1200" fill="#FFFDF8"/>
+          <!-- 第 ② 章：窗邊（太陽與天數） -->
+          <g id="winG" opacity="0">
+            <rect x="372" y="16" width="240" height="140" rx="10" fill="#DDF0FA" stroke="#1E1E1E" stroke-width="4"/>
+            <circle id="sunC" cx="412" cy="120" r="17" fill="#FFC93C" stroke="#1E1E1E" stroke-width="3"/>
+            <rect id="nightR" x="374" y="18" width="236" height="136" rx="8" fill="#26334D" opacity="0"/>
+            <line x1="492" y1="18" x2="492" y2="154" stroke="#1E1E1E" stroke-width="4"/>
+            <line x1="374" y1="86" x2="610" y2="86" stroke="#1E1E1E" stroke-width="3"/>
+            <g stroke="#6B7A82" stroke-width="3" stroke-linecap="round" fill="none" id="breeze">
+              <path d="M622 46 q 12 -7 24 0 t 24 0"/>
+              <path d="M630 80 q 12 -7 24 0 t 24 0"/>
+              <path d="M622 114 q 12 -7 24 0 t 24 0"/>
+            </g>
+            <text x="626" y="150" font-size="22" font-weight="800" fill="#6B7A82">通風</text>
+          </g>
+          <!-- 桌面 -->
+          <rect x="-200" y="762" width="1400" height="200" fill="#E2D3BC"/>
+          <!-- 電子秤 -->
+          <path d="M248 762 L272 674 H788 L812 762 Z" fill="#D7DBDE" stroke="#1E1E1E" stroke-width="3"/>
+          <rect x="262" y="658" width="536" height="16" rx="5" fill="#B9C0C5" stroke="#1E1E1E" stroke-width="3"/>
+          <rect x="436" y="688" width="132" height="54" rx="6" fill="#2F3B2F" stroke="#1E1E1E" stroke-width="2"/>
+          <text id="scaleTxt" x="502" y="717" font-size="38" font-weight="700" fill="#9CFF8A" text-anchor="middle" dominant-baseline="middle" font-family="Consolas,Menlo,monospace">78</text>
+          <text x="576" y="722" font-size="22" font-weight="800" fill="#1E1E1E" dominant-baseline="middle">公克重</text>
+          <!-- 水（液體本身） -->
+          <path id="waterBody" fill="#CFE8F6" d=""/>
+          <!-- 放食鹽的紙 -->
+          <g id="paperG"><path d="M0 0 H120 V-3 H0 Z" fill="#F7C6D9" stroke="#1E1E1E" stroke-width="2" stroke-linejoin="round"/></g>
+          <text id="paperT" font-size="21" font-weight="900" fill="#1E1E1E" text-anchor="middle" stroke="#FFFDF8" stroke-width="5" paint-order="stroke" style="display:none">空的紙</text>
+        </svg>
+        <canvas id="cvMacro" class="full" aria-hidden="true"></canvas>
+        <svg id="svgFront" viewBox="0 0 1000 800" preserveAspectRatio="xMidYMid meet" font-family="-apple-system,'PingFang TC','Noto Sans TC','Microsoft JhengHei',sans-serif">
+          <!-- 燒杯（玻璃） -->
+          <path d="M342 172 V658 H658 V172 H650 V650 H350 V172 Z" fill="rgba(190,214,224,.55)" fill-rule="evenodd"/>
+          <path d="M336 168 Q342 168 342 176 V658 H658 V176 Q658 168 664 168" fill="none" stroke="#1E1E1E" stroke-width="5" stroke-linejoin="round" stroke-linecap="round"/>
+          <path d="M350 176 V650 H650 V176" fill="none" stroke="#1E1E1E" stroke-width="2.5"/>
+          <g id="marks" stroke="#1E1E1E" stroke-width="2.5" font-size="19" font-weight="800" fill="#1E1E1E"></g>
+          <!-- 水面線 -->
+          <line id="surfLine" x1="350" x2="650" y1="350" y2="350" stroke="#2E86C1" stroke-width="3"/>
+          <!-- 原來的水面 -->
+          <g id="origG" style="display:none">
+            <line x1="350" x2="650" y1="350" y2="350" stroke="#E4574C" stroke-width="3" stroke-dasharray="11 7"/>
+            <text x="644" y="368" font-size="21" font-weight="900" fill="#B03A30" text-anchor="end" stroke="#fff" stroke-width="5" paint-order="stroke" stroke-linejoin="round">原來的水面（30 毫升）</text>
+          </g>
+          <!-- 水面比原來高 -->
+          <g id="riseG" style="display:none">
+            <line id="riseL" x1="618" x2="618" y1="350" y2="320" stroke="#1E1E1E" stroke-width="3"/>
+            <path id="riseH" d="" fill="#1E1E1E"/>
+            <text id="riseT" x="608" y="300" font-size="21" font-weight="900" fill="#1E1E1E" text-anchor="end" stroke="#fff" stroke-width="5" paint-order="stroke" stroke-linejoin="round">水面比原來高</text>
+          </g>
+          <!-- 攪拌棒 -->
+          <g id="rodG" style="display:none"><rect id="rodR" x="0" y="0" width="8" height="10" rx="4" fill="#C9D1D5" stroke="#1E1E1E" stroke-width="2.5"/></g>
+          <!-- 水蒸氣 -->
+          <g id="vapG" fill="none" stroke="#2E86C1" stroke-width="3" stroke-linecap="round" style="display:none">
+            <path id="vp0" d=""/><path id="vp1" d=""/><path id="vp2" d=""/>
+            <text id="vapT" x="500" y="300" font-size="21" font-weight="900" fill="#2E86C1" text-anchor="middle" stroke="#fff" stroke-width="5" paint-order="stroke" stroke-linejoin="round">水分蒸發（看不見的水蒸氣）</text>
+          </g>
+          <!-- 第 ② 章：第幾天 -->
+          <g id="dayG" style="display:none">
+            <rect x="226" y="40" width="120" height="44" rx="22" fill="#2E7D4F" stroke="#1E1E1E" stroke-width="3"/>
+            <text id="dayT" x="286" y="63" font-size="24" font-weight="900" fill="#fff" text-anchor="middle" dominant-baseline="middle">第 1 天</text>
+            <text x="286" y="106" font-size="17" font-weight="800" fill="#6B7A82" text-anchor="middle">（縮時）</text>
+          </g>
+          <!-- 示意 -->
+          <g id="shiyiG"><rect id="shiyiR" x="890" y="14" width="92" height="38" rx="19" fill="#fff" stroke="#6B7A82" stroke-width="2.5" stroke-dasharray="6 4"/>
+            <text id="shiyiT" x="936" y="34" font-size="20" font-weight="800" fill="#6B7A82" text-anchor="middle" dominant-baseline="middle">示意</text></g>
+          <!-- 放大鏡：連線、標題、圖例 -->
+          <g id="lensUI">
+            <line id="cl1" stroke="#34444C" stroke-width="2" stroke-dasharray="7 5" opacity=".75"/>
+            <line id="cl2" stroke="#34444C" stroke-width="2" stroke-dasharray="7 5" opacity=".75"/>
+            <text x="185" y="164" font-size="23" font-weight="900" fill="#1E1E1E" text-anchor="middle" stroke="#FFFDF8" stroke-width="6" paint-order="stroke" stroke-linejoin="round">想像的超級放大鏡</text>
+            <text x="185" y="510" font-size="17" font-weight="800" fill="#34444C" text-anchor="middle" stroke="#FFFDF8" stroke-width="5" paint-order="stroke" stroke-linejoin="round">放大很多很多倍（想像）</text>
+            <text x="185" y="534" font-size="17" font-weight="800" fill="#34444C" text-anchor="middle" stroke="#FFFDF8" stroke-width="5" paint-order="stroke" stroke-linejoin="round">真的放大鏡、顯微鏡都看不到</text>
+            <rect class="tap" id="tapArea" x="330" y="120" width="340" height="545" fill="transparent"/>
+            <g id="marker" class="grab" tabindex="0" role="slider" aria-label="超級放大鏡的位置（可拖曳，或用方向鍵移動）" aria-valuetext="">
+              <circle id="mkHit" r="42" fill="transparent"/>
+              <line id="mkHandle" x1="0" y1="0" x2="0" y2="0" stroke="#1E1E1E" stroke-width="7" stroke-linecap="round"/>
+              <circle class="ring" id="mkRing" r="14" fill="rgba(255,255,255,.18)" stroke="#1E1E1E" stroke-width="4"/>
+            </g>
+          </g>
+        </svg>
+        <canvas id="cvLens" aria-hidden="true"></canvas>
+        <div class="loading" id="loading">動畫準備中……</div>
+      </div>
+      <div class="ctrls" role="toolbar" aria-label="動畫控制">
+        <button type="button" class="cbtn" id="bPrev">⏮ 上一步</button>
+        <button type="button" class="cbtn main" id="bPlay">▶ 播放</button>
+        <button type="button" class="cbtn" id="bNext">下一步 ⏭</button>
+        <button type="button" class="cbtn" id="bReplay">↺ 重播這一步</button>
+      </div>
+      <p class="modenote" id="modeNote"></p>
+    </div>
+
+    <aside class="side">
+      <div class="panel">
+        <div class="chaps">
+          <button type="button" class="chap on" data-ch="1">① 溶解：食鹽去哪裡了？</button>
+          <button type="button" class="chap" data-ch="2">② 蒸發：食鹽回來了</button>
+        </div>
+        <ol class="pills" id="pills" aria-label="步驟"></ol>
+      </div>
+      <div class="panel">
+        <div class="steptitle" id="stTitle"></div>
+        <p class="cap" id="cap" aria-live="polite"></p>
+        <div class="hidden" id="qbox">
+          <div class="ask" id="qAsk"></div>
+          <div class="btnrow"><button type="button" class="btn plain" id="qBtn">🔍 看答案</button></div>
+          <div class="bigpoint hidden" id="qAns" aria-live="polite"></div>
+          <div class="btnrow hidden" id="toSumRow"><button type="button" class="btn green" id="toSum">🎉 往下看總結</button></div>
+        </div>
+      </div>
+      <div class="panel counter">
+        <div class="ctitle">🔢 食鹽的小粒子數一數 <small>（畫面裡只畫一點點，真的食鹽裡多到數不完）</small></div>
+        <div class="cbar" aria-hidden="true"><span class="seg vis" id="cbVis"></span><span class="seg dis" id="cbDis"></span></div>
+        <div class="cnums"><span><i class="sq" aria-hidden="true"></i>在看得見的食鹽顆粒裡：<b id="cVis">0</b></span><span><i class="dots" aria-hidden="true"></i>散開、看不見：<b id="cDis">0</b></span><span>一共：<b id="cTot">0</b>（一直沒變）</span></div>
+      </div>
+      <div class="panel">
+        <div class="toggles" role="group" aria-label="顯示">
+          <button type="button" class="cbtn" id="bLens" aria-pressed="true">🔍 超級放大鏡</button>
+          <button type="button" class="cbtn" id="bSuper" aria-pressed="false">👓 看見小粒子</button>
+          <button type="button" class="cbtn" id="bSpeed">速度 1×</button>
+          <button type="button" class="cbtn" id="bFull">⛶ 全螢幕</button>
+        </div>
+      </div>
+      <div class="panel legend" aria-label="圖例">
+        <div class="row"><span class="dotw" aria-hidden="true"></span>藍色圓點：水的小粒子（只在放大鏡裡看得到）</div>
+        <div class="row"><span class="dots" aria-hidden="true"></span>白色圓點：食鹽的小粒子（只在放大鏡裡看得到）</div>
+        <div class="row"><span class="sq" aria-hidden="true"></span>白色方塊：眼睛看得到的食鹽顆粒</div>
+        <div class="row shiyi">顏色只是為了分辨，真正的小粒子沒有顏色。整個畫面是電腦模擬的示意圖；小粒子是想像放大很多很多倍畫出來的。</div>
+      </div>
+    </aside>
+  </section>
+
+  <section class="panel summary hidden" id="summary">
+    <h2>🎉 看完了！食鹽去哪裡了？</h2>
+    <div class="sumgrid">
+      <div class="sumcard"><b class="k">① 溶解：看不見，但還在</b>證據：溶解前、後，電子秤都是 78 公克重；水面比原來的水面高。想像的解釋：食鹽散成很小很小的小粒子，混在整杯水裡（眼睛、放大鏡、顯微鏡都看不到）。</div>
+      <div class="sumcard"><b class="k">② 蒸發：跑掉的只有水</b>證據：秤從 78 變成 48 公克重，少的 30 公克重是跑掉的水；杯底留下白色的食鹽顆粒。想像的解釋：水的小粒子跑到空氣中變成水蒸氣，食鹽的小粒子留下來，又排成看得見的食鹽顆粒。</div>
+    </div>
+    <div class="bigpoint"><span class="must">必會 1</span>食鹽溶解後看不見，但沒有消失：溶解前後的總重量一樣。</div>
+    <div class="bigpoint"><span class="must">必會 3</span>讓水分蒸發，就能取回溶解在水裡的物質。</div>
+    <div class="btnrow"><button type="button" class="btn" id="againBtn">↺ 從頭再看一次</button>
+      <a class="btn green" href="../溶解現象/溶解現象_互動教材.html#dry" style="text-decoration:none;display:inline-flex;align-items:center">↩ 回〈溶解現象〉③ 取回溶質</a></div>
+  </section>
+
+  <div class="teacher-tip" id="tips">
+    <p><b class="time">給老師｜平面剖面版</b>：這一頁是把燒杯從中間切開、從側面看的畫法，水面線、刻度最清楚；同一個資料夾的〈一顆也沒少〉是可以轉動的 3D 立體版（需要 WebGPU）。不支援 WebGPU 的電腦、平板會自動轉到這一頁。</p>
+    <p><b class="time">給老師｜什麼時候播</b>：〈溶解現象〉① 站「必會 1」之後，播第 ① 章「溶解」（4 步，約 40 秒，加提問約 3 分鐘）；③ 站「一天一天看」之後，播第 ② 章「蒸發」（4 步，約 40 秒，加提問約 3 分鐘）。網址最後加 <b>#dissolve</b> 或 <b>#evaporate</b> 可以直接開到那一章。</p>
+    <p><b>操作</b>：每一步播完會自己停下來；按「下一步」繼續。暫停時，小粒子還是一直在動（水和食鹽的小粒子本來就一直在動）。請學生上臺拖曳燒杯上的小圓圈（超級放大鏡），看不同地方的小粒子。鍵盤：空白鍵播放／暫停、← → 上一步／下一步、M 放大鏡、G 看見小粒子、F 全螢幕。</p>
+    <p><b>「想像的」超級放大鏡</b>：溶解的食鹽，用眼睛、放大鏡、顯微鏡都看不到（題庫也這樣考）。畫面上的小粒子是「想像放大很多很多倍」畫出來的，請明講這一點。用「食鹽的小粒子」「水的小粒子」來說（課綱 INa-Ⅲ-1「物質是由微小的粒子所組成，而且粒子不斷的運動」是高年級的學習內容，可以用模型或動畫理解，不談原子、分子、離子）；看得見的才叫「食鹽顆粒」。學生問「小粒子之間是什麼」：什麼都沒有，不是空氣。</p>
+    <p><b>水面</b>：30 毫升的水加 6 公克重的食鹽：剛倒進去、還沒溶解時，水面大約升高 2.8 毫升；溶解以後大約只比原來高 2.1 毫升——比剛倒進去時低一點點（溶解後，食鹽的小粒子擠進水的小粒子之間的空隙），但一定比原來的水面高。學生如果問「為什麼溶解時水面降了一點」，就這樣回答。真實的燒杯比較寬，水面只升高 1–2 毫米，用細長的量筒才看得清楚；動畫把燒杯畫得比較窄，讓升高看得見。</p>
+    <p><b>電子秤</b>：紙拿起來時，紙和食鹽不在秤上，數字會變成 71；食鹽倒進水裡，數字慢慢變回 77；紙放回秤上，又是 78——呼應 ① 站虛擬實驗臺第 2 組（空的紙沒有放回秤上）。</p>
+    <p><b>蒸發</b>：只有水變成水蒸氣離開，食鹽留在杯子裡。水剩下大約一半多（約 17 毫升）時，水已經溶不下全部的食鹽，白色的食鹽就開始出現（對應 ③ 站時間軸的第 2 天）。秤最後是 48 公克重：少掉的 30 公克重是 30 毫升的水。動畫為了讓同一杯水連貫，直接讓燒杯裡的水蒸發；實驗時要照課本 66 頁倒進面積大的淺盤、放在通風處，乾得比較快。真的要好幾天，動畫是縮時。</p>
+    <p><b>提問</b>：第 1 步先問「倒進食鹽，水面會不會改變？」只記不判；第 4 步「食鹽去哪裡了？」請學生用秤和水面這兩個證據回答，再用放大鏡裡想像的小粒子解釋「為什麼看不見卻還在」；第 8 步「跑掉的是什麼？留下來的是什麼？」。</p>
+  </div>
+
+  <footer class="credits">
+    <p><b>教學依據：</b>南一自然五上課本第 64–66 頁（溶解、秤重、取回溶質）；數字與〈溶解現象〉互動教材一致：水和燒杯 71、食鹽和紙 7，溶解前後都是 78 公克重。</p>
+    <p>本頁所有畫面都是電腦模擬的示意圖（WebGPU 粒子模擬；不支援 WebGPU 的裝置改用一般模式，小粒子比較少）。小粒子的大小、燒杯的寬窄和時間都經過放大或縮短。</p>
+  </footer>
+</div>
+
+<script>
+"use strict";
+(function(){
+/* ==========================================================
+   一顆也沒少 — 程式
+   科學內容（不可講錯）：
+   ・食鹽溶解後變成非常小的小粒子，散在整杯水裡，看不見但還在：總重量不變（78 公克重）。
+   ・水面：倒入食鹽後升高（食鹽也佔位置）；溶解後比「剛倒入」略低，但仍比原來的水面高。
+     數字：30 毫升水＋6 公克重食鹽 → 固體約 2.77 毫升；溶解後體積只多約 2.05 毫升。
+   ・蒸發：只有水的小粒子離開（水蒸氣）；水剩約 16.7 公克重時飽和，開始析出食鹽；全乾後剩下全部的食鹽。
+     秤：78 − 30＝48 公克重（跑掉的是 30 毫升的水）。
+   ・放大鏡是「想像的」：真的放大鏡、顯微鏡都看不到溶解的食鹽。
+   座標：舞臺 1000×800（y 向下）；模擬用「世界座標」：燒杯內側左下角為原點、y 向上，寬 300、高 470。
+   ========================================================== */
+const $=id=>document.getElementById(id);
+const QS=new URLSearchParams(location.search);
+const REDUCED=!!(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches);
+const clamp=(x,a,b)=>x<a?a:x>b?b:x, lerp=(a,b,t)=>a+(b-a)*t;
+const smooth=t=>{t=clamp(t,0,1);return t*t*(3-2*t);};
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function gaussR(r){let u=0;while(u===0)u=r();return Math.sqrt(-2*Math.log(u))*Math.cos(6.283185307*r());}
+function shuffle(a,r){for(let i=a.length-1;i>0;i--){const j=Math.floor(r()*(i+1)),t=a[i];a[i]=a[j];a[j]=t;}return a;}
+
+/* ---------- 舞臺與燒杯 ---------- */
+const VB_WIDE=[0,0,1000,800], VB_TALL=[26,8,786,780];   /* 直式右緣到 812：加長的紙、紙上的食鹽、「空的紙」都在框內 */
+const BK={L:350,R:650,B:650,T:176};
+const WW=BK.R-BK.L, WH=470, GLASS=8;
+const PXML=10, H0=30*PXML;                 // 1 毫升＝水面高 10；原來的水面：30 毫升
+const CALL={x:185,y:330,r:150};            // 放大圖（大圓）
+const SX=x=>BK.L+x, SY=y=>BK.B-y;
+const V_SOLID=2.77, V_DISS=2.05;            // 6 公克重食鹽：固體約 2.77 毫升；溶解後只多約 2.05 毫升
+const ROD_R=3.5;
+/* 粒子狀態 */
+const WL=0,WV=1,GONE=2,SB=3,SF=4,SC=5,SK=6;
+
+/* ---------- 品質：WebGPU 用小粒子、數量多；一般模式顆粒大、數量少（畫面上看起來一樣） ---------- */
+function makeQ(gpu){
+  const d=gpu?1.6:4.0, n=gpu?8:4;
+  const rw=d/2, rs=0.4*d, aw=Math.PI*rw*rw/0.72;   /* 2D 裡排得太密會像固體、攪不動；0.72 比較像液體 */
+  const NW=Math.round(WW*H0/aw);
+  const G=Math.max(8,Math.round(V_SOLID*PXML*WW/(d*d)/(n*n)));
+  const NS=G*n*n;
+  return {gpu,d,n,rw,rs,aw,NW,NS,G,N:NW+NS,asd:V_DISS*PXML*WW/NS,zoom:18/d,
+    D:0.30*d*d, vrep:22*d, vwall:30*d, vmax:40*d, vatt:26*d, vup:30*d, band:2.5*d, snap:0.35*d,
+    range:1.25, cell:1.25*d, gw:Math.ceil(WW/(1.25*d))+2, gh:Math.ceil((WH+24)/(1.25*d))+2, kcap:10};
+}
+let Q=null, PLAN=null, CRY=null, RR=null, RRS=null, sim=null, MODE="";
+
+/* ==========================================================
+   倒食鹽的劇本：紙上的一小堆食鹽 → 紙拿起來、移到燒杯上方、傾斜 → 一顆一顆滑落、沉到杯底
+   ========================================================== */
+const PAPER={len:120,th:3};
+/* 紙舉到 490（紙底高過杯口）平移，到杯口正上方才一邊傾斜一邊降到 470：紙上的食鹽不會跑出畫面上緣，也不會穿過杯壁 */
+const PKEY=[[0,316,-8,0],[1.0,316,490,0],[2.0,172,490,0],[2.6,172,470,0.5],[6.6,172,470,0.5],[7.1,172,490,0],[8.1,316,490,0],[9.0,316,-8,0]];
+function paperPose(t){
+  if(t<=0) return {x:PKEY[0][1],y:PKEY[0][2],a:0};
+  for(let k=1;k<PKEY.length;k++){const A=PKEY[k-1],B=PKEY[k];
+    if(t<=B[0]){const u=smooth((t-A[0])/(B[0]-A[0]));return {x:lerp(A[1],B[1],u),y:lerp(A[2],B[2],u),a:lerp(A[3],B[3],u)};}}
+  const L=PKEY[PKEY.length-1];return {x:L[1],y:L[2],a:L[3]};
+}
+function onPaper(pp,u,v,al){const c=Math.cos(pp.a),s=Math.sin(pp.a),vy=v+PAPER.th;return {x:pp.x+c*u-s*vy,y:pp.y+s*u+c*vy,a:pp.a+al};}
+const GACC=1100;
+/* 杯底的一堆：依到達順序往上疊（天際線）；S2 的終點和 S3 的起點用同一個函式，才會接得上 */
+function settle(list){   // list：[{x,a,hs}]（依到達順序）→ 回傳每一顆的 y
+  const sky=new Float32Array(WW+1), ys=[];
+  for(const g of list){
+    if(g.hs<=0){ys.push(-999);continue;}
+    const hf=g.hs*(Math.abs(Math.cos(g.a))+Math.abs(Math.sin(g.a)));
+    const x0=clamp(Math.floor(g.x-hf),0,WW), x1=clamp(Math.ceil(g.x+hf),0,WW);
+    let base=0; for(let k=x0;k<=x1;k++) if(sky[k]>base) base=sky[k];
+    const y=base+hf; ys.push(y);
+    const u0=clamp(Math.floor(g.x-hf*0.9),0,WW), u1=clamp(Math.ceil(g.x+hf*0.9),0,WW), top=base+hf*1.95;
+    for(let k=u0;k<=u1;k++) if(sky[k]<top) sky[k]=top;
+  }
+  return ys;
+}
+function makePlan(){
+  const r=mulberry32(5021), hs=Q.n*Q.d/2, G=Q.G, gs=new Array(G);
+  /* ① 紙上的一小堆（紙的座標：u 從左邊的紙尖算起、v 從紙面往上） */
+  const sky=new Float32Array(PAPER.len+1);
+  const probeP=(u,hf)=>{ let b=0; for(let k=Math.floor(u-hf);k<=Math.ceil(u+hf);k++) b=Math.max(b,sky[clamp(k,0,PAPER.len)]); return b; };
+  for(const g of shuffle([...Array(G).keys()],r)){
+    const al=(r()-0.5)*0.5, hf=hs*(Math.abs(Math.cos(al))+Math.abs(Math.sin(al)));
+    let best=null;
+    for(let k=0;k<20;k++){ const u=clamp(62+gaussR(r)*26,8+hf,PAPER.len-4-hf), b=probeP(u,hf), sc=b+0.03*Math.abs(u-62); if(!best||sc<best.sc) best={u,b,sc}; }
+    const u=best.u, base=best.b;
+    const v=base+hf*0.92;
+    for(let k=Math.floor(u-hf*0.8);k<=Math.ceil(u+hf*0.8);k++){const kk=clamp(k,0,PAPER.len);sky[kk]=Math.max(sky[kk],base+hf*1.84);}
+    gs[g]={g,hs,u,v,al};
+  }
+  /* ② 滑落順序：靠近紙尖、在上面的先滑 */
+  const ord=[...Array(G).keys()].map(g=>({g,k:gs[g].u-gs[g].v*0.5+r()*14})).sort((a,b)=>a.k-b.k);
+  ord.forEach((o,k)=>{
+    const P=gs[o.g];
+    P.td=2.75+3.2*(k+0.6*r())/G; P.ta=P.td+0.28;
+    const pp=paperPose(P.ta), X=onPaper(pp,0,hs,P.al+0.4);
+    P.X={x:X.x,y:X.y}; P.a0=X.a;
+    const c=Math.cos(pp.a), s=Math.sin(pp.a);
+    const sp=40+70*r();
+    P.V={x:-c*sp+gaussR(r)*10, y:-s*sp};
+    P.w=(r()-0.5)*8;
+    const he=H0+8+18*(k/G);
+    P.se=(P.V.y+Math.sqrt(P.V.y*P.V.y+2*GACC*Math.max(0,P.X.y-he)))/GACC;
+    P.te=P.ta+P.se; P.xe=P.X.x+P.V.x*P.se; P.ye=he; P.ae=P.a0+P.w*P.se;
+    P.xr=clamp(P.xe*0.55+WW/2*0.45+gaussR(r)*42,hs*1.6+2,WW-hs*1.6-2);
+    P.ar=(r()-0.5)*0.36; P.vs=90+40*r();
+    P.f=0.9+0.35*r(); P.ph=r()*6.283;
+  });
+  /* ③ 杯底的位置（依到達水面的時間） */
+  const arr=[...gs].sort((a,b)=>a.te-b.te);
+  arr.forEach((P,k)=>P.order=k);
+  { /* 依到達順序，每一顆在落點附近試幾個位置、挑最低的地方（和 settle() 同一套疊法） */
+    const sky=new Float32Array(WW+1), lo=hs*1.6+2, hi=WW-hs*1.6-2;
+    for(const P of arr){
+      const hf=hs*(Math.abs(Math.cos(P.ar))+Math.abs(Math.sin(P.ar)));
+      let best=null;
+      for(let k=0;k<16;k++){ const x=clamp(P.xr+(k?gaussR(r)*40:0),lo,hi), x0=clamp(Math.floor(x-hf),0,WW), x1=clamp(Math.ceil(x+hf),0,WW);
+        let b=0; for(let q=x0;q<=x1;q++) if(sky[q]>b) b=sky[q];
+        const sc=b+0.03*Math.abs(x-P.xr); if(!best||sc<best.sc) best={x,b,sc}; }
+      P.xr=best.x;
+      const u0=clamp(Math.floor(P.xr-hf*0.9),0,WW), u1=clamp(Math.ceil(P.xr+hf*0.9),0,WW), top=best.b+hf*1.95;
+      for(let q=u0;q<=u1;q++) if(sky[q]<top) sky[q]=top;
+    }
+  }
+  const ys=settle(arr.map(P=>({x:P.xr,a:P.ar,hs})));
+  arr.forEach((P,k)=>{P.yr=ys[k]; P.Tw=Math.max(0.5,(P.ye-P.yr)/P.vs); P.tr=P.te+P.Tw;});
+  /* 放大鏡要盯著的那一顆：杯底、最靠近中間 */
+  let best=null; for(const P of gs){ if(P.yr>hs*1.6) continue; const k=Math.abs(P.xr-WW/2); if(!best||k<best.k) best={k,P}; }
+  return {g:gs,arr,hs,focus:(best?best.P:gs[0]).g};
+}
+/* 釋放門檻：外層先離開（depth＝離邊緣幾層），同一層有先有後 */
+function makeRR(){
+  const r=mulberry32(733), n=Q.n, L=n/2, rr=new Float32Array(Q.NS), srt=[];
+  for(let g=0;g<Q.G;g++){
+    const a=[];
+    for(let k=0;k<n*n;k++){const ix=k%n, iy=(k/n)|0, dep=Math.min(ix,iy,n-1-ix,n-1-iy);
+      const v=(dep+0.08+0.84*r())/L; rr[g*n*n+k]=v; a.push(v);}
+    srt.push(Float32Array.from(a.sort((x,y)=>x-y)));
+  }
+  return {rr,srt};
+}
+function releasedCount(g,p){ // rr < p 的顆數（二分搜尋）
+  const a=RRS[g]; let lo=0,hi=a.length; while(lo<hi){const m=(lo+hi)>>1; if(a[m]<p) lo=m+1; else hi=m;} return lo;
+}
+/* 第 ③ 步「攪拌」的溶解進度 */
+function dissolveP(P,t){ return t<1.5 ? 0.02*t : 0.03+0.105*P.f*(t-1.5); }
+function stirAmp(t){ const on=smooth((t-1.5)/0.8); return t<12.5?on:on*(0.3+0.7*Math.exp(-(t-12.5)/1.2)); }
+function rodAmp(t){ return smooth((t-1.5)/0.8)*(1-smooth((t-12.2)/0.8)); }
+
+/* 倒入時每一顆的位置 */
+function poseS2(P,t){
+  if(t<P.td) return onPaper(paperPose(t),P.u,P.v,P.al);
+  if(t<P.ta){const k=smooth((t-P.td)/(P.ta-P.td)); return onPaper(paperPose(t),lerp(P.u,0,k),lerp(P.v,P.hs,k),P.al+0.4*k);}
+  if(t<P.te){const s=t-P.ta; return {x:P.X.x+P.V.x*s, y:P.X.y+P.V.y*s-0.5*GACC*s*s, a:P.a0+P.w*s};}
+  if(t<P.tr){const u=(t-P.te)/P.Tw; return {x:lerp(P.xe,P.xr,smooth(u)), y:P.ye-(P.ye-P.yr)*(1-(1-u)*(1-u)), a:lerp(P.ae,P.ar,smooth(u))};}
+  return {x:P.xr,y:P.yr,a:P.ar};
+}
+function posesS2(t){
+  const n2=Q.n*Q.n;
+  return PLAN.g.map(P=>{const q=poseS2(P,t); return {x:q.x,y:q.y,a:q.a,p:0,rem:n2,hs:P.hs,inB:t>=P.te};});
+}
+function posesS3(t){
+  const n2=Q.n*Q.n, out=new Array(Q.G);
+  const list=PLAN.arr.map(P=>{
+    const p=dissolveP(P,t), rem=n2-releasedCount(P.g,p);
+    const hsE=rem>0?P.hs*Math.sqrt(rem/n2):0;
+    const ra=rodAmp(t), x=P.xr+ra*3.5*Math.sin(2.4*(t-1.5)+P.ph), a=P.ar+ra*0.12*Math.sin(1.9*t+P.ph);
+    return {P,p,rem,x,a,hs:hsE};
+  });
+  const ys=settle(list);
+  list.forEach((o,k)=>{ out[o.P.g]={x:o.x,y:ys[k],a:o.a,p:o.p,rem:o.rem,hs:o.hs,inB:true}; });
+  return out;
+}
+
+/* ==========================================================
+   蒸發後長出來的食鹽晶體：大小不一的立方體，從杯底長起
+   ========================================================== */
+function makeCrystals(){
+  const r=mulberry32(909), d=Q.d, cols=Math.floor(WW/d), N=Q.NS;
+  const sky=new Int32Array(cols), own=new Int32Array(cols).fill(-1), cr=[]; let total=0, guard=0;
+  /* 晶體鋪在杯底：6 公克重的食鹽鋪平只有約 2.8 毫升（28）高，所以晶體不要太大，先找杯底低、平的地方放，不要疊成比水還高的塔 */
+  const smin=Q.gpu?6:3, smax=Q.gpu?11:5;
+  while(total<N && guard++<3000){
+    const s=Math.round(lerp(smin,smax,r()));
+    let best=null;
+    for(let tr=0;tr<40;tr++){
+      const c0=1+Math.floor(r()*Math.max(1,cols-s-2)); let base=0, lo=1e9;
+      for(let c=c0-1;c<=c0+s;c++){ const v=sky[clamp(c,0,cols-1)]; if(v>base) base=v; if(c>=c0&&c<c0+s&&v<lo) lo=v; }
+      /* 底下不平（下面會留下空洞）的位置扣分；正好疊在同一塊晶體正上方（會疊成一根柱子）也扣分，要跨在兩塊之間錯開疊，看起來才像一堆方塊 */
+      let one=true; for(let c=c0+1;c<c0+s;c++) if(own[c]!==own[c0]){ one=false; break; }
+      const sc=base+0.6*(base-lo)+(base>0&&one?0.5*s:0);
+      if(!best||sc<best.sc) best={c0,base,sc};
+    }
+    const take=Math.min(s*s,N-total);
+    cr.push({c0:best.c0,r0:best.base,s,take,dl:0.22*r()});
+    for(let c=best.c0;c<best.c0+s;c++){ sky[c]=best.base+s; own[c]=cr.length-1; }
+    total+=take;
+  }
+  const slots=[];
+  cr.forEach((C,ci)=>{
+    const loc=[];
+    for(let iy=0;iy<C.s;iy++) for(let ix=0;ix<C.s;ix++)
+      loc.push({ix,iy,k:Math.hypot(ix-(C.s-1)/2,iy*1.25)+0.9*r()});
+    loc.sort((a,b)=>a.k-b.k);
+    loc.slice(0,C.take).forEach((o,m)=>{
+      /* 由下往上一層一層長（同一層裡先後隨機）：水的小粒子會被往上擠出去，不會被關在晶體裡；長好的部分也一直在水面以下 */
+      slots.push({x:(C.c0+o.ix+0.5)*d, y:(C.r0+o.iy+0.5)*d, row:C.r0+o.iy, ci, key:(C.r0+o.iy)+0.8*r()+2*C.dl});
+    });
+  });
+  const order=slots.map((s,k)=>k).sort((a,b)=>slots[a].key-slots[b].key);
+  const rank=new Float32Array(slots.length); order.forEach((k,m)=>rank[k]=(m+0.5)/slots.length);
+  let big=null; cr.forEach(C=>{ if(C.r0===0 && (!big||C.take>big.take)) big=C; });
+  const rows=Math.ceil(WH/d)+2;
+  return {cr,slots,order,rank,rows,rowCnt:new Uint32Array(rows),
+    focus:big?{x:(big.c0+big.s/2)*d,y:Math.min(big.s*d*0.55,30)}:{x:WW/2,y:14}};
+}
+const cOf=e=>clamp(1-1.8*(1-e),0,1);   // 水剩下 30(1-e) 公克重，只溶得下 0.36 倍的食鹽
+
+/* ---------- 水面（體積記帳） ---------- */
+function levelCh1(poses,released,rodOn,rodTip){
+  let h=H0;
+  for(let it=0;it<3;it++){
+    let A=WW*H0+released*Q.asd;
+    for(const g of poses){
+      if(!g||g.rem<=0||g.x<0||g.x>WW) continue;
+      const hf=g.hs*(Math.abs(Math.cos(g.a))+Math.abs(Math.sin(g.a)));
+      const f=clamp((h-(g.y-hf))/(2*hf),0,1);
+      A+=g.rem*Q.d*Q.d*f;
+    }
+    if(rodOn) A+=2*ROD_R*Math.max(0,h-rodTip);
+    h=A/WW;
+  }
+  return h;
+}
+function levelCh2(e,c){
+  const Aliq=WW*H0*(1-e)+Q.NS*(1-c)*Q.asd;
+  if(Aliq<=0.5) return 0;
+  const kc=Math.floor(c*CRY.slots.length), rc=CRY.rowCnt; rc.fill(0);
+  for(let m=0;m<kc;m++) rc[CRY.slots[CRY.order[m]].row]++;
+  let lo=0,hi=WH;
+  for(let it=0;it<28;it++){
+    const h=(lo+hi)/2; let Ac=0;
+    for(let j=0;j<CRY.rows;j++){ const y0=j*Q.d; if(h<=y0) break; if(rc[j]) Ac+=rc[j]*Q.d*Math.min(Q.d,h-y0); }
+    if(WW*h-Ac<Aliq) lo=h; else hi=h;
+  }
+  return (lo+hi)/2;
+}
+
+/* ==========================================================
+   步驟（每一步的字幕、提問；起始狀態由程式建構，所以可以任意跳步）
+   ========================================================== */
+const STEPS=[
+  {id:"water",ch:1,title:"一杯水",dur:7,build:"s1",
+   caps:[[0,"燒杯裡有 30 毫升的水，旁邊的紙上放著食鹽。燒杯和紙都放在電子秤上：78 公克重。"],
+         [3.2,"用「想像的超級放大鏡」看水：水是由非常多、非常小的「水的小粒子」組成的，它們一直在動。"]],
+   ask:"先猜猜看：把食鹽倒進水裡，水面會不會改變？", ans:null},
+  {id:"pour",ch:1,title:"倒入食鹽",dur:10.5,build:"s1",live:true,
+   caps:[[0,"把放食鹽的紙拿起來。紙拿在手上時，秤上少了紙和食鹽，數字變小了。"],
+         [3.0,"食鹽倒進水裡，沉到杯底。"],
+         [5.6,"放大看：一顆食鹽，是很多「食鹽的小粒子」排得整整齊齊組成的。"],
+         [7.6,"水面比原來的水面高了一點：食鹽也佔了空間。"],
+         [9.1,"紙放回秤上：還是 78 公克重。"]]},
+  {id:"stir",ch:1,title:"攪拌溶解",dur:16,build:"s3",live:true,
+   caps:[[0,"用攪拌棒攪拌。（真的大約要攪拌 1–2 分鐘）"],
+         [1.8,"放大看：食鹽的小粒子一個一個離開，散到水的小粒子中間。"],
+         [6.5,"食鹽顆粒愈來愈小……"],
+         [10.8,"小到眼睛看不見了！"],
+         [13.0,"攪拌棒拿出來。"]]},
+  {id:"gone",ch:1,title:"看不見了",dur:5,build:"mixed",live:true,
+   caps:[[0,"食鹽看不見了。看看兩個證據：<span class=\"ev\">① 電子秤：還是 78 公克重。<br>② 水面：還是比原來的水面高。</span>"]],
+   ask:"食鹽去哪裡了？",
+   ans:"還在水裡！<small>證據：溶解前後都是 78 公克重；水面比原來的水面高。</small><small>想像的解釋：放大很多很多倍來想，食鹽散成很小很小的小粒子，混在整杯水裡，上面、中間、下面都有，所以眼睛看不見。（真的放大鏡、顯微鏡也看不到，只看得到透明的水。）</small>"},
+  {id:"window",ch:2,title:"放在窗邊",dur:4,build:"mixed",live:true,
+   caps:[[0,"把這杯食鹽水放在通風的窗邊，讓水分慢慢蒸發。空的紙也一起留在秤上：78 公克重。"],
+         [2.0,"（縮時：真的要好幾天，這裡幾十秒看完）"]]},
+  {id:"evap",ch:2,title:"水分蒸發",dur:14,build:"c2",e0:0,live:true,assign:true,
+   caps:[[0,"放大看水面：水的小粒子從水面跑到空氣中，變成看不見的水蒸氣。"],
+         [5.0,"食鹽的小粒子不會跟著跑掉，一直留在水裡。"],
+         [9.5,"水愈來愈少，秤的數字也愈來愈小。"]]},
+  {id:"crystal",ch:2,title:"食鹽出現",dur:14,build:"c2",e0:0.47,live:true,
+   caps:[[0,"水變少了，溶不下這麼多食鹽，食鹽的小粒子愈來愈擠。"],
+         [3.5,"食鹽的小粒子又排得整整齊齊，長成方方的食鹽顆粒……"],
+         [8.0,"白色的食鹽顆粒出現了，眼睛又看得到了！"]]},
+  {id:"dry",ch:2,title:"全部乾了",dur:7,build:"c2",e0:0.93,live:true,
+   caps:[[0,"全部乾了！看看燒杯裡還剩下什麼？"],
+         [3.2,"電子秤：從 78 變成 48 公克重，少了 30 公克重。"]],
+   ask:"跑掉的是什麼？留下來的是什麼？",
+   ans:"跑掉的是水（變成水蒸氣）；留下來的是食鹽。<small>少掉的 30 公克重，就是 30 毫升的水。食鹽沒有跟著水跑掉，所以讓水分蒸發，就能取回食鹽。</small>"}
+];
+const CH_FIRST={1:0,2:4};
+const MIXK=+(QS.get("mixk")||2.0);   /* 食鹽小粒子被帶到整杯水各處的快慢（每秒） */
+function evapE(i,t){
+  const id=STEPS[i].id;
+  if(id==="evap") return 0.47*(t/14);
+  if(id==="crystal") return 0.47+0.46*(t/14);
+  if(id==="dry") return 0.93+0.07*smooth(t/5);
+  return 0;
+}
+
+/* 一個時間點的全部場景參數 */
+function scene(i,t){
+  const st=STEPS[i], id=st.id;
+  const sc={i,t,ch:st.ch,paper:paperPose(0),paperOn:true,poses:null,released:0,rodOn:false,rodX:WW/2,rodY0:600,
+            stirA:0,stirT:t,e:0,c:0,reading:78,h:H0,lens:{x:150,y:190},day:1,dayF:0,win:0,orig:false,vapor:false,grainsP:9,mix:0};
+  if(id==="water"){ sc.poses=posesS2(0); sc.lens={x:150,y:190}; }
+  else if(id==="pour"){
+    sc.paper=paperPose(t); sc.paperOn=t<0.15||t>=8.95; sc.poses=posesS2(t); sc.orig=t>=2.6;
+    let inB=0; for(const g of sc.poses) if(g.inB) inB++;
+    sc.reading=Math.round(71+6*inB/Q.G+(sc.paperOn?1+6*(Q.G-inB)/Q.G:0));
+    if(sc.paperOn) sc.reading=78;
+    const F=PLAN.g[PLAN.focus];
+    sc.lens= t<2.6?{x:150,y:190}:{x:F.xr,y:F.yr};
+  }
+  else if(id==="stir"){
+    sc.orig=true; sc.poses=posesS3(t);
+    for(const g of sc.poses) sc.released+=Q.n*Q.n-g.rem;
+    if(t>=0.3&&t<14.2){
+      sc.rodOn=true;
+      const down=smooth((t-0.3)/1.2), up=smooth((t-12.8)/1.4), amp=rodAmp(t);
+      sc.rodY0=lerp(560,64,down*(1-up));
+      sc.rodX=WW/2+92*amp*Math.sin(2.4*(t-1.5));
+    }
+    sc.stirA=80*stirAmp(t)*(REDUCED?0.6:1); sc.mix=MIXK*smooth((t-6)/3);
+    const F=sc.poses[PLAN.focus];
+    sc.lens=(F&&F.rem>0&&t<9)?{x:F.x,y:F.y}:{x:150,y:150};
+  }
+  else if(id==="gone"){ sc.orig=true; sc.released=Q.NS; sc.lens={x:150,y:160}; sc.stirA=80*0.3*Math.exp(-t/1.4)*(REDUCED?0.6:1); sc.stirT=16+t; sc.mix=MIXK; }
+  else{
+    sc.mix=MIXK;
+    sc.e=evapE(i,t); sc.c=cOf(sc.e); sc.win=id==="window"?smooth(t/1.5):1;
+    sc.reading=Math.round(78-30*sc.e);
+    const D3=clamp(sc.e*3,0,2.9999); sc.day=Math.floor(D3)+1; sc.dayF=D3-Math.floor(D3);
+    if(id==="window"){ sc.released=Q.NS; sc.dayF=0.25*smooth(t/4); }
+    sc.vapor=id!=="window"&&sc.e<0.995;
+  }
+  if(sc.ch===1) sc.h=levelCh1(sc.poses||[],sc.released,sc.rodOn,sc.rodY0);
+  else sc.h=levelCh2(sc.e,sc.c);
+  if(id==="window"||id==="evap") sc.lens={x:150,y:Math.max(sc.h-14,16)};
+  if(id==="crystal"||id==="dry") sc.lens={x:CRY.focus.x,y:CRY.focus.y};
+  return sc;
+}
+
+/* ==========================================================
+   建構每一步的起始狀態（位置、狀態、附加資料）
+   ========================================================== */
+function hexFill(count,y1,blocked,blockedArea,r){
+  let s=Math.sqrt(Math.max(1,WW*y1-blockedArea)/(count*0.8660254)), last=[];
+  for(let tries=0;tries<16;tries++){
+    const pts=[], dy=s*0.8660254; last=pts;
+    for(let j=0;;j++){
+      const y=dy*(j+0.5); if(y>y1-0.3*s) break;
+      const off=(j&1)?0.5:0;
+      for(let i=0;;i++){
+        const x=s*(i+0.3+off); if(x>WW-0.3*s) break;
+        const jx=x+(r()-0.5)*0.36*s, jy=y+(r()-0.5)*0.36*s;
+        if(blocked&&blocked(jx,jy)) continue;
+        pts.push(jx,jy);
+      }
+    }
+    const n=pts.length/2;
+    if(n>=count){
+      const keep=shuffle([...Array(n).keys()],r).slice(0,count), out=new Float32Array(count*2);
+      for(let m=0;m<count;m++){out[m*2]=pts[keep[m]*2];out[m*2+1]=pts[keep[m]*2+1];}
+      return out;
+    }
+    s*=0.985;
+  }
+  /* 還是排不下（例如水快乾、杯底都是晶體）：剩下的用隨機位置補上，開始的幾步模擬會把重疊推開 */
+  const out=new Float32Array(count*2), n0=Math.min(count,last.length/2);
+  for(let m=0;m<n0;m++){out[m*2]=last[m*2];out[m*2+1]=last[m*2+1];}
+  for(let m=n0,g=0;m<count;g++){
+    const x=r()*WW, y=r()*Math.max(y1,0.5);
+    if(g<count*40&&blocked&&blocked(x,y)) continue;
+    out[m*2]=x; out[m*2+1]=y; m++;
+  }
+  return out;
+}
+function newArrays(){return {pos:new Float32Array(Q.N*4),st:new Uint32Array(Q.N),info:new Float32Array(Q.N*4)};}
+/* 散開的食鹽小粒子的去處：和 WGSL_SIM 的 hconst()／tri() 同一套算法（建構時直接放在去處，一開始就均勻） */
+function pcgJ(v){ const s=(Math.imul(v>>>0,747796405)+2891336453)>>>0, w=Math.imul(((s>>>((s>>>28)+4))^s)>>>0,277803737)>>>0; return ((w>>>22)^w)>>>0; }
+const hcJ=(i,k)=>pcgJ((Math.imul(i,7)+Math.imul(k,101))>>>0)*2.3283064e-10, triJ=x=>1-Math.abs(2*(x-Math.floor(x))-1);
+function saltTarget(i,time,lid){
+  const ph=time*(0.010+0.015*hcJ(i,17));
+  return [(0.02+0.96*triJ(hcJ(i,11)+ph*0.6))*WW,(0.03+0.94*triJ(hcJ(i,19)+ph))*Math.max(lid,0.5)];
+}
+function putWater(A,pts,count){
+  for(let i=0;i<Q.NW;i++){
+    if(i<count){A.pos[i*4]=pts[i*2];A.pos[i*4+1]=pts[i*2+1];A.st[i]=WL;}
+    else{A.pos[i*4]=-50;A.pos[i*4+1]=-50;A.st[i]=GONE;}
+    A.info[i*4]=2;
+  }
+}
+function putGrainsSalt(A,poses){
+  const n=Q.n, n2=n*n;
+  for(let j=0;j<Q.NS;j++){
+    const i=Q.NW+j, g=(j/n2)|0, k=j%n2, ix=k%n, iy=(k/n)|0;
+    const lx=(ix-(n-1)/2)*Q.d, ly=(iy-(n-1)/2)*Q.d, P=poses[g], c=Math.cos(P.a), s=Math.sin(P.a);
+    A.pos[i*4]=P.x+c*lx-s*ly; A.pos[i*4+1]=P.y+s*lx+c*ly;
+    A.st[i]=SB|(g<<8); A.info[i*4]=lx; A.info[i*4+1]=ly; A.info[i*4+2]=RR[j]; A.info[i*4+3]=2;
+  }
+}
+function inGrain(poses,m){
+  const sq=poses.filter(g=>g.rem>0).map(g=>({x:g.x,y:g.y,c:Math.cos(g.a),s:Math.sin(g.a),h:g.hs+m,R:(g.hs+m)*1.42}));
+  return (x,y)=>{ for(const g of sq){ const dx=x-g.x, dy=y-g.y; if(Math.abs(dx)>g.R||Math.abs(dy)>g.R) continue;
+    const lx=g.c*dx+g.s*dy, ly=-g.s*dx+g.c*dy; if(Math.abs(lx)<g.h&&Math.abs(ly)<g.h) return true; } return false; };
+}
+function buildState(i){
+  const st=STEPS[i], r=mulberry32(1000+i*17), A=newArrays();
+  if(st.build==="s1"){
+    putWater(A,hexFill(Q.NW,H0,null,0,r),Q.NW);
+    putGrainsSalt(A,posesS2(0));
+  }else if(st.build==="s3"){
+    const poses=posesS3(0), h=levelCh1(poses,0,false,600);
+    putWater(A,hexFill(Q.NW,h,inGrain(poses,Q.rw*0.9),Q.NS*Q.d*Q.d*1.1,r),Q.NW);
+    putGrainsSalt(A,poses);
+  }else if(st.build==="mixed"){
+    const h=(WW*H0+Q.NS*Q.asd)/WW, pts=hexFill(Q.NW+Q.NS,h,null,0,r);
+    const ids=shuffle([...Array(Q.NW+Q.NS).keys()],r);
+    for(let m=0;m<Q.NW+Q.NS;m++){
+      const i2=m<Q.NW?m:m, k=ids[m];
+      A.pos[i2*4]=pts[k*2]; A.pos[i2*4+1]=pts[k*2+1];
+      if(m<Q.NW){A.st[i2]=WL;A.info[i2*4]=2;} else {A.st[i2]=SF;A.info[i2*4+2]=-1;A.info[i2*4+3]=2; const g=saltTarget(i2,simTime,h); A.pos[i2*4]=g[0]; A.pos[i2*4+1]=g[1];}
+    }
+  }else if(st.build==="c2"){
+    const e=st.e0, c=cOf(e), kc=Math.floor(c*Q.NS), nw=Math.round(Q.NW*(1-e)), h=levelCh2(e,c);
+    const cols=Math.ceil(WW/Q.d)+2;
+    const grid=new Uint8Array(cols*(CRY.rows+2));
+    for(let m=0;m<kc;m++){const s=CRY.slots[CRY.order[m]]; grid[(s.row)*cols+Math.floor(s.x/Q.d)]=1;}
+    const blocked=(x,y)=>{const cx=Math.floor(x/Q.d), cy=Math.floor(y/Q.d);
+      for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){const X=cx+dx,Y=cy+dy; if(X<0||Y<0||X>=cols||Y>=CRY.rows) continue;
+        if(grid[Y*cols+X]){ const sx=(X+0.5)*Q.d, sy=(Y+0.5)*Q.d; if(Math.abs(x-sx)<Q.d*0.5+Q.rw*0.9&&Math.abs(y-sy)<Q.d*0.5+Q.rw*0.9) return true; }}
+      return false;};
+    const yTop=Math.max(h,Q.d*1.5), nFree=Q.NS-kc, pts=hexFill(nw+nFree,yTop,blocked,kc*Q.d*Q.d,r);
+    const ids=shuffle([...Array(nw+nFree).keys()],r);
+    const wp=new Float32Array(nw*2); for(let m=0;m<nw;m++){wp[m*2]=pts[ids[m]*2];wp[m*2+1]=pts[ids[m]*2+1];}
+    putWater(A,wp,nw);
+    for(let j=0;j<Q.NS;j++){
+      const i2=Q.NW+j;
+      if(j<kc){const sl=CRY.slots[CRY.order[j]]; A.pos[i2*4]=sl.x; A.pos[i2*4+1]=sl.y; A.st[i2]=SC; A.info[i2*4]=sl.x; A.info[i2*4+1]=sl.y; A.info[i2*4+3]=CRY.rank[CRY.order[j]];}
+      else{const k=ids[nw+(j-kc)], g=saltTarget(i2,simTime,yTop), ok=!blocked(g[0],g[1]); A.pos[i2*4]=ok?g[0]:pts[k*2]; A.pos[i2*4+1]=ok?g[1]:pts[k*2+1]; A.st[i2]=SF;}
+    }
+    assignCh2(A.pos,A.st,A.info,e,kc);
+  }
+  return A;
+}
+/* 第 ② 章：水的蒸發順序（靠水面的先走）、食鹽小粒子要去哪一個晶體位置（近的先排） */
+function assignCh2(pos,stt,info,e,kc){
+  const r=mulberry32(4242);
+  const ws=[]; for(let i=0;i<Q.NW;i++) if((stt[i]&255)===WL) ws.push({i,k:pos[i*4+1]+(r()-0.5)*Q.d*3});
+  ws.sort((a,b)=>b.k-a.k);
+  ws.forEach((o,m)=>{ info[o.i*4]=e+(1-e)*(m+0.5)/ws.length; });
+  const free=[]; for(let j=0;j<Q.NS;j++){const i=Q.NW+j, s=stt[i]&255; if(s!==SC) free.push(i);}
+  const C=8*Q.d, gx=Math.ceil(WW/C)+1, gy=Math.ceil((WH+40)/C)+1, cells=Array.from({length:gx*gy},()=>[]);
+  for(const i of free){ const cx=clamp(Math.floor(pos[i*4]/C),0,gx-1), cy=clamp(Math.floor(pos[i*4+1]/C),0,gy-1); cells[cy*gx+cx].push(i); }
+  const used=new Uint8Array(Q.N);
+  for(let m=kc;m<CRY.slots.length;m++){
+    const sl=CRY.slots[CRY.order[m]], cx=clamp(Math.floor(sl.x/C),0,gx-1), cy=clamp(Math.floor(sl.y/C),0,gy-1);
+    let best=-1, bd=1e18;
+    for(let R=0;R<Math.max(gx,gy)&&best<0;R++){
+      for(let yy=cy-R;yy<=cy+R;yy++) for(let xx=cx-R;xx<=cx+R;xx++){
+        if(xx<0||yy<0||xx>=gx||yy>=gy) continue;
+        if(Math.max(Math.abs(xx-cx),Math.abs(yy-cy))!==R) continue;
+        const L=cells[yy*gx+xx];
+        for(let q=L.length-1;q>=0;q--){const i=L[q]; if(used[i]){L.splice(q,1);continue;}
+          const dx=pos[i*4]-sl.x, dy=pos[i*4+1]-sl.y, dd=dx*dx+dy*dy; if(dd<bd){bd=dd;best=i;}}
+      }
+      if(best>=0&&R>0) break;
+    }
+    if(best<0) break;
+    used[best]=1;
+    info[best*4]=sl.x; info[best*4+1]=sl.y; info[best*4+2]=-1; info[best*4+3]=CRY.rank[CRY.order[m]];
+  }
+}
+
+/* ==========================================================
+   WebGPU：compute shader 模擬＋畫小粒子
+   ========================================================== */
+const WGSL_SIM=`
+const WL:u32=0u; const WV:u32=1u; const GONE:u32=2u; const SB:u32=3u; const SF:u32=4u; const SC:u32=5u; const SK:u32=6u;
+struct Sim {
+  W:f32, H:f32, lid:f32, dt:f32,
+  time:f32, seed:u32, n:u32, gw:u32,
+  gh:u32, cell:f32, rw:f32, rs:f32,
+  D:f32, vrep:f32, vwall:f32, solidK:f32,
+  stirA:f32, stirT:f32, rodX:f32, rodY0:f32,
+  rodR:f32, rodOn:f32, band:f32, evapQ:f32,
+  cryC:f32, vatt:f32, vup:f32, calledWaterK:f32,
+  kcap:u32, vmax:f32, snap:f32, vapLife:f32,
+  rangeK:f32, yscale:f32, mixK:f32, yscaleS:f32,
+};
+@group(0) @binding(0) var<uniform> S:Sim;
+@group(0) @binding(1) var<storage,read> posIn:array<vec4f>;
+@group(0) @binding(2) var<storage,read_write> posOut:array<vec4f>;
+@group(0) @binding(3) var<storage,read_write> st:array<u32>;
+@group(0) @binding(4) var<storage,read> info:array<vec4f>;
+@group(0) @binding(5) var<storage,read> grains:array<vec4f>;
+@group(0) @binding(6) var<storage,read_write> gcount:array<atomic<u32>>;
+@group(0) @binding(7) var<storage,read_write> gitems:array<u32>;
+
+fn pcg(v:u32)->u32 {
+  let s=v*747796405u+2891336453u;
+  let w=((s>>((s>>28u)+4u))^s)*277803737u;
+  return (w>>22u)^w;
+}
+fn rnd(i:u32,k:u32)->f32 { return f32(pcg(i*3u+k+pcg(S.seed)))*2.3283064e-10; }
+fn hconst(i:u32,k:u32)->f32 { return f32(pcg(i*7u+k*101u))*2.3283064e-10; }
+fn tri(x:f32)->f32 { return 1.0-abs(2.0*fract(x)-1.0); }
+fn gauss2(i:u32)->vec2f {
+  let u1=max(rnd(i,0u),1e-7);
+  let u2=rnd(i,1u);
+  let r=sqrt(-2.0*log(u1));
+  let a=6.2831853*u2;
+  return vec2f(r*cos(a),r*sin(a));
+}
+fn rotv(v:vec2f,a:f32)->vec2f { let c=cos(a); let s=sin(a); return vec2f(c*v.x-s*v.y,s*v.x+c*v.y); }
+fn flow(q:vec2f)->vec2f {
+  /* 幾個「格子狀」的漩渦疊在一起、大小隨時間變（混亂的攪拌）；每一個都不會穿過杯壁、杯底和水面 */
+  let h=max(S.lid,1.0);
+  let X=clamp(q.x/S.W,0.0,1.0);
+  let Y=clamp(q.y/h,0.0,1.0);
+  let PI=3.14159265;
+  let k=h/S.W;
+  var M=array<vec4f,5>(vec4f(1.0,1.0,1.7,0.0),vec4f(2.0,1.0,1.1,1.3),vec4f(1.0,2.0,1.37,2.1),vec4f(2.0,2.0,0.83,0.7),vec4f(3.0,1.0,1.93,2.9));
+  var u=0.0; var v=0.0;
+  for (var i=0; i<5; i=i+1) {
+    let m=M[i];
+    let a=sin(m.z*S.stirT+m.w)/m.y;
+    u=u+a*m.y*sin(m.x*PI*X)*cos(m.y*PI*Y);
+    v=v-a*m.x*k*cos(m.x*PI*X)*sin(m.y*PI*Y);
+  }
+  return vec2f(u,v)*0.6;
+}
+@compute @workgroup_size(64)
+fn clearGrid(@builtin(global_invocation_id) id:vec3u) {
+  if (id.x<S.gw*S.gh) { atomicStore(&gcount[id.x],0u); }
+}
+@compute @workgroup_size(64)
+fn binP(@builtin(global_invocation_id) id:vec3u) {
+  let i=id.x;
+  if (i>=S.n) { return; }
+  let s=st[i]&255u;
+  if (s==WV || s==GONE) { return; }
+  let p=posIn[i].xy;
+  let cx=i32(floor(p.x/S.cell));
+  let cy=i32(floor(p.y/S.cell));
+  if (cx<0 || cy<0 || cx>=i32(S.gw) || cy>=i32(S.gh)) { return; }
+  let c=u32(cy)*S.gw+u32(cx);
+  let k=atomicAdd(&gcount[c],1u);
+  if (k<S.kcap) { gitems[c*S.kcap+k]=i; }
+}
+@compute @workgroup_size(64)
+fn integrate(@builtin(global_invocation_id) id:vec3u) {
+  let i=id.x;
+  if (i>=S.n) { return; }
+  let p4=posIn[i];
+  let sw=st[i];
+  let s=sw&255u;
+  let gi=sw>>8u;
+  let inf=info[i];
+  if (s==GONE || s==SC) { posOut[i]=p4; return; }
+  if (s==SB) {
+    let g=grains[gi];
+    let q=g.xy+rotv(inf.xy,g.z);
+    if (g.w>inf.z) { st[i]=SF|(gi<<8u); }
+    posOut[i]=vec4f(q,0.0,0.0);
+    return;
+  }
+  if (s==WV) {
+    let nz=gauss2(i);
+    var pv=p4;
+    pv.y=pv.y+S.vup*S.dt;
+    pv.x=pv.x+nz.x*sqrt(6.0*S.D*S.dt);
+    pv.z=pv.z+S.dt;
+    if (pv.z>S.vapLife) { st[i]=GONE; }
+    posOut[i]=pv;
+    return;
+  }
+  let salt=s>=SB;
+  let ri=select(S.rw,S.rs,salt);
+  var p=p4.xy;
+  if (s!=SK) { p.y=p.y*select(S.yscale,S.yscaleS,s==SF); }
+  var v=vec2f(0.0,0.0);
+  var vS=vec2f(0.0,0.0);
+  var nsc=0u;
+  let nearSlot=(s==SK) && (length(inf.xy-p)<3.0*S.rw*2.0);
+  let cx=i32(floor(p.x/S.cell));
+  let cy=i32(floor(p.y/S.cell));
+  for (var dy=-1; dy<=1; dy=dy+1) {
+    for (var dx=-1; dx<=1; dx=dx+1) {
+      let nx=cx+dx;
+      let ny=cy+dy;
+      if (nx<0 || ny<0 || nx>=i32(S.gw) || ny>=i32(S.gh)) { continue; }
+      let c=u32(ny)*S.gw+u32(nx);
+      let cnt=min(atomicLoad(&gcount[c]),S.kcap);
+      for (var k=0u; k<cnt; k=k+1u) {
+        let j=gitems[c*S.kcap+k];
+        if (j==i) { continue; }
+        let sj=st[j]&255u;
+        let rj=select(S.rw,S.rs,sj>=SB);
+        let dv=p-posIn[j].xy;
+        let d2=dot(dv,dv);
+        let rr=(ri+rj)*S.rangeK;
+        if (d2<rr*rr && d2>1e-12) {
+          let dist=sqrt(d2);
+          var w=(rr-dist)/rr;
+          if (s==SK && sj==WL) { w=w*S.calledWaterK; }
+          if (s==WL && sj==SK) { w=0.0; }   /* 正在歸位的食鹽小粒子穿過水時不推水（不然一直往下飛的食鹽會把水壓到杯底） */
+          if (sj==SB || sj==SC) {
+            if (!nearSlot) { vS=vS+dv/dist*(w*S.solidK*S.vrep); }
+            if (sj==SC && dist<0.95*(S.rw+S.rs)/0.9) { nsc=nsc+1u; }
+          } else { v=v+dv/dist*(w*S.vrep); }
+        }
+      }
+    }
+  }
+  /* 被包在晶體裡的水：晶體由下往上長，上面是空的，所以往上鑽出來 */
+  if (s==WL && nsc>=3u) { v=v+vec2f(0.0,S.vup*1.5); } else { v=v+vS; }
+  if (p.x<ri) { v.x=v.x+(ri-p.x)/ri*S.vwall; }
+  if (p.x>S.W-ri) { v.x=v.x-(p.x-(S.W-ri))/ri*S.vwall; }
+  if (p.y<ri) { v.y=v.y+(ri-p.y)/ri*S.vwall; }
+  if (s!=SK) {
+    let top=S.lid-ri;
+    if (p.y>top) { v.y=v.y-(p.y-top)/ri*S.vwall*2.0; }
+  }
+  if (S.rodOn>0.5) {
+    let rr2=S.rodR+ri;
+    var dvr=vec2f(p.x-S.rodX,0.0);
+    if (p.y<S.rodY0) { dvr.y=p.y-S.rodY0; }
+    let dd=length(dvr);
+    if (dd<rr2 && dd>1e-6) { v=v+dvr/dd*((rr2-dd)/rr2*S.vwall*2.0); }
+  }
+  if (S.stirA>0.0 && s!=SK) { v=v+flow(p)*S.stirA; }
+  /* 散開的食鹽小粒子：每一顆有自己的去處，在整杯水裡均勻分布、而且慢慢移動；攪完、蒸發時都散在整杯水裡 */
+  if (S.mixK>0.0 && s==SF) {
+    let ph=S.time*(0.010+0.015*hconst(i,17u));
+    let tg=vec2f((0.02+0.96*tri(hconst(i,11u)+ph*0.6))*S.W,(0.03+0.94*tri(hconst(i,19u)+ph))*max(S.lid,0.5));
+    v=v+(tg-p)*S.mixK;
+  }
+  if (s==SK) {
+    let to=inf.xy-p;
+    let L=length(to);
+    if (L<S.snap) {
+      st[i]=SC|(gi<<8u);
+      posOut[i]=vec4f(inf.xy,0.0,0.0);
+      return;
+    }
+    v=v+to/L*min(select(S.vatt,S.vatt*3.0,S.lid<S.band*2.0),L/S.dt*0.5);
+  }
+  if (s==SF && inf.w<S.cryC) { st[i]=SK|(gi<<8u); }
+  if (s==WL && inf.x<S.evapQ) { v.y=v.y+S.vup*1.2; }
+  if (s==WL && inf.x<S.evapQ && p.y>S.lid-S.band) {
+    st[i]=WV;
+    posOut[i]=vec4f(p,0.0,0.0);
+    return;
+  }
+  let sp=length(v);
+  let vm=select(S.vmax,S.vmax*3.0,s==SK && S.lid<S.band*2.0);
+  if (sp>vm) { v=v*(vm/sp); }
+  let eddy=1.0+10.0*clamp(S.stirA/80.0,0.0,1.0);
+  let nz=gauss2(i)*sqrt(2.0*S.D*eddy*S.dt);
+  var np=p+v*S.dt+nz;
+  np.x=clamp(np.x,0.0,S.W);
+  let ytop=select(max(S.lid,0.0),S.H,s==SK);
+  np.y=clamp(np.y,0.0,ytop);
+  posOut[i]=vec4f(np,0.0,0.0);
+}
+`;
+const WGSL_REN=`
+const WL:u32=0u; const WV:u32=1u; const GONE:u32=2u; const SB:u32=3u; const SF:u32=4u; const SC:u32=5u; const SK:u32=6u;
+struct View { m:vec4f, c:vec4f, r:vec4f, e:vec4f, f:vec4f };
+@group(0) @binding(0) var<uniform> V:View;
+@group(0) @binding(1) var<storage,read> pos:array<vec4f>;
+@group(0) @binding(2) var<storage,read> stt:array<u32>;
+struct VO {
+  @builtin(position) pos:vec4f,
+  @location(0) local:vec2f,
+  @location(1) @interpolate(flat) halfPx:f32,
+  @location(2) @interpolate(flat) shape:u32,
+  @location(3) @interpolate(flat) fill:vec4f,
+  @location(4) @interpolate(flat) line:vec4f,
+  @location(5) @interpolate(flat) lineW:f32,
+};
+@vertex
+fn vsP(@builtin(vertex_index) vi:u32, @builtin(instance_index) ii:u32)->VO {
+  var o:VO;
+  let P=pos[ii];
+  let s=stt[ii]&255u;
+  let mode=u32(V.c.z+0.5);
+  let dpr=V.c.w;
+  var half=0.0;
+  var shape=0u;
+  var fill=vec4f(0.0);
+  var line=vec4f(0.0);
+  var lw=0.0;
+  let solid=(s==SB || s==SC);
+  let salt=s>=SB;
+  if (mode==0u) {
+    if (solid) { half=V.r.x*0.5+V.r.w/V.m.x; shape=1u; fill=vec4f(0.40,0.46,0.49,1.0); }
+  } else if (mode==1u) {
+    if (solid) { half=V.r.x*0.5; shape=1u; fill=vec4f(1.0,1.0,1.0,1.0); }
+  } else if (mode==2u) {
+    if (s==WL) { half=V.r.y*0.78; fill=vec4f(0.31,0.69,0.90,1.0)*0.85; }
+    else if (s==WV) { let a=clamp(1.0-P.z/V.e.w,0.0,1.0)*0.75; half=V.r.y*0.78; fill=vec4f(0.31,0.69,0.90,1.0)*a; fill.a=a; }
+    else if (solid) { half=V.r.x*0.5; shape=1u; fill=vec4f(1.0,1.0,1.0,1.0); line=vec4f(0.40,0.46,0.49,1.0); lw=0.7*dpr; }
+    else if (salt) { half=max(V.r.z*1.7,1.3*dpr/V.m.x); fill=vec4f(1.0,1.0,1.0,1.0); line=vec4f(0.16,0.20,0.23,1.0); lw=0.55*dpr; }
+  } else {
+    if (s==WL || s==WV) {
+      var a=1.0;
+      if (s==WV) { a=clamp(1.0-P.z/V.e.w,0.0,1.0); }
+      half=V.r.y*0.92; fill=vec4f(0.62,0.83,0.95,1.0); line=vec4f(0.18,0.53,0.76,1.0); lw=1.6*dpr;
+      fill=fill*a; line=line*a;
+    } else if (salt) {
+      half=V.r.z; fill=vec4f(1.0,1.0,1.0,1.0); line=vec4f(0.33,0.38,0.41,1.0); lw=1.7*dpr;
+    }
+  }
+  var corners=array<vec2f,6>(vec2f(-1.0,-1.0),vec2f(1.0,-1.0),vec2f(-1.0,1.0),vec2f(-1.0,1.0),vec2f(1.0,-1.0),vec2f(1.0,1.0));
+  o.fill=fill; o.line=line; o.lineW=lw; o.shape=shape;
+  if (half<=0.0 || s==GONE) {
+    o.pos=vec4f(-2.0,-2.0,0.0,1.0); o.local=vec2f(0.0); o.halfPx=0.0;
+    return o;
+  }
+  let c=vec2f(V.m.z+P.x*V.m.x, V.m.w-P.y*V.m.y);
+  let hp=half*V.m.x;
+  let ext=hp+1.0;
+  let q=c+corners[vi]*ext;
+  o.pos=vec4f(q.x/V.c.x*2.0-1.0, 1.0-q.y/V.c.y*2.0, 0.0, 1.0);
+  o.local=corners[vi]*ext;
+  o.halfPx=hp;
+  return o;
+}
+@fragment
+fn fsP(i:VO)->@location(0) vec4f {
+  var dist:f32;
+  if (i.shape==1u) { dist=max(abs(i.local.x),abs(i.local.y))-i.halfPx; }
+  else { dist=length(i.local)-i.halfPx; }
+  let cov=clamp(0.5-dist,0.0,1.0);
+  if (cov<=0.0) { discard; }
+  var col=i.fill;
+  if (i.lineW>0.0) {
+    let inner=clamp(0.5-(dist+i.lineW),0.0,1.0);
+    col=mix(i.line,i.fill,inner);
+  }
+  return col*cov;
+}
+@vertex
+fn vsBg(@builtin(vertex_index) vi:u32)->@builtin(position) vec4f {
+  var p=array<vec2f,3>(vec2f(-1.0,-1.0),vec2f(3.0,-1.0),vec2f(-1.0,3.0));
+  return vec4f(p[vi],0.0,1.0);
+}
+@fragment
+fn fsBg(@builtin(position) fp:vec4f)->@location(0) vec4f {
+  let wx=(fp.x-V.m.z)/V.m.x;
+  let wy=(V.m.w-fp.y)/V.m.y;
+  let W=V.e.y; let H=V.e.z; let lid=V.e.x; let g=V.f.w;
+  let px=1.0/V.m.x;
+  var col=vec3f(0.996,0.988,0.968);
+  if (wx>=0.0 && wx<=W && wy>=0.0) {
+    if (wy<lid) { col=vec3f(0.950,0.972,0.988); } else { col=vec3f(0.996,0.992,0.980); }
+  }
+  let inWallX=((wx<0.0 && wx>-g) || (wx>W && wx<W+g)) && wy>-g && wy<=H;
+  let inWallY=(wy<0.0 && wy>-g) && wx>-g && wx<W+g;
+  if (inWallX || inWallY) { col=vec3f(0.80,0.86,0.89); }
+  let e=1.6*px*V.c.w;
+  let onEdge=(abs(wx)<e || abs(wx-W)<e || abs(wx+g)<e || abs(wx-W-g)<e) && wy>-g && wy<=H;
+  let onEdgeY=(abs(wy)<e || abs(wy+g)<e) && wx>-g-e && wx<W+g+e;
+  if (onEdge || onEdgeY) { col=vec3f(0.118,0.118,0.118); }
+  if (wx>=0.0 && wx<=W && lid>0.3 && abs(wy-lid)<1.5*px*V.c.w) { col=vec3f(0.18,0.53,0.76); }
+  let cc=fp.xy-vec2f(V.f.x,V.f.y);
+  let rr=length(cc)/max(V.f.z,1.0);
+  col=col*(1.0-0.10*smoothstep(0.78,1.0,rr));
+  return vec4f(col,1.0);
+}
+`;
+
+async function makeGpuSim(cvM,cvL,onLost){
+  if(!navigator.gpu) throw new Error("這個瀏覽器沒有 WebGPU");
+  /* 有些驅動程式會讓 requestAdapter 卡住：最多等 4 秒 */
+  const adapter=await Promise.race([navigator.gpu.requestAdapter().catch(()=>null),new Promise(r=>setTimeout(()=>r(null),4000))]);
+  if(!adapter) throw new Error("找不到可以用的顯示卡（requestAdapter 回傳 null）");
+  const device=await adapter.requestDevice();
+  const fmt=navigator.gpu.getPreferredCanvasFormat();
+  const ctxM=cvM.getContext("webgpu"), ctxL=cvL.getContext("webgpu");
+  if(!ctxM||!ctxL) throw new Error("canvas 不能用 WebGPU");
+  ctxM.configure({device,format:fmt,alphaMode:"premultiplied"});
+  ctxL.configure({device,format:fmt,alphaMode:"premultiplied"});
+  device.pushErrorScope("validation");
+  const simMod=device.createShaderModule({code:WGSL_SIM}), renMod=device.createShaderModule({code:WGSL_REN});
+  for(const m of [simMod,renMod]){
+    if(!m.getCompilationInfo) continue;
+    const ci=await m.getCompilationInfo(), errs=ci.messages.filter(x=>x.type==="error");
+    if(errs.length) throw new Error("WGSL："+errs.map(e=>e.lineNum+":"+e.linePos+" "+e.message).join(" | "));
+  }
+  const N=Q.N, cells=Q.gw*Q.gh, U=GPUBufferUsage, SS=GPUShaderStage;
+  const B=(size,usage)=>device.createBuffer({size:Math.max(16,Math.ceil(size/16)*16),usage});
+  const pos=[B(N*16,U.STORAGE|U.COPY_DST|U.COPY_SRC),B(N*16,U.STORAGE|U.COPY_DST|U.COPY_SRC)];
+  const stB=B(N*4,U.STORAGE|U.COPY_DST|U.COPY_SRC), infoB=B(N*16,U.STORAGE|U.COPY_DST), grainB=B(256*16,U.STORAGE|U.COPY_DST);
+  const gcount=B(cells*4,U.STORAGE), gitems=B(cells*Q.kcap*4,U.STORAGE);
+  const MAXSUB=8, simU=B(256*MAXSUB,U.UNIFORM|U.COPY_DST), viewU=B(256*4,U.UNIFORM|U.COPY_DST);
+  const rdPos=B(N*16,U.MAP_READ|U.COPY_DST), rdSt=B(N*4,U.MAP_READ|U.COPY_DST);
+  const bglC=device.createBindGroupLayout({entries:[
+    {binding:0,visibility:SS.COMPUTE,buffer:{type:"uniform",hasDynamicOffset:true,minBindingSize:144}},
+    {binding:1,visibility:SS.COMPUTE,buffer:{type:"read-only-storage"}},
+    {binding:2,visibility:SS.COMPUTE,buffer:{type:"storage"}},
+    {binding:3,visibility:SS.COMPUTE,buffer:{type:"storage"}},
+    {binding:4,visibility:SS.COMPUTE,buffer:{type:"read-only-storage"}},
+    {binding:5,visibility:SS.COMPUTE,buffer:{type:"read-only-storage"}},
+    {binding:6,visibility:SS.COMPUTE,buffer:{type:"storage"}},
+    {binding:7,visibility:SS.COMPUTE,buffer:{type:"storage"}}]});
+  const plC=device.createPipelineLayout({bindGroupLayouts:[bglC]});
+  const mk=e=>device.createComputePipeline({layout:plC,compute:{module:simMod,entryPoint:e}});
+  const pClear=mk("clearGrid"), pBin=mk("binP"), pInt=mk("integrate");
+  const bgC=[0,1].map(k=>device.createBindGroup({layout:bglC,entries:[
+    {binding:0,resource:{buffer:simU,offset:0,size:144}},
+    {binding:1,resource:{buffer:pos[k]}},{binding:2,resource:{buffer:pos[1-k]}},
+    {binding:3,resource:{buffer:stB}},{binding:4,resource:{buffer:infoB}},{binding:5,resource:{buffer:grainB}},
+    {binding:6,resource:{buffer:gcount}},{binding:7,resource:{buffer:gitems}}]}));
+  const bglR=device.createBindGroupLayout({entries:[
+    {binding:0,visibility:SS.VERTEX|SS.FRAGMENT,buffer:{type:"uniform",hasDynamicOffset:true,minBindingSize:80}},
+    {binding:1,visibility:SS.VERTEX,buffer:{type:"read-only-storage"}},
+    {binding:2,visibility:SS.VERTEX,buffer:{type:"read-only-storage"}}]});
+  const plR=device.createPipelineLayout({bindGroupLayouts:[bglR]});
+  const blend={color:{srcFactor:"one",dstFactor:"one-minus-src-alpha",operation:"add"},alpha:{srcFactor:"one",dstFactor:"one-minus-src-alpha",operation:"add"}};
+  const pPart=device.createRenderPipeline({layout:plR,vertex:{module:renMod,entryPoint:"vsP"},
+    fragment:{module:renMod,entryPoint:"fsP",targets:[{format:fmt,blend}]},primitive:{topology:"triangle-list"}});
+  const pBg=device.createRenderPipeline({layout:plR,vertex:{module:renMod,entryPoint:"vsBg"},
+    fragment:{module:renMod,entryPoint:"fsBg",targets:[{format:fmt}]},primitive:{topology:"triangle-list"}});
+  const bgR=[0,1].map(k=>device.createBindGroup({layout:bglR,entries:[
+    {binding:0,resource:{buffer:viewU,offset:0,size:80}},{binding:1,resource:{buffer:pos[k]}},{binding:2,resource:{buffer:stB}}]}));
+  const err=await device.popErrorScope();
+  if(err) throw new Error("WebGPU 建立失敗："+err.message);
+  device.addEventListener&&device.addEventListener("uncapturederror",ev=>console.error("[WebGPU]",ev.error&&ev.error.message));
+  device.lost.then(info=>{ if(info.reason!=="destroyed"&&onLost) onLost(info.message); });
+
+  let cur=0, seed=1, reading=null;
+  const simAB=new ArrayBuffer(144), simF=new Float32Array(simAB), simI=new Uint32Array(simAB);
+  const viewF=new Float32Array(64*4);
+  function writeSim(k,P){
+    simF[0]=WW; simF[1]=WH; simF[2]=P.lid; simF[3]=P.dt;
+    simF[4]=P.time; simI[5]=(seed++)>>>0; simI[6]=N; simI[7]=Q.gw;
+    simI[8]=Q.gh; simF[9]=Q.cell; simF[10]=Q.rw; simF[11]=Q.rs;
+    simF[12]=P.D; simF[13]=Q.vrep; simF[14]=Q.vwall; simF[15]=3.0;
+    simF[16]=P.stirA; simF[17]=P.stirT; simF[18]=P.rodX; simF[19]=P.rodY0;
+    simF[20]=ROD_R; simF[21]=P.rodOn?1:0; simF[22]=Q.band; simF[23]=P.evapQ;
+    simF[24]=P.cryC; simF[25]=Q.vatt; simF[26]=Q.vup; simF[27]=0.25;
+    simI[28]=Q.kcap; simF[29]=Q.vmax; simF[30]=Q.snap; simF[31]=1.4;
+    simF[32]=Q.range; simF[33]=P.yscale||1; simF[34]=P.mixK||0; simF[35]=P.yscaleS||1;
+    device.queue.writeBuffer(simU,k*256,simAB);
+  }
+  function putView(slot,v,mode){
+    viewF.set([v.sx,v.sy,v.ox,v.oy, v.cw,v.ch,mode,v.dpr, Q.d,Q.rw,Q.rs,v.outline||0, v.lid,WW,WH,1.4, v.lcx||0,v.lcy||0,v.lr||0,GLASS],slot*64);
+  }
+  return {
+    kind:"gpu", device,
+    upload(A){ for(const b of pos) device.queue.writeBuffer(b,0,A.pos); device.queue.writeBuffer(stB,0,A.st); device.queue.writeBuffer(infoB,0,A.info); cur=0; },
+    uploadInfo(info){ device.queue.writeBuffer(infoB,0,info); },
+    uploadInfoPart(info,n){ device.queue.writeBuffer(infoB,0,info,0,n*4); },
+    setGrains(g){ device.queue.writeBuffer(grainB,0,g); },
+    step(P,sub){
+      sub=Math.min(sub,MAXSUB); if(sub<1) return;
+      for(let k=0;k<sub;k++) writeSim(k,P);
+      const enc=device.createCommandEncoder(), cp=enc.beginComputePass();
+      const wgN=Math.ceil(N/64), wgC=Math.ceil(cells/64);
+      for(let k=0;k<sub;k++){
+        cp.setBindGroup(0,bgC[cur],[k*256]);
+        cp.setPipeline(pClear); cp.dispatchWorkgroups(wgC);
+        cp.setPipeline(pBin); cp.dispatchWorkgroups(wgN);
+        cp.setPipeline(pInt); cp.dispatchWorkgroups(wgN);
+        cur^=1;
+      }
+      cp.end(); device.queue.submit([enc.finish()]);
+    },
+    render(vm,vl,o){
+      putView(0,vm,0); putView(1,vm,1); putView(2,vm,2); if(vl) putView(3,vl,3);
+      device.queue.writeBuffer(viewU,0,viewF);
+      const enc=device.createCommandEncoder();
+      const pm=enc.beginRenderPass({colorAttachments:[{view:ctxM.getCurrentTexture().createView(),loadOp:"clear",clearValue:{r:0,g:0,b:0,a:0},storeOp:"store"}]});
+      pm.setPipeline(pPart);
+      if(o.super){ pm.setBindGroup(0,bgR[cur],[512]); pm.draw(6,N); }
+      else{ pm.setBindGroup(0,bgR[cur],[0]); pm.draw(6,N); pm.setBindGroup(0,bgR[cur],[256]); pm.draw(6,N); }
+      pm.end();
+      if(vl){
+        const pl=enc.beginRenderPass({colorAttachments:[{view:ctxL.getCurrentTexture().createView(),loadOp:"clear",clearValue:{r:1,g:1,b:1,a:1},storeOp:"store"}]});
+        pl.setBindGroup(0,bgR[cur],[768]);
+        pl.setPipeline(pBg); pl.draw(3);
+        pl.setPipeline(pPart); pl.draw(6,N);
+        pl.end();
+      }
+      device.queue.submit([enc.finish()]);
+    },
+    async read(){
+      while(reading) await reading;          /* 前一次讀取還沒完成就先等它 */
+      let done; reading=new Promise(r=>done=r);
+      try{
+        const enc=device.createCommandEncoder();
+        enc.copyBufferToBuffer(pos[cur],0,rdPos,0,N*16); enc.copyBufferToBuffer(stB,0,rdSt,0,N*4);
+        device.queue.submit([enc.finish()]);
+        await Promise.all([rdPos.mapAsync(GPUMapMode.READ),rdSt.mapAsync(GPUMapMode.READ)]);
+        const p=new Float32Array(rdPos.getMappedRange().slice(0,N*16)), s=new Uint32Array(rdSt.getMappedRange().slice(0,N*4));
+        rdPos.unmap(); rdSt.unmap();
+        return {pos:p,st:s};
+      }finally{ const d=done; reading=null; d(); }
+    }
+  };
+}
+
+/* ==========================================================
+   一般模式（Canvas 2D）：同一套模擬，顆粒比較大、數量比較少
+   ========================================================== */
+function makeCpuSim(cvM,cvL){
+  const N=Q.N, cells=Q.gw*Q.gh, K=Q.kcap;
+  const P=new Float32Array(N*4), S=new Uint32Array(N), I=new Float32Array(N*4);
+  let G=new Float32Array(256*4);
+  const cnt=new Uint32Array(cells), items=new Uint32Array(cells*K);
+  const cm=cvM.getContext("2d"), cl=cvL.getContext("2d");
+  function gauss(){let u=0;while(u===0)u=Math.random();return Math.sqrt(-2*Math.log(u))*Math.cos(6.283185307*Math.random());}
+  const MODES=[[1,1,1.7,0],[2,1,1.1,1.3],[1,2,1.37,2.1],[2,2,0.83,0.7],[3,1,1.93,2.9]];
+  function flow(x,y,p){
+    const h=Math.max(p.lid,1), X=clamp(x/WW,0,1), Y=clamp(y/h,0,1), PI=Math.PI, k=h/WW;
+    let u=0, v=0;
+    for(const [m,n,w,ph] of MODES){ const a=Math.sin(w*p.stirT+ph)/n; u+=a*n*Math.sin(m*PI*X)*Math.cos(n*PI*Y); v-=a*m*k*Math.cos(m*PI*X)*Math.sin(n*PI*Y); }
+    return [u*0.6,v*0.6];
+  }
+  function substep(p){
+    cnt.fill(0);
+    for(let i=0;i<N;i++){const s=S[i]&255; if(s===WV||s===GONE) continue;
+      const cx=Math.floor(P[i*4]/Q.cell), cy=Math.floor(P[i*4+1]/Q.cell);
+      if(cx<0||cy<0||cx>=Q.gw||cy>=Q.gh) continue;
+      const c=cy*Q.gw+cx, k=cnt[c]++; if(k<K) items[c*K+k]=i;}
+    const dt=p.dt, nzs=Math.sqrt(2*p.D*(1+10*clamp(p.stirA/80,0,1))*dt);
+    for(let i=0;i<N;i++){
+      const sw=S[i], s=sw&255, gi=sw>>>8;
+      if(s===GONE||s===SC) continue;
+      if(s===SB){const o=gi*4, c=Math.cos(G[o+2]), sn=Math.sin(G[o+2]), lx=I[i*4], ly=I[i*4+1];
+        P[i*4]=G[o]+c*lx-sn*ly; P[i*4+1]=G[o+1]+sn*lx+c*ly; if(G[o+3]>I[i*4+2]) S[i]=SF|(gi<<8); continue;}
+      if(s===WV){P[i*4+1]+=Q.vup*dt; P[i*4]+=gauss()*Math.sqrt(6*p.D*dt); P[i*4+2]+=dt; if(P[i*4+2]>1.4) S[i]=GONE; continue;}
+      if(s!==SK) P[i*4+1]*=(s===SF?p.yscaleS:p.yscale)||1;
+      const ri=s>=SB?Q.rs:Q.rw, x=P[i*4], y=P[i*4+1];
+      const nearSlot=s===SK&&Math.hypot(I[i*4]-x,I[i*4+1]-y)<3*Q.d;
+      let vx=0, vy=0, sx=0, sy=0, nsc=0;
+      const cx=Math.floor(x/Q.cell), cy=Math.floor(y/Q.cell);
+      for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){
+        const nx=cx+dx, ny=cy+dy; if(nx<0||ny<0||nx>=Q.gw||ny>=Q.gh) continue;
+        const c=ny*Q.gw+nx, m=Math.min(cnt[c],K);
+        for(let k=0;k<m;k++){const j=items[c*K+k]; if(j===i) continue;
+          const sj=S[j]&255, rj=sj>=SB?Q.rs:Q.rw, ddx=x-P[j*4], ddy=y-P[j*4+1], d2=ddx*ddx+ddy*ddy, rr=(ri+rj)*Q.range;
+          if(d2<rr*rr&&d2>1e-12){const dist=Math.sqrt(d2); let w=(rr-dist)/rr; if(s===SK&&sj===WL) w*=0.25; if(s===WL&&sj===SK) w=0;
+            if(sj===SB||sj===SC){ if(!nearSlot){ sx+=ddx/dist*w*3*Q.vrep; sy+=ddy/dist*w*3*Q.vrep; } if(sj===SC&&dist<0.95*(Q.rw+Q.rs)/0.9) nsc++; }
+            else { vx+=ddx/dist*w*Q.vrep; vy+=ddy/dist*w*Q.vrep; }}}
+      }
+      /* 被包在晶體裡的水：晶體由下往上長，上面是空的，所以往上鑽出來 */
+      if(s===WL&&nsc>=3) vy+=Q.vup*1.5; else { vx+=sx; vy+=sy; }
+      if(x<ri) vx+=(ri-x)/ri*Q.vwall; if(x>WW-ri) vx-=(x-(WW-ri))/ri*Q.vwall; if(y<ri) vy+=(ri-y)/ri*Q.vwall;
+      if(s!==SK){const top=p.lid-ri; if(y>top) vy-=(y-top)/ri*Q.vwall*2;}
+      if(p.rodOn){const rr2=ROD_R+ri, ex=x-p.rodX, ey=y<p.rodY0?y-p.rodY0:0, dd=Math.hypot(ex,ey); if(dd<rr2&&dd>1e-6){const f=(rr2-dd)/rr2*Q.vwall*2; vx+=ex/dd*f; vy+=ey/dd*f;}}
+      if(p.stirA>0&&s!==SK){const f=flow(x,y,p); vx+=f[0]*p.stirA; vy+=f[1]*p.stirA;}
+      if(p.mixK>0&&s===SF){const g=saltTarget(i,p.time,p.lid); vx+=(g[0]-x)*p.mixK; vy+=(g[1]-y)*p.mixK;}
+      if(s===SK){const tx=I[i*4]-x, ty=I[i*4+1]-y, L=Math.hypot(tx,ty);
+        if(L<Q.snap){S[i]=SC|(gi<<8); P[i*4]=I[i*4]; P[i*4+1]=I[i*4+1]; continue;}
+        const sp=Math.min(p.lid<Q.band*2?Q.vatt*3:Q.vatt,L/dt*0.5); vx+=tx/L*sp; vy+=ty/L*sp;}
+      if(s===SF&&I[i*4+3]<p.cryC) S[i]=SK|(gi<<8);
+      if(s===WL&&I[i*4]<p.evapQ) vy+=Q.vup*1.2;
+      if(s===WL&&I[i*4]<p.evapQ&&y>p.lid-Q.band){S[i]=WV; P[i*4+2]=0; continue;}
+      const sp=Math.hypot(vx,vy), vm=s===SK&&p.lid<Q.band*2?Q.vmax*3:Q.vmax; if(sp>vm){vx*=vm/sp; vy*=vm/sp;}
+      let nxp=x+vx*dt+gauss()*nzs, nyp=y+vy*dt+gauss()*nzs;
+      P[i*4]=clamp(nxp,0,WW); P[i*4+1]=clamp(nyp,0,s===SK?WH:Math.max(p.lid,0));
+    }
+  }
+  function drawSq(ctx,cx,cy,h){ctx.rect(cx-h,cy-h,2*h,2*h);}
+  return {
+    kind:"cpu",
+    upload(A){P.set(A.pos); S.set(A.st); I.set(A.info);},
+    uploadInfo(info){I.set(info);},
+    uploadInfoPart(info,n){I.set(info.subarray(0,n*4));},
+    setGrains(g){G=g;},
+    step(p,sub){for(let k=0;k<sub;k++) substep(p);},
+    render(vm,vl,o){
+      cm.setTransform(1,0,0,1,0,0); cm.clearRect(0,0,cvM.width,cvM.height);
+      const sx=vm.sx, ox=vm.ox, oy=vm.oy, d=Q.d;
+      if(o.super){
+        cm.fillStyle="rgba(79,176,229,.85)";
+        const w=Math.max(1,Q.rw*1.5*sx);
+        for(let i=0;i<Q.NW;i++){const s=S[i]&255; if(s===WL) cm.fillRect(ox+P[i*4]*sx-w/2,oy-P[i*4+1]*sx-w/2,w,w);}
+      }
+      cm.beginPath(); cm.fillStyle="#66757D";
+      const ho=d*0.5*sx+vm.outline;
+      for(let i=Q.NW;i<N;i++){const s=S[i]&255; if(s===SB||s===SC) drawSq(cm,ox+P[i*4]*sx,oy-P[i*4+1]*sx,ho);}
+      cm.fill();
+      cm.beginPath(); cm.fillStyle="#fff";
+      const hf=d*0.5*sx;
+      for(let i=Q.NW;i<N;i++){const s=S[i]&255; if(s===SB||s===SC) drawSq(cm,ox+P[i*4]*sx,oy-P[i*4+1]*sx,hf);}
+      cm.fill();
+      if(o.super){
+        cm.beginPath(); cm.fillStyle="#fff"; cm.strokeStyle="#333D44"; cm.lineWidth=Math.max(1,0.9*vm.dpr);
+        const rr=Math.max(1.6,Q.rs*1.5*sx); cm.lineWidth=Math.max(0.6,0.55*vm.dpr);
+        for(let i=Q.NW;i<N;i++){const s=S[i]&255; if(s===SF||s===SK){const X=ox+P[i*4]*sx, Y=oy-P[i*4+1]*sx; cm.moveTo(X+rr,Y); cm.arc(X,Y,rr,0,6.2832);}}
+        cm.fill(); cm.stroke();
+      }
+      if(!vl) return;
+      const L=cvL.width, lsx=vl.sx, lox=vl.ox, loy=vl.oy;
+      cl.setTransform(1,0,0,1,0,0);
+      cl.fillStyle="#FEFCF7"; cl.fillRect(0,0,L,L);
+      const X0=lox, X1=lox+WW*lsx, Yb=loy, Yl=loy-vl.lid*lsx, Yt=loy-WH*lsx, g=GLASS*lsx;
+      cl.fillStyle="#CCDCE3"; cl.fillRect(X0-g,Yt,g,Yb-Yt+g); cl.fillRect(X1,Yt,g,Yb-Yt+g); cl.fillRect(X0-g,Yb,X1-X0+2*g,g);
+      cl.fillStyle="#FEFDFA"; cl.fillRect(X0,Yt-2000,X1-X0,Yb-Yt+2000);
+      if(vl.lid>0){cl.fillStyle="#F2F8FC"; cl.fillRect(X0,Yl,X1-X0,Yb-Yl);}
+      cl.strokeStyle="#1E1E1E"; cl.lineWidth=1.6*vl.dpr*2;
+      cl.beginPath(); cl.moveTo(X0,Yt-2000); cl.lineTo(X0,Yb); cl.lineTo(X1,Yb); cl.lineTo(X1,Yt-2000);
+      cl.moveTo(X0-g,Yt-2000); cl.lineTo(X0-g,Yb+g); cl.lineTo(X1+g,Yb+g); cl.lineTo(X1+g,Yt-2000); cl.stroke();
+      if(vl.lid>0.3){cl.strokeStyle="#2E86C1"; cl.lineWidth=3*vl.dpr; cl.beginPath(); cl.moveTo(X0,Yl); cl.lineTo(X1,Yl); cl.stroke();}
+      const cxW=(L/2-lox)/lsx, cyW=(loy-L/2)/lsx, Rw=L/2/lsx+Q.rw;
+      const lw=1.6*vl.dpr;
+      for(let i=0;i<N;i++){
+        const s=S[i]&255; if(s===GONE) continue;
+        const x=P[i*4], y=P[i*4+1]; if(Math.abs(x-cxW)>Rw||Math.abs(y-cyW)>Rw) continue;
+        const X=lox+x*lsx, Y=loy-y*lsx;
+        if(s===WL||s===WV){
+          const a=s===WV?clamp(1-P[i*4+2]/1.4,0,1):1;
+          cl.globalAlpha=a; cl.beginPath(); cl.arc(X,Y,Q.rw*0.92*lsx-lw/2,0,6.2832); cl.fillStyle="#9ED3F2"; cl.fill();
+          cl.lineWidth=lw; cl.strokeStyle="#2E86C1"; cl.stroke(); cl.globalAlpha=1;
+        }else{
+          cl.beginPath(); cl.arc(X,Y,Q.rs*lsx-lw/2,0,6.2832); cl.fillStyle="#fff"; cl.fill(); cl.lineWidth=lw*1.05; cl.strokeStyle="#545F66"; cl.stroke();
+        }
+      }
+    },
+    read(){return Promise.resolve({pos:P.slice(),st:S.slice()});}
+  };
+}
+
+/* ==========================================================
+   畫面（SVG 部分）、大小、放大鏡
+   ========================================================== */
+const stage=$("stage"), svgB=$("svgBack"), svgF=$("svgFront");
+let cvM=$("cvMacro"), cvL=$("cvLens");
+let VB=VB_WIDE, cssScale=1, DPR=1, offX=0, offY=0;
+function chooseVB(){
+  const tall=window.innerWidth<1100 && window.innerHeight>window.innerWidth*0.95;
+  VB=tall?VB_TALL:VB_WIDE;
+  const vb=VB.join(" "); svgB.setAttribute("viewBox",vb); svgF.setAttribute("viewBox",vb);
+  stage.style.setProperty("--ar",(VB[2]/VB[3]).toFixed(4));
+  const bx=VB===VB_TALL?VB[0]+8:VB[0]+VB[2]-100;
+  $("shiyiR").setAttribute("x",bx); $("shiyiT").setAttribute("x",bx+46);
+}
+function layout(){
+  chooseVB();
+  const w=stage.clientWidth, h=stage.clientHeight;
+  /* 和 SVG 的 preserveAspectRatio="xMidYMid meet" 一樣的對應，canvas 才會和 SVG 對齊 */
+  cssScale=Math.min(w/VB[2],h/VB[3]); offX=(w-VB[2]*cssScale)/2; offY=(h-VB[3]*cssScale)/2;
+  DPR=Math.min(window.devicePixelRatio||1,2);
+  cvM.width=Math.max(1,Math.round(w*DPR)); cvM.height=Math.max(1,Math.round(h*DPR));
+  const size=2*CALL.r*cssScale, border=Math.max(3,Math.round(size*0.022));
+  cvL.style.left=(offX+(CALL.x-CALL.r-VB[0])*cssScale)+"px"; cvL.style.top=(offY+(CALL.y-CALL.r-VB[1])*cssScale)+"px";
+  cvL.style.width=size+"px"; cvL.style.height=size+"px"; cvL.style.borderWidth=border+"px";
+  cvL.width=Math.max(1,Math.round((size-2*border)*DPR)); cvL.height=cvL.width;
+}
+function drawMarks(){
+  let s="";
+  for(let v=5;v<=45;v+=5){
+    const y=SY(v*PXML), big=v%10===0;
+    s+=`<line x1="${BK.L}" x2="${BK.L+(big?24:13)}" y1="${y}" y2="${y}"/>`;
+    if(big) s+=`<text x="${BK.L+30}" y="${y+7}" stroke="none">${v}${v===40?" 毫升":""}</text>`;
+  }
+  $("marks").innerHTML=s;
+}
+function viewMacro(lid){
+  const s=cssScale*DPR;
+  return {sx:s,sy:s,ox:offX*DPR+(BK.L-VB[0])*s,oy:offY*DPR+(BK.B-VB[1])*s,cw:cvM.width,ch:cvM.height,dpr:DPR,outline:Math.max(1,1.1*DPR),lid};
+}
+function viewLens(lens,lid){
+  /* 大圓（扣掉框線）的半徑，對應到放大鏡小圓裡的世界半徑 CALL.r/Q.zoom */
+  const L=cvL.width, sx=(L/2)/(CALL.r/Q.zoom);
+  return {sx,sy:sx,ox:L/2-lens.x*sx,oy:L/2+lens.y*sx,cw:L,ch:L,dpr:DPR,lid,lcx:L/2,lcy:L/2,lr:L/2};
+}
+
+/* 外公切線：放大鏡小圓 → 大圓 */
+function tangents(c1,r1,c2,r2){
+  const dx=c2.x-c1.x, dy=c2.y-c1.y, d=Math.hypot(dx,dy);
+  if(d<=Math.abs(r2-r1)+1) return null;
+  const base=Math.atan2(dy,dx), al=Math.acos(clamp(-(r2-r1)/d,-1,1));
+  return [1,-1].map(sg=>{const a=base+sg*al, nx=Math.cos(a), ny=Math.sin(a); return [c1.x+r1*nx,c1.y+r1*ny,c2.x+r2*nx,c2.y+r2*ny];});
+}
+
+/* ==========================================================
+   播放控制
+   ========================================================== */
+const T={prevH:0,i:0,t:0,playing:false,speed:1,lensOn:true,superOn:false,userLens:false,lens:{x:150,y:190},
+         lastCap:-1,ended:false,pending:false,autoNext:null,firstPlay:true};
+const SPEEDS=[0.5,1,2];
+function stepLabel(i){return `${i+1}　${STEPS[i].title}`;}
+function buildPills(){
+  const host=$("pills"); host.innerHTML="";
+  STEPS.forEach((s,i)=>{
+    const li=document.createElement("li"), b=document.createElement("button");
+    b.type="button"; b.className="pill"; b.textContent=`${i+1} ${s.title}`; b.dataset.i=i;
+    b.addEventListener("click",()=>goStep(i,{play:true}));
+    li.appendChild(b); host.appendChild(li);
+  });
+}
+function refreshUI(){
+  const st=STEPS[T.i];
+  document.querySelectorAll(".chap").forEach(b=>b.classList.toggle("on",+b.dataset.ch===st.ch));
+  document.querySelectorAll(".pill").forEach(b=>{const i=+b.dataset.i;
+    b.classList.toggle("on",i===T.i); b.classList.toggle("done",i<T.i);
+    if(i===T.i) b.setAttribute("aria-current","step"); else b.removeAttribute("aria-current");});
+  $("stTitle").textContent=`第 ${st.ch} 章・第 ${T.i+1} 步／共 ${STEPS.length} 步：${st.title}`;
+  $("bPlay").textContent=T.playing?"⏸ 暫停":(T.ended?(T.i===STEPS.length-1?"↺ 從頭再看":"▶ 下一步"):"▶ 播放");
+  $("bPrev").disabled=T.i===0; $("bNext").disabled=T.i===STEPS.length-1&&T.ended;
+  $("link3D").href="一顆也沒少_互動教材.html?step="+T.i+"#"+(st.ch===1?"dissolve":"evaporate");
+}
+function showCaption(force){
+  const st=STEPS[T.i]; let k=0;
+  st.caps.forEach((c,m)=>{ if(T.t>=c[0]) k=m; });
+  if(k===T.lastCap&&!force) return;
+  T.lastCap=k; $("cap").innerHTML=st.caps[k][1];
+  stage.setAttribute("aria-label","示意動畫："+st.caps[k][1].replace(/<[^>]+>/g,""));
+}
+function showQuestion(on){
+  const st=STEPS[T.i];
+  $("toSumRow").classList.add("hidden");
+  if(!on||!st.ask){ $("qbox").classList.add("hidden"); return; }
+  $("qbox").classList.remove("hidden"); $("qAsk").textContent=(st.ans?"🤔 想一想：":"")+st.ask;
+  $("qAns").classList.add("hidden"); $("qBtn").classList.toggle("hidden",!st.ans);
+  if(st.ans) $("qAns").innerHTML=st.ans;
+}
+async function goStep(i,opt){
+  opt=opt||{};
+  if(T.pending) return;                     /* 還在讀取上一步的資料，先不要換步 */
+  i=clamp(i,0,STEPS.length-1);
+  clearTimeout(T.autoNext);
+  const st=STEPS[i];
+  const live=!!opt.live && st.live && T.i===i-1 && T.ended;
+  T.i=i; T.t=0; T.ended=false; T.lastCap=-1; T.userLens=false; T.gen=(T.gen||0)+1; EVAP.stretch=1;
+  $("summary").classList.add("hidden");
+  showQuestion(false);
+  if(!live){
+    try{
+      const A=buildState(i);
+      sim.upload(A);
+      relax(st.build==="s3"||st.build==="s1"?1:0.5);
+    }catch(e){ console.error("[一顆也沒少] 建構這一步失敗：",e); }
+  }else if(st.assign){
+    T.pending=true;
+    try{
+      const R=await sim.read(), info=new Float32Array(Q.N*4);
+      for(let k=0;k<Q.N;k++){ info[k*4]=2; info[k*4+2]=-1; info[k*4+3]=2; }
+      assignCh2(R.pos,R.st,info,0,0);
+      sim.uploadInfo(info);
+    }catch(e){ console.warn(e); sim.upload(buildState(i)); }
+    T.pending=false;
+  }
+  T.playing=opt.play!==false;
+  const sc=scene(T.i,0); T.lens={x:sc.lens.x,y:sc.lens.y};
+  showCaption(true); refreshUI();
+  try{ history.replaceState(null,"","#"+(st.ch===1?"dissolve":"evaporate")); }catch(_){}
+}
+function relax(k){
+  const sc=scene(T.i,0); pushGrains(sc);
+  T.prevH=sc.h; const P=simParams(sc,simTime,1); P.D=0; P.stirA=0;
+  const n=sim.kind==="gpu"?Math.round(36*k):Math.round(14*k);
+  for(let m=0;m<n;m+=6) sim.step(P,Math.min(6,n-m));
+}
+function stepEnd(){
+  T.playing=false; T.ended=true;
+  showQuestion(true); refreshUI();
+  if(T.auto && T.i<STEPS.length-1){ T.autoNext=setTimeout(()=>next(),STEPS[T.i].ask?6000:1500); }
+}
+function next(){
+  if(T.i>=STEPS.length-1){ if(!T.ended) fastForward(STEPS[T.i].dur); return; }
+  goStep(T.i+1,{live:true,play:true});
+}
+function prev(){ if(T.i>0) goStep(T.i-1,{play:true}); else goStep(0,{play:true}); }
+function togglePlay(){
+  if(T.pending) return;
+  if(T.ended){ if(T.i<STEPS.length-1) next(); else goStep(0,{play:true}); return; }
+  T.playing=!T.playing; refreshUI();
+}
+
+/* ---------- 每一幀 ---------- */
+const grainArr=new Float32Array(256*4);
+function pushGrains(sc){
+  grainArr.fill(0);
+  if(sc.poses) sc.poses.forEach((g,k)=>{ if(!g) return; grainArr[k*4]=g.x; grainArr[k*4+1]=g.y; grainArr[k*4+2]=g.a; grainArr[k*4+3]=g.p; });
+  else for(let k=0;k<Q.G;k++) grainArr[k*4+3]=9;
+  sim.setGrains(grainArr);
+}
+function simParams(sc,time,sub){
+  const ratio=(T.prevH>0.5&&sc.h>0.01)?sc.h/T.prevH:1; T.prevH=sc.h;
+  /* 第 ② 章：水只從表面蒸發、不整杯往下壓（水面下才不會出現空層）；散開的食鹽小粒子照水面下降的比例往下帶，才會一直散在整杯水裡，不會留在水面結成一層 */
+  const ys=Math.pow(clamp(ratio,0.5,2),1/(sub||1));
+  let yw=ys;
+  if(sc.ch===2){ const f=Math.pow(EVAP.stretch,Math.min(1,(sub||1)*(200/simRate())/60)); EVAP.stretch/=f; yw=Math.pow(f,1/(sub||1)); }
+  return {yscale:yw,yscaleS:ys,lid:sc.h,dt:1/simRate(),time,D:Q.D*(REDUCED?0.4:1),stirA:sc.stirA,stirT:sc.stirT,rodX:sc.rodX,rodY0:sc.rodY0,rodOn:sc.rodOn,
+          evapQ:sc.ch===2?sc.e:0,cryC:sc.ch===2?sc.c:0,mixK:sc.mix};
+}
+function updateSVG(sc){
+  const h=sc.h;
+  $("waterBody").setAttribute("d",h>0.3?`M${BK.L} ${BK.B} V${SY(h)} H${BK.R} V${BK.B} Z`:"");
+  const sl=$("surfLine"); sl.style.display=h>0.3?"":"none"; sl.setAttribute("y1",SY(h)); sl.setAttribute("y2",SY(h));
+  $("origG").style.display=sc.orig&&sc.ch===1?"":"none";
+  $("origG").setAttribute("transform",`translate(0 ${SY(H0)-350})`);
+  const up=h-H0, showRise=sc.ch===1&&sc.orig&&up>5;
+  $("riseG").style.display=showRise?"":"none";
+  if(showRise){
+    const y0=SY(H0), y1=SY(h);
+    $("riseL").setAttribute("y1",y0-2); $("riseL").setAttribute("y2",y1+9);
+    $("riseH").setAttribute("d",`M610 ${y1+12} L618 ${y1} L626 ${y1+12} Z`);
+    $("riseT").setAttribute("y",y1-12);
+  }
+  const pp=sc.paper; $("paperG").setAttribute("transform",`translate(${SX(pp.x)} ${SY(pp.y)}) rotate(${(-pp.a*180/Math.PI).toFixed(2)})`);
+  $("paperG").style.display="";   /* 第 ② 章空的紙也留在秤上，所以秤是 78 → 48 */
+  $("paperT").style.display=sc.ch===2?"":"none"; $("paperT").setAttribute("x",SX(pp.x)+60); $("paperT").setAttribute("y",SY(pp.y)-12);
+  $("rodG").style.display=sc.rodOn?"":"none";
+  if(sc.rodOn){const r=$("rodR"); r.setAttribute("x",SX(sc.rodX)-ROD_R); r.setAttribute("width",ROD_R*2);
+    r.setAttribute("y",SY(560)); r.setAttribute("height",560-sc.rodY0);}
+  $("scaleTxt").textContent=String(sc.reading);
+  $("winG").setAttribute("opacity",sc.ch===2?sc.win.toFixed(3):"0");
+  if(sc.ch===2){
+    const f=sc.dayF, sx=lerp(386,598,f), sy=128-Math.sin(Math.PI*f)*80;
+    $("sunC").setAttribute("cx",sx.toFixed(1)); $("sunC").setAttribute("cy",sy.toFixed(1));
+    const night=(1-smooth(f/0.12))*(sc.day>1?1:0)+smooth((f-0.9)/0.1)*(sc.day<3?1:0);
+    $("nightR").setAttribute("opacity",(0.6*clamp(night,0,1)).toFixed(3));
+    $("dayG").style.display=STEPS[T.i].id==="window"?"none":"";
+    $("dayT").textContent=`第 ${sc.day} 天`;
+  }else $("dayG").style.display="none";
+  const vg=$("vapG"); vg.style.display=sc.vapor&&h>2?"":"none";
+  if(sc.vapor&&h>2){
+    const tt=performance.now()/1000;
+    [70,150,230].forEach((x,k)=>{
+      const ph=((tt*0.6+k*0.33)%1), y=SY(h)-12-ph*70, a=Math.sin(Math.PI*ph);
+      const p=$("vp"+k); p.setAttribute("d",`M${SX(x)} ${y} q -7 -10 0 -20 q 7 -10 0 -20`); p.setAttribute("opacity",a.toFixed(2));
+    });
+    $("vapT").setAttribute("y",SY(h)-58);
+  }
+  /* 放大鏡小圓與連線 */
+  const show=T.lensOn;
+  $("lensUI").style.display=show?"":"none"; cvL.style.display=show?"":"none";
+  if(show){
+    const mx=SX(T.lens.x), my=SY(T.lens.y), rm=CALL.r/Q.zoom;
+    $("marker").setAttribute("transform",`translate(${mx.toFixed(2)} ${my.toFixed(2)})`);
+    $("mkRing").setAttribute("r",rm.toFixed(2));
+    const hx=rm*0.72+2, hy=rm*0.72+2;
+    $("mkHandle").setAttribute("x1",hx.toFixed(1)); $("mkHandle").setAttribute("y1",hy.toFixed(1));
+    $("mkHandle").setAttribute("x2",(hx+16).toFixed(1)); $("mkHandle").setAttribute("y2",(hy+16).toFixed(1));
+    const tg=tangents({x:mx,y:my},rm,CALL,CALL.r);
+    ["cl1","cl2"].forEach((id,k)=>{const el=$(id); if(!tg){el.style.display="none";return;} el.style.display="";
+      el.setAttribute("x1",tg[k][0]); el.setAttribute("y1",tg[k][1]); el.setAttribute("x2",tg[k][2]); el.setAttribute("y2",tg[k][3]);});
+    $("marker").setAttribute("aria-valuetext",describeLens(sc));
+  }
+}
+function describeLens(sc){
+  const y=T.lens.y;
+  if(y>sc.h+4) return "放大鏡在水面上方";
+  if(Math.abs(y-sc.h)<=6) return "放大鏡在水面";
+  if(y<14) return "放大鏡在杯底";
+  return "放大鏡在水裡";
+}
+
+let lastNow=0, simTime=0, frameN=0, lastCount=-1;
+const SUBCAP=()=>sim.kind==="gpu"?8:6;
+const simRate=()=>sim.kind==="cpu"?100:200;   /* 每秒模擬幾個子步：一般模式每步 1/100 秒（慢的裝置也跟得上時間軸），WebGPU 1/200 秒 */
+/* 第 ② 章：每 0.4 秒讀回一次位置，水的小粒子照「現在最高的先走」重排，數量才跟得上劇本（水剩 30×(1−e) 毫升） */
+const EVAP={last:0,busy:false,stretch:1};
+function evapRerank(now){
+  if(EVAP.busy) return;
+  EVAP.busy=true; EVAP.last=now; const gen=T.gen;
+  sim.read().then(Rd=>{
+    if(gen!==T.gen||T.pending) return;
+    const ws=[];
+    for(let i=0;i<Q.NW;i++) if((Rd.st[i]&255)===WL) ws.push(i);
+    ws.sort((a,b)=>Rd.pos[b*4+1]-Rd.pos[a*4+1]);
+    const n=ws.length, info=new Float32Array(Q.NW*4).fill(2);
+    ws.forEach((i,m)=>{ info[i*4]=1-(n-m-0.5)/Q.NW; });   /* 比劇本多出來的（最上面的）門檻低於 e，馬上蒸發 */
+    sim.uploadInfoPart(info,Q.NW);
+    /* 水柱實際的頂端（第 98 百分位）比水面低時，接下來把水柱輕輕往上拉長補滿，水面下才不會出現只有食鹽的空層 */
+    if(n>=50){ const y98=Rd.pos[ws[Math.floor(n*0.02)]*4+1], lid=scene(T.i,T.t).h;
+      if(y98>0.5&&lid>Q.d*3) EVAP.stretch=clamp(0.98*lid/y98,0.97,1.06); }
+  }).catch(e=>console.warn(e)).finally(()=>{ EVAP.busy=false; });
+}
+function updateCounter(sc){
+  const dis = sc.ch===1 ? Math.min(Q.NS,sc.released) : Q.NS-Math.floor(sc.c*Q.NS);
+  if(dis===lastCount) return; lastCount=dis;
+  const vis=Q.NS-dis, f=n=>n.toLocaleString();
+  $("cVis").textContent=f(vis); $("cDis").textContent=f(dis); $("cTot").textContent=f(Q.NS);
+  $("cbVis").style.flexBasis=(vis/Q.NS*100)+"%"; $("cbDis").style.flexBasis=(dis/Q.NS*100)+"%";
+}
+function frame(now){
+  if(!lastNow) lastNow=now;
+  let dt=Math.min(0.05,(now-lastNow)/1000); lastNow=now;
+  if(document.hidden){ requestAnimationFrame(frame); return; }
+  const st=STEPS[T.i], run=T.playing&&!T.pending;
+  const SR=simRate(), want=dt*(run?T.speed:1)*SR+(T.acc||0), sub=Math.min(Math.floor(want),SUBCAP());
+  T.acc=clamp(want-sub,0,1);
+  if(run){ T.t+=sub/SR; if(T.t>=st.dur){ T.t=st.dur; stepEnd(); } }
+  const sc=scene(T.i,T.t);
+  if(!T.userLens){ const k=Math.min(1,dt*3.2); T.lens.x+= (sc.lens.x-T.lens.x)*k; T.lens.y+=(sc.lens.y-T.lens.y)*k; }
+  showCaption(false);
+  updateSVG(sc);
+  pushGrains(sc);
+  simTime+=sub/SR;
+  if(!T.pending&&sub>0) sim.step(simParams(sc,simTime,sub),sub);
+  if(run&&sc.ch===2&&st.id!=="window"&&sc.e<1&&now-EVAP.last>400) evapRerank(now);
+  sim.render(viewMacro(sc.h),T.lensOn?viewLens(T.lens,sc.h):null,{super:T.superOn});
+  updateCounter(sc);
+  frameN++;
+  requestAnimationFrame(frame);
+}
+
+/* ---------- 拖曳放大鏡 ---------- */
+function toWorld(ev){
+  const pt=svgF.createSVGPoint(); pt.x=ev.clientX; pt.y=ev.clientY;
+  const m=svgF.getScreenCTM(); if(!m) return null;
+  const p=pt.matrixTransform(m.inverse());
+  return {x:clamp(p.x-BK.L,-6,WW+6), y:clamp(BK.B-p.y,-6,WH+30)};
+}
+let dragging=false;
+$("marker").addEventListener("pointerdown",ev=>{dragging=true; $("marker").setPointerCapture(ev.pointerId); ev.preventDefault();});
+$("marker").addEventListener("pointermove",ev=>{ if(!dragging) return; const w=toWorld(ev); if(w){T.lens=w; T.userLens=true;} });
+const endDrag=()=>{dragging=false;};
+$("marker").addEventListener("pointerup",endDrag); $("marker").addEventListener("pointercancel",endDrag);
+$("tapArea").addEventListener("click",ev=>{ const w=toWorld(ev); if(w){T.lens=w; T.userLens=true;} });
+$("marker").addEventListener("keydown",ev=>{
+  const k={ArrowLeft:[-6,0],ArrowRight:[6,0],ArrowUp:[0,6],ArrowDown:[0,-6]}[ev.key]; if(!k) return;
+  ev.preventDefault(); ev.stopPropagation(); T.lens={x:clamp(T.lens.x+k[0],-6,WW+6),y:clamp(T.lens.y+k[1],-6,WH+30)}; T.userLens=true;
+});
+
+/* ---------- 按鈕 ---------- */
+$("bPlay").addEventListener("click",togglePlay);
+$("bNext").addEventListener("click",()=>{ if(T.i<STEPS.length-1) goStep(T.i+1,{live:T.ended,play:true}); else if(!T.ended) fastForward(STEPS[T.i].dur); });
+$("bPrev").addEventListener("click",prev);
+$("bReplay").addEventListener("click",()=>goStep(T.i,{play:true}));
+$("bSpeed").addEventListener("click",()=>{ const k=(SPEEDS.indexOf(T.speed)+1)%SPEEDS.length; T.speed=SPEEDS[k]; $("bSpeed").textContent=`速度 ${T.speed}×`; });
+$("bLens").addEventListener("click",()=>{ T.lensOn=!T.lensOn; $("bLens").setAttribute("aria-pressed",String(T.lensOn)); });
+$("bSuper").addEventListener("click",()=>{ T.superOn=!T.superOn; $("bSuper").setAttribute("aria-pressed",String(T.superOn)); });
+const player=$("player");
+const fsOK=!!(player.requestFullscreen||player.webkitRequestFullscreen);
+if(!fsOK) $("bFull").classList.add("hidden");
+$("bFull").addEventListener("click",()=>{
+  const d=document;
+  if(d.fullscreenElement||d.webkitFullscreenElement){ (d.exitFullscreen||d.webkitExitFullscreen).call(d); }
+  else (player.requestFullscreen||player.webkitRequestFullscreen).call(player);
+});
+document.addEventListener("fullscreenchange",()=>setTimeout(layout,60));
+document.querySelectorAll(".chap").forEach(b=>b.addEventListener("click",()=>goStep(CH_FIRST[+b.dataset.ch],{play:true})));
+$("qBtn").addEventListener("click",()=>{ $("qAns").classList.remove("hidden"); $("qBtn").classList.add("hidden");
+  const sm=REDUCED?"auto":"smooth", last=T.i===STEPS.length-1&&T.ended;
+  if(last){ $("summary").classList.remove("hidden"); $("toSumRow").classList.remove("hidden"); }   /* 總結要等最後一題看過答案才出現 */
+  ($(last?"toSumRow":"qAns")).scrollIntoView({block:"nearest",behavior:sm}); });   /* 答案（和「往下看總結」）要整個看得到，但不把動畫捲走 */
+/* 總結在播放器下面：全螢幕時先離開全螢幕，再捲過去 */
+$("toSum").addEventListener("click",()=>{ const d=document, go=()=>$("summary").scrollIntoView({block:"start",behavior:REDUCED?"auto":"smooth"});
+  if(d.fullscreenElement||d.webkitFullscreenElement){ (d.exitFullscreen||d.webkitExitFullscreen).call(d); setTimeout(go,350); } else go(); });
+$("againBtn").addEventListener("click",()=>{ goStep(0,{play:true}); window.scrollTo({top:0,behavior:"smooth"}); });
+document.addEventListener("keydown",ev=>{
+  const tag=(ev.target&&ev.target.tagName)||"";
+  if(/INPUT|TEXTAREA|SELECT/.test(tag)) return;
+  if(ev.ctrlKey||ev.metaKey||ev.altKey) return;   /* Ctrl／Cmd 組合鍵（搜尋、上一頁…）留給瀏覽器 */
+  if(ev.key===" "&&tag!=="BUTTON"){ ev.preventDefault(); togglePlay(); }
+  else if(ev.key==="ArrowRight"){ $("bNext").click(); }
+  else if(ev.key==="ArrowLeft"){ prev(); }
+  else if(ev.key==="m"||ev.key==="M") $("bLens").click();
+  else if(ev.key==="g"||ev.key==="G") $("bSuper").click();
+  else if((ev.key==="f"||ev.key==="F")&&fsOK) $("bFull").click();
+  else if(ev.key==="r"||ev.key==="R") $("bReplay").click();
+});
+/* 用滑鼠、觸控按按鈕之後讓按鈕失焦，空白鍵才會回到「播放／暫停」（用 Tab 鍵選到的按鈕不受影響） */
+document.addEventListener("click",ev=>{ const b=ev.target&&ev.target.closest&&ev.target.closest("button,a.cbtn"); if(b&&ev.detail>0) b.blur(); });
+window.addEventListener("hashchange",()=>{ const h=location.hash.slice(1); if(h==="dissolve"&&STEPS[T.i].ch!==1) goStep(0,{play:true}); if(h==="evaporate"&&STEPS[T.i].ch!==2) goStep(CH_FIRST[2],{play:true}); });
+let rsT=null; window.addEventListener("resize",()=>{clearTimeout(rsT); rsT=setTimeout(layout,80);});
+
+/* ---------- 開始 ---------- */
+function freshCanvas(id){ const old=$(id), c=old.cloneNode(false); old.replaceWith(c); return c; }
+function makeWorld(gpu){ Q=makeQ(gpu); PLAN=makePlan(); const rr=makeRR(); RR=rr.rr; RRS=rr.srt; CRY=makeCrystals(); }
+function setModeNote(){
+  const from3d=QS.get("from3d")==="1";
+  if(from3d) $("link3D").classList.add("hidden");
+  $("modeNote").textContent= from3d ? `這台裝置不能用 WebGPU 3D，已改開平面剖面版（${Q.N.toLocaleString()} 個小粒子）。動畫內容一樣。`
+    : MODE==="gpu"
+    ? `WebGPU 模式：模擬 ${Q.N.toLocaleString()} 個小粒子（水 ${Q.NW.toLocaleString()} 個、食鹽 ${Q.NS.toLocaleString()} 個）。`
+    : `這台裝置不支援 WebGPU，已改用一般模式（${Q.N.toLocaleString()} 個小粒子），動畫內容一樣。`;
+}
+function useCpu(){
+  /* 對 canvas 要過 webgpu context 以後就不能再拿 2d context，所以換新的 canvas */
+  cvM=freshCanvas("cvMacro"); cvL=freshCanvas("cvLens");
+  makeWorld(false); sim=makeCpuSim(cvM,cvL); MODE="cpu"; layout(); setModeNote();
+}
+function onGpuLost(msg){
+  if(MODE!=="gpu") return;
+  console.warn("[一顆也沒少] WebGPU 裝置中斷，改用一般模式：",msg);
+  const i=T.i, play=T.playing; useCpu(); goStep(i,{play});
+}
+/* 快轉（測試與網址 ?t= 用）：不畫面，只跑時間軸與模擬 */
+function fastForward(target){
+  const st=STEPS[T.i]; target=clamp(target,0,st.dur);
+  while(T.t<target-1e-6){
+    const dt=Math.min(1/60,target-T.t); T.t+=dt;
+    const sc=scene(T.i,T.t); pushGrains(sc);
+    const SR=simRate(), sub=Math.max(1,Math.round(dt*SR)); simTime+=sub/SR;
+    sim.step(simParams(sc,simTime,sub),sub);
+    if(!T.userLens){ T.lens.x=sc.lens.x; T.lens.y=sc.lens.y; }
+  }
+  if(Math.abs(target-T.t)<1e-6) T.t=target;
+  if(T.t>=st.dur&&!T.ended) stepEnd();
+}
+async function start(){
+  drawMarks(); buildPills();
+  if(QS.get("cpu")!=="1"){
+    try{
+      makeWorld(true); layout();
+      sim=await makeGpuSim(cvM,cvL,onGpuLost); MODE="gpu";
+    }catch(e){ sim=null; console.warn("[一顆也沒少] 改用一般模式：",e&&e.message); }
+  }
+  if(!sim) useCpu();
+  layout(); setModeNote();
+  const h=location.hash.slice(1), qs=QS.get("step");
+  let first=h==="evaporate"?CH_FIRST[2]:0;
+  if(qs!=null) first=clamp(parseInt(qs,10)||0,0,STEPS.length-1);
+  const startPaused=QS.get("pause")==="1"||REDUCED;
+  await goStep(first,{play:!startPaused});
+  if(QS.get("t")){ fastForward(parseFloat(QS.get("t"))||0); if(startPaused){T.playing=false;refreshUI();} }
+  if(QS.get("super")==="1") $("bSuper").click();
+  const ld=$("loading"); if(ld) ld.remove();
+  requestAnimationFrame(frame);
+}
+/* 給測試用 */
+window.__anim={T,STEPS,get Q(){return Q;},get mode(){return MODE;},
+  go:async(i,t,play)=>{ await goStep(i,{play:true}); if(t) fastForward(t); T.playing=!!play; refreshUI(); },
+  ff:async t=>{ while(T.pending) await new Promise(r=>setTimeout(r,20)); fastForward(t); }, scene:()=>scene(T.i,T.t),
+  counts:async()=>{ const R=await sim.read(), c=[0,0,0,0,0,0,0], hy=new Array(10).fill(0), hw=new Array(10).fill(0); let maxY=0, minY=1e9, out=0, nanN=0, terr=0, tn=0;
+    const sc=scene(T.i,T.t);
+    for(let i=0;i<Q.N;i++){ const s=R.st[i]&255; c[s]++; const x=R.pos[i*4], y=R.pos[i*4+1];
+      if(!isFinite(x)||!isFinite(y)) nanN++;
+      if(s===SF||s===SK){ hy[clamp(Math.floor(y/Math.max(sc.h,1)*10),0,9)]++; }
+      if(s===SF){ const g=saltTarget(i,simTime,sc.h); terr+=Math.hypot(g[0]-x,g[1]-y); tn++; }
+      if(s===WL) hw[clamp(Math.floor(y/Math.max(sc.h,1)*10),0,9)]++;
+      if(s===WL||s===SF){ maxY=Math.max(maxY,y); minY=Math.min(minY,y); if(x<-0.5||x>WW+0.5) out++; } }
+    /* 被關在晶體格子裡的水小粒子、晶體最高到哪裡（測試用） */
+    const scCell=new Set(); let cryTop=0;
+    for(let i=0;i<Q.N;i++) if((R.st[i]&255)===SC){ scCell.add(Math.floor(R.pos[i*4]/Q.d)+","+Math.floor(R.pos[i*4+1]/Q.d)); cryTop=Math.max(cryTop,R.pos[i*4+1]+Q.d/2); }
+    let trapped=0; for(let i=0;i<Q.NW;i++) if((R.st[i]&255)===WL&&scCell.has(Math.floor(R.pos[i*4]/Q.d)+","+Math.floor(R.pos[i*4+1]/Q.d))) trapped++;
+    return {states:{WL:c[0],WV:c[1],GONE:c[2],SB:c[3],SF:c[4],SC:c[5],SK:c[6]},freeSaltYHist:hy,waterYHist:hw,targetErr:tn?+(terr/tn).toFixed(2):0,trappedWater:trapped,crystalTop:+cryTop.toFixed(1),liquidMaxY:maxY,liquidMinY:minY,lid:sc.h,outOfBox:out,nan:nanN,reading:sc.reading}; }};
+start().catch(e=>{ console.error(e); const l=$("loading"); if(l) l.textContent="動畫載入失敗："+(e&&e.message); });
+})();
+</script>
+<script>
+/* 從〈溶解現象〉互動教材另開的分頁：按「回〈溶解現象〉」就把這個分頁關掉，回到原來那個還留著紀錄的分頁（瀏覽器不讓關時，才照連結開） */
+(function(){
+  if(new URLSearchParams(location.search).get("from")!=="lesson") return;
+  document.querySelectorAll('a[href*="溶解現象_互動教材.html"]').forEach(function(a){
+    a.addEventListener("click",function(ev){
+      if(history.length>1||ev.metaKey||ev.ctrlKey||ev.shiftKey) return;
+      ev.preventDefault(); window.close(); setTimeout(function(){ location.href=a.href; },400);
+    });
+  });
+})();
+</script>
+</body>
+</html>

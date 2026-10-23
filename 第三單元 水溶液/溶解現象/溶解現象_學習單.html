@@ -83,6 +83,7 @@
   .rub { font-size:9pt; line-height:1.25; height:8mm; overflow:hidden; margin-top:0; color:#d00; font-weight:400; }
   body.show-ans .rub.ans { display:block; }
   body.show-ans .stu-only { display:none; }
+  body.show-ans .sheet h1::after { content:"（教師版）"; color:#d00; font-size:.8em; }   /* 印出來的教師版也看得出來 */
   .w8 { min-width:8mm; } .w10 { min-width:10mm; } .w12 { min-width:12mm; } .w14 { min-width:14mm; }
   .w16 { min-width:16mm; } .w20 { min-width:20mm; } .w24 { min-width:24mm; }
   .note-s { font-size:9.5pt; }
@@ -111,8 +112,9 @@
 </head>
 <body>
 <div class="toolbar no-print">
-  <button onclick="document.body.classList.toggle('show-ans')">👨‍🏫 顯示 / 隱藏答案（教師版）</button>
+  <button type="button" aria-pressed="false" onclick="var on=document.body.classList.toggle('show-ans');this.setAttribute('aria-pressed',String(on));this.textContent=on?'👨‍🏫 隱藏答案（現在是教師版）':'👨‍🏫 顯示答案（教師版）'">👨‍🏫 顯示答案（教師版）</button>
   <button onclick="window.print()">🖨️ 列印</button>
+  <a href="../../index.html">← 回首頁</a>
   <a href="溶解現象_互動教材.html">← 回互動教材</a>
   <a href="溶解現象_重點整理.html">📒 重點整理</a>
 </div>
@@ -151,12 +153,12 @@
     <tr><td>丙組</td><td>78</td><td>75</td><td></td></tr>
   </table>
   <ol class="qs" style="margin-top:2px">
-    <li>哪一組溶解前、後的讀數不一樣？（<span class="blank w10"><span class="ans">丙</span></span>）組。最可能的原因是什麼？圈一個：<br><span class="circle-opt ok">食鹽灑出來或紙沒放回去</span><span class="circle-opt">水變多了</span><span class="circle-opt">食鹽變重了</span></li>
+    <li>哪一組溶解前、後的讀數不一樣？（<span class="blank w10"><span class="ans">丙</span></span>）組。最可能的原因是什麼？圈一個：<br><span class="circle-opt ok">有食鹽灑在秤外面</span><span class="circle-opt">食鹽溶解後就沒有重量</span><span class="circle-opt">溶解以後水變輕了</span></li>
     <li>乙組真正的重量是多少？溶解前<span class="blank w14"><span class="ans">78</span></span>公克重，溶解後<span class="blank w14"><span class="ans">78</span></span>公克重。<span class="ans note-s">（80－2＝78）</span></li>
   </ol>
 
   <h2>四、取回溶質：填空<span class="may">選做</span></h2>
-  <div class="fillp">把食鹽水倒進面積較<span class="blank w10"><span class="ans">大</span></span>的平面容器，放在<span class="blank w14"><span class="ans">通風</span></span>處，水分<span class="blank w14"><span class="ans">蒸發</span></span>後就會看到食鹽。曬鹽是讓<span class="blank w14"><span class="ans">海水</span></span>的水分蒸發，紅糖是讓<span class="blank w16"><span class="ans">甘蔗汁</span></span>的水分蒸發。</div>
+  <div class="fillp">把食鹽水倒進面積較<span class="blank w10"><span class="ans">大</span></span>的平面容器，放在<span class="blank w14"><span class="ans">通風</span></span>處，水分<span class="blank w14"><span class="ans">蒸發</span></span>後就會看到食鹽。曬鹽是讓<span class="blank w14"><span class="ans">海水</span></span>的水分蒸發，熬紅糖是讓<span class="blank w16"><span class="ans">甘蔗汁</span></span>的水分蒸發。</div>
 
   <h2>五、判斷對錯：對的畫「○」，錯的畫「╳」<span class="may">選做</span></h2>
   <ol class="qs">
@@ -209,6 +211,18 @@
   fit();
   addEventListener('resize', fit);
   addEventListener('orientationchange', fit);
+})();
+</script>
+<script>
+/* 從〈溶解現象〉互動教材另開的分頁：按「回〈溶解現象〉」就把這個分頁關掉，回到原來那個還留著紀錄的分頁（瀏覽器不讓關時，才照連結開） */
+(function(){
+  if(new URLSearchParams(location.search).get("from")!=="lesson") return;
+  document.querySelectorAll('a[href*="溶解現象_互動教材.html"]').forEach(function(a){
+    a.addEventListener("click",function(ev){
+      if(history.length>1||ev.metaKey||ev.ctrlKey||ev.shiftKey) return;
+      ev.preventDefault(); window.close(); setTimeout(function(){ location.href=a.href; },400);
+    });
+  });
 })();
 </script>
 </body>
