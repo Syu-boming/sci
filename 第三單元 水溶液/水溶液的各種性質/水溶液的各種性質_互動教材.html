@@ -209,6 +209,7 @@ a.btn{display:inline-flex;align-items:center;justify-content:center;text-decorat
 .fcard.picked{transform:translateY(-6px) scale(1.04);box-shadow:0 10px 0 var(--sun),0 0 0 5px var(--sun)}
 .fcard.dragging{position:fixed;z-index:999;pointer-events:none;opacity:.92;box-shadow:0 14px 26px rgba(0,0,0,.35)}
 .fcard:focus-visible{outline:4px solid var(--water-dark);outline-offset:3px}
+.btn:focus-visible,.opt:focus-visible,.station-btn:focus-visible,.back:focus-visible,.credits a:focus-visible{outline:4px solid var(--water-dark);outline-offset:3px}
 .fcard .mark{display:none;font-weight:900;font-size:clamp(14px,1.4vw,19px);line-height:1.3;margin-top:4px}
 .fcard.judged .mark{display:block}
 .fcard.judged.ok .mark{color:var(--green-dark)}
@@ -324,11 +325,100 @@ a.btn{display:inline-flex;align-items:center;justify-content:center;text-decorat
   flex:none;width:1.75em;height:1.75em;border-radius:50%;border:3px solid var(--ink);background:#fff;
   display:inline-flex;align-items:center;justify-content:center;font-weight:900;line-height:1;
 }
-.fansvg .hand{transform-box:fill-box;transform-origin:50% 50%}
-.fansvg.waving .hand{animation:fan .7s ease-in-out 4}
-@keyframes fan{0%,100%{transform:translate(0,0) rotate(0)}50%{transform:translate(-22px,5px) rotate(-14deg)}}
+/* ① 搧聞示意圖：setFan() 設定 data-step（0–4）；第 2、4 步加 .waving 重播搧動；
+   進出第 1 步時加 .raising／.lowering（手從腿上抬到杯口上方，或放回去） */
 .fansvg .sdot circle{fill:#fff}
 .fansvg .sdot.on circle{fill:var(--sun)}
+.fansvg .sdot{transition:opacity .3s}
+.fansvg:not([data-step="0"]) .sdot:not(.on){opacity:.45}
+/* 關節：上臂以肩、前臂以肘、手掌以腕為軸（transform-origin 是 viewBox 座標；viewBox 原點是 0 0） */
+.fansvg .arm,.fansvg .fore,.fansvg .forewave,.fansvg .handpose,.fansvg .hand,.fansvg .o,.fansvg .pf{transform-box:view-box}
+.fansvg .arm{transform-origin:80px 152px}
+.fansvg .fore,.fansvg .forewave{transform-origin:164px 159px}
+.fansvg .handpose,.fansvg .hand{transform-origin:244px 127px}
+/* 第 1 步：手先放下（放在桌子下面的腿上），還沒開始搧 */
+.fansvg[data-step="1"] .arm{transform:rotate(81.2deg)}
+.fansvg[data-step="1"] .fore{transform:rotate(-53.4deg)}
+.fansvg[data-step="1"] .handpose{transform:rotate(134.2deg)}
+/* 抬手：手腕先露出桌面（手掌垂著），在胸前把手掌轉正，再往前伸到杯口上方；放下時倒著走同一條路。
+   路徑用程式算過：手不碰杯子、不經過嘴巴前面；手指露出桌面時，手腕和前臂也看得到 */
+.fansvg.raising .arm{animation:fanArmUp 1s both}
+.fansvg.raising .fore{animation:fanForeUp 1s both}
+.fansvg.raising .handpose{animation:fanPoseUp 1s both}
+.fansvg.lowering .arm{animation:fanArmUp .9s reverse both}
+.fansvg.lowering .fore{animation:fanForeUp .9s reverse both}
+.fansvg.lowering .handpose{animation:fanPoseUp .9s reverse both}
+@keyframes fanArmUp{
+  0%{transform:rotate(81.2deg);animation-timing-function:ease-in}
+  22%{transform:rotate(92.3deg);animation-timing-function:linear}
+  45%{transform:rotate(78.8deg);animation-timing-function:linear}
+  72%{transform:rotate(28.3deg);animation-timing-function:ease-out}
+  100%{transform:rotate(0deg)}
+}
+@keyframes fanForeUp{
+  0%{transform:rotate(-53.4deg);animation-timing-function:ease-in}
+  22%{transform:rotate(-105.7deg);animation-timing-function:linear}
+  45%{transform:rotate(-115.9deg);animation-timing-function:linear}
+  72%{transform:rotate(-56.5deg);animation-timing-function:ease-out}
+  100%{transform:rotate(0deg)}
+}
+@keyframes fanPoseUp{
+  0%{transform:rotate(134.2deg);animation-timing-function:ease-in}
+  22%{transform:rotate(160.4deg);animation-timing-function:linear}
+  45%{transform:rotate(154.1deg);animation-timing-function:linear}
+  72%{transform:rotate(49.2deg);animation-timing-function:ease-out}
+  100%{transform:rotate(0deg)}
+}
+/* 氣味：被手掌搧向鼻子；第 1 步還沒搧，直直往上飄 */
+.fansvg .o{transition:transform .5s ease-in-out,opacity .3s}
+.fansvg .o1{transform:translate(238px,151px) rotate(-90deg) scale(0.6)}
+.fansvg .o2{transform:translate(205px,113px) rotate(-150deg) scale(0.9)}
+.fansvg .o3{transform:translate(176px,92px) rotate(-168deg) scale(1)}
+.fansvg[data-step="1"] .o1{transform:translate(234px,148px) rotate(-90deg) scale(1)}
+.fansvg[data-step="1"] .o2{transform:translate(239px,120px) rotate(-90deg) scale(1)}
+.fansvg[data-step="1"] .o3{transform:translate(234px,92px) rotate(-90deg) scale(1)}
+.fansvg[data-step="3"] .o3,.fansvg[data-step="4"] .o3{opacity:0}
+/* 每一步才出現的標示 */
+.fansvg .gap,.fansvg .st3,.fansvg .st4,.fansvg .swish,.fansvg .fanarrow,.fansvg .lbhand,.fansvg .lbodor,.fansvg .lbodor1{transition:opacity .3s}
+.fansvg .gap,.fansvg .st3,.fansvg .st4,.fansvg .swish,.fansvg .lbodor1{opacity:0}
+.fansvg[data-step="1"] .gap,.fansvg[data-step="4"] .gapline,.fansvg[data-step="4"] .gaparrow,
+.fansvg[data-step="1"] .lbodor1,.fansvg[data-step="3"] .st3,.fansvg[data-step="4"] .st4{opacity:1}
+.fansvg[data-step="0"] .swish,.fansvg[data-step="2"] .swish,.fansvg[data-step="4"] .swish{opacity:1}
+.fansvg[data-step="1"] .fanarrow,.fansvg[data-step="3"] .fanarrow,.fansvg[data-step="1"] .lbhand,.fansvg[data-step="1"] .lbodor,.fansvg[data-step="3"] .lbodor{opacity:0}
+/* 抬手時：手到了杯口上方，箭頭、標示才出現，氣味才被搧向鼻子；放下時：手離開了，才標出距離 */
+.fansvg.raising .o{transition-delay:1s}
+.fansvg.raising .fanarrow,.fansvg.raising .lbhand,.fansvg.raising .lbodor,.fansvg.raising .swish{transition-delay:.8s}
+.fansvg.lowering .gap,.fansvg.lowering .lbodor1{transition-delay:.6s}
+.fansvg.lowering .o{transition-delay:.3s}
+.fansvg .eyeshut,.fansvg[data-step="3"] .eyeopen{display:none}
+.fansvg[data-step="3"] .eyeshut{display:inline}
+/* 搧動：手掌以手腕為軸，先往外、再往臉的方向搧、回來；前臂跟著小幅擺動；氣味一團一團飄到鼻尖 */
+.fansvg .pf{opacity:0}
+.fansvg.waving .hand{animation:fanHand 1s ease-in-out .45s 4}
+.fansvg.waving .forewave{animation:fanFore 1s ease-in-out .45s 4}
+.fansvg.waving .pf{animation:fanPuff 1s linear .45s 4}
+.fansvg.waving .pf2{animation-delay:.78s}
+.fansvg.waving .pf3{animation-delay:1.11s}
+.fansvg.waving .ostatic{animation:fanDim 4.9s ease .3s both}
+/* 從第 1 步抬手上來：等手到杯口上方再開始搧 */
+.fansvg.waving.raising .hand,.fansvg.waving.raising .forewave,.fansvg.waving.raising .pf1{animation-delay:1.05s}
+.fansvg.waving.raising .pf2{animation-delay:1.38s}
+.fansvg.waving.raising .pf3{animation-delay:1.71s}
+.fansvg.waving.raising .ostatic{animation-delay:.9s}
+@keyframes fanHand{0%,100%{transform:rotate(0)}35%{transform:rotate(16deg)}75%{transform:rotate(-22deg)}}
+@keyframes fanFore{0%,100%{transform:rotate(0)}35%{transform:rotate(3deg)}75%{transform:rotate(-4deg)}}
+@keyframes fanPuff{
+  0%{transform:translate(238px,160px) rotate(-90deg) scale(0.6);opacity:0}
+  12%{transform:translate(236px,150px) rotate(-96deg) scale(0.8);opacity:1}
+  38%{transform:translate(224px,128px) rotate(-122deg) scale(0.9)}
+  62%{transform:translate(202px,108px) rotate(-148deg) scale(1)}
+  90%{transform:translate(160px,92px) rotate(-174deg) scale(1);opacity:1}
+  100%{transform:translate(145px,88px) rotate(-180deg) scale(1);opacity:0}
+}
+@keyframes fanDim{0%,100%{opacity:1}6%,92%{opacity:.4}}
+/* 第 3 步：吸氣的小箭頭往鼻子動 */
+.fansvg[data-step="3"] .st3 path{animation:fanSniff 1.1s ease-in-out .2s 2}
+@keyframes fanSniff{0%,100%{transform:translate(0,0)}50%{transform:translate(-5px,1px)}}
 /* 抓錯卡：老師正要做錯 → 全班舉 ○╳ → 揭曉 */
 .oopsgrid{display:grid;grid-template-columns:minmax(0,1fr);gap:12px;margin-top:10px}
 @media(min-width:900px){.oopsgrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
@@ -343,7 +433,7 @@ a.btn{display:inline-flex;align-items:center;justify-content:center;text-decorat
 .labelcard{border:3px solid var(--ink);border-radius:16px;background:#fff;padding:10px 14px;font-weight:900;font-size:clamp(18px,2.1vw,27px);line-height:1.5}
 .labelcard .lt{display:block;font-size:.72em;color:#4A5960;font-weight:800}
 .preview{display:grid;grid-template-columns:minmax(0,1fr);gap:12px;margin-top:12px}
-@media(min-width:720px){.preview{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(min-width:1024px){.preview{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .preview figure{border:3px solid var(--ink);border-radius:14px;background:#FFFDF8;padding:6px}
 .preview .qfig{max-height:34vh}
 /* ④ 配製步驟卡 */
@@ -369,7 +459,9 @@ a.btn{display:inline-flex;align-items:center;justify-content:center;text-decorat
 
 @media (prefers-reduced-motion:reduce){
   .screen,.tag,.hlbox{animation:none}
-  .fansvg.waving .hand,.saltsvg .grain{animation:none}
+  .saltsvg .grain{animation:none}
+  .fansvg *{animation:none !important;transition:none !important}
+  .fcard{transition:none}
 }
 
   /* ===== RWD：手機 / 平板 / 筆電 / 75 吋觸控螢幕 ===== */
@@ -436,6 +528,11 @@ a.btn{display:inline-flex;align-items:center;justify-content:center;text-decorat
     .simcount{ font-size:34px; }
     .tphoto-empty{ font-size:26px; }
     .chip{ font-size:24px; }
+    .criterion .askagain{ font-size:22px; }
+    .ticket{ font-size:30px; }
+    .guessbox .g{ font-size:32px; }
+    .guessbox .later{ font-size:42px; }
+    .bletter{ width:64px; font-size:34px; }
   }
   @media (min-width:2600px){
     body{ font-size:34px; }
@@ -478,6 +575,11 @@ a.btn{display:inline-flex;align-items:center;justify-content:center;text-decorat
     .simcount{ font-size:44px; }
     .tphoto-empty{ font-size:34px; }
     .chip{ font-size:31px; }
+    .criterion .askagain{ font-size:29px; }
+    .ticket{ font-size:39px; }
+    .guessbox .g{ font-size:42px; }
+    .guessbox .later{ font-size:54px; }
+    .bletter{ width:84px; font-size:44px; }
   }
 </style>
 <script>
@@ -547,7 +649,7 @@ function teacherPhotoFallback(img){
             <figcaption class="cap center">示意圖：三杯看起來都透明無色</figcaption>
           </figure>
           <div>
-            <div class="ask big">三杯<b>透明無色</b>的水溶液，<br>用眼睛看得出哪一杯是<b>糖水</b>嗎？</div>
+            <div class="ask big">三杯<b>透明無色</b>的液體，其中一杯是<b>糖水</b>。<br>只用眼睛看，分得出來嗎？</div>
             <p class="lead">先想一想，舉反應卡（甲、乙、丙），再請一位同學上臺按。</p>
             <div class="opts col" id="guessOpts"></div>
             <div class="guessbox hidden" id="guessBox" aria-live="polite">
@@ -564,7 +666,7 @@ function teacherPhotoFallback(img){
       <p>本課學習目標：①能說出分辨不明水溶液時的安全做法（不碰、不嘗、搧聞）②能從成分標示知道水溶液含有哪些物質，並說出固態、液態、氣態混合物的例子 ③能說出配製水溶液的步驟和用純水的理由。</p>
       <p>節次：開場、① 安全的觀察在第 ② 節最後 8 分鐘上（各 4 分鐘）；② 成分標示以後在第 ③ 節上。請學生翻開課本 66 頁。</p>
       <p>先問「看起來、聞起來、喝起來都一樣嗎？」再點「顏色、氣味、味道」三個按鈕收束。<b>家長檢核</b>：課本 66 頁談到飲料的味道，要明講「在家喝飲料可以；實驗室裡的東西一律不嘗」。</p>
-      <p>三杯透明無色的問題：先舉反應卡、再請一位同學上臺按；<b>只記不判</b>，在 ② 成分標示站回收（答案：看不出來，透明無色不等於白開水）。重新整理頁面會清掉；隔一節才回收時，請全班回想自己舉的卡。</p>
+      <p>三杯透明無色的問題：先舉反應卡、再請一位同學上臺按；<b>只記不判</b>，在 ② 成分標示站一開始回收（答案：看不出來，透明無色不等於白開水）。杯子標 1、2、3，反應卡的甲、乙、丙只代表選項。投票只記在這個頁面裡：隔一節才回收（或重新整理過）時，② 站會請全班再投一次。</p>
     </div>
   </section>
 
@@ -586,49 +688,105 @@ function teacherPhotoFallback(img){
       <div class="duo mid">
         <figure class="figbox">
           <div class="svgbox" id="fanFig">
-            <svg class="fansvg" id="fanSvg" viewBox="0 0 440 250" role="img" aria-label="搧聞的示意圖：杯子放在桌上，臉和杯口保持距離，手掌在杯口上方往鼻子的方向輕輕搧" xmlns="http://www.w3.org/2000/svg" font-family="Microsoft JhengHei,PingFang TC,Noto Sans TC,sans-serif">
+            <svg class="fansvg" id="fanSvg" data-step="0" viewBox="0 0 380 216" role="img" aria-label="搧聞的示意圖：杯子放在桌上，臉和杯口保持距離，手掌在杯口上方往鼻子的方向輕輕搧" xmlns="http://www.w3.org/2000/svg" font-family="Microsoft JhengHei,PingFang TC,Noto Sans TC,sans-serif">
               <defs>
-                <marker id="fanAh" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#2E7D4F"/></marker>
-                <marker id="fanAh2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#6B7A82"/></marker>
+                <marker id="fanAh" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="3.4" markerHeight="3.4" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#2E7D4F"/></marker>
+                <marker id="fanAh2" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="4" markerHeight="4" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#4A5960"/></marker>
+                <marker id="fanAh3" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="3.4" markerHeight="3.4" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#5E4A9C"/></marker>
               </defs>
+              <g transform="translate(-30 -22)">
               <rect width="440" height="250" fill="#FFFDF8"/>
-              <rect x="0" y="214" width="440" height="36" fill="#EADFC8"/>
-              <line x1="0" y1="214" x2="440" y2="214" stroke="#1E1E1E" stroke-width="3"/>
-              <!-- 人（側面，臉朝右） -->
-              <path d="M36 214 C36 170 60 150 92 150 C124 150 148 170 148 214 Z" fill="#CFE3F2" stroke="#1E1E1E" stroke-width="3"/>
-              <circle cx="92" cy="102" r="44" fill="#FFE6D2" stroke="#1E1E1E" stroke-width="3"/>
-              <path d="M50 98 C48 66 72 52 98 56 C118 59 130 70 134 84 C110 74 82 76 58 104 Z" fill="#4A3A2A"/>
-              <path d="M134 92 L151 106 L134 113" fill="#FFE6D2" stroke="#1E1E1E" stroke-width="3" stroke-linejoin="round"/>
-              <circle cx="114" cy="92" r="4" fill="#1E1E1E"/>
-              <path d="M117 127 Q125 131 131 125" fill="none" stroke="#1E1E1E" stroke-width="2.5" stroke-linecap="round"/>
+              <!-- 桌面 -->
+              <rect x="0" y="210" width="440" height="40" fill="#EADFC8"/>
+              <!-- 臉和杯口保持距離：杯口靠臉那一邊往上的虛線（第 1、4 步；畫在手臂後面） -->
+              <line class="gap gapline" x1="214" y1="157" x2="214" y2="76" stroke="#4A5960" stroke-width="2.5" stroke-dasharray="5 5" opacity="0"/>
+              <!-- 氣味（從杯口飄出來，畫在手臂後面） -->
+              <g class="odor" fill="none" stroke="#7A62C4" stroke-width="3.4" stroke-linecap="round">
+                <g class="ostatic">
+                  <path class="o o1" transform="translate(238 151) rotate(-90) scale(0.6)" d="M-14 0 Q-10.5 -4.5 -7 0 T0 0 T7 0 T14 0"/>
+                  <path class="o o2" transform="translate(205 113) rotate(-150) scale(0.9)" d="M-14 0 Q-10.5 -4.5 -7 0 T0 0 T7 0 T14 0"/>
+                  <path class="o o3" transform="translate(176 92) rotate(-168) scale(1)" d="M-14 0 Q-10.5 -4.5 -7 0 T0 0 T7 0 T14 0"/>
+                </g>
+                <path class="pf pf1" opacity="0" d="M-14 0 Q-10.5 -4.5 -7 0 T0 0 T7 0 T14 0"/>
+                <path class="pf pf2" opacity="0" d="M-14 0 Q-10.5 -4.5 -7 0 T0 0 T7 0 T14 0"/>
+                <path class="pf pf3" opacity="0" d="M-14 0 Q-10.5 -4.5 -7 0 T0 0 T7 0 T14 0"/>
+              </g>
+              <!-- 學生（五年級，側面，臉朝右，坐在桌前） -->
+              <g class="kid" stroke="#1E1E1E" stroke-width="3" stroke-linejoin="round">
+                <path fill="#FFDCC2" d="M70 142 C71 130 70 120 66 112 C54 106 47 93 47 77 C47 53 64 37 88 37 C110 37 124 49 128 63 C129.5 69 129.6 74 129 78 C132 80.5 135.5 83 136.8 86 C137.6 88.5 135 90.5 131.5 90.5 C131.5 95 130.5 99 129 102 C129 107.5 127 111.5 123 114 C117 117.5 108 117.5 101 115.5 C100 124 100 133 102 142 Z"/>
+                <path fill="#7FC3EA" d="M44 224 L45 170 C46 150 58 136 76 134 L98 134 C112 134 120 146 121 164 L122 224 Z"/>
+                <path fill="none" d="M70 135 C78 141 92 142 102 135"/>
+                <path fill="#4B3526" d="M131 61 C129 46 117 33 92 31 C83 30.5 76 31.5 70 34 C66 30 60 29 56 31 C60 33 62 35 63 38 C50 46 44 58 43 70 C42 86 47 99 58 107 C62 99 66 92 70 86 C72 80 76 74 84 72 C90 70 94 66 98 62 C106 61 113 63 120 62 C124 61.5 128 62.5 131 61 Z"/>
+                <ellipse cx="79" cy="87" rx="7.5" ry="10" fill="#FFDCC2"/>
+                <path fill="none" stroke-width="2" stroke-linecap="round" d="M81 82 C76 83 76 91 81 92"/>
+                <ellipse cx="111" cy="96" rx="7" ry="5" fill="#FF9B85" opacity=".45" stroke="none"/>
+                <g class="eyeopen" stroke="none"><ellipse cx="114" cy="77" rx="3.9" ry="4.9" fill="#1E1E1E"/><circle cx="115.4" cy="75.2" r="1.4" fill="#FFFFFF"/></g>
+                <path class="eyeshut" display="none" fill="none" stroke-width="2.5" stroke-linecap="round" d="M109.5 78 Q114 81.5 118.5 78"/>
+                <path fill="none" stroke="#4B3526" stroke-linecap="round" d="M108 68 Q114 65.5 120 67"/>
+                <path fill="none" stroke-width="2.5" stroke-linecap="round" d="M121.5 101 Q125.5 103.5 129 100.5"/>
+              </g>
+              <!-- 靠近我們這一側的手臂：上臂（肩）→ 前臂（肘）→ 手掌（腕） -->
+              <g class="arm">
+                <line x1="80" y1="152" x2="164" y2="159" stroke="#1E1E1E" stroke-width="25" stroke-linecap="round"/>
+                <line x1="80" y1="152" x2="164" y2="159" stroke="#FFDCC2" stroke-width="19" stroke-linecap="round"/>
+                <path transform="translate(80 152) rotate(4.8)" d="M0 -18 L36 -17 L39 17 L0 18 A18 18 0 0 1 0 -18 Z" fill="#7FC3EA" stroke="#1E1E1E" stroke-width="3" stroke-linejoin="round"/>
+                <g class="fore"><g class="forewave">
+                  <line x1="164" y1="159" x2="240.8" y2="128.3" stroke="#1E1E1E" stroke-width="23" stroke-linecap="round"/>
+                  <line x1="164" y1="159" x2="240.8" y2="128.3" stroke="#FFDCC2" stroke-width="17" stroke-linecap="round"/>
+                  <g class="handpose"><g class="hand">
+                    <g transform="translate(244 127) rotate(-12)">
+                      <line x1="-6" y1="-8" x2="-16" y2="-23" stroke="#1E1E1E" stroke-width="13" stroke-linecap="round"/>
+                      <line x1="-6" y1="-8" x2="-16" y2="-23" stroke="#FFDCC2" stroke-width="7" stroke-linecap="round"/>
+                      <path d="M-10.5 7 L-11 -21 L-11 -37.75 A3.25 3.25 0 0 1 -4.5 -37.75 L-4.5 -41.75 A3.25 3.25 0 0 1 2 -41.75 L2 -38.75 A3.25 3.25 0 0 1 8.5 -38.75 L8.5 -34.5 A2.5 2.5 0 0 1 13.5 -34.5 L13.5 -19 C13.5 -9 12.5 -1 11 7" fill="#FFDCC2" stroke="#1E1E1E" stroke-width="3" stroke-linejoin="round"/>
+                      <g stroke="#1E1E1E" stroke-width="2" stroke-linecap="round"><line x1="-4.5" y1="-37.75" x2="-4.5" y2="-27"/><line x1="2" y1="-38.75" x2="2" y2="-28"/><line x1="8.5" y1="-34.5" x2="8.5" y2="-26"/></g>
+                    </g>
+                  </g></g>
+                </g></g>
+              </g>
+              <!-- 桌子（蓋住身體下半和放下來的手） -->
+              <rect x="0" y="211.5" width="440" height="38.5" fill="#EADFC8"/>
+              <line x1="0" y1="210" x2="440" y2="210" stroke="#1E1E1E" stroke-width="3"/>
               <!-- 杯子與水溶液 -->
-              <path d="M304 150 L313 212 H367 L376 150 Z" fill="#D6ECF8"/>
-              <line x1="304" y1="150" x2="376" y2="150" stroke="#2E86C1" stroke-width="2"/>
-              <path d="M298 126 L313 212 H367 L382 126" fill="none" stroke="#1E1E1E" stroke-width="3" stroke-linejoin="round"/>
-              <text x="340" y="188" font-size="15" font-weight="700" text-anchor="middle" fill="#1E1E1E">水溶液</text>
-              <!-- 氣味（虛線） -->
-              <g fill="none" stroke="#6B7A82" stroke-width="2.5" stroke-dasharray="5 5" stroke-linecap="round">
-                <path d="M322 120 C318 104 300 98 280 100"/>
-                <path d="M342 118 C338 98 316 88 292 88"/>
-                <path d="M362 120 C360 100 340 82 306 78"/>
+              <path d="M216.6 176 L222 208 H274 L279.4 176 Z" fill="#D6ECF8"/>
+              <line x1="216.6" y1="176" x2="279.4" y2="176" stroke="#2E86C1" stroke-width="2"/>
+              <line x1="224" y1="183" x2="227" y2="201" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round"/>
+              <path d="M214 160 L222 208.5 H274 L282 160" fill="none" stroke="#1E1E1E" stroke-width="3" stroke-linejoin="round"/>
+              <text x="248" y="197" font-size="16" font-weight="800" text-anchor="middle" fill="#1E1E1E">水溶液</text>
+              <!-- 手在搧（第 0、2、4 步） -->
+              <g class="swish" fill="none" stroke="#1E1E1E" stroke-width="2.5" stroke-linecap="round">
+                <path d="M265 64 Q272 73 269 86"/>
+                <path d="M275 56 Q284 69 280 88"/>
               </g>
-              <text x="388" y="102" font-size="15" font-weight="700" fill="#4A5960" text-anchor="start">氣味</text>
-              <!-- 手掌（全班跟著做時會搧動） -->
-              <g class="hand" id="fanHand">
-                <rect x="232" y="54" width="76" height="22" rx="11" fill="#FFE6D2" stroke="#1E1E1E" stroke-width="3" transform="rotate(-12 270 65)"/>
-                <ellipse cx="262" cy="79" rx="10" ry="6" fill="#FFE6D2" stroke="#1E1E1E" stroke-width="2.5" transform="rotate(-30 262 79)"/>
+              <!-- 往鼻子搧 -->
+              <g class="fanarrow">
+                <path d="M206 72 C192 58 170 57 150 70" fill="none" stroke="#2E7D4F" stroke-width="4" stroke-linecap="round" marker-end="url(#fanAh)"/>
+                <text x="182" y="45" font-size="18" font-weight="800" text-anchor="middle" fill="#2E7D4F" stroke="#FFFDF8" stroke-width="5" paint-order="stroke">往鼻子搧</text>
               </g>
-              <text x="276" y="36" font-size="15" font-weight="700" text-anchor="middle" fill="#1E1E1E">手掌</text>
-              <path d="M230 90 C210 100 186 106 160 106" fill="none" stroke="#2E7D4F" stroke-width="4" marker-end="url(#fanAh)"/>
-              <text x="204" y="128" font-size="15" font-weight="700" text-anchor="middle" fill="#2E7D4F" stroke="#FFFDF8" stroke-width="4" paint-order="stroke">往鼻子的方向搧</text>
-              <!-- 臉和杯口保持距離 -->
-              <line x1="160" y1="178" x2="294" y2="178" stroke="#6B7A82" stroke-width="2.5" stroke-dasharray="6 5" marker-start="url(#fanAh2)" marker-end="url(#fanAh2)"/>
-              <text x="227" y="166" font-size="14" font-weight="700" text-anchor="middle" fill="#4A5960" stroke="#FFFDF8" stroke-width="4" paint-order="stroke">臉不要靠近杯口</text>
+              <text class="lbhand" x="277" y="47" font-size="18" font-weight="800" text-anchor="middle" fill="#1E1E1E" stroke="#FFFDF8" stroke-width="5" paint-order="stroke">手掌</text>
+              <text class="lbodor" x="172" y="111" font-size="18" font-weight="800" text-anchor="middle" fill="#5E4A9C" stroke="#FFFDF8" stroke-width="5" paint-order="stroke">氣味</text>
+              <text class="lbodor1" opacity="0" x="270" y="142" font-size="18" font-weight="800" text-anchor="middle" fill="#5E4A9C" stroke="#FFFDF8" stroke-width="5" paint-order="stroke">氣味</text>
+              <!-- 第 1 步：臉和杯口保持距離（臉不在杯口正上方）；第 4 步再標一次，鼻子還是不靠近 -->
+              <g class="gap gaparrow" opacity="0" stroke="#4A5960" stroke-width="2.5" fill="none">
+                <line x1="148" y1="88" x2="211" y2="88" marker-start="url(#fanAh2)" marker-end="url(#fanAh2)"/>
+              </g>
+              <text class="gap gaplabel" opacity="0" x="180" y="72" font-size="18" font-weight="800" text-anchor="middle" fill="#1E1E1E" stroke="#FFFDF8" stroke-width="5" paint-order="stroke">保持距離</text>
+              <!-- 第 3 步：輕輕吸一口氣（紫色：氣味；綠色：手的動作） -->
+              <g class="st3" opacity="0">
+                <g fill="none" stroke="#5E4A9C" stroke-width="2.5" stroke-linecap="round">
+                  <path class="sn1" d="M170 76 Q160 79 148 84" marker-end="url(#fanAh3)"/>
+                  <path class="sn2" d="M170 100 Q160 96 149 91" marker-end="url(#fanAh3)"/>
+                </g>
+                <text x="180" y="50" font-size="18" font-weight="800" text-anchor="middle" fill="#5E4A9C" stroke="#FFFDF8" stroke-width="5" paint-order="stroke">輕輕吸</text>
+              </g>
+              <!-- 第 4 步：再搧幾下 -->
+              <text class="st4" opacity="0" x="317" y="142" font-size="18" font-weight="800" text-anchor="middle" fill="#2E7D4F" stroke="#FFFDF8" stroke-width="5" paint-order="stroke">再搧幾下</text>
               <!-- 步驟號碼 -->
-              <g class="sdot" data-s="1"><circle cx="404" cy="146" r="13" stroke="#1E1E1E" stroke-width="2.5"/><text x="404" y="147" font-size="15" font-weight="900" text-anchor="middle" dominant-baseline="middle" fill="#1E1E1E">1</text></g>
-              <g class="sdot" data-s="2"><circle cx="322" cy="40" r="13" stroke="#1E1E1E" stroke-width="2.5"/><text x="322" y="41" font-size="15" font-weight="900" text-anchor="middle" dominant-baseline="middle" fill="#1E1E1E">2</text></g>
-              <g class="sdot" data-s="3"><circle cx="166" cy="76" r="13" stroke="#1E1E1E" stroke-width="2.5"/><text x="166" y="77" font-size="15" font-weight="900" text-anchor="middle" dominant-baseline="middle" fill="#1E1E1E">3</text></g>
-              <text x="432" y="240" font-size="13" text-anchor="end" fill="#4A5960">示意圖</text>
+              <g class="sdot" data-s="1"><circle cx="308" cy="186" r="15" fill="#fff" stroke="#1E1E1E" stroke-width="2.5"/><text x="308" y="187" font-size="17" font-weight="900" text-anchor="middle" dominant-baseline="middle" fill="#1E1E1E">1</text></g>
+              <g class="sdot" data-s="2"><circle cx="300" cy="108" r="15" fill="#fff" stroke="#1E1E1E" stroke-width="2.5"/><text x="300" y="109" font-size="17" font-weight="900" text-anchor="middle" dominant-baseline="middle" fill="#1E1E1E">2</text></g>
+              <g class="sdot" data-s="3"><circle cx="144" cy="130" r="15" fill="#fff" stroke="#1E1E1E" stroke-width="2.5"/><text x="144" y="131" font-size="17" font-weight="900" text-anchor="middle" dominant-baseline="middle" fill="#1E1E1E">3</text></g>
+              <g class="sdot" data-s="4"><circle cx="334" cy="108" r="15" fill="#fff" stroke="#1E1E1E" stroke-width="2.5"/><text x="334" y="109" font-size="17" font-weight="900" text-anchor="middle" dominant-baseline="middle" fill="#1E1E1E">4</text></g>
+              <text x="404" y="232" font-size="13" text-anchor="end" fill="#4A5960">示意圖</text>
+              </g>
             </svg>
           </div>
           <figcaption class="cap center">搧聞的示意圖（不是照片）</figcaption>
@@ -666,17 +824,33 @@ function teacherPhotoFallback(img){
     </div>
     <div class="navrow"><button class="btn green" data-next="label">下一站：② 成分標示 →</button></div>
     <div class="teacher-tip">
-      <p><b class="time">給老師｜① 安全的觀察 4 分鐘</b>（第 ② 節最後 8 分鐘的後半；網址後面加 <b>#safe</b> 可以直接開到這一站）</p>
+      <p><b class="time">給老師｜① 安全的觀察 4 分鐘</b>（第 ② 節最後 8 分鐘的後半；網址後面加 <b>#safe</b> 可以直接開到這一站）。4 分鐘先做：安全三不、搧聞 4 步、抓錯①（老師先備一杯清水）；時間不夠時，「搧聞可以知道水溶液的什麼？」、判準卡和必會第 1 句移到第 ③ 節暖身後再做。</p>
       <p>全班一起練搧聞手勢，<b>手上不拿東西</b>：按「一起做」一步一步來，老師喊口令、全班跟著做（低能力靠動作記憶）。</p>
       <p><b>抓錯①</b>：老師拿一杯清水當作「不清楚來源的水溶液」，正要把鼻子湊近杯口 → 全班舉 ╳ 喊停 → 改用搧聞。低能力對照步驟就抓得到；高能力要說出「不這樣做會怎樣」：可能吸入刺激的氣體，受到傷害。</p>
       <p><b>上課要補</b>（題庫會考）：只靠搧聞不能確定酸鹼性。醋有酸酸的氣味，但「聞到酸味」不等於檢驗了酸鹼性；酸鹼性要用後面學的石蕊試紙、紫色高麗菜汁檢驗。</p>
-      <p>第 ③ 節開始的<b>暖身 3 分鐘</b>：全班再做一次搧聞手勢（回到這一站按「從頭做」）＋上一課 1 題：「糖水裡，糖是溶質還是溶劑？」（溶質）。</p>
-      <p>判準卡和必會第 1 句，和學習單「一」、重點整理第一框一字不差。</p>
+      <p>第 ③ 節直接開 <b>#label</b>，先做最上面的<b>暖身卡</b>（3 分鐘）：全班再做一次搧聞手勢（回到這一站按「從頭做」）＋上一課 1 題「糖水裡，糖是溶質還是溶劑？」（溶質）。</p>
+      <p>必會第 1 句和學習單「一」、重點整理「本課必會」一字不差；判準卡和重點整理「安全三不＋搧聞」那一框一字不差。</p>
     </div>
   </section>
 
   <!-- ==================== ② 成分標示（課本 68 頁） ==================== -->
   <section id="screen-label" class="screen">
+    <div class="panel">
+      <p class="ptitle">⏰ 第 ③ 節暖身：上一節學過的</p>
+      <div class="ask">1. 跟著老師做一次搧聞（手上不拿東西）：可以回到 ① 站按「從頭做」。</div>
+      <div class="ask" style="margin-top:10px">2. 糖水裡，糖是溶質還是溶劑？</div>
+      <div class="btnrow center"><button class="btn plain" id="warmBtn">看答案</button></div>
+      <div class="bigpoint hidden" id="warmAns">糖是<b>溶質</b>：糖被水溶解，水是溶劑。<small>（上一課〈溶解現象〉）</small></div>
+    </div>
+
+    <div class="panel">
+      <p class="ptitle">🔁 回到開場：三杯透明無色的液體，其中一杯是糖水。只用眼睛看，分得出來嗎？</p>
+      <div class="ask" id="recallGuess"></div>
+      <div class="opts col hidden" id="recallOpts"></div>
+      <div class="btnrow center"><button class="btn" id="recallBtn">🔍 揭曉答案</button></div>
+      <div class="bigpoint hidden" id="recallAns" tabindex="-1"></div>
+    </div>
+
     <div class="panel">
       <p class="ptitle">🏷️ 看不出來、聞不出來，還能怎麼知道裡面有什麼？</p>
       <div class="chips" aria-label="已經會的方法">
@@ -708,27 +882,20 @@ function teacherPhotoFallback(img){
     </div>
 
     <div class="panel">
-      <p class="ptitle">🔁 回到開場：三杯透明無色的水溶液，用眼睛看得出哪一杯是糖水嗎？</p>
-      <div class="ask" id="recallGuess"></div>
-      <div class="btnrow center"><button class="btn" id="recallBtn">🔍 揭曉答案</button></div>
-      <div class="bigpoint hidden" id="recallAns"></div>
-    </div>
-
-    <div class="panel">
       <p class="ptitle">🔭 水溶液還有哪些不同的性質？</p>
       <div class="ask">顏色、氣味、味道之外，後面幾課還會學：<b>酸鹼性</b>、<b>導電性</b>。</div>
       <div class="btnrow center"><button class="btn plain" id="previewBtn">看看後面會用到的工具（示意圖）</button></div>
       <div class="preview hidden" id="preview">
         <figure><div id="pvLitmus"></div><figcaption class="cap center">石蕊試紙：〈檢驗水溶液的酸鹼性〉會用到（示意圖）</figcaption></figure>
-        <figure><div id="pvLed"></div><figcaption class="cap center">發光二極體（LED）電路：〈水溶液的導電性〉會用到（示意圖，還沒接通電路）</figcaption></figure>
+        <figure><div id="pvLed"></div><figcaption class="cap center">導電測試裝置（LED、電池盒、兩條電線）：〈水溶液的導電性〉會用到（示意圖）</figcaption></figure>
       </div>
     </div>
     <div class="navrow"><button class="btn green" data-next="mix">下一站：③ 混合物 →</button></div>
     <div class="teacher-tip">
-      <p><b class="time">給老師｜② 成分標示 6 分鐘</b>（第 ③ 節；前面先<b>暖身 3 分鐘</b>：搧聞手勢＋溶質溶劑，見 ① 站的提示）</p>
+      <p><b class="time">給老師｜② 成分標示 6 分鐘</b>（第 ③ 節；前面先做最上面的<b>暖身卡 3 分鐘</b>：搧聞手勢＋溶質溶劑）。暖身後馬上回收開場的猜測（第二張卡），先揭曉「看不出來」，再讀成分標示。</p>
       <p>洗衣精照片是課本 68 頁的成分標示，只拍到包裝的一部分，照片上沒有品牌。全班一起讀出「香精」「水」就好，名字很長的成分不用記。照片下方的「7 ± 1.0」是這瓶洗衣精標示的酸鹼值，<b>本課不講</b>（課本 80 頁才學 pH 值）；學生問起就說「後面會學」。</p>
       <p>氣泡水：課本照片的標示寫「水、二氧化碳……」，這裡用文字卡。<b>不出品牌</b>：課堂只看課本照片和文字卡，不拿真的商品包裝；學習單「二」的兩瓶飲料標示是自編的。</p>
-      <p><b>上課要補</b>（題庫會考）：透明無色不等於白開水；只看顏色分不出溶了什麼。在這裡回收開場的猜測。中能力：學習單「二」讀成分標示的小表格。</p>
+      <p><b>上課要補</b>（題庫會考）：透明無色不等於白開水；只看顏色分不出溶了什麼。中能力：學習單「二」讀成分標示的小表格。</p>
       <p>最下面的「後面會用到的工具」只是預告（和線上題庫同一套示意圖），不用講怎麼用。</p>
     </div>
   </section>
@@ -790,9 +957,9 @@ function teacherPhotoFallback(img){
       <p class="kidsay">課本 69 頁：自己配製水溶液，需要可以被溶解的物質（例如糖、鹽……），還需要可以溶解其他物質的材料（例如水……）。</p>
       <div class="stepcards">
         <div class="scard"><span class="sn">1</span><span>準備容器，<b>先用純水洗</b>。</span></div>
-        <div class="scard"><span class="sn">2</span><span>固體（砂糖、食鹽、檸檬酸、小蘇打粉）各取 <b>1 平匙</b>，分別加入 <b>20 毫升純水</b>，攪拌溶解。</span></div>
+        <div class="scard"><span class="sn">2</span><span>量 <b>20 毫升純水</b>倒進容器，再加入 <b>1 平匙</b>固體（砂糖、食鹽、檸檬酸、小蘇打粉，一杯一種），攪拌溶解。</span></div>
         <div class="scard"><span class="sn">3</span><span>液體的醋取 <b>2 毫升</b>，加入 <b>20 毫升純水</b>，攪拌均勻。</span></div>
-        <div class="scard"><span class="sn">4</span><span>貼上<b>名稱標籤</b>或編號。</span></div>
+        <div class="scard"><span class="sn">4</span><span>配好後，貼上<b>名稱標籤</b>或編號。</span></div>
       </div>
       <p class="note" style="margin-top:8px">要配的六杯：小蘇打水、肥皂水、檸檬酸水、糖水、食鹽水、醋（後面幾課都要用）。</p>
 
@@ -816,7 +983,7 @@ function teacherPhotoFallback(img){
         <div id="spoonQ" style="margin-top:12px"></div>
         <div class="feedback" id="spoonFeed" aria-live="polite"></div>
         <div class="criterion hidden" id="spoonCrit">
-          <div class="k">💡 取不同材料，要用<b>乾淨、乾燥</b>的平匙：平匙上留下的東西，會混進下一杯。</div>
+          <div class="k">💡 取不同材料，要用<b>乾淨、乾燥</b>的平匙：平匙上留下的東西，會混進下一杯。攪拌棒也一樣。</div>
           <div class="askagain">👩‍🏫 老師追問：<b>殘留的檸檬酸混進小蘇打水，之後檢驗會怎樣？</b>（那一杯不再只有小蘇打，檢驗的結果可能不準）</div>
         </div>
       </div>
@@ -833,7 +1000,7 @@ function teacherPhotoFallback(img){
         <div class="later">看老師示範！</div>
       </div>
 
-      <div class="derive">
+      <div class="derive hidden" id="saltAfter">
         <p class="ptitle">看完示範，用示意畫面再看一次<span class="sitag">示意</span></p>
         <div class="duo mid">
           <figure class="figbox">
@@ -859,14 +1026,14 @@ function teacherPhotoFallback(img){
               <button class="btn" id="addSalt">加 1 平匙並攪拌</button>
               <button class="btn plain" id="simReset">↺ 重來</button>
             </div>
-            <p class="note">這是示意畫面，匙數只是舉例。真正加到第幾匙會溶不掉，要看老師的示範（平匙的大小不同，匙數也會不同）。</p>
+            <p class="note">這是示意畫面，匙數只是舉例；真正的情形看老師的示範。</p>
           </div>
         </div>
 
         <div class="evidence">
           <figure class="figbox">
             <img class="tphoto" src="photos/teacher-make.jpg" alt="老師課前試做的照片" loading="lazy" decoding="async" onerror="teacherPhotoFallback(this)">
-            <figcaption class="cap center">老師課前試做時拍的照片：一直加食鹽，杯底留下溶不掉的食鹽</figcaption>
+            <figcaption class="cap center">老師課前試做時拍的照片</figcaption>
           </figure>
           <div>
             <div class="btnrow center"><button class="btn green" id="saltReveal">🔍 揭曉：一直加食鹽，會怎樣？</button></div>
@@ -882,10 +1049,10 @@ function teacherPhotoFallback(img){
     <div class="navrow"><button class="btn green" data-next="quiz">最後一站：⑤ 出場卡 →</button></div>
     <div class="teacher-tip">
       <p><b class="time">給老師｜④ 配製水溶液 12 分鐘</b>（配製示範＋抓錯 8 分鐘、一直加食鹽 4 分鐘）</p>
-      <p><b>示範器材</b>：純水（藥局或賣場的蒸餾水）、燒杯或透明塑膠杯 6 個、平匙、量筒、滴管、標籤紙、食鹽、醋；其餘四杯（糖水、檸檬酸水、小蘇打水、肥皂水）課前配好、貼好標籤。</p>
-      <p><b>示範步驟</b>（照課本 69 頁）：①容器先用純水洗 ②固體 1 平匙加 20 毫升純水攪拌 ③醋 2 毫升加 20 毫升純水 ④貼名稱標籤。當堂只配食鹽水、醋兩杯。<b>小助手</b> 2–3 人：量 20 毫升純水、貼標籤、攪拌（男女輪替，優先點平常比較被動的學生）。</p>
+      <p><b>示範器材</b>：純水（藥局或賣場的蒸餾水）、燒杯或透明塑膠杯 6 個、平匙、量筒、滴管、<b>攪拌棒 2 支</b>（或免洗湯匙；一杯一支，只有一支時換杯前用純水沖洗、擦乾）、標籤紙、食鹽、醋；另備 <b>1 個透明杯</b>做「一直加食鹽」（裝 20 毫升純水）；其餘四杯（糖水、檸檬酸水、小蘇打水、肥皂水）課前配好、貼好標籤。</p>
+      <p><b>示範步驟</b>（照課本 69 頁）：①容器先用純水洗 ②量 20 毫升純水，加入 1 平匙固體攪拌 ③醋 2 毫升加 20 毫升純水 ④配好後貼名稱標籤。當堂只配食鹽水、醋兩杯。<b>小助手</b> 2–3 人：量 20 毫升純水、貼標籤、攪拌（男女輪替，優先點平常比較被動的學生）。</p>
       <p><b>抓錯②</b>：老師拿起自來水正要倒 → 全班舉 ╳ 喊停 → 換純水（高能力說：自來水裡的物質會影響酸鹼性）。<b>抓錯③</b>：配好正要不貼標籤就放著 → ╳ → 貼標籤。<b>平匙口頭題</b>（素養題組 s-u3-04 考過）：取不同材料要用乾淨、乾燥的平匙。</p>
-      <p><b>一直加食鹽</b>：同一杯 20 毫升純水一匙一匙加，每匙都攪拌到不再變化，小助手數匙數，直到杯底有溶不掉的食鹽；高能力記錄匙數並預測下一匙會怎樣。結論只說「一定量的水能溶解的量有限」，不用國中的專有名詞。示意畫面在示範之後用（後排看得清楚、回家複習）。</p>
+      <p><b>一直加食鹽</b>：同一杯 20 毫升純水一匙一匙加，每匙都攪拌到不再變化，小助手數匙數，直到杯底有溶不掉的食鹽；高能力把匙數記在學習單「五」的 ★，並預測再加 1 匙會怎樣。結論只說「一定量的水能溶解的量有限」，不用國中的專有名詞。示意畫面和老師的照片要等全班投票後才會出現，在示範之後用（後排看得清楚、回家複習）。時間抓緊：20 毫升水大約加到 7 公克重的食鹽才會溶不掉，課前試做時順便計時；超過 3 分鐘的話，可以課前先溶好一部分，上課再一匙一匙加。</p>
       <p><b>課前試做</b>：肥皂水用<b>固體肥皂</b>刨少許溶在純水（課本沒寫做法；洗手乳、沐浴乳多半是弱酸性或中性，之後的試紙結果會不對），肥皂水會混濁，不要說成透明；小蘇打或檸檬酸若有少量溶不完，靜置後用上層的水溶液；「一直加食鹽」先試出大約幾匙會開始溶不掉。這六杯第 ④–⑨ 節都要用，一次配足量（每種約 150 毫升）裝在保存瓶並標日期；每次示範倒小份到小杯，用過的不倒回保存瓶。</p>
       <p><b>照片</b>：課前試做時拍一張「杯底有溶不掉的食鹽」的照片（可以連同貼好標籤的六杯一起入鏡），存成這個資料夾裡的 <b>photos/teacher-make.jpg</b>，這一格就會自動顯示；還沒放照片時只顯示虛線框。示範一結束就放大給全班看，再請小助手拿杯子沿走道巡迴約 30 秒、各排觀察代表上前近看。</p>
       <p><b>家長檢核</b>：清潔用品只用固體肥皂，不拿其他清潔劑；示範用的水溶液一律不嘗；回家不做實驗。</p>
@@ -952,7 +1119,7 @@ function teacherPhotoFallback(img){
     <p><b>本課三件套：</b>互動教材（這一頁）｜<a href="水溶液的各種性質_學習單.html">學習單</a>｜<a href="水溶液的各種性質_重點整理.html">重點整理</a></p>
     <p><b>教學依據：</b><a href="https://reader.nani.com.tw/9200a013cbef8e66" target="_blank" rel="noopener">南一自然課本，第 66–69 頁</a>（閱讀器可能需要登入）。</p>
     <p>本頁照片取自南一版自然五上課本第 66、68 頁：紅茶、白開水、檸檬汁三杯飲料（第 66 頁）；洗衣精包裝上的成分標示（第 68 頁，只拍到包裝的一部分）。④ 站「老師課前試做的照片」由老師上課前自己拍攝。</p>
-    <p>示意畫面（不是照片）：開場的三杯透明無色水溶液、① 站的搧聞步驟圖、② 站的石蕊試紙和導電裝置（和線上題庫同一套示意圖）、④ 站「一匙一匙加食鹽」。</p>
+    <p>示意畫面（不是照片）：開場的三杯透明無色液體、① 站的搧聞步驟圖、② 站的石蕊試紙和導電裝置（和線上題庫同一套示意圖）、④ 站「一匙一匙加食鹽」。</p>
   </footer>
 
 </div>
@@ -968,6 +1135,7 @@ function teacherPhotoFallback(img){
    配製：容器先用純水洗、固體 1 平匙＋20 毫升純水、醋 2 毫升＋20 毫升純水、貼標籤；自來水裡的物質會影響酸鹼性。
    一定量的水能溶解的物質有限（不用國中名詞）。
    ========================================================== */
+const SMOOTH = matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
 const $=id=>document.getElementById(id);
 
 /* ---------- 照片清單：題庫已裁好的課本照片，尺寸是檔案的真實像素 ---------- */
@@ -1086,7 +1254,7 @@ function go(name,smooth){
   try{ history.replaceState(null,"","#"+name); }catch(_){}
   if(name==="label") updateRecall();
   if(name==="make") updateSaltRecall();
-  window.scrollTo({top:0,behavior:smooth?"smooth":"auto"});
+  window.scrollTo({top:0,behavior:smooth?SMOOTH:"auto"});
 }
 document.querySelectorAll(".station-btn").forEach(b=>b.addEventListener("click",()=>go(b.dataset.go,true)));
 document.querySelectorAll("[data-next]").forEach(b=>b.addEventListener("click",()=>go(b.dataset.next,true)));
@@ -1116,7 +1284,7 @@ PROPS.forEach(p=>{
 /* 三杯透明無色（示意圖） */
 function cupsSVG(){
   let b=`<rect width="420" height="196" fill="#FFFDF8"/>`;
-  ["甲","乙","丙"].forEach((lab,i)=>{
+  ["1","2","3"].forEach((lab,i)=>{
     const cx=70+i*140;
     b+=`<path d="M${cx-39} 80 L${cx-31} 168 H${cx+31} L${cx+39} 80 Z" fill="#F1F8FC"/>`;
     b+=`<line x1="${cx-39}" y1="80" x2="${cx+39}" y2="80" stroke="#9CC3E0" stroke-width="2"/>`;
@@ -1127,7 +1295,7 @@ function cupsSVG(){
     b+=`<text x="${cx}" y="128" font-size="26" font-weight="900" text-anchor="middle" dominant-baseline="middle" fill="#8A949A">？</text>`;
   });
   b+=`<text x="412" y="190" font-size="12" text-anchor="end" fill="#4A5960">示意圖</text>`;
-  return `<svg viewBox="0 0 420 196" role="img" aria-label="示意圖：甲、乙、丙三杯透明無色的水溶液" xmlns="http://www.w3.org/2000/svg" font-family="Microsoft JhengHei,PingFang TC,Noto Sans TC,sans-serif">${b}</svg>`;
+  return `<svg viewBox="0 0 420 196" role="img" aria-label="示意圖：1、2、3 號三杯透明無色的液體" xmlns="http://www.w3.org/2000/svg" font-family="Microsoft JhengHei,PingFang TC,Noto Sans TC,sans-serif">${b}</svg>`;
 }
 $("cupsFig").innerHTML=cupsSVG();
 const GUESSES=["甲　看得出來","乙　看不出來","丙　不確定"];
@@ -1137,6 +1305,7 @@ guessPoll($("guessOpts"),GUESSES,g=>{
   classGuess=g;
   $("guessText").textContent=g;
   $("guessBox").classList.remove("hidden");
+  markPicked($("recallOpts"),g);
   updateRecall();
 });
 
@@ -1144,14 +1313,23 @@ guessPoll($("guessOpts"),GUESSES,g=>{
    ① 安全的觀察：全班一起做搧聞、抓錯、搧聞能知道什麼
    ========================================================== */
 const FAN_STEPS=4;
-let fanStep=0;
+let fanStep=0, fanTimer=0;
 function setFan(n){
+  const was=fanStep;
   fanStep=n;
   $("fanSteps").querySelectorAll("li").forEach(li=>li.classList.toggle("on",+li.dataset.step===n));
-  $("fanSvg").querySelectorAll(".sdot").forEach(g=>g.classList.toggle("on",+g.dataset.s===n));
   const svg=$("fanSvg");
-  svg.classList.remove("waving");
-  if(n===2||n===4){ void svg.getBoundingClientRect(); svg.classList.add("waving"); }
+  svg.querySelectorAll(".sdot").forEach(g=>g.classList.toggle("on",+g.dataset.s===n));
+  svg.classList.remove("waving","raising","lowering");
+  void svg.getBoundingClientRect();   /* 先移除再加，動畫才會重播 */
+  /* 每一步的靜態畫面由 CSS 依 data-step 畫：1 手放下、標出距離；3 吸氣；4 再搧幾下。
+     data-step 要和下面的 class 同時換，抬手、放手時的延遲才會生效 */
+  svg.setAttribute("data-step",String(n));
+  if((was===1)!==(n===1)) svg.classList.add(n===1?"lowering":"raising");
+  if(n===2||n===4) svg.classList.add("waving");
+  /* 動畫播完就拿掉 class：離開這一站再回來時，才不會又從頭播一次 */
+  clearTimeout(fanTimer);
+  fanTimer=setTimeout(()=>svg.classList.remove("waving","raising","lowering"),6500);
   $("fanNext").textContent = n>=FAN_STEPS ? "▶ 再做一次：第 1 步" : `▶ 一起做：第 ${n+1} 步`;
 }
 $("fanNext").addEventListener("click",()=>setFan(fanStep>=FAN_STEPS?1:fanStep+1));
@@ -1161,19 +1339,20 @@ $("fanReset").addEventListener("click",()=>{
 });
 /* 抓錯卡：揭曉正確做法與「不這樣做會怎樣」 */
 document.querySelectorAll("[data-oops]").forEach(b=>b.addEventListener("click",()=>{
-  const box=b.closest(".oops");
-  box.querySelector(".oa").classList.remove("hidden");
+  const box=b.closest(".oops"), oa=box.querySelector(".oa");
+  oa.classList.remove("hidden");
   b.disabled=true; b.textContent="已揭曉";
+  oa.tabIndex=-1; oa.focus({preventScroll:true});
   if(b.dataset.oops==="tap") $("makePoint").classList.remove("hidden");
 }));
 choiceQ($("safeQ"),
-  ["酸鹼性：聞起來酸酸的，就一定是酸性","氣味；只靠搧聞不能確定酸鹼性","味道：聞一聞，就知道甜不甜"],
-  "氣味；只靠搧聞不能確定酸鹼性",
+  ["酸鹼性：聞起來酸酸的，就一定是酸性","氣味：搧過來聞，可以知道它有什麼氣味","味道：聞一聞，就知道甜不甜"],
+  "氣味：搧過來聞，可以知道它有什麼氣味",
   ()=>{
     $("safeFeed").className="feedback good"; $("safeFeed").textContent="✅ 答對了！";
     $("safeCrit").classList.remove("hidden");
     $("safePoint").classList.remove("hidden");
-    $("safeCrit").scrollIntoView({behavior:"smooth",block:"nearest"});
+    $("safeCrit").scrollIntoView({behavior:SMOOTH,block:"nearest"});
   },
   o=>{
     $("safeFeed").className="feedback hint";
@@ -1209,7 +1388,7 @@ choiceQ($("labelQ"),["香精","二氧化碳","水","抗菌劑"],"水",
     $("labelCrit").classList.remove("hidden");
     $("labelPoint").classList.remove("hidden");
     markLabel();
-    $("labelCrit").scrollIntoView({behavior:"smooth",block:"nearest"});
+    $("labelCrit").scrollIntoView({behavior:SMOOTH,block:"nearest"});
   },
   o=>{
     $("labelFeed").className="feedback hint";
@@ -1217,13 +1396,31 @@ choiceQ($("labelQ"),["香精","二氧化碳","水","抗菌劑"],"水",
       ? "🤔 再看一次（不扣分）：二氧化碳只寫在氣泡水的標示上，洗衣精的標示沒有。"
       : `🤔 再看一次（不扣分）：「${o}」只寫在洗衣精的標示上，氣泡水的標示沒有。`;
   });
-/* 回收開場的猜測 */
-let recallShown=false;
+/* 第 ③ 節暖身 */
+$("warmBtn").addEventListener("click",()=>{
+  $("warmAns").classList.remove("hidden");
+  $("warmBtn").classList.add("hidden");
+});
+/* 回收開場的猜測：隔一節才回收（或重新整理過）時，投票沒有留下來，請全班在這裡再投一次 */
+let recallShown=false, recallVoted=false;
+function markPicked(host,g){
+  host.querySelectorAll(".opt").forEach(x=>{ const on=x.textContent===g; x.classList.toggle("picked",on); x.setAttribute("aria-pressed",String(on)); });
+}
+guessPoll($("recallOpts"),GUESSES,g=>{
+  recallVoted=true; classGuess=g;
+  $("guessText").textContent=g;
+  $("guessBox").classList.remove("hidden");
+  markPicked($("guessOpts"),g);
+  updateRecall();
+});
 function updateRecall(){
-  $("recallGuess").textContent = classGuess ? `開場時全班猜的是：「${classGuess}」` : "開場時的投票沒有留下來（重新整理會清掉）。請全班回想自己舉的卡，再看答案。";
+  $("recallGuess").textContent = recallVoted ? `全班猜的是：「${classGuess}」`
+    : classGuess ? `開場時全班猜的是：「${classGuess}」`
+    : "開場的投票沒有留下來（換了一節課，或重新整理過）。請全班再舉一次反應卡（甲、乙、丙），再請一位同學上臺按。";
   $("recallGuess").classList.toggle("hidden",recallShown);
+  $("recallOpts").classList.toggle("hidden",recallShown || (!!classGuess && !recallVoted));
   if(!recallShown) return;
-  const head = !classGuess ? "答案是：" : classGuess===GUESS_RIGHT ? "🎉 全班猜對了！" : `開場時全班猜「${classGuess}」。答案是：`;
+  const head = !classGuess ? "答案是：" : classGuess===GUESS_RIGHT ? "🎉 全班猜對了！" : `${recallVoted?"":"開場時"}全班猜「${classGuess}」。答案是：`;
   $("recallAns").innerHTML = head
     + "<b>看不出來</b>。透明無色，不一定就是白開水：糖、食鹽溶解在水裡以後都看不見。要知道裡面溶了什麼，可以看<b>成分標示</b>或<b>標籤</b>。"
     + "<small>只看顏色分不出來；不清楚來源的液體一律不嘗。</small>";
@@ -1233,6 +1430,7 @@ $("recallBtn").addEventListener("click",()=>{
   $("recallAns").classList.remove("hidden");
   $("recallBtn").classList.add("hidden");
   updateRecall();
+  $("recallAns").focus({preventScroll:true});
 });
 updateRecall();
 /* 預告：後面幾課會用到的工具（題庫同一套示意圖） */
@@ -1373,6 +1571,7 @@ document.querySelectorAll(".bdrop").forEach(btn=>btn.addEventListener("click",e=
   e.stopPropagation();
   if(sortRevealed || !picked) return;
   place(picked,btn.closest(".basket").dataset.basket); checkReady();
+  const nx=tray.querySelector(".fcard"); (nx||revealBtn).focus();
 }));
 /* 點卡片區的空白處 → 把選起來的卡片收回來 */
 tray.addEventListener("click",e=>{
@@ -1420,10 +1619,10 @@ function buildDerive(){
     ["放錯了！裡面有氣體，就應該放進氣態那一籃","整瓶氣泡水是倒得出來的液體，二氧化碳溶在水裡，所以是液態的混合物","氣泡一下子就跑掉了，所以不用算它"],
     "整瓶氣泡水是倒得出來的液體，二氧化碳溶在水裡，所以是液態的混合物",
     ()=>{
-      $("deriveFeed").className="feedback good"; $("deriveFeed").textContent="✅ 答對了！";
+      $("deriveFeed").className="feedback good"; $("deriveFeed").textContent="✅ 答對了！氣泡水是溶有二氧化碳的水溶液，也是液態的混合物。";
       $("deriveCrit").classList.remove("hidden");
       $("mixPoint").classList.remove("hidden");
-      $("deriveCrit").scrollIntoView({behavior:"smooth",block:"nearest"});
+      $("deriveCrit").scrollIntoView({behavior:SMOOTH,block:"nearest"});
     },
     o=>{
       $("deriveFeed").className="feedback hint";
@@ -1444,7 +1643,7 @@ choiceQ($("spoonQ"),
   ()=>{
     $("spoonFeed").className="feedback good"; $("spoonFeed").textContent="✅ 答對了！";
     $("spoonCrit").classList.remove("hidden");
-    $("spoonCrit").scrollIntoView({behavior:"smooth",block:"nearest"});
+    $("spoonCrit").scrollIntoView({behavior:SMOOTH,block:"nearest"});
   },
   o=>{
     $("spoonFeed").className="feedback hint";
@@ -1461,6 +1660,7 @@ guessPoll($("saltGuessOpts"),SALT_GUESSES,g=>{
   saltGuess=g;
   $("saltGuessText").textContent=g;
   $("saltGuessBox").classList.remove("hidden");
+  $("saltAfter").classList.remove("hidden");   /* 先投票，才看得到示意畫面和老師的照片 */
   updateSaltRecall();
 });
 
@@ -1521,7 +1721,8 @@ $("saltReveal").addEventListener("click",()=>{
   $("saltRecall").classList.remove("hidden");
   $("saltReveal").classList.add("hidden");
   updateSaltRecall();
-  $("saltCrit").scrollIntoView({behavior:"smooth",block:"nearest"});
+  $("saltCrit").tabIndex=-1; $("saltCrit").focus({preventScroll:true});
+  $("saltCrit").scrollIntoView({behavior:SMOOTH,block:"nearest"});
 });
 
 /* ==========================================================
@@ -1560,7 +1761,8 @@ function showCriterion(q){
   $("criterion").classList.remove("hidden");
   $("nextBtn").textContent= qi+1<QUIZ.length ? "下一題 →" : "看結果 →";
   $("nextBtn").classList.remove("hidden");
-  $("nextBtn").scrollIntoView({behavior:"smooth",block:"nearest"});   /* 判準卡在按鈕正上方，一起帶進畫面 */
+  $("nextBtn").scrollIntoView({behavior:SMOOTH,block:"nearest"});   /* 判準卡在按鈕正上方，一起帶進畫面 */
+  $("nextBtn").focus({preventScroll:true});
 }
 function renderQ(){
   const q=QUIZ[qi]; tries=0;
@@ -1580,7 +1782,7 @@ function renderQ(){
       if(q.r){
         $("q1feed").textContent="✅ 答對了！再說說你怎麼知道。";
         $("step2").classList.remove("hidden");
-        $("step2").scrollIntoView({behavior:"smooth",block:"nearest"});
+        $("step2").scrollIntoView({behavior:SMOOTH,block:"nearest"});
       }else{
         $("q1feed").textContent="✅ 答對了！";
         showCriterion(q);
@@ -1604,7 +1806,10 @@ function addScore(){
 $("nextBtn").addEventListener("click",()=>{
   qi++;
   if(qi>=QUIZ.length) showResult();
-  else{ renderQ(); $("quizPanel").scrollIntoView({behavior:"smooth",block:"nearest"}); }
+  else{
+    renderQ(); $("quizPanel").scrollIntoView({behavior:SMOOTH,block:"nearest"});
+    const f=$("q1opts").querySelector(".opt"); if(f) f.focus({preventScroll:true});
+  }
 });
 function showResult(){
   renderDots();
@@ -1613,7 +1818,7 @@ function showResult(){
   $("quizResult").classList.remove("hidden");
   $("finalScore").textContent=`總分 ${fmt(score)} / ${QUIZ.length}`;
   $("finalRank").textContent=rankOf(score);
-  $("quizResult").scrollIntoView({behavior:"smooth",block:"start"});
+  $("quizResult").scrollIntoView({behavior:SMOOTH,block:"start"});
 }
 $("againBtn").addEventListener("click",()=>{
   qi=0; score=0; $("score").textContent="0"; $("rank").textContent=RANKS[0].t;

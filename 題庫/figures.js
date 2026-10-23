@@ -310,7 +310,7 @@
     b+=`<path d="M${lx-12} ${ly+18} V${ly} A12 12 0 0 1 ${lx+12} ${ly} V${ly+18} Z" fill="${on?"#FF4D4D":"#E8B4B4"}" stroke="${C.ink}" stroke-width="2"/>`;
     b+=line(...legL,"#888",3)+line(...legS,"#888",3);
     if(p.showLegs){ b+=txt(lx-38,ly+70,"長腳",{size:13})+txt(lx+38,ly+56,"短腳",{size:13}); }
-    b+=txt(lx,ly-34,"LED",{size:14});
+    b+=txt(lx+48,ly-12,"LED",{size:14});   /* 放在燈泡右上方：紅色電線從燈泡正上方接下來，標在正上方會被線穿過 */
     /* 燒杯與水溶液 */
     const bx=150,by=150,bw=130,bh=100;
     b+=`<rect x="${bx}" y="${by+30}" width="${bw}" height="${bh-30}" fill="#CFE8F6" opacity=".9"/>`;
