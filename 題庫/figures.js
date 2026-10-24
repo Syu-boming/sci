@@ -273,7 +273,7 @@
         b+=`<rect x="${x}" y="${y}" width="${w}" height="28" rx="3" fill="${PAPER[r]}" stroke="${C.muted}" stroke-width="1.2"/>`;
         if(!p.blank){ const ch=(r==="blue"&&it.res==="acid")||(r==="red"&&it.res==="base");
           b+=`<ellipse cx="${x+w/2}" cy="${y+14}" rx="16" ry="10" fill="${ch?SPOT[r]:PAPER[r]}" stroke="#55606A" stroke-width="1.4" stroke-dasharray="3 2"/>`; } }); });
-    b+=txt(W/2,H-12,p.blank?"（示意圖：還沒滴水溶液的試紙）":"（示意圖：虛線圈是滴上水溶液的地方）",{size:12,w:400,fill:C.muted});
+    b+=txt(W/2,H-12,p.blank?"（示意圖：還沒滴的試紙）":"（示意圖：虛線圈是滴到的地方）",{size:12,w:400,fill:C.muted});
     return svg(`0 0 ${W} ${H}`,b,"水溶液滴在石蕊試紙上的結果");
   };
 

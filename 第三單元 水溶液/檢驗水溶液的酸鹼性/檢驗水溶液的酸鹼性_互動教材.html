@@ -28,6 +28,7 @@
   --shadow:0 6px 18px rgba(46,86,110,.16);
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+button:focus-visible,a:focus-visible{outline:4px solid var(--water-dark);outline-offset:3px}
 html,body{margin:0;padding:0}
 body{
   min-height:100vh;color:var(--ink);background:var(--bg);
@@ -100,6 +101,8 @@ figure{margin:0}
 }
 .teacher-tip b.time{color:#7A5B00}
 .teacher-tip p{margin:4px 0}
+.teacher-tip details{margin-top:6px}
+.teacher-tip summary{cursor:pointer;font-weight:800;min-height:44px;display:flex;align-items:center}
 /* 照片載入失敗：中性的灰框 */
 .img-fallback{
   display:flex !important;align-items:center;justify-content:center;text-align:center;line-height:1.35;
@@ -131,7 +134,7 @@ figure{margin:0}
   padding:3px 10px;font-size:clamp(13px,1.35vw,19px);line-height:1.3;
   box-shadow:0 3px 8px rgba(0,0,0,.28);animation:tagIn .35s ease;
 }
-.tag b{display:block;font-size:1.12em;font-weight:900}
+.tag b{display:block;font-size:1.12em;font-weight:900;white-space:nowrap}
 @keyframes tagIn{from{opacity:0;scale:.85}to{opacity:1;scale:1}}
 .pin{
   position:absolute;z-index:3;width:18px;height:18px;border-radius:50%;
@@ -161,6 +164,8 @@ figure{margin:0}
 .feedback:empty{display:none}
 .feedback.hint{background:#FFF6D8;border:3px dashed var(--sun);padding:10px 14px}
 .feedback.good{background:#EAF7EE;border:3px solid var(--green-dark);color:var(--green-dark);padding:10px 14px}
+/* 提醒框先留在頁面上（高度 0），報讀軟體才念得到 */
+#tblHint:empty,#cupHint:empty,#boyleHint:empty{display:block;margin:0}
 /* 判準卡 —— 課堂追問「你怎麼知道？」的素材，答對後一定要出現 */
 .criterion{
   background:#EAF7EE;border:3px solid var(--green-dark);border-radius:18px;padding:12px 16px;margin-top:14px;
@@ -325,6 +330,7 @@ body[data-st="demo"] .rulefab,body[data-st="one"] .rulefab,body[data-st="boyle"]
 
 /* ④ 虛擬實驗臺 */
 .labstep{border:3px dashed #C9C2B4;border-radius:18px;padding:12px;margin-top:12px;background:#FFFDF8}
+.labstep .svgbox{width:100%}   /* 圖直接放在 .duo 格線裡：不寫寬度，內嵌 SVG 會縮成預設的 300px */
 .reason{width:100%;border-collapse:collapse;background:#fff;font-weight:800}
 .reason th,.reason td{border:3px solid var(--ink);padding:6px 10px;text-align:left;line-height:1.4}
 .reason th{background:#F2EEE4}
@@ -392,6 +398,11 @@ body[data-st="demo"] .rulefab,body[data-st="one"] .rulefab,body[data-st="boyle"]
     .rulecard{ width:min(820px,calc(100vw - 24px)); bottom:100px; }
     .modebar .btn{ min-height:68px; }
     .tphoto-empty{ font-size:26px; width:min(100%,900px); }
+    .criterion .askagain{ font-size:22px; }
+    .ticket{ font-size:30px; }
+    .guessbox .g{ font-size:32px; }
+    .guessbox .later{ font-size:42px; }
+    .dot{ width:22px; height:22px; }
   }
   @media (min-width:2600px){
     body{ font-size:34px; }
@@ -431,6 +442,15 @@ body[data-st="demo"] .rulefab,body[data-st="one"] .rulefab,body[data-st="boyle"]
     .rulecard{ width:min(1100px,calc(100vw - 24px)); bottom:130px; }
     .modebar .btn{ min-height:88px; }
     .tphoto-empty{ font-size:34px; width:min(100%,1200px); }
+    .criterion .askagain{ font-size:29px; }
+    .ticket{ font-size:39px; }
+    .guessbox .g{ font-size:42px; }
+    .guessbox .later{ font-size:54px; }
+    .dot{ width:30px; height:30px; }
+  }
+  /* 4K：規則表放在內容右邊的空白裡，打開也不會蓋住選項和紀錄表 */
+  @media (min-width:3600px){
+    .rulecard{ width:calc((100vw - 2280px) / 2 - 24px); }
   }
   /* 筆電（矮螢幕）：示意圖不要佔掉整個畫面 */
   @media (min-width:1024px) and (max-height:760px){
@@ -500,7 +520,7 @@ function teacherPhotoFallback(img){
           <figcaption class="cap center">課本 68 頁：洗衣精包裝上的成分標示（只拍到一部分）</figcaption>
         </figure>
         <div>
-          <p class="saybox"><span class="no">有標示</span>從包裝上的成分標示，可以知道水溶液的酸鹼性。例如這瓶洗衣精最下面的「7 ± 1.0」，就是用數字寫出來的酸鹼性（課本 80 頁會學怎麼看）。</p>
+          <p class="saybox"><span class="no">有標示</span>從包裝上的成分標示，可以知道水溶液的酸鹼性。例如這瓶洗衣精標示的「7 ± 1.0」，就是用數字寫出來的酸鹼性（課本 80 頁會學怎麼看）。</p>
           <p class="saybox"><span class="no">沒有標示</span>怎麼辦？可以用<b>石蕊試紙</b>來檢驗（課本 70 頁）。</p>
         </div>
       </div>
@@ -522,8 +542,8 @@ function teacherPhotoFallback(img){
       <p><b>開場</b>：課本 70 頁「水溶液除了顏色、氣味不同，還有其他不同的性質，例如：酸鹼性」。洗衣精照片是上一課看過的課本 68 頁成分標示；「7 ± 1.0」是用 pH 值寫的酸鹼性，課本 80 頁〈自製酸鹼指示劑〉才學，這裡只說「包裝上可以標示酸鹼性」。投票先不判對錯，只記下「全班猜的是：○○」，到 ③ 站示範完 6 杯會自動回收（重新整理頁面會清掉）。</p>
       <p><b>學習目標</b>：①能正確使用石蕊試紙並說出每個步驟的理由 ②能用紅、藍兩種石蕊試紙的顏色變化判斷酸性、中性、鹼性 ③能說出只用一種石蕊試紙時，哪些水溶液分不出來。</p>
       <p><b>兩節課的時間</b>：<br>⏱ ④｜暖身（配製用純水＋搧聞）3｜開場 3｜① 試紙用法＋抓錯 8｜② 顏色變化表 4｜③ 示範 7 杯＋同步填習作 25 頁 15｜判準卡 4｜出場卡 3｜合計 40<br>⏱ ⑤｜暖身（三條規則＋溶解）3｜④ 只用一種試紙 10｜⑤ 波以耳 6｜⑥ 闖關 7｜學習單 12｜收束 2｜合計 40</p>
-      <p><b>學習單與習作</b>：學習單的預測格在第 ④ 節示範前先寫，其餘在第 ⑤ 節寫；全班必做「預測格、一、三」，其餘依時間做，★、★★ 給先寫完的人，沒寫完的選做題不帶回家。習作 25 頁在第 ④ 節示範時同步填結果；第 ⑤ 節之後回家寫分類與討論。</p>
-      <p><b>三層差異化</b>：低＝先寫後舉卡、規則表固定在螢幕角落（③～⑥ 站右下角的「📋 規則表」）、當小助手夾試紙；中＝學習單三的小表格找出異常的一組；高＝當數據審查員（每杯先預測兩張試紙的顏色再對照）、學習單 ★★、闖關第 2 層由高能力學生回答。</p>
+      <p><b>學習單與習作</b>：學習單等 ② 站按完「看課本 71 頁的顏色變化表」再發。學習單的預測格在第 ④ 節示範前先寫，其餘在第 ⑤ 節寫；全班必做「預測格、一、二、三」，其餘依時間做，★、★★ 給先寫完的人，沒寫完的選做題不帶回家。習作 25 頁在第 ④ 節示範時同步填結果；第 ⑤ 節之後回家寫分類與討論。</p>
+      <p><b>三層差異化</b>：低＝先寫後舉卡、桌上放一張印好的重點整理（第一框就是規則表），需要時再打開右下角的「📋 規則表」（③～⑥ 站，看完按「收起來」）、當小助手夾試紙；中＝學習單三的小表格找出異常的一組；高＝當數據審查員（每杯先預測兩張試紙的顏色再對照）、學習單 ★★、闖關第 2 層由高能力學生回答。</p>
       <p><b>家長檢核</b>：示範只用課本的六種水溶液（不用鹽酸、漂白水）；波以耳故事裡的鹽酸只講不做；試紙一律用鑷子夾；實驗室的東西一律不嘗；回家不做任何實驗。</p>
     </div>
   </section>
@@ -573,7 +593,7 @@ function teacherPhotoFallback(img){
     <div class="teacher-tip">
       <p><b class="time">給老師｜① 試紙怎麼用 8 分鐘</b>（含抓錯三次）</p>
       <p>先帶全班看三步驟卡和注意事項，再抓錯。<b>抓錯的做法</b>：老師拿起器材「正要」做錯時就停住，讓全班舉 ╳ 卡喊停，再改用正確做法；不要真的做完，以免汙染整杯水溶液。萬一已經碰到，換乾淨的器材和新倒出的水溶液重測。示範用的水溶液每次從保存瓶倒出一小份，用過的不倒回。</p>
-      <p>抓錯 ① 用手直接拿試紙 → 用鑷子夾（手上的汗或髒東西影響結果）；② 拿著整張試紙正要放進杯子沾 → 剪一小段、用滴管滴（影響水溶液原來的性質）；③ 拿著吸過醋的滴管正要去吸糖水 → 同一種水溶液用同一支滴管（殘留的醋會讓糖水看起來像酸性）。</p>
+      <p>抓錯 ① 用手直接拿試紙 → 用鑷子夾（手上的汗或髒東西影響結果）；② 拿著整張試紙正要放進杯子沾 → 剪一小段、用滴管滴（影響水溶液原來的性質）；③ 拿著吸過醋的滴管正要去吸糖水 → 同一種水溶液用同一支滴管（殘留的水溶液會讓糖水的結果不準）。</p>
       <p>低能力：對照上面的步驟卡就抓得到；高能力：要說出「這樣做會造成什麼結果」，說完再按「追問」看答案。</p>
       <p>題庫對應（u3-litmus）：鑷子、滴管滴、不直接沾、剪一小段、同一支滴管、純水對照都有考；共用滴管造成誤判也出現在素養題組〈全班的石蕊試紙紀錄〉。學習單四（連連看）練這一站。</p>
     </div>
@@ -596,6 +616,7 @@ function teacherPhotoFallback(img){
           <div class="opts" id="tGuess2" style="margin-top:10px"></div>
           <div class="guessbox hidden" id="tGuessBox" aria-live="polite"><div class="g" id="tGuessText"></div></div>
           <div class="btnrow"><button class="btn green" id="tblReveal">🔍 看課本 71 頁的顏色變化表</button></div>
+          <div class="feedback" id="tblHint" aria-live="polite"></div>
         </div>
       </div>
 
@@ -612,7 +633,7 @@ function teacherPhotoFallback(img){
               <tr><th>中性</th><td>不變色</td><td>不變色</td></tr>
               <tr><th>鹼性</th><td>不變色</td><td class="chg">變藍色</td></tr>
             </table>
-            <div class="recallbox" id="tblRecall" aria-live="polite"></div>
+            <div class="recallbox" id="tblRecall" aria-live="polite" tabindex="-1"></div>
           </div>
         </div>
 
@@ -647,8 +668,8 @@ function teacherPhotoFallback(img){
       <p><b class="time">給老師｜② 顏色變化表 4 分鐘</b></p>
       <p>課本 71 頁是「根據查到的資料」整理的表，學生還沒做過實驗，所以先猜、只記不判；按「看課本 71 頁的顏色變化表」再對照。</p>
       <p>判準卡的三句就是「必會 3 句」，請全班一起唸（學習單一、重點整理第一框是同樣的句子）。</p>
-      <p>課本的試紙照片：每一組左邊是滴之前、右邊是滴之後；「不變色」的試紙，滴到的地方因為溼了顏色深一點，先提一下，③ 站用純水對照時再講清楚（判準卡第 4 句）。</p>
-      <p>顏色一律說成字（變紅色、變藍色、不變色），色弱的同學也跟得上。③～⑥ 站右下角的「📋 規則表」可以一直開著，給需要的同學看。</p>
+      <p>課本的試紙照片：每一組左邊是滴之前、右邊是滴之後；「不變色」的試紙，滴到的地方因為溼了顏色深一點，先提一下，③ 站用純水對照時再講清楚（③ 站最上面「先做對照」那張判準卡）。</p>
+      <p>顏色一律說成字（變紅色、變藍色、不變色），色弱的同學也跟得上。③～⑥ 站右下角的「📋 規則表」需要時再打開，看完按「收起來」；打開時會蓋住畫面右下角的選項和紀錄表。</p>
     </div>
   </section>
 
@@ -659,7 +680,7 @@ function teacherPhotoFallback(img){
       <div class="duo mid">
         <figure class="figbox">
           <div class="svgbox litbox" id="ctrlFig"></div>
-          <figcaption class="cap center">純水滴在藍色、紅色石蕊試紙上<span class="sitag">示意</span></figcaption>
+          <figcaption class="cap center" id="ctrlCap">純水滴在藍色、紅色石蕊試紙上<span class="sitag">示意</span></figcaption>
         </figure>
         <div>
           <div class="ask">純水是中性的。滴上純水，兩張試紙會怎樣？</div>
@@ -683,10 +704,11 @@ function teacherPhotoFallback(img){
           <div id="cupPred" style="margin-top:10px"></div>
           <p class="lead" id="cupPredNote"></p>
           <div class="btnrow"><button class="btn green" id="cupShow">👀 看結果</button></div>
+          <div class="feedback" id="cupHint" aria-live="polite"></div>
           <div id="cupObs"></div>
         </div>
         <div>
-          <figure class="figbox hidden" id="cupFigBox">
+          <figure class="figbox hidden" id="cupFigBox" tabindex="-1">
             <div class="svgbox litbox" id="cupFig"></div>
             <figcaption class="cap center" id="cupFigCap"></figcaption>
           </figure>
@@ -720,10 +742,11 @@ function teacherPhotoFallback(img){
     </div>
 
     <div class="panel">
-      <p class="ptitle">📷 看不清楚時：老師課前試做的照片</p>
-      <figure class="figbox">
+      <p class="ptitle">📷 示範做完再看：老師課前試做的照片</p>
+      <button class="btn plain" id="tphotoBtn" type="button" aria-expanded="false" aria-controls="tphotoFig">📷 6 杯都做完了：看老師的照片</button>
+      <figure class="figbox hidden" id="tphotoFig" style="margin-top:12px">
         <img class="tphoto" src="photos/teacher-litmus.jpg" alt="老師課前試做的照片" loading="lazy" decoding="async" onerror="teacherPhotoFallback(this)">
-        <figcaption class="cap center">老師課前試做時拍的照片：各杯水溶液滴在藍色、紅色石蕊試紙上的結果</figcaption>
+        <figcaption class="cap center">老師課前試做時拍的照片：課本六種水溶液滴在藍色、紅色石蕊試紙上的結果</figcaption>
       </figure>
     </div>
 
@@ -739,13 +762,15 @@ function teacherPhotoFallback(img){
     <div class="navrow"><button class="btn green" data-next="one">下一站：④ 只用一種試紙 →</button></div>
     <div class="teacher-tip">
       <p><b class="time">給老師｜③ 示範 7 杯 15 分鐘＋判準卡 4 分鐘＋出場卡 3 分鐘</b>（第 ④ 節）</p>
-      <p><b>器材</b>：紅、藍石蕊試紙（剪成小段）、鑷子、白色底板、滴管 8 支（每杯一支，貼標籤）、7 杯水溶液（醋、檸檬酸水、食鹽水、糖水、小蘇打水、肥皂水、未知）＋1 杯純水。老師戴護目鏡。</p>
-      <p><b>流程</b>：先做純水沾溼的試紙對照，之後每杯都和它比。每一杯：學習單預測格先寫 → 舉「酸／中／鹼」卡（按全班最多的那一個）→ 小助手用鑷子夾試紙放到底板、用那一杯的滴管滴一滴、唸結果，全班複誦 → 按「看結果」→ 全班說「所以它是……」→ 同步填習作 25 頁。</p>
-      <p><b>看得到</b>：示範一結束就放大下面「老師課前試做的照片」；小助手拿白底板沿走道巡迴展示約 30 秒；每排一位觀察代表上前近看，回座位向同排報告。高能力當數據審查員：每杯先預測兩張試紙的顏色，再對照結果。</p>
-      <p><b>未知</b>：老師課前從課本六種水溶液裡選一種（不用其他液體），倒進沒有標籤的杯子；示範後按「記下老師示範的結果」，選看到的結果，再讓全班推理，最後由老師揭曉是哪一種。</p>
-      <p><b>課前試做</b>：石蕊試紙要乾燥保存（受潮會變色）；小蘇打水讓紅色試紙變藍可能又淡又慢，等 10–20 秒，和純水對照比；肥皂水用固體肥皂（上一課的配法）；醋用白醋（顏色淺，不會把試紙染色）；7 杯先自己全部測一次並拍照，存成這個資料夾裡的 <b>photos/teacher-litmus.jpg</b>，上面那一格就會自動顯示（現場顏色不明顯時播照片，圖說寫的是「老師課前拍的」）；還沒放照片時只顯示虛線框。</p>
+      <p><b>器材</b>：紅、藍石蕊試紙（剪成小段）、鑷子、白色底板、滴管 8 支（每杯一支，貼標籤）、7 杯水溶液（醋、檸檬酸水、食鹽水、糖水、小蘇打水、肥皂水、未知）＋1 杯純水。老師和負責滴的小助手都戴護目鏡。</p>
+      <p><b>流程</b>：先做純水沾溼的試紙對照，之後每杯都和它比。每一杯：學習單預測格先寫 → 舉「酸／中／鹼」卡（按全班最多的那一個）→ 小助手用鑷子夾試紙放到底板、用那一杯的滴管滴一滴、唸結果，全班複誦 → 按「看結果」→ 全班說「所以它是……」→ 同步填習作 25 頁。每一杯都換<b>新的</b>一小段紅、藍試紙，照杯子順序排在底板<b>乾的地方</b>（底板先寫好杯名），不要碰到上一杯留下的水滴；巡迴展示完，再用鑷子把試紙夾進垃圾桶。小助手唸的結果和老師課前試做的結果不一樣時，先不要按「看結果」：換新試紙、換乾淨的滴管再滴一次，和全班想想哪裡出錯（像學習單三）。</p>
+      <p>重新整理頁面，或從首頁重新點進來，③ 的紀錄會清掉（按瀏覽器的「上一頁」回來，通常還在）。清掉的話，6 杯各按一次「看結果」和「所以是？」，分類和判準卡就會再出現；全班預測請大家看學習單的預測格，再舉一次卡。</p>
+      <p><b>看得到</b>：示範一結束就放大「老師課前試做的照片」（6 杯做完才會出現）；小助手拿白底板沿走道巡迴展示約 30 秒；每排一位觀察代表上前近看，回座位向同排報告。高能力當數據審查員：每杯先預測兩張試紙的顏色，再對照結果。</p>
+      <p><b>未知</b>：老師課前從課本六種水溶液裡選一種（不用其他液體），倒進沒有標籤的杯子；示範後按「記下老師示範的結果」，選看到的結果，再讓全班推理：它是○性，可能是哪兩杯？只用石蕊試紙分得出是哪一杯嗎？（分不出來：同一種性質的兩杯，試紙的變化一樣）。最後由老師揭曉是哪一種。</p>
+      <p><b>課前試做</b>：石蕊試紙放在蓋緊的罐子裡，收在乾燥的地方，不要和醋、清潔劑放在一起（放久了受潮會變質、不準；這和滴上純水只是深一點是兩回事）；剪好的小段當天用完；小蘇打水讓紅色試紙變藍可能又淡又慢，等 10–20 秒，和純水對照比；肥皂水用固體肥皂（上一課的配法）；醋用白醋（顏色淺，不會把試紙染色）；7 杯先自己全部測一次；拍照時只拍課本的 6 杯，未知那杯不要入鏡。照片存成這個資料夾裡的 <b>photos/teacher-litmus.jpg</b>。上面那一格要等 6 杯都做完（或按「看老師的照片」）才會出現；現場顏色不明顯的那幾杯，示範做完再放大照片給全班看；還沒放照片時只顯示虛線框。</p>
       <p>課本 73 頁只畫出醋、檸檬酸水這一組的結果，另外兩組打「？」，要靠示範找答案；畫面上醋、檸檬酸水兩杯會附課本 73 頁的試紙照片。</p>
-      <p><b>判準卡 4 分鐘</b>：6 杯都做完會出現分類和判準卡，請全班用「先看藍色、再看紅色」說一次；開場的猜測在這裡回收。<b>出場卡 3 分鐘</b>：第 1 題舉卡說顏色、第 2 題舉 ○╳ 卡。</p>
+      <p><b>判準卡 4 分鐘</b>：6 杯都做完會出現分類和判準卡，請全班用「先看藍色、再看紅色」說一次；開場的猜測在這裡回收。<b>出場卡 3 分鐘</b>：第 1 題全班一起說出顏色，再請一位同學上臺按；第 2 題舉 ○╳ 卡。</p>
+      <p><b>時間不夠時</b>：預測格在示範前一次圈好 7 杯，示範時只舉卡；照課本 73 頁的分組，兩杯一起滴、一起看（兩杯都舉完卡再滴）；巡迴展示省略，示範做完放大老師的照片；出場卡只做第 1 題。未知那杯來不及，就由老師說出課前試做的結果，全班舉卡判斷它是什麼性質（30 秒）。</p>
       <p><b>家長檢核</b>：示範只用課本的六種水溶液，不用鹽酸、漂白水；試紙一律用鑷子夾；回家不做實驗。</p>
     </div>
   </section>
@@ -774,7 +799,7 @@ function teacherPhotoFallback(img){
             <div class="hidden" id="lab1Q">
               <div class="ask" style="margin-top:12px">兩杯都讓藍色石蕊試紙<b>不變色</b>。<br>甲、乙的酸鹼性一樣嗎？</div>
               <div class="opts" id="lab1Guess" style="margin-top:10px"></div>
-              <div class="guessbox hidden" id="lab1GuessBox"><div class="g" id="lab1GuessText"></div></div>
+              <div class="guessbox hidden" id="lab1GuessBox" aria-live="polite"><div class="g" id="lab1GuessText"></div></div>
               <div class="btnrow"><button class="btn green" id="lab1Red">再給紅色石蕊試紙 →</button></div>
             </div>
             <div class="feedback good hidden" id="lab1Res"></div>
@@ -791,7 +816,7 @@ function teacherPhotoFallback(img){
             <div class="hidden" id="lab2Q">
               <div class="ask" style="margin-top:12px">兩杯都讓紅色石蕊試紙<b>不變色</b>。<br>丙、丁分得出來嗎？</div>
               <div class="opts" id="lab2Guess" style="margin-top:10px"></div>
-              <div class="guessbox hidden" id="lab2GuessBox"><div class="g" id="lab2GuessText"></div></div>
+              <div class="guessbox hidden" id="lab2GuessBox" aria-live="polite"><div class="g" id="lab2GuessText"></div></div>
               <div class="btnrow"><button class="btn green" id="lab2Blue">再給藍色石蕊試紙 →</button></div>
             </div>
             <div class="feedback good hidden" id="lab2Res"></div>
@@ -804,14 +829,14 @@ function teacherPhotoFallback(img){
         <div class="tblwrap" style="margin-top:0">
           <table class="reason">
             <tr><th>只用……</th><th>變色的</th><th>不變色的</th><th>分得出來的</th></tr>
-            <tr><th>藍色石蕊試紙</th><td>變紅色 → 酸性</td><td>中性或鹼性（分不出來）</td><td>「酸性」和「不是酸性」</td></tr>
-            <tr><th>紅色石蕊試紙</th><td>變藍色 → 鹼性</td><td>酸性或中性（分不出來）</td><td>「鹼性」和「不是鹼性」</td></tr>
+            <tr><th>藍色石蕊試紙</th><td>變紅色 → 酸性</td><td>可能是中性，也可能是鹼性</td><td>「酸性」和「不是酸性」</td></tr>
+            <tr><th>紅色石蕊試紙</th><td>變藍色 → 鹼性</td><td>可能是酸性，也可能是中性</td><td>「鹼性」和「不是鹼性」</td></tr>
             <tr><th>兩種都用</th><td colspan="2">先看藍色、再看紅色</td><td>酸性、中性、鹼性三種都分得出來</td></tr>
           </table>
         </div>
         <div class="criterion">
           <div class="k">💡 <span class="must">只用藍色石蕊試紙，不變色的可能是中性，也可能是鹼性，要再用紅色石蕊試紙才分得出來。</span></div>
-          <div class="k">💡 <span class="must">只用紅色石蕊試紙，不變色的可能是酸性，也可能是中性。</span></div>
+          <div class="k">💡 <span class="must">只用紅色石蕊試紙，不變色的可能是酸性，也可能是中性，要再用藍色石蕊試紙才分得出來。</span></div>
           <div class="askagain">👩‍🏫 老師追問：<b>只用藍色石蕊試紙，有一杯變紅色，可以確定它是什麼性質嗎？</b>（可以，是酸性：變色的分得出來，不變色的才分不出來）</div>
         </div>
       </div>
@@ -820,9 +845,9 @@ function teacherPhotoFallback(img){
     <div class="teacher-tip">
       <p><b class="time">給老師｜④ 只用一種試紙 10 分鐘</b>（第 ⑤ 節；前面先暖身 3 分鐘）</p>
       <p><b>暖身</b>（三條規則＋溶解）：全班口答或舉卡，再按「看答案」。</p>
-      <p>虛擬實驗臺是示意畫面，不是真的實驗：甲＝食鹽水、乙＝小蘇打水、丙＝醋、丁＝食鹽水（給第二種試紙之後才揭曉）。「一樣嗎？」「分得出來嗎？」先讓全班猜、只記不判，再給另一種試紙對照；最後整理成推理表和判準卡。</p>
-      <p>節數不夠時：只看結果，不做猜測（直接按兩個「給試紙」的按鈕）。</p>
-      <p>題庫對應：「只用藍色試紙分不出中性和鹼性；只用紅色試紙分不出酸性和中性」是 u3-litmus 的重點，素養題組〈小華的兩步驟檢驗〉〈廚房裡的三杯水〉也考。學習單二（○╳）、★、★★ 練這一點；闖關第 3 題是課堂題。</p>
+      <p>虛擬實驗臺是示意畫面，不是真的實驗。四杯是哪一種水溶液，給第二種試紙之後，畫面才會寫出來。「一樣嗎？」「分得出來嗎？」先讓全班猜、只記不判，再給另一種試紙對照；最後整理成推理表和判準卡。</p>
+      <p>節數不夠時：不做猜測，依序按四個「給試紙」按鈕（實驗 1 兩個、實驗 2 兩個），直接看結果和推理表。</p>
+      <p>題庫對應：「只用一種石蕊試紙行不行」是 u3-litmus 的重點，素養題組〈小華的兩步驟檢驗〉〈廚房裡的三杯水〉也考。學習單二（○╳）、★、★★ 練這一點；闖關第 3 題是課堂題。</p>
     </div>
   </section>
 
@@ -846,13 +871,15 @@ function teacherPhotoFallback(img){
 
     <div class="panel">
       <div class="ask big">想一想：如果把<b>檸檬汁</b>直接滴在紫羅蘭花瓣上，<br>結果會和波以耳做的實驗一樣嗎？</div>
-      <p class="lead">先說說你的想法，全班舉手表決（只記下來，先不對答案）。</p>
+      <p class="lead">只看<b>花瓣的顏色</b>：會怎樣？先說說你的想法，全班舉手表決（只記下來，先不對答案）。</p>
       <div class="opts" id="boyleGuess"></div>
       <div class="guessbox hidden" id="boyleGuessBox" aria-live="polite"><div class="g" id="boyleGuessText"></div></div>
       <div class="btnrow center"><button class="btn green" id="boyleReveal">💡 一起想一想</button></div>
-      <div class="bigpoint hidden" id="boylePoint">檸檬汁也是<b>酸性</b>的，紫羅蘭的花瓣<b>可能</b>也會變紅。<small>課本沒有做這個實驗，所以說「可能」。</small></div>
+      <div class="feedback" id="boyleHint" aria-live="polite"></div>
+      <div class="bigpoint hidden" id="boylePoint" tabindex="-1">檸檬汁也是<b>酸性</b>的，紫羅蘭的花瓣<b>可能</b>也會變紅。<small>課本沒有做這個實驗，所以說「可能」。</small></div>
       <div class="criterion hidden" id="boyleCrit">
         <div class="k">💡 石蕊遇到酸變紅色、遇到鹼變藍色。所以藍色石蕊試紙碰到酸性水溶液會變紅色，紅色石蕊試紙碰到鹼性水溶液會變藍色。</div>
+        <p class="note">📌 這是課本裡的故事，有些細節找不到當時的記錄。波以耳 1664 年寫的書裡，真的記下了這件事：紫羅蘭的汁液滴在白紙上，再滴鹽酸或醋，就變成紅色。</p>
         <div class="askagain">📌 第四單元會再遇到波以耳：發現「虎克定律」的虎克，當過波以耳的助教。</div>
       </div>
     </div>
@@ -860,7 +887,8 @@ function teacherPhotoFallback(img){
     <div class="teacher-tip">
       <p><b class="time">給老師｜⑤ 波以耳的發現 6 分鐘</b></p>
       <p>課本 81 頁科學閱讀，可以請三位同學各唸一段。<b>鹽酸只講不做</b>（家長檢核）；強調實驗室的東西一律不嘗、不碰。</p>
-      <p>想一想：課本沒有寫答案。檸檬汁也是酸性的，所以說紫羅蘭「<b>可能</b>」也會變紅，不要說「一定」。素養題組〈紫羅蘭為什麼變紅〉用滴醋和只滴純水的花瓣做比較，可以提一句：「想知道是不是酸讓它變紅，要和只滴純水的花瓣比一比。」</p>
+      <details><summary>史實補充（會透露答案，投票以後再打開）</summary><p>「鹽酸甩到花瓣、冒白煙」和「波以耳做出石蕊試紙」都找不到當時的記錄。波以耳 1664 年的書寫的是：紫羅蘭糖漿滴在白紙上，加鹽酸或醋變紅、加鹼變綠。石蕊在他那時已經是畫材店賣的藍色顏料，書裡也沒有寫怎麼做試紙。白煙是濃鹽酸自己冒出的酸霧，不是花瓣燒起來。考題（題庫 u3-litmus-11）仍照課本答「波以耳」。</p></details>
+      <p>想一想：課本沒有寫答案。先讓全班投票（只記不判），再按「一起想一想」，照著畫面上的說明講。素養題組〈紫羅蘭為什麼變紅〉用滴醋和只滴純水的花瓣做比較，揭曉以後可以提一句：「想知道是不是酸讓它變紅，要和只滴純水的花瓣比一比。」</p>
       <p>石蕊地衣「遇到酸變紅色、遇到鹼變藍色」，正好幫學生記試紙的規則。伏筆：第四單元〈彈簧與彈性限度〉的科學閱讀〈虎克〉，虎克當過波以耳的助教。</p>
     </div>
   </section>
@@ -908,7 +936,8 @@ function teacherPhotoFallback(img){
       <div class="result">
         <div class="big" id="finalScore"></div>
         <p class="rankline" id="finalRank"></p>
-        <div class="ticket"><b>📝 接下來寫學習單：</b>全班必做「一、三」（預測格第 ④ 節寫過了）；寫完的人挑戰 ★、★★，最後寫出場單。</div>
+        <div class="ticket"><b>📝 接下來寫學習單：</b>全班必做「一、二、三」（預測格第 ④ 節寫過了）；寫完的人做四，再挑戰 ★、★★，最後寫出場單。</div>
+        <div class="criterion" style="text-align:left;max-width:900px;margin:14px auto"><div class="k">💡 收束：全班一起唸必會 3 句</div><ol class="must3 k" id="finalMust"></ol></div>
         <button class="btn" id="againBtn">↺ 再挑戰一次</button>
       </div>
     </div>
@@ -953,7 +982,12 @@ function teacherPhotoFallback(img){
    課本例子：醋、檸檬酸水酸性；食鹽水、糖水、純水中性；小蘇打水、肥皂水鹼性。
    ========================================================== */
 const $=id=>document.getElementById(id);
+const SMOOTH=(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches)?"auto":"smooth";   /* 減少動態效果時不要平滑捲動 */
 const NS="http://www.w3.org/2000/svg";
+/* 鍵盤焦點：按鈕停用、藏起來或整塊重畫以後，把焦點移到新出現的內容，才不會掉到頁首 */
+function focusTo(el){ if(!el) return; if(!el.matches("button,a,[tabindex]")) el.tabIndex=-1; el.focus({preventScroll:true}); }
+/* 新出現的內容可能在畫面下緣外：先捲進畫面再移焦點 */
+function revealFocus(el,target){ if(!el) return; el.scrollIntoView({behavior:SMOOTH,block:"nearest"}); focusTo(target||el); }
 
 /* ---------- 照片清單：[寬, 高, 名稱, 資料夾（省略＝本課 photos/）] ---------- */
 const PHOTO_DIR="photos/";
@@ -1018,6 +1052,7 @@ function choiceQ(host,opts,ans,onRight,onWrong,cls){
         if(onRight) onRight();
       }else{
         b.classList.add("no"); b.disabled=true;
+        const nx=[...box.querySelectorAll(".opt")].find(x=>!x.disabled); if(nx) nx.focus();
         if(onWrong) onWrong(o);
       }
     });
@@ -1043,6 +1078,12 @@ function pollQ(host,list,onPick,picked){
   host.appendChild(box);
   return box;
 }
+/* 揭曉以後把投票鎖住（被選的那一個保留黃色框），免得看完答案再改猜 */
+function lockPoll(sel){ document.querySelectorAll(sel+" .opt").forEach(b=>b.disabled=true); }
+/* 先投票再揭曉：全班還沒投票時，第一次按只提醒，再按一次才揭曉（老師趕時間時可以跳過） */
+const VOTE_HINT="全班還沒投票：先舉卡，按全班最多的那一個；要跳過就再按一次。";
+function voteHint(box,msg){ box.className="feedback hint"; box.textContent=msg||VOTE_HINT; }
+function clearHint(box){ box.className="feedback"; box.textContent=""; }
 
 /* ---------- 必會 3 句、判準（和學習單、重點整理一字不差） ---------- */
 const MUST={
@@ -1053,7 +1094,7 @@ const MUST={
 const JUDGE=[
   "先看藍色石蕊試紙：變紅色＝酸性。再看紅色石蕊試紙：變藍色＝鹼性。兩種都不變色＝中性。",
   "只用藍色石蕊試紙，不變色的可能是中性，也可能是鹼性，要再用紅色石蕊試紙才分得出來。",
-  "只用紅色石蕊試紙，不變色的可能是酸性，也可能是中性。",
+  "只用紅色石蕊試紙，不變色的可能是酸性，也可能是中性，要再用藍色石蕊試紙才分得出來。",
   "試紙被純水沾溼，顏色會變深一點，那不是變色，所以要用純水沾溼的試紙對照。"
 ];
 const PROP={acid:"酸性",neutral:"中性",base:"鹼性"};
@@ -1077,7 +1118,7 @@ function litmusFig(host,p){
     const svg=host.querySelector("svg");
     if(!svg) return;
     if(p.blank){
-      svg.setAttribute("aria-label","示意圖：還沒滴水溶液的"+rows.map(rowName).join("和"));
+      svg.setAttribute("aria-label","示意圖：還沒滴的"+rows.map(rowName).join("和"));
       return;
     }
     const rects=svg.querySelectorAll('rect[rx="3"]');   /* 試紙＝圓角 3 的長方形，順序是一排一排、由左到右 */
@@ -1122,10 +1163,15 @@ function go(name,smooth){
   document.body.dataset.st=name;
   if(!RULE_ST.includes(name)) setRule(false);
   try{ history.replaceState(null,"","#"+name); }catch(_){}
-  window.scrollTo({top:0,behavior:smooth?"smooth":"auto"});
+  window.scrollTo({top:0,behavior:smooth?SMOOTH:"auto"});
 }
 document.querySelectorAll(".station-btn").forEach(b=>b.addEventListener("click",()=>go(b.dataset.go,true)));
-document.querySelectorAll("[data-next]").forEach(b=>b.addEventListener("click",()=>go(b.dataset.next,true)));
+/* 「下一站」按鈕會跟著舊的一站藏起來：焦點移到新一站的標題（⑥ 沒有標題，就移到第一個按鈕） */
+document.querySelectorAll("[data-next]").forEach(b=>b.addEventListener("click",()=>{
+  go(b.dataset.next,true);
+  const sc=$("screen-"+b.dataset.next);
+  focusTo(sc.querySelector(".ptitle")||sc.querySelector("button"));
+}));
 
 /* ---------- 右下角規則表 ---------- */
 function setRule(open){
@@ -1133,7 +1179,7 @@ function setRule(open){
   $("ruleFab").setAttribute("aria-expanded",String(open));
 }
 $("ruleFab").addEventListener("click",()=>setRule($("ruleCard").classList.contains("hidden")));
-$("ruleClose").addEventListener("click",()=>setRule(false));
+$("ruleClose").addEventListener("click",()=>{ setRule(false); $("ruleFab").focus(); });
 
 /* ---------- 暖身：看答案 ---------- */
 document.querySelectorAll("[data-reveal]").forEach(b=>b.addEventListener("click",()=>{
@@ -1161,7 +1207,7 @@ pollQ($("guessOpts"),["醋","糖水","小蘇打水"],g=>{
 renderFig($("howFig1"),"litmus-vials");
 renderFig($("howFig2"),"tweezers");
 renderFig($("howFig3"),"dropper");
-addTag($("howFig2"),70,7,"<b>鑷子</b>","br");
+addTag($("howFig2"),62,7,"<b>鑷子</b>","br");
 addTag($("howFig3"),51,82,"<b>滴管</b>","l");
 const OOPS=[
   {scene:"✋ 老師用<b>手</b>直接拿起一小段石蕊試紙……",
@@ -1172,7 +1218,7 @@ const OOPS=[
    why:"整杯水溶液會被試紙影響，改變水溶液原來的性質，後面就不能再用了。"},
   {scene:"💧 老師拿著<b>吸過醋</b>的滴管，正要去吸<b>糖水</b>……",
    right:"✅ 喊停得好！同一種水溶液用<b>同一支滴管</b>（每杯一支，貼上標籤）。",
-   why:"滴管裡殘留的醋會混進糖水，讓糖水看起來像酸性，造成誤判。"}
+   why:"滴管裡殘留的上一杯水溶液會混進糖水，糖水的結果就不準了，造成誤判。"}
 ];
 let oopsDone=0;
 OOPS.forEach((o,i)=>{
@@ -1186,7 +1232,8 @@ OOPS.forEach((o,i)=>{
   const fb=card.querySelector(".feedback"), res=card.querySelector(".oopsres");
   choiceQ(card.querySelector(".oq"),["○ 可以","╳ 喊停！"],"╳ 喊停！",
     ()=>{ fb.className="feedback"; fb.textContent=""; res.classList.remove("hidden");
-          oopsDone++; if(oopsDone===OOPS.length) $("howPoint").classList.remove("hidden"); },
+          oopsDone++; if(oopsDone===OOPS.length) $("howPoint").classList.remove("hidden");
+          revealFocus(res,res.querySelector(".btn")); },
     ()=>{ fb.className="feedback hint"; fb.textContent="🤔 再看看上面的步驟卡和注意事項，這樣做對嗎？"; });
   const wb=res.querySelector(".btn"), wy=res.querySelector(".why");
   wb.addEventListener("click",()=>{ const show=wy.classList.contains("hidden"); wy.classList.toggle("hidden",!show); wb.setAttribute("aria-expanded",String(show)); });
@@ -1201,17 +1248,26 @@ function showTGuess(){
   $("tGuessBox").classList.remove("hidden");
   $("tGuessText").textContent=`全班猜的是：藍色試紙變紅色 →「${T_GUESS.blue||"還沒猜"}」；紅色試紙變藍色 →「${T_GUESS.red||"還沒猜"}」`;
 }
-pollQ($("tGuess1"),["酸性","中性","鹼性"],g=>{ T_GUESS.blue=g; showTGuess(); });
-pollQ($("tGuess2"),["酸性","中性","鹼性"],g=>{ T_GUESS.red=g; showTGuess(); });
+pollQ($("tGuess1"),["酸性","中性","鹼性"],g=>{ T_GUESS.blue=g; showTGuess(); clearHint($("tblHint")); });
+pollQ($("tGuess2"),["酸性","中性","鹼性"],g=>{ T_GUESS.red=g; showTGuess(); clearHint($("tblHint")); });
+let tblWarned=false;
 $("tblReveal").addEventListener("click",()=>{
+  if(!(T_GUESS.blue && T_GUESS.red) && !tblWarned){
+    tblWarned=true;
+    voteHint($("tblHint"), T_GUESS.blue||T_GUESS.red ? "還有一題全班還沒投票：先舉卡，按全班最多的那一個；要跳過就再按一次。" : VOTE_HINT);
+    return;
+  }
+  clearHint($("tblHint"));
   $("tblMore").classList.remove("hidden");
   $("tblReveal").disabled=true;
+  lockPoll("#tGuess1"); lockPoll("#tGuess2");
   litmusFig($("tblFig"),{items:[{name:"酸性",res:"acid"},{name:"中性",res:"neutral"},{name:"鹼性",res:"base"}]});
   renderFig($("stripBlue"),"p71-blue");
   renderFig($("stripRed"),"p71-red");
   const line=(k,g,ans)=> g ? `${k} → 全班猜「${g}」${g===ans?"，猜對了！":"，答案是「"+ans+"」。"}` : `${k} → 答案是「${ans}」。`;
   $("tblRecall").innerHTML=`<div class="feedback good">${line("藍色石蕊試紙變紅色",T_GUESS.blue,"酸性")}<br>${line("紅色石蕊試紙變藍色",T_GUESS.red,"鹼性")}</div>`;
-  $("tblMore").scrollIntoView({behavior:"smooth",block:"start"});
+  $("tblMore").scrollIntoView({behavior:SMOOTH,block:"start"});
+  focusTo($("tblRecall"));
 });
 
 /* ==========================================================
@@ -1220,8 +1276,11 @@ $("tblReveal").addEventListener("click",()=>{
 litmusFig($("ctrlFig"),{items:[{name:"純水"}],blank:true});
 $("ctrlBtn").addEventListener("click",()=>{
   litmusFig($("ctrlFig"),{items:[{name:"純水",res:"neutral"}]});
+  /* 圖說按下去才換：按之前就寫「不變色」，等於先公布答案 */
+  $("ctrlCap").innerHTML='純水滴在藍色、紅色石蕊試紙上：兩張都不變色（真的試紙，溼的地方會深一點）<span class="sitag">示意</span>';
   $("ctrlCrit").classList.remove("hidden");
   $("ctrlBtn").disabled=true;
+  focusTo($("ctrlCrit"));
 });
 
 const CUPS=[
@@ -1241,13 +1300,13 @@ const OBS=[
 ];
 const PRED_WORD={"酸":"酸性","中":"中性","鹼":"鹼性"};
 const cupState=CUPS.map(()=>({pred:null,shown:false,obs:null,done:false}));
-let cupI=0, demoEnded=false;
+let cupI=0, demoEnded=false, cupWarned=false;   /* cupWarned：這一杯已經提醒過「還沒投票」 */
 
 function buildCupTabs(){
   CUPS.forEach((c,i)=>{
     const t=document.createElement("button");
     t.type="button"; t.className="tab";
-    t.addEventListener("click",()=>{ cupI=i; renderCup(); });
+    t.addEventListener("click",()=>{ cupI=i; cupWarned=false; renderCup(); });
     $("cupTabs").appendChild(t);
     const tr=document.createElement("tr");
     tr.id="row-"+c.k;
@@ -1278,16 +1337,23 @@ function renderCup(){
     ? `${CUP_NO[cupI]} <b>${c.name}</b>：你預測它是酸性、中性，還是鹼性？`
     : `${CUP_NO[cupI]} <b>未知</b>的水溶液（老師課前從六種裡選了一杯，不告訴大家）：你預測它是？`;
   $("cupPred").innerHTML="";
-  pollQ($("cupPred"),["酸","中","鹼"],g=>{ st.pred=g; $("cupPredNote").textContent=`全班舉卡最多的是：「${g}」`; updateRow(cupI); },st.pred);
-  $("cupPredNote").textContent= st.pred ? `全班舉卡最多的是：「${st.pred}」` : "先在學習單的預測格圈好，再舉卡（只記下來，先不對答案）。";
+  pollQ($("cupPred"),["酸","中","鹼"],g=>{ st.pred=g; $("cupPredNote").textContent=`全班舉卡最多的是：「${g}」`; updateRow(cupI); clearHint($("cupHint")); },st.pred);
+  if(st.shown) lockPoll("#cupPred");   /* 看過結果就不能再改預測 */
+  $("cupPredNote").textContent= st.pred ? `全班舉卡最多的是：「${st.pred}」`
+    : st.shown ? "這一杯沒有記到全班預測。" : "先在學習單的預測格圈好，再舉卡（只記下來，先不對答案）。";
   $("cupShow").textContent = c.res ? "👀 看結果" : "📝 記下老師示範的結果";
   $("cupShow").classList.toggle("hidden",st.shown);
+  clearHint($("cupHint"));
   /* 未知：網頁不知道答案，只記下老師示範時看到的結果 */
   const obs=$("cupObs"); obs.innerHTML="";
   if(st.shown && !c.res){
     obs.innerHTML='<div class="ask" style="margin-top:12px">老師示範時，看到的結果是？</div>';
     const host=document.createElement("div"); host.style.marginTop="10px"; obs.appendChild(host);
-    pollQ(host,OBS.map(o=>o.t),t=>{ st.obs=OBS.find(o=>o.t===t).res; st.done=false; renderCup(); },
+    pollQ(host,OBS.map(o=>o.t),t=>{
+        st.obs=OBS.find(o=>o.t===t).res; st.done=false; renderCup();
+        $("cupInfer").scrollIntoView({behavior:SMOOTH,block:"nearest"});   /* 手機是單欄：「所以是？」在下面 */
+        focusTo($("cupInfer").querySelector(".opt"));
+      },
       st.obs ? OBS.find(o=>o.res===st.obs).t : null);
   }
   /* 結果圖 */
@@ -1306,7 +1372,7 @@ function renderCup(){
       inf.innerHTML=`<div class="ask" style="margin-top:12px">所以，<b>${c.name}</b>是？</div>`;
       const host=document.createElement("div"); host.style.marginTop="10px"; inf.appendChild(host);
       choiceQ(host,["酸性","中性","鹼性"],PROP[res],
-        ()=>{ st.done=true; updateRow(cupI); renderCup(); checkDemoEnd(); },
+        ()=>{ st.done=true; updateRow(cupI); renderCup(); checkDemoEnd(); focusTo($("cupFeed")); },
         ()=>{ fb.className="feedback hint"; fb.textContent="🤔 再看一次：藍色石蕊試紙有沒有變紅色？紅色石蕊試紙有沒有變藍色？"; });
     }
   }
@@ -1317,18 +1383,33 @@ function showCupGood(){
   const c=CUPS[cupI], st=cupState[cupI], res=cupRes(cupI);
   const pred = st.pred ? `　全班預測「${st.pred}」${PRED_WORD[st.pred]===PROP[res]?"，猜對了！":"。"}` : "";
   $("cupFeed").className="feedback good";
+  /* 未知：石蕊試紙只分得出是哪一種性質，同一種性質的兩杯分不出來（讓學生自己看紀錄表找） */
   $("cupFeed").innerHTML=`✅ ${c.name}是<b>${PROP[res]}</b>。${pred}<br>${MUST[res]}`
-    +(c.res?"":"<br><span class=\"note\">未知是哪一種？請老師揭曉。</span>");
+    +(c.res?"":"<br>看紀錄表：它可能是哪兩杯？說完再請老師揭曉。<br><span class=\"note\">石蕊試紙只分得出酸性、中性、鹼性：同一種性質的兩杯，試紙的變化一樣，分不出是哪一杯。</span>");
 }
-$("cupShow").addEventListener("click",()=>{ cupState[cupI].shown=true; renderCup(); });
+$("cupShow").addEventListener("click",()=>{
+  const st=cupState[cupI];
+  if(!st.pred && !cupWarned){ cupWarned=true; voteHint($("cupHint")); return; }
+  st.shown=true; renderCup();
+  /* 看結果：焦點移到結果圖；未知還沒有圖，移到「看到的結果是？」的第一個選項 */
+  if(CUPS[cupI].res) focusTo($("cupFigBox")); else focusTo($("cupObs").querySelector(".opt"));
+});
 function checkDemoEnd(){
   if(demoEnded) return;
   if(CUPS.every((c,i)=>!c.res || cupState[i].done)){
     demoEnded=true;
     $("demoEnd").classList.remove("hidden");
     updateOpenRecall();
+    setTPhoto(true);
   }
 }
+/* 老師課前試做的照片：6 杯都做完才自動打開，免得全班在預測前先看到結果；老師也可以自己按 */
+function setTPhoto(open){
+  $("tphotoFig").classList.toggle("hidden",!open);
+  $("tphotoBtn").setAttribute("aria-expanded",String(open));
+  $("tphotoBtn").textContent=open?"📷 收起老師的照片":"📷 6 杯都做完了：看老師的照片";
+}
+$("tphotoBtn").addEventListener("click",()=>setTPhoto($("tphotoFig").classList.contains("hidden")));
 function updateOpenRecall(){
   const head = !classGuess ? "開場的問題：哪一杯會讓藍色石蕊試紙變紅色？答案是："
     : classGuess==="醋" ? "🎉 開場時全班猜「醋」，猜對了！" : `開場時全班猜「${classGuess}」。答案是：`;
@@ -1341,10 +1422,10 @@ renderFig($("p73Fig"),"p73-acid");
 
 /* 出場卡（第 ④ 節） */
 choiceQ($("exit1"),["紅色","還是藍色（不變色）"],"紅色",
-  ()=>{ $("exit1Feed").className="feedback good"; $("exit1Feed").textContent="✅ 醋是酸性，讓藍色石蕊試紙變紅色。"; },
+  ()=>{ $("exit1Feed").className="feedback good"; $("exit1Feed").textContent="✅ 醋是酸性，讓藍色石蕊試紙變紅色。"; revealFocus($("exit1Feed")); },
   ()=>{ $("exit1Feed").className="feedback hint"; $("exit1Feed").textContent="🤔 再想想：醋是酸性、中性，還是鹼性？酸性會讓藍色石蕊試紙怎樣？"; });
 choiceQ($("exit2"),["○","╳"],"╳",
-  ()=>{ $("exit2Feed").className="feedback good"; $("exit2Feed").textContent="✅ 不可以直接沾，以免影響水溶液原來的性質；要用滴管滴在試紙上。"; },
+  ()=>{ $("exit2Feed").className="feedback good"; $("exit2Feed").textContent="✅ 不可以直接沾，以免影響水溶液原來的性質；要用滴管滴在試紙上。"; revealFocus($("exit2Feed")); },
   ()=>{ $("exit2Feed").className="feedback hint"; $("exit2Feed").textContent="🤔 再想想：試紙直接放進杯子裡，整杯水溶液會怎樣？"; });
 
 /* ==========================================================
@@ -1354,12 +1435,15 @@ choiceQ($("exit2"),["○","╳"],"╳",
 const LAB1=[{lab:"甲",res:"neutral"},{lab:"乙",res:"base"}];
 const LAB2=[{lab:"丙",res:"acid"},{lab:"丁",res:"neutral"}];
 let lab1Guess=null, lab2Guess=null;
+const L1_ANS="還不能確定";   /* 只看藍色石蕊試紙時，有證據的答案 */
 litmusFig($("lab1Fig"),{items:LAB1.map(o=>({lab:o.lab})),paper:"blue",blank:true});
 litmusFig($("lab2Fig"),{items:LAB2.map(o=>({lab:o.lab})),paper:"red",blank:true});
 $("lab1Blue").addEventListener("click",()=>{
   litmusFig($("lab1Fig"),{items:LAB1,paper:"blue"});
   $("lab1Blue").disabled=true;
   $("lab1Q").classList.remove("hidden");
+  $("lab1Q").scrollIntoView({behavior:SMOOTH,block:"nearest"});   /* 題目在畫面外時捲進來，焦點才看得到 */
+  focusTo($("lab1Q").querySelector(".opt"));
 });
 pollQ($("lab1Guess"),["一樣","不一樣","還不能確定"],g=>{
   lab1Guess=g; $("lab1GuessBox").classList.remove("hidden"); $("lab1GuessText").textContent=`全班猜的是：「${g}」`;
@@ -1367,15 +1451,22 @@ pollQ($("lab1Guess"),["一樣","不一樣","還不能確定"],g=>{
 $("lab1Red").addEventListener("click",()=>{
   litmusFig($("lab1Fig"),{items:LAB1});
   $("lab1Red").disabled=true;
+  lockPoll("#lab1Guess");
   $("lab1Res").classList.remove("hidden");
-  $("lab1Res").innerHTML=(lab1Guess?`剛剛全班猜「${lab1Guess}」。`:"")
-    +"再用紅色石蕊試紙：<b>乙變藍色 → 乙是鹼性</b>；甲兩種都不變色 → 甲是中性。<br>原來甲、乙<b>不一樣</b>！只看藍色石蕊試紙時，中性和鹼性都不變色，分不出來。<span class=\"note\">（其實甲是食鹽水，乙是小蘇打水）</span>";
+  $("lab1Res").innerHTML=(lab1Guess?`剛剛全班猜「${lab1Guess}」${lab1Guess===L1_ANS?"，猜對了！":"。"}`:"")
+    +"只看藍色石蕊試紙時，答案是<b>「還不能確定」</b>：中性和鹼性都不變色，分不出來。"
+    +"<br>再用紅色石蕊試紙：<b>乙變藍色 → 乙是鹼性</b>；甲兩種都不變色 → 甲是中性。原來甲、乙<b>不一樣</b>。"
+    +(lab1Guess==="不一樣"?"<br>猜「不一樣」剛好猜中，可是只看藍色試紙時，還拿不出證據。":"")
+    +"<span class=\"note\">（其實甲是食鹽水，乙是小蘇打水）</span>";
   $("lab2").classList.remove("hidden");
+  $("lab1Res").tabIndex=-1; $("lab1Res").focus();   /* 不加 preventScroll：結果可能在畫面外，要捲進來 */
 });
 $("lab2Red").addEventListener("click",()=>{
   litmusFig($("lab2Fig"),{items:LAB2,paper:"red"});
   $("lab2Red").disabled=true;
   $("lab2Q").classList.remove("hidden");
+  $("lab2Q").scrollIntoView({behavior:SMOOTH,block:"nearest"});
+  focusTo($("lab2Q").querySelector(".opt"));
 });
 pollQ($("lab2Guess"),["分得出來","分不出來"],g=>{
   lab2Guess=g; $("lab2GuessBox").classList.remove("hidden"); $("lab2GuessText").textContent=`全班猜的是：「${g}」`;
@@ -1383,10 +1474,12 @@ pollQ($("lab2Guess"),["分得出來","分不出來"],g=>{
 $("lab2Blue").addEventListener("click",()=>{
   litmusFig($("lab2Fig"),{items:LAB2});
   $("lab2Blue").disabled=true;
+  lockPoll("#lab2Guess");
   $("lab2Res").classList.remove("hidden");
   $("lab2Res").innerHTML=(lab2Guess?`剛剛全班猜「${lab2Guess}」。`:"")
     +"再用藍色石蕊試紙：<b>丙變紅色 → 丙是酸性</b>；丁兩種都不變色 → 丁是中性。<br>只看紅色石蕊試紙時，酸性和中性都不變色，<b>分不出來</b>。<span class=\"note\">（其實丙是醋，丁是食鹽水）</span>";
   $("oneEnd").classList.remove("hidden");
+  $("lab2Res").tabIndex=-1; $("lab2Res").focus();
 });
 
 /* ==========================================================
@@ -1396,11 +1489,17 @@ renderFig($("boyleFig"),"boyle");
 let boyleGuess=null;
 pollQ($("boyleGuess"),["花瓣可能也會變紅","花瓣不會變色","花瓣會變成藍色"],g=>{
   boyleGuess=g; $("boyleGuessBox").classList.remove("hidden"); $("boyleGuessText").textContent=`全班猜的是：「${g}」`;
+  clearHint($("boyleHint"));
 });
+let boyleWarned=false;
 $("boyleReveal").addEventListener("click",()=>{
+  if(!boyleGuess && !boyleWarned){ boyleWarned=true; voteHint($("boyleHint"),"全班還沒投票：先舉手表決，按全班最多的那一個；要跳過就再按一次。"); return; }
+  clearHint($("boyleHint"));
   $("boylePoint").classList.remove("hidden");
   $("boyleCrit").classList.remove("hidden");
   $("boyleReveal").disabled=true;
+  lockPoll("#boyleGuess");
+  revealFocus($("boylePoint"));
 });
 
 /* ==========================================================
@@ -1446,7 +1545,7 @@ const QUIZ=[
    rAns:"醋和鹽酸一樣是酸性",
    why:"醋和鹽酸都是酸性。紫羅蘭碰到鹽酸會變紅，碰到醋這種酸性的水溶液，可能也會變紅；糖水、食鹽水是中性，肥皂水是鹼性。"}
 ];
-const RANKS=[{f:0,t:"🧪 見習檢驗員"},{f:0.5,t:"🔬 酸鹼小偵探"},{f:0.9,t:"🏅 石蕊試紙達人！"}];
+const RANKS=[{f:0,t:"🧪 見習檢驗員"},{f:0.75,t:"🔬 酸鹼小偵探"},{f:0.9,t:"🏅 石蕊試紙達人！"}];   /* 答錯再試也有一半分數，所以門檻不能是 0.5 */
 let order=[0,1,2,3,4], qi=0, score=0, tries=0;
 function fmt(n){ return Number.isInteger(n)?String(n):n.toFixed(1); }
 function maxScore(){ return order.length*2; }
@@ -1486,7 +1585,7 @@ function renderQ(){
   $("nextBtn").classList.add("hidden");
   choiceQ($("q1opts"),q.opts,q.ans,
     ()=>{ addScore(); $("q1feed").className="feedback good"; $("q1feed").textContent="✅ 答對了！再說說你怎麼知道。"; $("step2").classList.remove("hidden");
-          $("step2").scrollIntoView({behavior:"smooth",block:"nearest"}); },
+          $("step2").scrollIntoView({behavior:SMOOTH,block:"nearest"}); focusTo($("q2opts").querySelector(".opt")); },
     ()=>{ tries++; $("q1feed").className="feedback hint"; $("q1feed").textContent="🤔 再想想看，還可以再試。"; },
     "col");
   choiceQ($("q2opts"),q.r,q.rAns,
@@ -1497,7 +1596,8 @@ function renderQ(){
       $("criterion").classList.remove("hidden");
       $("nextBtn").textContent= qi+1<order.length ? "下一題 →" : "看結果 →";
       $("nextBtn").classList.remove("hidden");
-      $("nextBtn").scrollIntoView({behavior:"smooth",block:"nearest"});   /* 判準卡在按鈕正上方，一起帶進畫面 */
+      $("nextBtn").scrollIntoView({behavior:SMOOTH,block:"nearest"});   /* 判準卡在按鈕正上方，一起帶進畫面 */
+      $("nextBtn").focus({preventScroll:true});
     },
     ()=>{ tries++; $("q2feed").className="feedback hint"; $("q2feed").textContent="🤔 這個理由說不通，再選一次。"; },
     "col");
@@ -1511,7 +1611,7 @@ function addScore(){
 $("nextBtn").addEventListener("click",()=>{
   qi++;
   if(qi>=order.length) showResult();
-  else{ renderQ(); $("quizPanel").scrollIntoView({behavior:"smooth",block:"nearest"}); }
+  else{ renderQ(); $("quizPanel").scrollIntoView({behavior:SMOOTH,block:"nearest"}); focusTo($("q1opts").querySelector(".opt")); }
 });
 function showResult(){
   renderDots();
@@ -1520,7 +1620,9 @@ function showResult(){
   $("quizResult").classList.remove("hidden");
   $("finalScore").textContent=`總分 ${fmt(score)} / ${maxScore()}`;
   $("finalRank").textContent=rankOf(score);
-  $("quizResult").scrollIntoView({behavior:"smooth",block:"start"});
+  $("finalMust").innerHTML=[MUST.acid,MUST.base,MUST.neutral].map(s=>`<li>${s}</li>`).join("");   /* 收束：必會 3 句從 MUST 產生，不另外手打 */
+  $("quizResult").scrollIntoView({behavior:SMOOTH,block:"start"});
+  focusTo($("finalScore"));
 }
 function restartQuiz(){
   qi=0; score=0;
@@ -1537,7 +1639,7 @@ function setMode(m){
 }
 $("modeClass").addEventListener("click",()=>setMode("class"));
 $("modeAll").addEventListener("click",()=>setMode("all"));
-$("againBtn").addEventListener("click",()=>{ restartQuiz(); $("quizPanel").scrollIntoView({block:"start"}); });
+$("againBtn").addEventListener("click",()=>{ restartQuiz(); $("quizPanel").scrollIntoView({block:"start"}); focusTo($("q1opts").querySelector(".opt")); });
 restartQuiz();
 
 /* ---------- 開頁：網址有 #站名 就直接跳過去 ---------- */

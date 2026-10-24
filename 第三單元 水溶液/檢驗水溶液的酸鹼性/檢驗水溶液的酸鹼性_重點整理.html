@@ -39,6 +39,10 @@
     .keytab td.grp{font-weight:800;color:var(--c-brandS);background:#fffaf1;}
     .keytab td.nw{white-space:nowrap;}
     .nobr{white-space:nowrap;}
+    /* 表格裡的詞不從中間斷開，只在標點、空格換行（手機改回一般斷行） */
+    .keytab td{word-break:keep-all;}
+    /* 只放大文字時，放不下的格子還是可以斷開，表格不會撐出畫面 */
+    .keytab td:not(.grp){overflow-wrap:anywhere;}
     /* 階梯圖（步驟） */
     .ladder{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;
       background:#fff;border:1px solid #ece3d6;border-radius:12px;padding:16px;margin:14px 0;
@@ -139,6 +143,7 @@
       .keytab{font-size:.88em;}
       .keytab th,.keytab td{padding:7px 5px;}
       .keytab td.nw{white-space:normal;}
+      .keytab td{word-break:normal;}
       .btn{padding:12px 20px;}
       .ladder{gap:6px;padding:12px;}
       .ladder .step{min-width:96px;}
@@ -223,7 +228,7 @@
         <tr><td class="grp">中性水溶液</td><td class="no">不變色</td><td class="no">不變色</td></tr>
         <tr><td class="grp">鹼性水溶液</td><td class="no">不變色</td><td class="chg">變藍色</td></tr>
       </table>
-      <div class="keypoint soft">🔍 <b>先看藍色石蕊試紙：變紅色＝酸性。再看紅色石蕊試紙：變藍色＝鹼性。兩種都不變色＝中性。</b></div>
+      <div class="keypoint soft">🔍 <b>先看藍色石蕊試紙：變紅色＝酸性。再看紅色石蕊試紙：變藍色＝鹼性。<span class="nobr">兩種都不變色＝中性。</span></b></div>
     </section>
 
     <section class="sec">
@@ -251,8 +256,8 @@
       </table>
       <div class="keypoint">
         <ul class="list">
-          <li>💡 <b>只用藍色石蕊試紙，不變色的可能是中性，也可能是鹼性，要再用紅色石蕊試紙才分得出來。</b></li>
-          <li>💡 <b>只用紅色石蕊試紙，不變色的可能是酸性，也可能是中性。</b></li>
+          <li>💡 <b>只用藍色石蕊試紙，不變色的可能是中性，也可能是鹼性，要再用紅色石蕊試紙<span class="nobr">才分得出來。</span></b></li>
+          <li>💡 <b>只用紅色石蕊試紙，不變色的可能是酸性，也可能是中性，要再用藍色石蕊試紙<span class="nobr">才分得出來。</span></b></li>
         </ul>
       </div>
     </section>
@@ -262,7 +267,7 @@
       <table class="keytab">
         <tr><th style="width:18%">性質</th><th style="width:40%">水溶液</th><th>石蕊試紙的變化</th></tr>
         <tr><td class="grp">酸性</td><td>醋、檸檬酸水</td><td class="l">藍色石蕊試紙<b>變紅色</b>；紅色石蕊試紙不變色</td></tr>
-        <tr><td class="grp">中性</td><td>食鹽水、糖水、純水</td><td class="l">兩種試紙都不變色</td></tr>
+        <tr><td class="grp">中性</td><td>食鹽水、糖水<br><span class="note">（對照用的純水也是中性，但純水不是水溶液）</span></td><td class="l">兩種試紙都不變色</td></tr>
         <tr><td class="grp">鹼性</td><td>小蘇打水、肥皂水</td><td class="l">紅色石蕊試紙<b>變藍色</b>；藍色石蕊試紙不變色</td></tr>
       </table>
     </section>
@@ -275,6 +280,7 @@
           <li>他發現從<b>石蕊地衣</b>提取的紫色液體，遇到酸變成紅色，遇到鹼變成藍色。</li>
           <li>他把石蕊地衣做成紅、藍兩種液體，把紙張浸進去、烘乾，就成了<b>石蕊試紙</b>。</li>
         </ol>
+        <p class="note">📌 這是課本裡的故事。波以耳的書裡真的寫過：紫羅蘭的汁液碰到鹽酸或醋會變紅色。</p>
         <p class="note">想一想：檸檬汁、醋也是酸性的，滴在紫羅蘭上<b>可能</b>也會讓花瓣變紅。鹽酸是很強的酸，這個實驗只聽故事，不在教室做。</p>
       </div>
     </section>
@@ -285,7 +291,7 @@
         <ul class="nope">
           <li>❌「藍色石蕊試紙不變色，就是中性」→ 不對！也可能是<b>鹼性</b>，要再用紅色石蕊試紙。</li>
           <li>❌「試紙可以直接放進水溶液裡沾」→ 不對！要用<b>滴管</b>滴在試紙上，以免影響水溶液原來的性質。</li>
-          <li>❌「小蘇打水會讓藍色石蕊試紙變紅色」→ 不對！小蘇打水是<b>鹼性</b>，會讓<b>紅色</b>石蕊試紙變藍色。</li>
+          <li>❌「小蘇打水會讓藍色石蕊試紙變紅色」→ 不對！小蘇打水是<b>鹼性</b>，會讓<b>紅色</b>石蕊試紙<span class="nobr">變藍色。</span></li>
           <li>❌「試紙沾溼後顏色變深，就是變色」→ 不對！沾溼變深<b>不是變色</b>，要和純水沾溼的試紙比。</li>
         </ul>
       </div>
@@ -293,7 +299,7 @@
 
     <section class="sec">
       <h2>⚠️ 安全</h2>
-      <div class="keypoint">強酸、強鹼會造成傷害，使用時要<b>戴手套、保持通風</b>（習作 33 頁）。不小心碰到要怎麼處理，〈混合水溶液的酸鹼性〉會學。<br>實驗室裡的東西<b>一律不嘗</b>；石蕊試紙一律用<b>鑷子</b>夾。</div>
+      <div class="keypoint">強酸、強鹼會造成傷害，使用時要<b>戴手套、保持通風</b>（習作 33 頁），也要戴<b>護目鏡</b>保護眼睛。不小心碰到，要馬上用<b>大量清水沖洗</b>並盡快送醫（〈混合水溶液的酸鹼性〉會再學）。<br>實驗室裡的東西<b>一律不嘗</b>；石蕊試紙一律用<b>鑷子</b>夾。</div>
     </section>
 
     <section class="sec">
