@@ -56,7 +56,7 @@ window.BANK = {
     { id: "u3", name: "第三單元 水溶液", topics: [
       { id: "u3-dissolve",  name: "溶解現象與重量",       pages: "課本 64–65" },
       { id: "u3-recover",   name: "把溶解的物質取回來",   pages: "課本 66" },
-      { id: "u3-props",     name: "水溶液的性質與配製",   pages: "課本 66–69" },
+      { id: "u3-props",     name: "水溶液的性質與配製",   pages: "課本 67–69" },
       { id: "u3-litmus",    name: "石蕊試紙檢驗酸鹼性",   pages: "課本 70–73、81" },
       { id: "u3-indicator", name: "自製酸鹼指示劑",       pages: "課本 74–75、80" },
       { id: "u3-mix",       name: "混合水溶液的酸鹼性",   pages: "課本 76–77" },
