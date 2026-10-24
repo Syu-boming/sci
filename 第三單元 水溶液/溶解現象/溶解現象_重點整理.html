@@ -90,6 +90,8 @@
       @page{size:A4;margin:14mm;}
       body{background:#fff;color:#000;font-size:11pt;line-height:1.5;}
       .site-header,.breadcrumb,.toolbar,.site-footer{display:none!important;}
+      /* 延伸閱讀和線上練習的連結不印，留在網頁上看 */
+      .no-print{display:none!important;}
       .keypoint,.keytab,.ladder,.extra,.eqbox{box-shadow:none;break-inside:avoid;}
       /* 保留分類底色，黑白印也看得出虛線／實線 */
       .keypoint.danger,.keytab th,.keytab td.grp,.extra{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
@@ -97,17 +99,19 @@
       .print-title small{font-size:9.5pt;font-weight:400;color:#555;margin-left:10px;}
       /* 每個段落整段不跨頁 */
       .sec{break-inside:avoid;}
-      h2{break-after:avoid;font-size:13pt;margin:.5em 0 .2em;}
+      /* 這一段太長，允許在步驟圖和表格之間換頁，整份才印得成 2 頁 */
+      .sec.split{break-inside:auto;}
+      h2{break-after:avoid;font-size:13pt;margin:.35em 0 .15em;}
       p{margin:.3em 0;}
-      .keypoint{padding:5px 10px;margin:5px 0;}
-      .keytab{margin:5px 0;}
-      .keytab th,.keytab td{padding:2px 8px;}
-      .ladder{padding:4px 6px;margin:5px 0;}
+      .keypoint{padding:4px 10px;margin:3px 0;}
+      .keytab{margin:4px 0;}
+      .keytab th,.keytab td{padding:1px 8px;}
+      .ladder{padding:3px 6px;margin:4px 0;}
       .nope li,.list li{margin:0;}
-      .step .box{font-size:1.3rem;}
-      .step .ds{line-height:1.45;}
+      .step .box{font-size:1.15rem;}
+      .step .ds{font-size:10pt;line-height:1.35;}
       .note{margin:2px 0 0;}
-      .eqbox{padding:4px 10px;margin:5px 0;}
+      .eqbox{padding:3px 10px;margin:4px 0;}
       .eqline{margin:0 0 3px;}
       .extra{padding:5px 14px;margin:6px 0 0;font-size:10pt;line-height:1.45;}
     }
@@ -234,7 +238,7 @@
       <div class="keypoint crit">💡 被溶解的是溶質，溶解其他物質的是溶劑。</div>
     </section>
 
-    <section class="sec">
+    <section class="sec split">
       <h2>⚖️ 用電子秤秤重（課本 65 頁）</h2>
       <div class="ladder v3 wide">
         <div class="step"><div class="box">💧</div><div class="nm">① 量水</div><div class="ds">用量筒量 <b>30</b> 毫升的水，倒進燒杯</div></div>
@@ -298,7 +302,7 @@
       </div>
     </section>
 
-    <aside class="extra sec">
+    <aside class="extra sec no-print">
       <div class="ttl">🔎 <b>想多知道一點（之後會學）</b><small>看看就好，不考</small></div>
       <ul>
         <li>食鹽溶解時，會分散成非常非常小的小粒子（眼睛、放大鏡、顯微鏡都看不到），均勻分布在水裡。</li>
@@ -306,7 +310,7 @@
       </ul>
     </aside>
 
-    <section class="sec">
+    <section class="sec no-print">
       <h2>🎯 想多練習</h2>
       <div class="keypoint soft">自由練習，<b>不是作業</b>；用眼 30 分鐘要休息 10 分鐘。<br>
         打開 <a class="ext" href="../../題庫/index.html?exam=exam2">第二次評量線上題庫</a> →「📚 主題練習」→ 選「<b>溶解現象與重量</b>」（課本 64–65）和「<b>把溶解的物質取回來</b>」（課本 66）。<br>
