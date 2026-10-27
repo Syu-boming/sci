@@ -1,0 +1,1871 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>帶電才會亮｜水溶液導電的粒子動畫</title>
+<link rel="icon" href="../../image/icon.svg" type="image/svg+xml">
+<style>
+/* ==========================================================
+   帶電才會亮 — 樣式表
+   使用情境：教室 75 吋觸控螢幕全班一起看、老師暫停提問；學生回家用手機、平板自己看。
+   沿用〈一顆也沒少〉〈水溶液的導電性〉的調色盤與元件。舞臺是電腦模擬的示意畫面，畫面上標「示意」。
+   白色字只放在深綠 #2E7D4F 上；顏色不是唯一線索：帶不帶電一律畫成＋、－記號，LED 亮不亮一律寫成字。
+   ========================================================== */
+:root{
+  --bg:#FDF6EC;
+  --ink:#1E1E1E;
+  --green:#58B159;
+  --green-dark:#2E7D4F;
+  --water:#4FB0E5;
+  --water-dark:#2E86C1;
+  --sun:#FFC93C;
+  --coral:#FF7F66;
+  --coral-dark:#E4574C;
+  --card:#FFFFFF;
+  --muted:#6B7A82;
+  --muted-dark:#5C6970;
+  --shadow:0 6px 18px rgba(46,86,110,.16);
+  --chrome:250px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  min-height:100vh;color:var(--ink);background:var(--bg);
+  font-family:-apple-system,"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif;
+  font-size:clamp(17px,1.9vw,22px);line-height:1.6;
+}
+#app{max-width:1500px;margin:0 auto;padding:12px 16px 40px}
+.hidden{display:none !important}
+
+/* ---------- 頁首 ---------- */
+.sitehead{margin-bottom:10px}
+.headrow{display:flex;align-items:center;gap:6px 16px;flex-wrap:wrap}
+.back{
+  display:inline-flex;align-items:center;min-height:44px;padding:4px 16px;
+  border:3px solid var(--ink);border-radius:999px;background:var(--card);color:var(--ink);
+  font-weight:800;text-decoration:none;box-shadow:0 3px 0 var(--ink);font-size:clamp(15px,1.4vw,18px);
+}
+.back:active{transform:translateY(2px);box-shadow:0 1px 0 var(--ink)}
+.sitehead h1{margin:0;font-size:clamp(22px,2.6vw,32px);font-weight:900;letter-spacing:.5px;line-height:1.25}
+.sitehead .sub{color:var(--muted-dark);font-size:clamp(13px,1.35vw,17px);font-weight:700}
+.sibs{display:flex;gap:8px;flex-wrap:wrap;margin-left:auto}
+.sibs a{
+  display:inline-flex;align-items:center;min-height:44px;padding:2px 14px;border:2px solid var(--ink);border-radius:999px;
+  background:#FFFDF8;color:var(--ink);font-weight:800;text-decoration:none;font-size:clamp(14px,1.3vw,17px);
+}
+.kochu{
+  margin:8px 0 0;background:#F2F8FC;border:3px dashed var(--water-dark);border-radius:14px;
+  padding:6px 14px;font-weight:800;font-size:clamp(14px,1.45vw,18px);line-height:1.5;
+}
+.kochu b{color:#1F5F8B}
+.tabsnav{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.tabbtn{
+  border:3px solid var(--ink);border-radius:999px;background:var(--card);color:var(--ink);
+  padding:6px 18px;font:inherit;font-size:clamp(15px,1.5vw,19px);font-weight:900;cursor:pointer;
+  box-shadow:0 3px 0 var(--ink);min-height:54px;line-height:1.25;
+}
+.tabbtn.on{background:var(--green-dark);color:#fff}
+.tabbtn .sm{display:none}
+.tabbtn:active{transform:translateY(2px);box-shadow:0 1px 0 var(--ink)}
+
+/* ---------- 播放器：舞臺＋側欄 ---------- */
+.player{display:grid;grid-template-columns:minmax(0,1fr);gap:14px;align-items:start}
+@media (min-width:1024px) and (orientation:landscape){
+  .player{grid-template-columns:minmax(0,1.6fr) minmax(320px,1fr)}
+}
+/* 側欄的順序：字幕和提問（或實驗臺、遊戲的按鈕）最前面，接著是圖例或 LED、石蕊試紙，章節按鈕放後面；
+   單欄（手機、平板直拿）時，捲一點就能同時看到動畫和字幕 */
+.side>.capbox,.side>.pane.lab,.side>.pane.game{order:-3}
+body[data-tab="anim"] .side>.legend{order:-2}
+body[data-tab="lab"] .side>.status,body[data-tab="game"] .side>.status{order:-2}
+@media (min-width:1024px) and (orientation:landscape) and (max-aspect-ratio:16/9){
+  .player{grid-template-columns:minmax(0,2.6fr) minmax(320px,1fr)}
+}
+@media (min-width:1024px) and (max-width:1279px) and (orientation:landscape){
+  body[data-tab="anim"] .side>.status{order:-2}
+}
+.player:fullscreen{background:var(--bg);padding:14px 18px;overflow:auto}
+.player:-webkit-full-screen{background:var(--bg);padding:14px 18px;overflow:auto}
+.stagecol{min-width:0}
+.stage{
+  position:relative;width:min(100%, calc((100vh - var(--chrome)) * var(--ar,2.1)));min-width:min(100%,300px);
+  aspect-ratio:var(--ar,2.1);margin:0 auto;
+  background:#FFFDF8;border:3px solid var(--ink);border-radius:20px;overflow:hidden;box-shadow:var(--shadow);
+}
+.player:fullscreen .stage{width:min(100%, calc((100vh - 120px) * var(--ar,2.1)))}
+.stage canvas{position:absolute;display:block;left:0;top:0;border-radius:10px;pointer-events:none}
+.stage > svg{position:absolute;left:0;top:0;width:100%;height:100%;display:block;pointer-events:none}
+.stage .sw{pointer-events:all;cursor:pointer}
+.stage .sw:focus{outline:none}
+.stage .sw:focus-visible .swtrack{stroke:var(--water-dark);stroke-width:6}
+.stage.locked .sw{pointer-events:none;cursor:default}
+
+/* 控制列 */
+.ctrls{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:12px}
+.cbtn{
+  border:3px solid var(--ink);border-radius:999px;background:var(--card);color:var(--ink);
+  font:inherit;font-weight:900;padding:6px 16px;min-height:52px;cursor:pointer;
+  box-shadow:0 3px 0 var(--ink);font-size:clamp(15px,1.5vw,19px);line-height:1.2;text-decoration:none;
+  display:inline-flex;align-items:center;justify-content:center;
+}
+.cbtn:active{transform:translateY(2px);box-shadow:0 1px 0 var(--ink)}
+.cbtn.main{background:var(--sun);min-width:7.2em}
+.cbtn[aria-pressed="true"]{background:var(--green-dark);color:#fff}
+.cbtn[disabled]{opacity:.45;cursor:not-allowed}
+.toggles{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.toggles .cbtn{flex:1 1 auto}
+body:not([data-tab="anim"]) #bSpeed{display:none}
+.hint{color:var(--muted-dark);font-weight:800;font-size:clamp(13px,1.3vw,16px);margin:8px 0 0;line-height:1.45}
+
+/* 側欄 */
+.side{display:flex;flex-direction:column;gap:12px;min-width:0}
+.panel{background:var(--card);border:3px solid var(--ink);border-radius:20px;padding:12px 16px;box-shadow:var(--shadow)}
+.pane{display:none}
+body[data-tab="anim"] .pane.anim, body[data-tab="lab"] .pane.lab, body[data-tab="game"] .pane.game{display:block}
+body[data-tab="anim"] .ctrls.anim{display:flex}
+.ctrls.anim{display:none}
+.ptitle{font-weight:900;font-size:clamp(18px,2vw,25px);margin:0 0 8px;line-height:1.35}
+.chaps{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.chap{
+  border:3px solid var(--ink);border-radius:16px;background:var(--card);color:var(--ink);font:inherit;
+  font-weight:900;padding:6px 10px;min-height:56px;cursor:pointer;box-shadow:0 3px 0 var(--ink);line-height:1.25;
+  font-size:clamp(15px,1.5vw,19px);
+}
+.chap.quick{grid-column:1 / -1;background:#FFF3C4}
+.chap.on{background:var(--green-dark);color:#fff}
+.pills{list-style:none;margin:10px 0 0;padding:0;display:flex;flex-wrap:wrap;gap:6px}
+.pill{
+  border:3px solid var(--ink);border-radius:999px;background:#FFFDF8;color:var(--ink);font:inherit;font-weight:900;
+  min-height:46px;padding:2px 12px;cursor:pointer;font-size:clamp(14px,1.35vw,17px);
+}
+.pill.on{background:var(--sun)}
+.pill.done{background:#EAF7EE}
+.steptitle{font-weight:900;color:var(--green-dark);font-size:clamp(16px,1.6vw,20px)}
+.cap{margin:6px 0 0;font-weight:900;font-size:clamp(19px,2.2vw,28px);line-height:1.5;min-height:4.6em}
+.cap .ev{display:block;margin-top:6px;font-size:.82em;line-height:1.55}
+.ask{
+  background:#FFF6D8;border:3px dashed var(--sun);border-radius:16px;
+  padding:10px 14px;font-weight:900;font-size:clamp(18px,2vw,25px);text-align:center;margin-top:8px;
+}
+.btnrow{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:10px}
+.btn{
+  border:3px solid var(--ink);border-radius:999px;background:var(--sun);color:var(--ink);
+  padding:8px 22px;font:inherit;font-weight:900;cursor:pointer;box-shadow:0 4px 0 var(--ink);min-height:52px;
+  display:inline-flex;align-items:center;justify-content:center;text-decoration:none;text-align:center;line-height:1.3;
+}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--ink)}
+.btn.plain{background:var(--card)}
+.btn.green{background:var(--green-dark);color:#fff}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.btn.green[disabled]{opacity:1;background:#E6E1D6;color:#5B666C;box-shadow:0 4px 0 #9A9486}
+.bigpoint{
+  margin-top:10px;background:#EAF7EE;border:3px solid var(--green-dark);border-radius:18px;
+  padding:10px 14px;font-weight:900;font-size:clamp(18px,2vw,26px);text-align:center;color:var(--green-dark);
+}
+.bigpoint small{display:block;margin-top:6px;font-size:.72em;color:#2F5E43;font-weight:800}
+.must{display:block;font-size:.62em;color:#2F5E43;letter-spacing:1px;margin-bottom:2px}
+
+/* LED、石蕊試紙的狀態 */
+.status{display:grid;gap:8px}
+.ledline{display:flex;align-items:center;gap:10px;font-weight:900;font-size:clamp(17px,1.8vw,23px)}
+.ledbulb{flex:none;width:30px;height:30px;border-radius:50%;border:3px solid var(--ink);background:#E8B4B4}
+.ledbulb.l1{background:#FF7B7B;box-shadow:0 0 0 5px #FFE9A6}
+.ledbulb.l2{background:#FF4D4D;box-shadow:0 0 0 7px #FFE58A,0 0 0 10px #FFF3C4}
+.litmus{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-start}
+.strip{display:flex;flex-direction:column;align-items:center;gap:2px;font-weight:800;font-size:clamp(13px,1.3vw,16px);text-align:center;min-width:6.5em}
+.strip i{display:block;width:30px;height:62px;border:3px solid var(--ink);border-radius:6px;transition:background-color .8s ease}
+.strip .res{color:var(--muted-dark)}
+.strip .res b{color:var(--ink)}
+.lmres{font-weight:900;font-size:clamp(15px,1.5vw,19px);line-height:1.45;flex:1 1 12em}
+.lmres .why{display:block;font-weight:800;color:var(--muted-dark);font-size:.9em}
+
+/* 圖例 */
+.legend{display:grid;gap:6px;font-weight:800;font-size:clamp(14px,1.4vw,18px);line-height:1.35}
+.legend .row{display:flex;align-items:center;gap:10px}
+.legend .row svg{flex:none;width:34px;height:34px}
+.legend .grp{font-weight:900;margin-top:4px}
+.legend .shiyi{color:var(--muted-dark);font-size:.85em;font-weight:700}
+.legend .jhnote{background:#F2F8FC;border:2px dashed var(--water-dark);border-radius:12px;padding:6px 10px;font-size:.9em}
+
+/* 🧪 自己試試看 */
+.cupgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(7.2em,1fr));gap:8px}
+.cupbtn{
+  border:3px solid var(--ink);border-radius:16px;background:var(--card);color:var(--ink);font:inherit;font-weight:900;
+  min-height:56px;padding:4px 8px;cursor:pointer;box-shadow:0 3px 0 var(--ink);line-height:1.2;font-size:clamp(15px,1.5vw,19px);
+}
+.cupbtn small{display:block;font-size:.72em;color:var(--muted-dark);font-weight:800}
+.cupbtn.on{background:var(--green-dark);color:#fff}
+.cupbtn.on small{color:#fff}
+.labacts{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.labacts .btn{flex:1 1 auto;min-height:54px;padding:6px 14px;font-size:clamp(15px,1.5vw,19px)}
+.labnote{margin-top:10px;font-weight:800;font-size:clamp(15px,1.5vw,19px);line-height:1.5;min-height:3em}
+.safe{background:#FBE3E1;border:3px solid var(--coral-dark);border-radius:14px;padding:6px 12px;font-weight:800;color:#8E2A22;margin:10px 0 0;font-size:clamp(14px,1.4vw,17px);line-height:1.5}
+.judge{background:#EAF7EE;border:3px solid var(--green-dark);border-radius:14px;padding:6px 12px;font-weight:800;margin:10px 0 0;font-size:clamp(14px,1.4vw,17px);line-height:1.5}
+
+/* 🎮 LED 亮不亮？ */
+.modes{display:flex;gap:8px;flex-wrap:wrap}
+.modes .cbtn{flex:1 1 10em}
+.rules{margin:8px 0 0;padding-left:1.4em;font-weight:800;line-height:1.55;font-size:clamp(14px,1.45vw,18px)}
+.hud{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;font-weight:900;font-size:clamp(15px,1.55vw,20px);
+  background:#FFFDF8;border:3px solid var(--ink);border-radius:16px;padding:6px 12px}
+.hud .team{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:0 10px;border:3px solid transparent}
+.hud .team.t1{color:#286b8b}
+.hud .team.t2{color:#ad5a2f}
+.hud .team.now{border-color:currentColor;background:#fff}
+.gq{font-weight:900;font-size:clamp(18px,2vw,25px);margin:10px 0 0;line-height:1.45}
+.gbtns{display:grid;grid-template-columns:repeat(auto-fit,minmax(9em,1fr));gap:8px;margin-top:10px}
+.gbtns .btn{min-height:58px;padding:6px 12px;font-size:clamp(16px,1.7vw,21px)}
+.gbtns .btn.ticket{background:#DDEFF8}
+.gfb{margin-top:10px;font-weight:800;border-radius:14px;line-height:1.5;font-size:clamp(15px,1.55vw,20px)}
+.gfb:empty{display:none}
+.gfb.good{background:#EAF7EE;border:3px solid var(--green-dark);padding:8px 12px}
+.gfb.bad{background:#FBE3E1;border:3px solid var(--coral-dark);padding:8px 12px}
+.gfb .pts{font-weight:900}
+.gfb .crit{display:block;margin-top:6px;color:#2F5E43;font-weight:900}
+.gfb .who{display:block;margin-top:6px;color:var(--muted-dark)}
+.sndrow{display:flex;justify-content:flex-end;margin-top:8px}
+.sndrow .cbtn{min-height:44px;font-size:clamp(13px,1.3vw,16px);padding:2px 12px}
+
+/* 看完了／結算 */
+.summary,.gameend{margin-top:16px}
+.summary h2,.gameend h2{margin:0 0 10px;font-size:clamp(20px,2.3vw,30px);font-weight:900}
+.tblwrap{overflow-x:auto}
+.sumtab{width:100%;border-collapse:collapse;background:#fff;font-weight:800;font-size:clamp(14px,1.55vw,20px)}
+.sumtab th,.sumtab td{border:3px solid var(--ink);padding:6px 8px;line-height:1.4;vertical-align:middle;text-align:left}
+.sumtab th{background:#F2EEE4}
+.sumtab td.icons svg{width:30px;height:30px;vertical-align:middle;margin-right:2px}
+.sumtab td.led b{font-weight:900}
+.board{display:grid;grid-template-columns:minmax(5.5em,.8fr) repeat(3,minmax(0,1fr));gap:6px;margin-top:6px}
+.board .h{font-weight:900;text-align:center;background:#F2EEE4;border:3px solid var(--ink);border-radius:12px;padding:4px;display:flex;align-items:center;justify-content:center;line-height:1.3}
+.board .c{border:3px solid var(--ink);border-radius:12px;background:#fff;min-height:5.2em;padding:6px;display:flex;flex-wrap:wrap;gap:6px;align-content:flex-start}
+.board .c.lit{background:#FFFBEA}
+.board .chip{border:2px solid var(--ink);border-radius:999px;padding:0 10px;font-weight:900;background:#fff;line-height:1.6;font-size:clamp(13px,1.4vw,18px)}
+.board .chip small{font-weight:800;color:var(--muted-dark)}
+.board .none{color:var(--muted-dark);font-weight:800;font-size:.85em}
+
+/* 給老師 */
+.teacher-tip{
+  margin:18px 0 0;font-size:clamp(13px,1.4vw,16px);color:var(--muted-dark);
+  border-left:5px solid var(--sun);padding:6px 12px;background:#FFFCF2;border-radius:0 10px 10px 0;
+}
+.teacher-tip b.time{color:#7A5B00}
+.teacher-tip p{margin:4px 0}
+.credits{font-size:clamp(12px,1.2vw,15px);color:var(--muted-dark);margin-top:20px;line-height:1.55;border-top:2px dashed #D9CFBE;padding-top:12px}
+.credits p{margin:4px 0}
+.credits a{color:var(--muted-dark)}
+
+@media (max-width:640px){
+  #app{padding:10px 10px 28px}
+  .panel{border-radius:14px;padding:10px 12px}
+  .cbtn{padding:4px 10px;min-height:48px;font-size:15px}
+  .cap{min-height:5.6em}
+  .sibs{margin-left:0}
+  .tabsnav{flex-wrap:nowrap;gap:6px}
+  .tabbtn{flex:1 1 0;padding:4px 6px;font-size:15px;min-height:48px}
+  .tabbtn .lg{display:none}
+  .tabbtn .sm{display:inline}
+  .sitehead .sub{display:none}
+  .sibs a{min-height:44px;font-size:13px;padding:2px 10px}
+  .sibs a+a{display:none}
+  .kochu{font-size:13px;padding:4px 10px}
+  .kochu .kmore{display:none}
+  .board{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .board .h:first-child{display:none}
+  .board .rh{grid-column:1 / -1;justify-content:flex-start}
+  .board .chip{border-radius:12px}
+  .board .chip small{display:block}
+  .sumtab{min-width:520px}
+  .sumtab td.icons svg{width:24px;height:24px}
+}
+@media (max-width:1023px){
+  .cupbtn small,.must,.legend .shiyi{font-size:12.5px}
+}
+/* 筆電（矮螢幕，含 iPad 橫拿）：把小字收起來，讓舞臺和字幕放得下 */
+@media (min-width:1024px) and (max-height:800px){
+  .sitehead .sub,.kochu{display:none}
+  .tabsnav{margin-top:6px}
+  .cap{min-height:3.4em}
+}
+/* 平板直拿：頁首比較高，舞臺縮一點，下面的控制列才看得到 */
+@media (orientation:portrait) and (min-width:641px){
+  :root{--chrome:330px}
+  .sitehead .sub{display:none}
+}
+@media (max-height:520px){
+  :root{--chrome:135px}
+  .kochu,.sitehead .sub,.sibs,.sitehead h1{display:none}
+  .sitehead{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .sitehead .tabsnav{margin-top:0;flex:1}
+  .tabbtn{min-height:44px}
+}
+@media (min-width:1800px){
+  body{font-size:26px}
+  #app{max-width:2000px;padding:20px 30px 60px}
+  .sitehead h1{font-size:38px}
+  .back,.sibs a{min-height:60px;font-size:21px;padding:4px 22px}
+  .tabbtn{min-height:70px;font-size:24px;padding:8px 26px}
+  .kochu{font-size:21px}
+  .cbtn{min-height:70px;font-size:24px;padding:8px 26px}
+  .chap{min-height:72px;font-size:24px}
+  .pill{min-height:60px;font-size:22px;padding:4px 18px}
+  .steptitle{font-size:24px}
+  .cap{font-size:34px}
+  .ask{font-size:30px}
+  .bigpoint{font-size:32px}
+  .legend{font-size:22px}
+  .legend .row svg{width:44px;height:44px}
+  .hint{font-size:20px}
+  .teacher-tip{font-size:19px}
+  .credits{font-size:16px}
+  .btn{min-height:68px;padding:10px 30px}
+  .ptitle{font-size:30px}
+  .ledline{font-size:28px}
+  .ledbulb{width:40px;height:40px}
+  .strip{font-size:19px}
+  .strip i{width:40px;height:80px}
+  .lmres{font-size:23px}
+  .cupbtn{min-height:72px;font-size:24px}
+  .labacts .btn{min-height:68px;font-size:23px}
+  .labnote,.gfb{font-size:24px}
+  .safe,.judge{font-size:20px}
+  .hud{font-size:24px}
+  .gq{font-size:30px}
+  .gbtns .btn{min-height:74px;font-size:25px}
+  .rules{font-size:21px}
+  .sumtab{font-size:24px}
+  .sumtab td.icons svg{width:40px;height:40px}
+  .board .chip{font-size:22px}
+}
+@media (min-width:2200px){
+  #app{max-width:2400px}
+}
+@media (min-width:2600px){
+  body{font-size:34px}
+  #app{max-width:2800px}
+  .sitehead h1{font-size:50px}
+  .back,.sibs a{min-height:80px;font-size:28px}
+  .tabbtn{min-height:92px;font-size:32px}
+  .kochu{font-size:28px}
+  .cbtn{min-height:92px;font-size:32px;padding:10px 34px}
+  .chap{min-height:96px;font-size:32px}
+  .pill{min-height:80px;font-size:29px}
+  .steptitle{font-size:31px}
+  .cap{font-size:44px}
+  .ask{font-size:39px}
+  .bigpoint{font-size:42px}
+  .legend{font-size:29px}
+  .legend .row svg{width:58px;height:58px}
+  .hint{font-size:26px}
+  .teacher-tip{font-size:25px}
+  .credits{font-size:21px}
+  .btn{min-height:88px}
+  .ptitle{font-size:39px}
+  .ledline{font-size:36px}
+  .ledbulb{width:52px;height:52px}
+  .strip{font-size:25px}
+  .strip i{width:52px;height:104px}
+  .lmres{font-size:30px}
+  .cupbtn{min-height:94px;font-size:31px}
+  .labacts .btn{min-height:88px;font-size:30px}
+  .labnote,.gfb{font-size:31px}
+  .safe,.judge{font-size:26px}
+  .hud{font-size:31px}
+  .gq{font-size:39px}
+  .gbtns .btn{min-height:96px;font-size:32px}
+  .rules{font-size:27px}
+  .sumtab{font-size:31px}
+  .sumtab td.icons svg{width:52px;height:52px}
+  .board .chip{font-size:29px}
+}
+@media (prefers-reduced-motion:reduce){
+  .strip i{transition:none}
+}
+</style>
+</head>
+<body data-tab="anim">
+<div id="app">
+
+  <header class="sitehead">
+    <div class="headrow">
+      <a class="back" href="../../index.html">← 回教材首頁</a>
+      <h1>帶電才會亮</h1>
+      <span class="sub">五年級自然｜第三單元 水溶液　補充教材：為什麼有些水溶液容易導電（課本 78–79 頁）</span>
+      <span class="sibs">
+        <a href="../水溶液的導電性/水溶液的導電性_互動教材.html#demo">↩ 回〈水溶液的導電性〉③ 示範 5 杯</a>
+        <a href="../補充教材%20一顆也沒少/一顆也沒少_互動教材.html">〈一顆也沒少〉</a>
+      </span>
+    </div>
+    <p class="kochu">🔭 <b>國中才會學・看看就好，不考</b><span class="kmore">｜用「想像的超級放大鏡」看水溶液裡的小粒子。每一杯水溶液裡，正電和負電一樣多，<b>整杯水溶液不帶電</b>；是裡面有<b>帶電的小粒子</b>，通電時被拉著往兩邊移動，LED 才會亮。</span></p>
+    <nav class="tabsnav" aria-label="分頁">
+      <button type="button" class="tabbtn on" data-tab="anim" aria-current="page">▶ <span class="lg">粒子</span>動畫</button>
+      <button type="button" class="tabbtn" data-tab="lab">🧪 <span class="lg">自己</span>試試看</button>
+      <button type="button" class="tabbtn" data-tab="game">🎮 <span class="lg">LED 亮不亮？</span><span class="sm">遊戲</span></button>
+    </nav>
+  </header>
+
+  <section class="player" id="player" aria-label="水溶液導電的粒子動畫">
+    <div class="stagecol">
+      <div class="stage" id="stage" role="img" aria-label="示意動畫">
+        <canvas id="cvA" aria-hidden="true"></canvas>
+        <canvas id="cvB" aria-hidden="true"></canvas>
+        <svg id="svg" xmlns="http://www.w3.org/2000/svg" font-family="Microsoft JhengHei,PingFang TC,Noto Sans TC,sans-serif" aria-hidden="true"></svg>
+      </div>
+      <div class="ctrls anim" role="toolbar" aria-label="動畫控制">
+        <button type="button" class="cbtn" id="bPrev">⏮ 上一步</button>
+        <button type="button" class="cbtn main" id="bPlay">▶ 播放</button>
+        <button type="button" class="cbtn" id="bNext">下一步 ⏭</button>
+        <button type="button" class="cbtn" id="bReplay">↺ 重播這一步</button>
+      </div>
+    </div>
+
+    <aside class="side">
+      <!-- ▶ 粒子動畫 -->
+      <div class="panel pane anim">
+        <div class="chaps">
+          <button type="button" class="chap quick" data-ch="q">⚡ 3 分鐘快速版</button>
+          <button type="button" class="chap" data-ch="1">① 電要怎麼通過水溶液？</button>
+          <button type="button" class="chap" data-ch="2">② 純水、食鹽、糖</button>
+          <button type="button" class="chap" data-ch="3">③ 酸和鹼</button>
+          <button type="button" class="chap" data-ch="4">④ 兩種偵測器</button>
+        </div>
+        <ol class="pills" id="pills" aria-label="步驟"></ol>
+      </div>
+      <div class="panel pane anim capbox">
+        <div class="steptitle" id="stTitle"></div>
+        <p class="cap" id="cap" aria-live="polite"></p>
+        <div class="hidden" id="qbox">
+          <div class="ask" id="qAsk"></div>
+          <div class="btnrow"><button type="button" class="btn plain" id="qBtn">🔍 看答案</button></div>
+          <div class="bigpoint hidden" id="qAns" aria-live="polite"></div>
+          <div class="btnrow hidden" id="toSumRow"><button type="button" class="btn green" id="toSum">🎉 往下看總結</button></div>
+        </div>
+      </div>
+
+      <!-- 🧪 自己試試看 -->
+      <div class="panel pane lab">
+        <p class="ptitle">🧪 自己試試看：選一杯</p>
+        <div class="cupgrid" id="labCups" role="group" aria-label="選一杯水溶液"></div>
+        <div class="labacts">
+          <button type="button" class="btn" id="lAdd">➕ 加進去</button>
+          <button type="button" class="btn plain" id="lSw" aria-pressed="false">🔋 開關：關</button>
+          <button type="button" class="btn plain" id="lLit">💧 滴石蕊試紙</button>
+          <button type="button" class="btn plain" id="lMore">➕ 再加一匙糖</button>
+          <button type="button" class="btn plain" id="lReset">↺ 重來</button>
+        </div>
+        <p class="labnote" id="labNote" aria-live="polite"></p>
+        <p class="judge">💡 在電路正常、兩條電線分開的情況下：LED 發亮＝電路形成通路＝這杯水溶液容易導電；微微亮也算亮。不同水溶液的性質不同，LED 的亮度也可能不同。</p>
+        <p class="safe">✋ 這個實驗由老師示範，回家不做；電線、LED 只接電池，絕對不碰插座。</p>
+      </div>
+
+      <!-- 🎮 LED 亮不亮？ -->
+      <div class="panel pane game" id="gamePanel">
+        <div id="gSetup">
+          <p class="ptitle">🎮 LED 亮不亮？神祕杯挑戰</p>
+          <div class="modes" role="group" aria-label="玩法">
+            <button type="button" class="cbtn" id="gSolo" aria-pressed="true">👤 單人（或全班一起）</button>
+            <button type="button" class="cbtn" id="gTeam" aria-pressed="false">👥 兩隊輪流</button>
+          </div>
+          <ol class="rules" id="gRules"></ol>
+          <div class="btnrow"><button type="button" class="btn green" id="gStart">開始挑戰 →</button></div>
+        </div>
+        <div id="gPlay" class="hidden">
+          <div class="hud" id="gHud"></div>
+          <p class="gq" id="gQ"></p>
+          <div class="gbtns" id="gBtns"></div>
+          <div class="gfb" id="gFb" aria-live="polite"></div>
+          <div class="btnrow"><button type="button" class="btn green hidden" id="gNext">下一杯 →</button></div>
+          <div class="sndrow"><button type="button" class="cbtn" id="gSnd" aria-pressed="true">🔊 音效：開</button></div>
+        </div>
+      </div>
+
+      <!-- 共用：LED、石蕊試紙 -->
+      <div class="panel status" id="statusPanel">
+        <div class="ledline"><span class="ledbulb" id="sBulb" aria-hidden="true"></span><span id="sLed">LED：不亮</span></div>
+        <div class="litmus">
+          <div class="strip"><i id="stBlue" style="background:#9CC3EC"></i>藍色石蕊試紙<span class="res" id="stBlueR">還沒滴</span></div>
+          <div class="strip"><i id="stRed" style="background:#F3B0B0"></i>紅色石蕊試紙<span class="res" id="stRedR">還沒滴</span></div>
+          <div class="lmres" id="stRes"></div>
+        </div>
+      </div>
+
+      <!-- 共用：圖例 -->
+      <div class="panel legend" id="legend" aria-label="圖例">
+        <div id="legRows"></div>
+        <div class="jhnote hidden" id="jhNote">🔭 國中會學：帶電的小粒子叫做「離子」；溶在水裡會分成離子的物質叫做「電解質」（運動飲料上寫的「電解質」就是這個意思）。</div>
+        <div class="toggles">
+          <button type="button" class="cbtn" id="bJh" aria-pressed="false">🔭 國中名稱</button>
+          <button type="button" class="cbtn" id="bFaint" aria-pressed="false">💧 水的小粒子畫淡一點</button>
+          <button type="button" class="cbtn" id="bSpeed">速度 1×</button>
+          <button type="button" class="cbtn" id="bFull">⛶ 全螢幕</button>
+        </div>
+        <div class="row shiyi">顏色只是為了分辨是哪一種小粒子，真正的小粒子沒有顏色；帶不帶電看＋、－記號。整個畫面是電腦模擬的示意圖。</div>
+      </div>
+    </aside>
+  </section>
+
+  <section class="panel summary hidden" id="summary">
+    <h2>🎉 看完了！為什麼有的容易導電、有的不容易？</h2>
+    <div class="tblwrap">
+      <table class="sumtab" aria-label="四杯水溶液的小粒子、石蕊試紙和 LED">
+        <tr><th>水溶液</th><th>放大看（想像）</th><th>石蕊試紙</th><th>LED</th></tr>
+        <tr><th>醋（酸性）</th><td class="icons" id="sumVin"></td><td>藍色試紙變紅色</td><td class="led"><b>微微亮</b>（也算亮）</td></tr>
+        <tr><th>小蘇打水（鹼性）</th><td class="icons" id="sumSoda"></td><td>紅色試紙變藍色</td><td class="led"><b>發亮</b></td></tr>
+        <tr><th>食鹽水（中性）</th><td class="icons" id="sumSalt"></td><td>都不變色</td><td class="led"><b>發亮</b></td></tr>
+        <tr><th>糖水（中性）</th><td class="icons" id="sumSugar"></td><td>都不變色</td><td class="led"><b>不亮</b></td></tr>
+      </table>
+    </div>
+    <div class="bigpoint"><span class="must">想像的解釋（國中才會學・看看就好，不考）</span>酸性、鹼性水溶液裡，一定有讓它變酸、變鹼的帶電小粒子，所以容易導電；中性水溶液不一定，要看溶進去的東西會不會分成帶電的小粒子。</div>
+    <div class="bigpoint"><span class="must">課本這樣說（必會）</span>酸性和鹼性水溶液容易導電；中性水溶液不一定，食鹽水容易導電，糖水不容易導電。</div>
+    <div class="btnrow">
+      <button type="button" class="btn plain" id="againBtn">↺ 從頭再看一次</button>
+      <button type="button" class="btn" data-goto="lab">🧪 自己試試看</button>
+      <button type="button" class="btn green" data-goto="game">🎮 挑戰：LED 亮不亮？</button>
+    </div>
+  </section>
+
+  <section class="panel gameend hidden" id="gameEnd" aria-live="polite">
+    <h2 id="geTitle">🏁 挑戰結束！</h2>
+    <p class="gq" id="geScore"></p>
+    <div class="board" id="geBoard"></div>
+    <div class="bigpoint" id="geCrit"></div>
+    <p class="hint">真的實驗要用 LED 測；想像的小粒子是用來解釋「為什麼」。</p>
+    <div class="btnrow"><button type="button" class="btn green" id="geAgain">↺ 再玩一次</button><button type="button" class="btn plain" data-goto="anim">▶ 回去看動畫</button></div>
+  </section>
+
+  <div class="teacher-tip" id="tips">
+    <p><b class="time">給老師｜什麼時候用</b>（整頁都是「國中才會學・看看就好，不考」）</p>
+    <p><b>⚡ 3 分鐘快速版</b>：〈水溶液的導電性〉③ 示範 5 杯、判準卡之後播（或第 ⑩ 節單元三統整時）。三步：食鹽水和糖水一起通電 → 醋和小蘇打水先滴石蕊試紙再通電 → 結論板。每一步播完會自己停下來，問完「想一想」再按「下一步」。網址最後加 <b>#quick</b> 直接開到快速版。</p>
+    <p><b>完整版 ①～④</b>：動畫大約 3–4 分鐘，加上提問約 10 分鐘；課堂時間不夠，就請學生回家看。網址加 <b>#salt</b>、<b>#sugar</b>、<b>#acid</b>、<b>#base</b>、<b>#sum</b> 可以直接開到那一段。<b>🧪 自己試試看</b>給學生問「如果……會怎樣？」時用；<b>🎮 LED 亮不亮？</b>約 8 分鐘，第 ⑩ 節玩完〈水溶液偵探社〉還有時間再玩，或回家玩。</p>
+    <p><b>用語</b>：一律說「帶電的小粒子」「讓水溶液變酸（變鹼）的小粒子」。「🔭 國中名稱」開關預設關閉，打開才顯示國中會學的名稱，給好奇的學生。兩條銅線只說「左邊的」「右邊的」：LED 的短腳接的是左邊那條，課本說「短腳接負極那一邊」，如果用正極、負極來叫兩條銅線，會和必會句打架。頁名〈帶電才會亮〉指的是「裡面有帶電的小粒子」，整杯水溶液不帶電（每一杯的正電和負電一樣多）。</p>
+    <p><b>要留意的迷思</b>：①「水會導電」→ 純水是對照組：水的小粒子不帶電，LED 不亮（課本把純水當作配製用的水，示範不測、題庫也不考）。學生問「那為什麼手溼不能碰電器？」：平常的水、汗裡溶有其他物質，有帶電的小粒子。②「溶解了就會導電」「溶解的物質愈多，水溶液就愈容易導電」→ 糖加再多也不亮（素養題組〈小華的導電比較〉把後一句當作錯的選項）。③「酸＝帶正電、鹼＝帶負電」「整杯水溶液帶電」→ 每一杯正、負一樣多；食鹽水也有帶正電的小粒子，但不是讓水溶液變酸的那一種。④「LED 愈亮愈酸」→ 亮不亮看的是有沒有帶電、會移動的小粒子；醋只微微亮，是因為大多數醋的小粒子沒有分開。⑤ 學生問「鹽加多一點，LED 會更亮嗎？」→ 通常會亮一些（帶電的小粒子變多了），但不能說「溶解的東西愈多就愈容易導電」：糖加再多也不亮。</p>
+    <p><b>學生可能會問</b>：「小粒子走到銅線以後呢？」→ 銅線表面會發生變化，國中、高中會學。「放大鏡裡的小粒子跑出去又跑進來？」→ 放大鏡只看得到兩條銅線中間的一小段：有小粒子從一邊走出去，就有別的小粒子從另一邊走進來。</p>
+    <p><b>給老師參考（不用教）</b>：小蘇打、肥皂分開後的帶負電小粒子，會和水作用產生極少量的氫氧根離子，所以水溶液是鹼性；數量太少，畫面沒有畫。真的醋裡分開的醋酸大約只有百分之一，畫面把數量放大了。課本實驗的濃度，酸性、鹼性水溶液都能讓 LED 亮，照習作說「容易導電」。</p>
+    <p><b>三層差異化</b>：低＝看放大鏡說出「有沒有帶電的小粒子」「通電後會不會被拉著往兩邊走」；中＝說出食鹽水和糖水為什麼不一樣；高＝說出酸性、鹼性為什麼都容易導電、中性為什麼不一定，以及醋為什麼只微微亮。</p>
+    <p><b>操作</b>：鍵盤空白鍵播放／暫停、← → 上一步／下一步。暫停時小粒子還是一直在動（小粒子本來就一直在動），只是劇本停住。網址加 <b>?pause=1</b> 會先停在第一格。遊戲的放大鏡券照最好的用法一定夠用（中性的杯子每一杯一張）。</p>
+  </div>
+
+  <footer class="credits">
+    <p><b>教學依據：</b><a href="https://reader.nani.com.tw/9200a013cbef8e66" target="_blank" rel="noopener">南一自然五上課本</a>第 78–79 頁（水溶液的導電性）、第 82–83 頁（圖解筆記）；習作第 31 頁：酸性和鹼性水溶液容易導電，中性水溶液不一定會導電。純水是本頁另外加的對照組。</p>
+    <p><b>示意圖：</b>本頁所有畫面都是電腦模擬的示意圖。小粒子是「想像放大很多很多倍」畫出來的，真的放大鏡、顯微鏡都看不到；小粒子的大小、數量和移動的速度都經過放大或調整，顏色只是為了分辨。</p>
+    <p><b>延伸的杯子：</b>檸檬酸水（課本 69 頁配過，但沒有測導電）、酒精水、味精水、糖鹽水、葡萄糖水、石灰水（課本 80 頁）、運動飲料（課本 68 頁）課本都沒有測導電：檸檬酸水在「🧪 自己試試看」和遊戲裡，其他只在遊戲裡，回家不做。</p>
+    <p><b>相關：</b><a href="../水溶液的導電性/水溶液的導電性_互動教材.html">〈水溶液的導電性〉互動教材</a>｜<a href="../水溶液的導電性/水溶液的導電性_重點整理.html">重點整理</a>｜<a href="../補充教材%20一顆也沒少/一顆也沒少_互動教材.html">〈一顆也沒少〉</a>｜<a href="../補充教材%20水溶液偵探社/水溶液偵探社_互動教材.html">〈水溶液偵探社〉</a></p>
+  </footer>
+</div>
+
+<script>
+(function(){
+"use strict";
+/* ==========================================================
+   帶電才會亮 — 程式
+   科學內容（全頁一致，不可講錯）：
+   ・電路要通，兩條銅線中間的水溶液裡要有「帶電、而且會移動」的小粒子。
+   ・通電後右邊的銅線吸引帶正電的、左邊的銅線吸引帶負電的（正電和負電互相吸引）。
+     兩條銅線只叫「左邊／右邊」，不叫正極、負極（LED 短腳接左邊那條，課本說「短腳接負極那一邊」）。
+   ・純水（對照組，看看就好，不考）：水的小粒子不帶電 → 不亮。
+   ・食鹽：分成帶正電、帶負電兩種 → 亮。糖：整顆散開、不帶電 → 不亮；加得再多也不亮。
+   ・醋：大多數不分開，只有一些分開出「讓水溶液變酸的小粒子（＋）」→ 微微亮（微微亮也算亮）。
+   ・小蘇打、肥皂：分成＋、－兩種，帶負電的那一種會讓水溶液變鹼（不另外畫氫氧根）。石灰水才畫氫氧根。
+   ・每一杯的正電、負電一樣多，整杯水溶液不帶電。
+   ・LED 亮度只看這一杯「最後」有多少帶電的小粒子（固定值），不隨畫面裡的數量閃動；不做「鹽加更多會更亮」。
+   ========================================================== */
+const $=id=>document.getElementById(id);
+const clamp=(v,a,b)=>v<a?a:v>b?b:v;
+const lerp=(a,b,t)=>a+(b-a)*t;
+const smooth=t=>{t=clamp(t,0,1);return t*t*(3-2*t);};
+const QS=new URLSearchParams(location.search);
+const REDUCED=!!(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches);
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+/* ---------- 放大框的世界座標（單位：想像的長度） ---------- */
+const W=1000, H=640, V0=95, SUBDT=1/60, SUBCAP=6;
+const INK="#1E1E1E", EDGE="#4D5961";
+
+/* ---------- 小粒子的種類 ----------
+   q：帶電（＋1、－1、＋2）；r：半徑；D：亂動的程度；mob：被電池拉動的快慢
+   shape：c 圓、dia 菱形、sq 方、tri 三角、hex 六角、pill 膠囊、tad 長尾巴、duo 一大一小
+   h:true＝身上還黏著「會分開的那一小塊」（醋酸、檸檬酸沒分開時） */
+const KINDS={
+  water:{q:0,r:14,D:1400,shape:"c",fill:"#9ED3F2",stroke:"#2E86C1",kid:"水的小粒子",jh:"水分子（H₂O）"},
+  na:{q:1,r:21,D:650,mob:1,shape:"c",fill:"#FFFFFF",stroke:EDGE,kid:"帶正電的小粒子",jh:"鈉離子（Na⁺）"},
+  cl:{q:-1,r:27,D:600,mob:1,shape:"c",fill:"#FFFFFF",stroke:EDGE,kid:"帶負電的小粒子",jh:"氯離子（Cl⁻）"},
+  h:{q:1,r:16,D:900,mob:1.5,shape:"dia",fill:"#FFFFFF",stroke:EDGE,kid:"讓水溶液變酸的小粒子（帶正電）",jh:"氫離子（H⁺）"},
+  hco3:{q:-1,r:25,D:600,mob:0.9,shape:"sq",fill:"#DDF1E8",stroke:EDGE,kid:"帶負電的小粒子",jh:"碳酸氫根離子（HCO₃⁻）：會和水作用，產生少量氫氧根離子（OH⁻）"},
+  soap:{q:-1,r:20,D:420,mob:0.8,shape:"tad",fill:"#ECE2F7",stroke:EDGE,kid:"帶負電的小粒子（長尾巴）",jh:"脂肪酸根離子：會和水作用，產生少量氫氧根離子（OH⁻）"},
+  oh:{q:-1,r:20,D:800,mob:1.2,shape:"duo",fill:"#DDF1E8",stroke:EDGE,kid:"讓水溶液變鹼的小粒子（帶負電）",jh:"氫氧根離子（OH⁻）"},
+  ca:{q:2,r:23,D:550,mob:0.6,shape:"c",fill:"#FFFFFF",stroke:EDGE,kid:"帶正電的小粒子（帶得比較多）",jh:"鈣離子（Ca²⁺）"},
+  glu:{q:-1,r:30,D:450,mob:0.8,shape:"c",fill:"#F7E7D7",stroke:EDGE,kid:"帶負電的小粒子",jh:"麩胺酸根離子"},
+  sugar:{q:0,r:32,D:380,shape:"hex",fill:"#FFF4CC",stroke:"#8C7A3A",kid:"糖的小粒子（不帶電）",jh:"蔗糖分子"},
+  hac:{q:0,r:24,D:550,shape:"pill",h:true,fill:"#F4E3D3",stroke:"#8C6A55",kid:"醋的小粒子（沒有分開，不帶電）",jh:"醋酸分子"},
+  ac:{q:-1,r:24,D:550,mob:0.9,shape:"pill",fill:"#F4E3D3",stroke:EDGE,kid:"醋的小粒子分開後，剩下的另一部分（帶負電）",jh:"醋酸根離子"},
+  cit:{q:0,r:28,D:420,shape:"tri",h:true,fill:"#F8EBC9",stroke:"#8C7044",kid:"檸檬酸的小粒子（沒有分開，不帶電）",jh:"檸檬酸分子"},
+  citm:{q:-1,r:28,D:420,mob:0.8,shape:"tri",fill:"#F8EBC9",stroke:EDGE,kid:"檸檬酸的小粒子分開後，剩下的另一部分（帶負電）",jh:"檸檬酸二氫根離子"},
+  eth:{q:0,r:20,D:700,shape:"pill",fill:"#EDEDED",stroke:"#6F6F6F",kid:"酒精的小粒子（不帶電）",jh:"乙醇分子（酒精）"},
+  glc:{q:0,r:27,D:420,shape:"hex",fill:"#FDEBD8",stroke:"#9A6B3A",kid:"葡萄糖的小粒子（不帶電）",jh:"葡萄糖分子"}
+};
+/* 畫的順序：水 → 不帶電的 → 帶電的（帶電的在最上面） */
+const DRAW_ORDER=["sugar","glc","hac","cit","eth","glu","hco3","soap","cl","ac","citm","na","ca","oh","h"];
+
+/* ---------- 各杯 ----------
+   add.form：grain＝固體顆粒（排整齊，外層先散開）／pour＝液體倒進去
+   split：酸的小粒子有幾個會分開（固定數量，不會再合回去，LED 才不會忽亮忽暗）
+   leg：這一杯圖例的說法（沒寫的用 KINDS 的 kid）；base：讓水溶液變鹼的是哪一種 */
+const CHECK=(a,b)=>(i,j)=>(i+j)%2?b:a;
+const CUPS={
+  water:{name:"純水",ph:"neutral",note:"對照組，看看就好，不考",tag:"對照組",leg:{},who:"水的小粒子不帶電。"},
+  salt:{name:"食鹽水",ph:"neutral",add:{form:"grain",grid:[4,4],kinds:["na","cl"],pick:CHECK("na","cl"),dur:4.2},
+        leg:{na:"食鹽分開成的小粒子（帶正電）",cl:"食鹽分開成的小粒子（帶負電）"},who:"食鹽溶在水裡，分成帶正電和帶負電的小粒子。"},
+  sugar:{name:"糖水",ph:"neutral",more:true,add:{form:"grain",grid:[4,3],kinds:["sugar"],pick:()=>"sugar",dur:4.6},leg:{},who:"糖溶在水裡，小粒子一顆一顆散開，不會分開，不帶電。"},
+  vin:{name:"醋",ph:"acid",add:{form:"pour",items:[["hac",12]]},split:{from:"hac",to:"ac",n:2},leg:{},who:"醋只有一些小粒子分開成帶電的小粒子，所以 LED 只有微微亮。"},
+  cit:{name:"檸檬酸水",ph:"acid",note:"課本沒有測導電",add:{form:"grain",grid:[4,3],kinds:["cit"],pick:()=>"cit",dur:4.0},split:{from:"cit",to:"citm",n:3},leg:{},who:"檸檬酸也只有一些小粒子分開成帶電的小粒子。"},
+  soda:{name:"小蘇打水",ph:"base",base:["hco3"],add:{form:"grain",grid:[4,4],kinds:["na","hco3"],pick:CHECK("na","hco3"),dur:4.2},
+        leg:{na:"小蘇打分開成的小粒子（帶正電）",hco3:"小蘇打分開成的小粒子（帶負電）：會讓水溶液變鹼"},who:"小蘇打分成帶正電和帶負電的小粒子，帶負電的那一種會讓水溶液變鹼。"},
+  soap:{name:"肥皂水",ph:"base",base:["soap"],add:{form:"pour",items:[["na",4],["soap",4]]},
+        leg:{na:"肥皂分開成的小粒子（帶正電）",soap:"肥皂分開成的小粒子（帶負電、長尾巴）：會讓水溶液變鹼"},who:"肥皂分成帶正電和帶負電（長尾巴）的小粒子，長尾巴的那一種會讓水溶液變鹼。"},
+  /* 只出現在遊戲（課本沒有測導電） */
+  eth:{name:"酒精水",ph:"neutral",note:"課本沒有測",add:{form:"pour",items:[["eth",12]]},leg:{},
+       who:"酒精溶在水裡，小粒子一顆一顆散開，不會分開，不帶電。"},
+  sugsalt:{name:"糖鹽水",ph:"neutral",note:"課本沒有測",add:{form:"pour",items:[["sugar",4],["na",5],["cl",5]]},
+       leg:{sugar:"糖的小粒子（不帶電）",na:"食鹽分開成的小粒子（帶正電）",cl:"食鹽分開成的小粒子（帶負電）"},
+       who:"糖鹽水裡有糖，也有食鹽分成的帶電小粒子，所以 LED 會亮。"},
+  glc:{name:"葡萄糖水",ph:"neutral",note:"課本沒有測",add:{form:"grain",grid:[4,3],kinds:["glc"],pick:()=>"glc",dur:4.2},leg:{},
+       who:"葡萄糖溶在水裡，也是一顆一顆散開，不會分開，不帶電。"},
+  msg:{name:"味精水",ph:"neutral",note:"課本沒有測",add:{form:"grain",grid:[4,4],kinds:["na","glu"],pick:CHECK("na","glu"),dur:4.2},
+       leg:{na:"味精分開成的小粒子（帶正電）",glu:"味精分開成的小粒子（帶負電）"},who:"味精溶在水裡，和食鹽一樣會分成帶電的小粒子（大顆的也可能帶電）。"},
+  lime:{name:"石灰水",ph:"base",base:["oh"],note:"課本 80 頁有，但沒有測導電",add:{form:"grain",grid:[3,4],kinds:["ca","oh"],pick:(i)=>i===1?"ca":"oh",dur:4.0},
+        leg:{ca:"石灰分開成的小粒子（帶正電，帶得比較多）",oh:"石灰分開成的小粒子（帶負電）：會讓水溶液變鹼"},who:"石灰溶在水裡，分成帶正電的小粒子，和兩倍多的「讓水溶液變鹼的小粒子」。"},
+  sport:{name:"運動飲料",ph:"acid",note:"課本 68 頁有，但沒有測導電",add:{form:"pour",items:[["sugar",4],["na",3],["cl",1],["citm",2],["cit",2]]},split:{from:"cit",to:"citm",n:1},
+         leg:{na:"帶正電的小粒子",cl:"帶負電的小粒子"},who:"運動飲料裡有糖，也有會分成帶電小粒子的物質，還有讓它變酸的小粒子。"}
+};
+function cupKinds(c){ /* 這一杯最後會有的小粒子（含分開以後的） */
+  const out=[];
+  if(c.add){
+    if(c.add.form==="grain"){ const [cols,rows]=c.add.grid; for(let j=0;j<rows;j++) for(let i=0;i<cols;i++) out.push(c.add.pick(i,j)); }
+    else c.add.items.forEach(([k,n])=>{ for(let m=0;m<n;m++) out.push(k); });
+  }
+  if(c.split){ let n=c.split.n; for(let m=0;m<out.length&&n>0;m++) if(out[m]===c.split.from){ out[m]=c.split.to; out.push("h"); n--; } }
+  return out;
+}
+Object.keys(CUPS).forEach(k=>{
+  const c=CUPS[k], ks=cupKinds(c);
+  c.charge=ks.reduce((s,x)=>s+Math.abs(KINDS[x].q),0);
+  c.net=ks.reduce((s,x)=>s+KINDS[x].q,0);
+  c.level=c.charge>=10?2:c.charge>0?1:0;     /* 0 不亮、1 微微亮、2 發亮 */
+  c.kinds=[...new Set(["water"].concat(ks))];
+});
+const LED_TXT=["不亮","微微亮","發亮"];
+const PH_TXT={acid:"酸性",neutral:"中性",base:"鹼性"};
+
+/* ==========================================================
+   粒子模擬（一杯一個）
+   ========================================================== */
+const CELL=56, GW=Math.ceil(W/CELL), GH=Math.ceil(H/CELL);
+const HEAD=new Int32Array(GW*GH), NEXT=new Int32Array(1400);
+function makeSim(seed0){
+  const S={P:[],time:0,on:false,E:0,cupKey:"water",cup:CUPS.water,grain:null,added:false,
+           signA:1,revealT:-1,pulse:0,pulseKinds:[],flashes:[],acc:0,rig:null,cross:{pos:0,neg:0,neu:0}};
+  let rnd=mulberry32(seed0);
+  const gauss=()=>{let u=0;while(u===0)u=rnd();return Math.sqrt(-2*Math.log(u))*Math.cos(6.283185307*rnd());};
+  function P(k,x,y,st){ const p={k,x,y,kx:0,ky:0,st,ox:0,oy:0,th:0,t0:0,fade:1,willSplit:false,hP:null,split:-1}; S.P.push(p); return p; }
+  function reset(key,opt){
+    opt=opt||{};
+    rnd=mulberry32(opt.seed!=null?opt.seed:seed0);
+    S.P=[]; S.time=0; S.on=!!opt.on; S.E=S.on?1:0; S.cupKey=key; S.cup=CUPS[key]; S.grain=null; S.added=false;
+    S.signA=opt.signA!=null?opt.signA:1; S.revealT=-1; S.pulse=0; S.pulseKinds=[]; S.flashes=[]; S.acc=0; S.rig=null;
+    S.cross={pos:0,neg:0,neu:0}; S.moreN=0; S.holdUntil=0;
+    const cols=25, rows=12, dx=W/cols, dy=H/rows;
+    for(let j=0;j<rows;j++) for(let i=0;i<cols;i++) P("water",(i+0.5+(rnd()-0.5)*0.6)*dx,(j+0.5+(rnd()-0.5)*0.6)*dy,1);
+    if(opt.dissolved&&S.cup.add) placeAll();
+  }
+  /* 直接放成「已經溶解好」的樣子（跳到某一步時用） */
+  function placeAll(){
+    const ks=cupKinds(S.cup), placed=[];
+    ks.forEach(k=>{
+      const r=KINDS[k].r; let x=W/2, y=H/2;
+      for(let t=0;t<80;t++){
+        x=r+rnd()*(W-2*r); y=r+rnd()*(H-2*r);
+        if(placed.every(q=>{const a=q.x-x,b=q.y-y,rr=q.r+r+8;return a*a+b*b>rr*rr;})) break;
+      }
+      placed.push({x,y,r}); const p=P(k,x,y,1); if(k==="h") p.fromSplit=true;
+    });
+    S.added=true;
+  }
+  function markSplits(){
+    const sp=S.cup.split; if(!sp) return;
+    const cand=S.P.filter(p=>p.k===sp.from&&!p.willSplit);
+    for(let m=0;m<sp.n&&cand.length;m++){ const p=cand.splice(Math.floor(rnd()*cand.length),1)[0]; p.willSplit=true; p.hP=P("h",0,0,4); }
+  }
+  function makeGrain(){
+    const a=S.cup.add, [cols,rows]=a.grid;
+    const rmax=Math.max.apply(null,a.kinds.map(k=>KINDS[k].r)), sp=rmax*1.84, parts=[];
+    for(let j=0;j<rows;j++) for(let i=0;i<cols;i++){
+      const p=P(a.pick(i,j),0,0,2);
+      p.ox=(i-(cols-1)/2)*sp; p.oy=(j-(rows-1)/2)*sp;
+      const ring=Math.max(Math.abs(i-(cols-1)/2)/(((cols-1)/2)||1),Math.abs(j-(rows-1)/2)/(((rows-1)/2)||1));
+      p.th=clamp(1-ring*0.85+(rnd()-0.5)*0.22,0.03,0.98);      /* 外層先離開 */
+      parts.push(p);
+    }
+    S.grain={parts,t:0,dur:(a.dur||4)*(REDUCED?1.4:1),half:rows*sp/2+rmax,cx:W/2+(rnd()-0.5)*60,cy:-rows*sp};
+    S.rig={kind:"grain",t:0};
+  }
+  function add(hold){
+    if(!S.cup.add||S.added) return false;
+    S.added=true; S.holdUntil=S.time+(hold||0);
+    if(S.cup.add.form==="grain"){ makeGrain(); S.grain.hold=hold||0; }
+    else{
+      const ks=[]; S.cup.add.items.forEach(([k,n])=>{ for(let m=0;m<n;m++) ks.push(k); });
+      for(let m=ks.length-1;m>0;m--){ const j=Math.floor(rnd()*(m+1)); const t=ks[m]; ks[m]=ks[j]; ks[j]=t; }
+      ks.forEach((k,m)=>{ const p=P(k,0,0,3); p.t0=S.time+0.2+m*(1.2/ks.length); });
+      S.rig={kind:"pour",t:0};
+    }
+    markSplits();
+    return true;
+  }
+  /* 糖再加一匙（只有糖水）：再一顆糖粒 */
+  function more(){
+    if(!S.cup.more||!S.added||S.grain||(S.moreN||0)>=2) return false;
+    S.moreN=(S.moreN||0)+1; makeGrain(); return true;
+  }
+  function release(p){ if(p.willSplit) p.split=Math.max(S.time+0.5+rnd()*0.9,(S.holdUntil||0)+rnd()*0.8); }
+  function doSplit(p){
+    const sp=S.cup.split; p.k=sp.to; p.willSplit=false;
+    const h=p.hP, a=-0.8+(rnd()-0.5)*1.2, R=KINDS[sp.to].r;
+    h.x=p.x+Math.cos(a)*R; h.y=p.y+Math.sin(a)*R; h.st=1; h.fade=1; h.fromSplit=true;
+    h.kx=Math.cos(a)*110; h.ky=Math.sin(a)*110;
+    S.flashes.push({x:h.x,y:h.y,t:0});
+  }
+  function repel(list,fac,ratio){
+    HEAD.fill(-1);
+    for(let i=0;i<list.length;i++){ const p=list[i], c=clamp(Math.floor(p.y/CELL),0,GH-1)*GW+clamp(Math.floor(p.x/CELL),0,GW-1); NEXT[i]=HEAD[c]; HEAD[c]=i; }
+    for(let i=0;i<list.length;i++){
+      const p=list[i], ri=KINDS[p.k].r, cx=clamp(Math.floor(p.x/CELL),0,GW-1), cy=clamp(Math.floor(p.y/CELL),0,GH-1);
+      for(let oy=-1;oy<=1;oy++){ const yy=cy+oy; if(yy<0||yy>=GH) continue;
+        for(let ox=-1;ox<=1;ox++){ let xx=cx+ox, sh=0; if(xx<0){xx+=GW;sh=-W;} else if(xx>=GW){xx-=GW;sh=W;}
+          for(let j=HEAD[yy*GW+xx];j>=0;j=NEXT[j]){
+            if(j<=i) continue;
+            const q=list[j], dx=q.x+sh-p.x, dy=q.y-p.y, rr=(ri+KINDS[q.k].r)*ratio, d2=dx*dx+dy*dy;
+            if(d2>=rr*rr||d2<1e-6) continue;
+            const d=Math.sqrt(d2), push=(rr-d)/d*fac, fp=p.st===2, fq=q.st===2;
+            if(fp&&fq) continue;
+            const wp=fp?0:(fq?2:1), wq=fq?0:(fp?2:1);
+            p.x-=dx*push*wp; p.y-=dy*push*wp; q.x+=dx*push*wq; q.y+=dy*push*wq;
+          }
+        }
+      }
+    }
+  }
+  const waterL=[], soluL=[];
+  function sub(h){
+    S.time+=h;
+    S.E+=((S.on?1:0)-S.E)*Math.min(1,h*5);
+    if(S.revealT>=0){ S.revealT+=h; S.signA=smooth(S.revealT/1.2); if(S.revealT>=1.2){ S.revealT=-1; S.signA=1; } }
+    if(S.pulse>0) S.pulse=Math.max(0,S.pulse-h);
+    for(const f of S.flashes) f.t+=h;
+    if(S.flashes.length&&S.flashes[0].t>0.7) S.flashes=S.flashes.filter(f=>f.t<=0.7);
+    if(S.rig){ S.rig.t+=h; if(S.rig.t>1.7) S.rig=null; }
+    const gr=S.grain;
+    if(gr){
+      gr.t+=h;
+      gr.cy=lerp(-gr.half,H*0.5,smooth(gr.t/1.1));
+      const prog=clamp((gr.t-1.0-(gr.hold||0))/gr.dur,0,1);
+      let left=0;
+      for(const p of gr.parts){
+        if(p.st!==2) continue;
+        p.x=gr.cx+p.ox; p.y=gr.cy+p.oy;
+        if(prog>=p.th){ p.st=1; const d=Math.hypot(p.ox,p.oy)||1; p.kx=p.ox/d*75+gauss()*20; p.ky=p.oy/d*75+gauss()*20; p.fade=1; release(p); }
+        else left++;
+      }
+      if(!left) S.grain=null;
+    }
+    for(const p of S.P){
+      if(p.st===3&&S.time>=p.t0){ const r=KINDS[p.k].r; p.st=1; p.x=W*0.5+(rnd()-0.5)*240; p.y=r+2; p.kx=gauss()*25; p.ky=150+rnd()*60; p.fade=0.25; release(p); }
+      else if(p.split>=0&&S.time>=p.split){ p.split=-1; doSplit(p); }
+    }
+    const dec=Math.exp(-h/0.55), dm=REDUCED?0.3:1;
+    waterL.length=0; soluL.length=0;
+    for(const p of S.P){
+      if(p.st===2){ soluL.push(p); continue; }
+      if(p.st!==1) continue;
+      const K=KINDS[p.k], s=Math.sqrt(2*K.D*dm*h);
+      p.x+=gauss()*s+(K.q*(K.mob||1)*V0*S.E+p.kx)*h;
+      p.y+=gauss()*s+p.ky*h;
+      p.kx*=dec; p.ky*=dec;
+      if(p.fade<1) p.fade=Math.min(1,p.fade+h*2.5);
+      (p.k==="water"?waterL:soluL).push(p);
+    }
+    repel(waterL,0.25,0.92);
+    repel(soluL,0.3,1.0);
+    for(const p of S.P){
+      if(p.st!==1) continue;
+      const r=KINDS[p.k].r, q=KINDS[p.k].q;
+      if(p.x<0||p.x>=W){
+        const dir=p.x>=W?1:-1;
+        if(q>0) S.cross.pos+=dir; else if(q<0) S.cross.neg+=dir; else if(p.k!=="water") S.cross.neu+=dir;
+        p.x=((p.x%W)+W)%W;
+        if(p.k!=="water"){ p.y=r+rnd()*(H-2*r); p.fade=0; }   /* 從另一邊換一個高度進來，淡入，不會看到「瞬間移動」 */
+      }
+      if(p.y<r){ p.y=r; if(p.ky<0) p.ky=-p.ky*0.3; }
+      else if(p.y>H-r){ p.y=H-r; if(p.ky>0) p.ky=-p.ky*0.3; }
+    }
+  }
+  function step(dt){
+    S.acc+=Math.min(dt,0.1);
+    let n=0;
+    while(S.acc>=SUBDT-1e-9&&n<SUBCAP){ sub(SUBDT); S.acc-=SUBDT; n++; }   /* 1e-9：浮點誤差不要讓 144 fps 少跑一格 */
+    if(n===SUBCAP) S.acc=Math.min(S.acc,SUBDT);
+  }
+  function run(sec){ const n=Math.round(sec/SUBDT); for(let m=0;m<n;m++) sub(SUBDT); }
+  function chargedFree(){ let c=0; for(const p of S.P) if(p.st===1) c+=Math.abs(KINDS[p.k].q); return c; }
+  function done(){ return !S.cup.add||(S.added&&!S.grain&&!S.P.some(p=>p.st===3||p.willSplit)); }
+  return {
+    S, reset, add, more, step, run, done,
+    setOn(b){ S.on=!!b; },
+    reveal(){ S.signA=0; S.revealT=0; },
+    level(){ if(!S.on) return 0; return chargedFree()>0?S.cup.level:0; },
+    litmus(){ return done()?S.cup.ph:null; },
+    pulse(){ const c=S.cup; S.pulseKinds=c.ph==="acid"?["h"]:c.ph==="base"?(c.base||[]):[]; S.pulse=7; },
+    present(){ const set=new Set(); for(const p of S.P) if(p.st===1||p.st===2) set.add(p.k); return set; },
+    stats(){
+      const cnt={}; let net=0, nan=0, outside=0;
+      for(const p of S.P){ if(p.st===1||p.st===2){ cnt[p.k]=(cnt[p.k]||0)+1; net+=KINDS[p.k].q; }
+        if(!isFinite(p.x)||!isFinite(p.y)) nan++; if(p.st===1&&(p.x<0||p.x>W||p.y<0||p.y>H)) outside++; }
+      return {cup:S.cupKey,time:+S.time.toFixed(3),on:S.on,cnt,net,nan,outside,charged:chargedFree(),done:done(),cross:Object.assign({},S.cross),n:S.P.length};
+    },
+    positions(){ return S.P.map(p=>[+p.x.toFixed(4),+p.y.toFixed(4),p.st]); }
+  };
+}
+
+/* ==========================================================
+   畫小粒子：每一種先畫成小圖（sprite），每一幀只要貼圖，30 fps 的觸控螢幕也跑得動
+   ========================================================== */
+function shapePath(c,shape,r){
+  c.beginPath();
+  if(shape==="c"){ c.arc(0,0,r,0,Math.PI*2); }
+  else if(shape==="dia"){ const a=r*1.12; c.moveTo(0,-a); c.lineTo(a,0); c.lineTo(0,a); c.lineTo(-a,0); c.closePath(); }
+  else if(shape==="sq"){ const s=r*0.88, k=r*0.32; roundRect(c,-s,-s,2*s,2*s,k); }
+  else if(shape==="pill"){ const w=r*1.05, hh=r*0.7; roundRect(c,-w,-hh,2*w,2*hh,hh); }
+  else if(shape==="hex"){ for(let i=0;i<6;i++){ const a=Math.PI/6+i*Math.PI/3; c[i?"lineTo":"moveTo"](Math.cos(a)*r,Math.sin(a)*r); } c.closePath(); }
+  else if(shape==="tri"){ const pts=[-90,30,150].map(d=>[Math.cos(d*Math.PI/180)*r*1.15,Math.sin(d*Math.PI/180)*r*1.15+r*0.12]);
+    const k=r*0.28; c.moveTo((pts[0][0]+pts[1][0])/2,(pts[0][1]+pts[1][1])/2);
+    for(let i=1;i<=3;i++){ const p=pts[i%3], q=pts[(i+1)%3]; c.arcTo(p[0],p[1],(p[0]+q[0])/2,(p[1]+q[1])/2,k); } c.closePath(); }
+  else if(shape==="tad"){ c.arc(0,0,r,0,Math.PI*2); }
+  else if(shape==="duo"){ c.arc(-r*0.15,0,r*0.88,0,Math.PI*2); c.moveTo(r*0.98+r*0.42,-r*0.48); c.arc(r*0.98,-r*0.48,r*0.42,0,Math.PI*2); }
+}
+function roundRect(c,x,y,w,h,r){ c.moveTo(x+r,y); c.arcTo(x+w,y,x+w,y+h,r); c.arcTo(x+w,y+h,x,y+h,r); c.arcTo(x,y+h,x,y,r); c.arcTo(x,y,x+w,y,r); c.closePath(); }
+function drawBody(c,k){
+  const K=KINDS[k], r=K.r, lw=k==="water"?2.4:3.2;
+  if(K.shape==="tad"){   /* 長尾巴 */
+    c.beginPath();
+    c.moveTo(r*0.8,0);
+    for(let i=1;i<=12;i++){ const t=i/12; c.lineTo(r*0.8+t*r*1.9,Math.sin(t*Math.PI*2.2)*r*0.28); }
+    c.lineWidth=r*0.32; c.lineCap="round"; c.strokeStyle=K.stroke; c.stroke();
+  }
+  shapePath(c,K.shape,r);
+  c.fillStyle=K.fill; c.fill(); c.lineWidth=lw; c.lineJoin="round"; c.strokeStyle=K.stroke; c.stroke();
+  if(K.h){   /* 還黏著的那一小塊（分開後就是「讓水溶液變酸的小粒子」） */
+    const hr=KINDS.h.r*0.72, hx=r*0.95, hy=-r*0.78;
+    c.save(); c.translate(hx,hy); shapePath(c,"dia",hr); c.fillStyle="#FFFFFF"; c.fill(); c.lineWidth=2.6; c.strokeStyle=K.stroke; c.stroke(); c.restore();
+  }
+}
+function drawGlyph(c,k){
+  const K=KINDS[k], q=K.q; if(!q) return;
+  const r=K.shape==="duo"?K.r*0.8:K.r, ox=K.shape==="duo"?-K.r*0.15:0;
+  c.strokeStyle=INK; c.lineCap="round";
+  const plus=(x,s)=>{ c.lineWidth=Math.max(3.2,s*0.22); c.beginPath(); c.moveTo(x-s*0.45,0); c.lineTo(x+s*0.45,0); c.moveTo(x,-s*0.45); c.lineTo(x,s*0.45); c.stroke(); };
+  if(q===1) plus(ox,r);
+  else if(q===2){ plus(ox-r*0.42,r*0.62); plus(ox+r*0.42,r*0.62); }
+  else{ c.lineWidth=Math.max(3.2,r*0.22); c.beginPath(); c.moveTo(ox-r*0.45,0); c.lineTo(ox+r*0.45,0); c.stroke(); }
+}
+const SPR={scale:0,map:{}};
+function sprite(k,part,s){
+  if(SPR.scale!==s){ SPR.scale=s; SPR.map={}; }
+  const key=k+"|"+part, hit=SPR.map[key]; if(hit) return hit;
+  const K=KINDS[k], pad=8, tail=K.shape==="tad"?K.r*2.8:0, extra=K.h?K.r*0.9:0;
+  const wW=2*(K.r+pad)+tail+extra, hW=2*(K.r+pad)+extra;
+  const cv=document.createElement("canvas");
+  cv.width=Math.max(2,Math.ceil(wW*s)); cv.height=Math.max(2,Math.ceil(hW*s));
+  const c=cv.getContext("2d"); c.scale(s,s); c.translate(K.r+pad,K.r+pad+extra);   /* 長尾巴在右邊 */
+  if(part==="body") drawBody(c,k); else drawGlyph(c,k);
+  const o={img:cv,cx:(K.r+pad)*s,cy:(K.r+pad+extra)*s};
+  SPR.map[key]=o; return o;
+}
+function render(sim,cv,o){
+  const S=sim.S, c=cv.getContext("2d"), cw=cv.width, ch=cv.height, s=cw/W;
+  c.setTransform(1,0,0,1,0,0);
+  c.fillStyle="#F2F8FC"; c.fillRect(0,0,cw,ch);
+  if(o.covered) return;
+  const edgeA=p=>Math.min(1,Math.min(p.x,W-p.x)/46)*p.fade;
+  /* 水 */
+  const ws=sprite("water","body",s), wa=o.faint?0.28:0.8;
+  for(const p of S.P){ if(p.k!=="water"||p.st!==1) continue;
+    c.globalAlpha=wa*Math.min(1,Math.min(p.x,W-p.x)/30); c.drawImage(ws.img,p.x*s-ws.cx,p.y*s-ws.cy); }
+  /* 其他（不帶電的先畫，帶電的在上面） */
+  const bridge=S.cupKey==="salt"&&S.signA<1;
+  for(const k of DRAW_ORDER){
+    const K=KINDS[k], bs=sprite(k,"body",s), gs=K.q?sprite(k,"glyph",s):null;
+    for(const p of S.P){
+      if(p.k!==k||(p.st!==1&&p.st!==2)) continue;
+      const a=p.st===2?1:edgeA(p); if(a<=0.01) continue;
+      c.globalAlpha=a;
+      if(bridge&&(k==="na"||k==="cl")){   /* 和〈一顆也沒少〉一樣的白球 → 慢慢看出兩種 */
+        const f=lerp(24/K.r,1,S.signA), w=bs.img.width*f, hgt=bs.img.height*f;
+        c.drawImage(bs.img,p.x*s-bs.cx*f,p.y*s-bs.cy*f,w,hgt);
+        if(gs&&S.signA>0.02){ c.globalAlpha=a*S.signA; c.drawImage(gs.img,p.x*s-gs.cx*f,p.y*s-gs.cy*f,gs.img.width*f,gs.img.height*f); }
+      }else{
+        c.drawImage(bs.img,p.x*s-bs.cx,p.y*s-bs.cy);
+        if(gs){ c.drawImage(gs.img,p.x*s-gs.cx,p.y*s-gs.cy); }
+      }
+    }
+  }
+  c.globalAlpha=1;
+  /* 分開的那一瞬間：閃一下 */
+  for(const f of S.flashes){ const t=f.t/0.7; c.globalAlpha=1-t; c.beginPath(); c.arc(f.x*s,f.y*s,(14+40*t)*s,0,Math.PI*2); c.lineWidth=5*s; c.strokeStyle="#E0A100"; c.stroke(); }
+  /* 滴石蕊試紙時：讓水溶液變酸／變鹼的那一種閃一閃 */
+  if(S.pulse>0&&S.pulseKinds.length){
+    const ph=0.5+0.5*Math.sin(S.pulse*7), fade=Math.min(1,S.pulse/0.6);
+    c.globalAlpha=(0.45+0.55*ph)*fade; c.lineWidth=6*s; c.strokeStyle="#2E7D4F";
+    for(const p of S.P){ if(p.st!==1||S.pulseKinds.indexOf(p.k)<0) continue;
+      c.beginPath(); c.arc(p.x*s,p.y*s,(KINDS[p.k].r+12+ph*6)*s,0,Math.PI*2); c.stroke(); }
+  }
+  c.globalAlpha=1;
+}
+/* 圖例、總結表用的小圖示（SVG） */
+function iconSVG(k){
+  const K=KINDS[k], r=K.r, pad=6, tail=K.shape==="tad"?r*2.8:0, ex=K.h?r*0.9:0;
+  const vbW=2*(r+pad)+tail+ex, vbH=2*(r+pad)+ex, ox=r+pad, oy=r+pad+ex;
+  const st=`fill="${K.fill}" stroke="${K.stroke}" stroke-width="3.2" stroke-linejoin="round"`;
+  let b="";
+  const shape=(sh,rr,x,y,attrs)=>{
+    if(sh==="c"||sh==="tad") return `<circle cx="${x}" cy="${y}" r="${rr}" ${attrs}/>`;
+    if(sh==="dia"){ const a=rr*1.12; return `<polygon points="${x},${y-a} ${x+a},${y} ${x},${y+a} ${x-a},${y}" ${attrs}/>`; }
+    if(sh==="sq"){ const s=rr*0.88; return `<rect x="${x-s}" y="${y-s}" width="${2*s}" height="${2*s}" rx="${rr*0.32}" ${attrs}/>`; }
+    if(sh==="pill"){ const w=rr*1.05, hh=rr*0.7; return `<rect x="${x-w}" y="${y-hh}" width="${2*w}" height="${2*hh}" rx="${hh}" ${attrs}/>`; }
+    if(sh==="hex"){ let p=""; for(let i=0;i<6;i++){ const a=Math.PI/6+i*Math.PI/3; p+=`${(x+Math.cos(a)*rr).toFixed(1)},${(y+Math.sin(a)*rr).toFixed(1)} `; } return `<polygon points="${p}" ${attrs}/>`; }
+    if(sh==="tri"){ const p=[-90,30,150].map(d=>`${(x+Math.cos(d*Math.PI/180)*rr*1.12).toFixed(1)},${(y+Math.sin(d*Math.PI/180)*rr*1.12+rr*0.12).toFixed(1)}`).join(" "); return `<polygon points="${p}" ${attrs}/>`; }
+    if(sh==="duo") return `<circle cx="${x-rr*0.15}" cy="${y}" r="${rr*0.88}" ${attrs}/><circle cx="${x+rr*0.98}" cy="${y-rr*0.48}" r="${rr*0.42}" ${attrs}/>`;
+    return "";
+  };
+  if(K.shape==="tad"){ let d=`M${ox+r*0.8} ${oy}`; for(let i=1;i<=12;i++){ const t=i/12; d+=` L${(ox+r*0.8+t*r*1.9).toFixed(1)} ${(oy+Math.sin(t*Math.PI*2.2)*r*0.28).toFixed(1)}`; } b+=`<path d="${d}" fill="none" stroke="${K.stroke}" stroke-width="${r*0.32}" stroke-linecap="round"/>`; }
+  b+=shape(K.shape,r,ox,oy,st);
+  if(K.h) b+=shape("dia",KINDS.h.r*0.72,ox+r*0.95,oy-r*0.78,`fill="#fff" stroke="${K.stroke}" stroke-width="2.6"`);
+  if(K.q){
+    const rr=K.shape==="duo"?r*0.8:r, gx=ox+(K.shape==="duo"?-r*0.15:0), lw=Math.max(3.2,rr*0.22).toFixed(1);
+    const pl=(x,s)=>`<path d="M${x-s*0.45} ${oy} H${x+s*0.45} M${x} ${oy-s*0.45} V${oy+s*0.45}" stroke="${INK}" stroke-width="${Math.max(3.2,s*0.22).toFixed(1)}" stroke-linecap="round"/>`;
+    if(K.q===1) b+=pl(gx,rr); else if(K.q===2) b+=pl(gx-rr*0.42,rr*0.62)+pl(gx+rr*0.42,rr*0.62);
+    else b+=`<path d="M${gx-rr*0.45} ${oy} H${gx+rr*0.45}" stroke="${INK}" stroke-width="${lw}" stroke-linecap="round"/>`;
+  }
+  return `<svg viewBox="0 0 ${vbW.toFixed(1)} ${vbH.toFixed(1)}" aria-hidden="true">${b}</svg>`;
+}
+
+/* ==========================================================
+   舞臺（SVG）：寬、高兩種排法；single＝實驗臺＋放大框、dual＝兩杯並排、board＝結論板
+   ========================================================== */
+const svg=$("svg"), stage=$("stage"), cvA=$("cvA"), cvB=$("cvB");
+const LAYOUT={
+  single:{wide:{vb:[1680,800],rig:[0,150,0.967],Z:[[600,74,1050,672]]},
+          tall:{vb:[900,1090],rig:[207.5,0,0.808],Z:[[24,490,852,545]]}},
+  dual:{wide:{vb:[1680,800],Z:[[30,170,800,512],[850,170,800,512]]},
+        tall:{vb:[900,1180],Z:[[130,130,640,410],[130,690,640,410]]}},
+  board:{wide:{vb:[1680,800]},tall:{vb:[900,1090]}}
+};
+const RIG_MARK={x:340,y:384,r:36}, CLIP_MARK={x:340,y:390,r:34};
+const WIRES={
+  red:"M370 61 C 270 61, 30 40, 30 140 C 30 232, 90 240, 90 214",
+  b1:{beaker:"M110 192 C 110 250, 275 180, 275 222",clip:"M110 192 C 110 300, 190 390, 236 390"},
+  b2:{beaker:"M570 61 C 602 61, 596 150, 540 175 C 480 202, 405 182, 405 222",clip:"M570 61 C 602 61, 600 300, 444 390"}
+};
+const ST={view:"single",orient:"wide",rig:"beaker",cups:["water","water"],covered:false,msg:null,lockSw:true,
+          scale:1,offX:0,offY:0,dpr:1,bright:[0,0],label:"",board:null};
+function TX(x,y,s,o){
+  o=o||{};
+  return `<text x="${x}" y="${y}" font-size="${o.size||20}" font-weight="${o.w||800}" fill="${o.fill||INK}" text-anchor="${o.anchor||"middle"}" dominant-baseline="middle" stroke="#fff" stroke-width="${o.halo==null?5:o.halo}" stroke-linejoin="round" paint-order="stroke"${o.id?` id="${o.id}"`:""}${o.cls?` class="${o.cls}"`:""}>${esc(s)}</text>`;
+}
+function rigMarkup(){
+  let rays=""; for(let i=0;i<8;i++){ const a=i*Math.PI/4; rays+=`<line x1="${100+Math.cos(a)*34}" y1="${104+Math.sin(a)*34}" x2="${100+Math.cos(a)*52}" y2="${104+Math.sin(a)*52}" stroke="#F2B705" stroke-width="5" stroke-linecap="round"/>`; }
+  const cu=x=>`<line x1="${x}" y1="222" x2="${x}" y2="318" stroke="#444" stroke-width="11" stroke-linecap="round"/>`+
+              `<line x1="${x}" y1="318" x2="${x}" y2="452" stroke="#B87333" stroke-width="8" stroke-linecap="round"/>`+
+              `<line x1="${x-2}" y1="322" x2="${x-2}" y2="448" stroke="#E3A36C" stroke-width="2"/>`;
+  return `
+  <path id="gRed" d="${WIRES.red}" fill="none" stroke="#FFE58A" stroke-width="16" stroke-linecap="round" opacity="0"/>
+  <path id="gB1" d="" fill="none" stroke="#FFE58A" stroke-width="16" stroke-linecap="round" opacity="0"/>
+  <path id="gB2" d="" fill="none" stroke="#FFE58A" stroke-width="16" stroke-linecap="round" opacity="0"/>
+  <path d="${WIRES.red}" fill="none" stroke="#D32F2F" stroke-width="5"/>
+  <path id="wB1" d="" fill="none" stroke="#333" stroke-width="5"/>
+  <path id="wB2" d="" fill="none" stroke="#333" stroke-width="5"/>
+  <rect x="370" y="30" width="200" height="62" rx="8" fill="#2B2B2B"/>
+  <rect x="382" y="39" width="84" height="44" rx="20" fill="#C8642A"/><rect x="474" y="39" width="84" height="44" rx="20" fill="#C8642A"/>
+  ${TX(357,22,"＋",{size:28,fill:"#C62828"})}${TX(584,22,"－",{size:30})}${TX(470,16,"電池盒",{size:21})}
+  ${TX(388,131,"開關",{size:23,anchor:"end"})}
+  <g id="swG" class="sw" role="button" tabindex="-1" aria-label="電池盒的開關">
+    <rect class="swtrack" x="400" y="104" width="140" height="52" rx="26" fill="#fff" stroke="${INK}" stroke-width="3"/>
+    <circle id="swKnob" cx="426" cy="130" r="19" fill="#C9C2B4" stroke="${INK}" stroke-width="2.5"/>
+    <text id="swTxt" x="494" y="131" font-size="24" font-weight="900" fill="${INK}" text-anchor="middle" dominant-baseline="middle">關</text>
+  </g>
+  <circle id="ledGlow" cx="100" cy="104" r="54" fill="#FFE58A" opacity="0"/>
+  <g id="ledRays" opacity="0">${rays}</g>
+  <path id="ledDome" d="M82 132 V96 A18 18 0 0 1 118 96 V132 Z" fill="#E8B4B4" stroke="${INK}" stroke-width="2.5"/>
+  <rect x="77" y="132" width="46" height="8" rx="2" fill="#E9E9E9" stroke="${INK}" stroke-width="2"/>
+  <line x1="90" y1="140" x2="90" y2="214" stroke="#888" stroke-width="4"/>
+  <line x1="110" y1="140" x2="110" y2="192" stroke="#888" stroke-width="4"/>
+  ${TX(152,74,"LED",{size:24})}
+  ${TX(6,26,"LED：不亮",{size:28,w:900,anchor:"start",id:"ledTxt"})}
+  ${TX(100,252,"",{size:22,w:800,id:"ledTxt2",fill:"#5C6970"})}
+  <g id="beakerG">
+    <rect x="192" y="300" width="296" height="198" fill="#CFE8F6" opacity=".9"/>
+    <path d="M190 250 V500 H490 V250" fill="none" stroke="${INK}" stroke-width="3"/>
+    <path d="M180 250 H190 M490 250 H500" stroke="${INK}" stroke-width="3"/>
+    ${cu(275)}${cu(405)}
+    <circle cx="${RIG_MARK.x}" cy="${RIG_MARK.y}" r="${RIG_MARK.r}" fill="rgba(255,255,255,.25)" stroke="${INK}" stroke-width="3" stroke-dasharray="8 6"/>
+    ${TX(340,482,"",{size:32,w:900,id:"cupTxt"})}
+    ${TX(340,336,"電很難通過",{size:24,w:900,id:"noflow",fill:"#8E2A22"})}
+    ${TX(88,302,"石蕊試紙",{size:24})}
+    <rect id="rgB" x="38" y="322" width="40" height="104" rx="6" fill="#9CC3EC" stroke="${INK}" stroke-width="2.5"/>
+    <rect id="rgR" x="98" y="322" width="40" height="104" rx="6" fill="#F3B0B0" stroke="${INK}" stroke-width="2.5"/>
+    ${TX(58,446,"藍色",{size:23})}${TX(118,446,"紅色",{size:23})}
+    ${TX(88,482,"還沒滴",{size:26,w:900,id:"rgRes"})}
+    <g id="pourG"></g>
+  </g>
+  <g id="clipG">
+    <path d="M206 378 L236 384 L236 396 L206 402 Z" fill="#555"/><path d="M474 378 L444 384 L444 396 L474 402 Z" fill="#555"/>
+    <path d="M236 398 H436 A12 12 0 0 0 436 374 H256 A8 8 0 0 0 256 390 H420" fill="none" stroke="#8A949B" stroke-width="6" stroke-linecap="round"/>
+    ${TX(340,438,"迴紋針",{size:24})}
+    <circle cx="${CLIP_MARK.x}" cy="${CLIP_MARK.y}" r="${CLIP_MARK.r}" fill="none" stroke="${INK}" stroke-width="3" stroke-dasharray="8 6"/>
+  </g>`;
+}
+function zoomDeco(Z,o){
+  const [x,y,w,h]=Z, tall=ST.orient==="tall";
+  let b=`<rect x="${x-2}" y="${y-2}" width="${w+4}" height="${h+4}" rx="14" fill="none" stroke="${INK}" stroke-width="5"/>`;
+  b+=`<g id="${o.id}Cover" class="hidden"><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="12" fill="#E7F0F6"/>`+
+     TX(x+w/2,y+h/2-26,"🔍 用「想像放大鏡券」才看得到",{size:tall?30:34,w:900})+
+     TX(x+w/2,y+h/2+26,"先看石蕊試紙，想一想：需要放大看嗎？",{size:tall?22:24,w:800,fill:"#5C6970"})+`</g>`;
+  b+=`<g id="${o.id}Msg" class="hidden"><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="12" fill="#FFFDF8"/><g id="${o.id}MsgT"></g></g>`;
+  /* 示意、國中才會學：放在框裡右上角 */
+  const bw=tall?260:380, bx=x+w-bw-14, by=y+12;
+  b+=`<rect x="${bx}" y="${by}" width="${bw}" height="34" rx="17" fill="#fff" stroke="#6B7A82" stroke-width="2.5" stroke-dasharray="6 4" opacity=".92"/>`+
+     TX(bx+bw/2,by+18,tall?"示意・國中才會學":"示意・國中才會學・看看就好，不考",{size:tall?20:22,w:800,fill:"#4A5960",halo:0});
+  if(o.edges){
+    const ly=y+h+(tall?26:32);
+    b+=TX(x+6,ly,"← 往左邊的銅線",{size:tall?24:26,anchor:"start",id:o.id+"EL"})+TX(x+w-6,ly,"往右邊的銅線 →",{size:tall?24:26,anchor:"end",id:o.id+"ER"});
+  }
+  return b;
+}
+function buildStage(){
+  const L=LAYOUT[ST.view][ST.orient], [vw,vh]=L.vb;
+  svg.setAttribute("viewBox",`0 0 ${vw} ${vh}`);
+  stage.style.setProperty("--ar",(vw/vh).toFixed(4));
+  let b="";
+  if(ST.view==="single"){
+    const [tx,ty,sc]=L.rig, Z=L.Z[0], tall=ST.orient==="tall";
+    /* 放大鏡標記 → 放大框的兩條虛線（先畫，實驗臺蓋在上面） */
+    const mk=ST.rig==="clip"?CLIP_MARK:RIG_MARK, mx=tx+mk.x*sc, my=ty+mk.y*sc, mr=mk.r*sc;
+    const ends=tall?[[Z[0],Z[1]],[Z[0]+Z[2],Z[1]]]:[[Z[0],Z[1]],[Z[0],Z[1]+Z[3]]];
+    ends.forEach(([ex,ey])=>{ const a=Math.atan2(ey-my,ex-mx); b+=`<line class="callout" x1="${(mx+Math.cos(a)*mr).toFixed(1)}" y1="${(my+Math.sin(a)*mr).toFixed(1)}" x2="${ex}" y2="${ey}" stroke="#6B7A82" stroke-width="3" stroke-dasharray="9 7"/>`; });
+    b+=`<g id="rig" transform="translate(${tx} ${ty}) scale(${sc})">${rigMarkup()}</g>`;
+    if(ST.rig!=="clip"){
+      b+=TX(Z[0]+Z[2]/2,Z[1]-(tall?42:30),"🔍 想像的超級放大鏡：兩條銅線中間的一小塊水",{size:tall?27:31,w:900,id:"zTitle"});
+      b+=TX(Z[0]+Z[2]/2,tall?Z[1]-12:Z[1]+Z[3]+32,"真的放大鏡、顯微鏡都看不到",{size:tall?19:20,w:800,fill:"#5C6970"});
+    }
+    b+=zoomDeco(Z,{id:"zA",edges:ST.rig!=="clip"});
+  }else if(ST.view==="dual"){
+    const tall=ST.orient==="tall";
+    L.Z.forEach((Z,i)=>{
+      const id=i?"zB":"zA", hy=Z[1]-(tall?78:100);
+      b+=TX(Z[0]+4,hy,"",{size:tall?30:34,w:900,anchor:"start",id:id+"Name"});
+      const bx=Z[0]+(tall?190:214);   /* LED 緊接在自己的杯名後面，不會被看成隔壁那一杯的 */
+      b+=`<circle id="${id}Glow" cx="${bx}" cy="${hy}" r="${tall?26:30}" fill="#FFE58A" opacity="0"/>`+
+         `<circle id="${id}Bulb" cx="${bx}" cy="${hy}" r="${tall?14:16}" fill="#E8B4B4" stroke="${INK}" stroke-width="3"/>`;
+      b+=TX(bx+(tall?32:36),hy,"LED：不亮",{size:tall?24:28,w:900,anchor:"start",id:id+"Led"});
+      const ly=Z[1]-(tall?36:44), sw=tall?54:64, sh=tall?20:24;
+      b+=`<rect id="${id}LB" x="${Z[0]+4}" y="${ly-sh/2}" width="${sw}" height="${sh}" rx="4" fill="#9CC3EC" stroke="${INK}" stroke-width="2.5"/>`+
+         `<rect id="${id}LR" x="${Z[0]+12+sw}" y="${ly-sh/2}" width="${sw}" height="${sh}" rx="4" fill="#F3B0B0" stroke="${INK}" stroke-width="2.5"/>`+
+         TX(Z[0]+20+2*sw,ly,"石蕊試紙：還沒滴",{size:tall?20:24,anchor:"start",id:id+"Lit"});
+      b+=zoomDeco(Z,{id,edges:true});
+    });
+    const [vw2,vh2]=L.vb;
+    b+=TX(vw2/2,vh2-(tall?16:22),"🔋 開關：關",{size:tall?24:30,w:900,id:"dualSw"});
+  }else{
+    b+=boardMarkup();
+  }
+  svg.innerHTML=b;
+  if(ST.view==="single"){
+    const clip=ST.rig==="clip";
+    $("beakerG").classList.toggle("hidden",clip); $("clipG").classList.toggle("hidden",!clip);
+    ["wB1","gB1"].forEach(id=>$(id).setAttribute("d",WIRES.b1[clip?"clip":"beaker"]));
+    ["wB2","gB2"].forEach(id=>$(id).setAttribute("d",WIRES.b2[clip?"clip":"beaker"]));
+    const sw=$("swG");
+    sw.addEventListener("click",()=>{ if(!ST.lockSw) onSwitch(); });
+    sw.addEventListener("keydown",ev=>{ if(!ST.lockSw&&(ev.key==="Enter"||ev.key===" ")){ ev.preventDefault(); onSwitch(); } });
+  }
+  applyStageFlags();
+  layout();
+}
+function applyStageFlags(){
+  stage.classList.toggle("locked",ST.lockSw);
+  const sw=document.getElementById("swG"); if(sw) sw.setAttribute("tabindex","-1");
+  const cA=document.getElementById("zACover"); if(cA) cA.classList.toggle("hidden",!ST.covered);
+  const m=document.getElementById("zAMsg");
+  if(m){ m.classList.toggle("hidden",!ST.msg); if(ST.msg){ const Z=LAYOUT.single[ST.orient].Z[0], tall=ST.orient==="tall";
+    $("zAMsgT").innerHTML=ST.msg.map((s,i)=>TX(Z[0]+Z[2]/2,Z[1]+Z[3]/2+(i-(ST.msg.length-1)/2)*(tall?48:58)+(i?0:-8),s,{size:i?(tall?22:26):(tall?32:40),w:i?800:900,halo:0})).join(""); } }
+  cvA.style.display=(ST.view==="board"||(ST.view==="single"&&ST.msg))?"none":"block";
+  cvB.style.display=ST.view==="dual"?"block":"none";
+}
+function boardMarkup(){
+  const tall=ST.orient==="tall", [vw]=LAYOUT.board[ST.orient].vb;
+  const cols=tall?[{x:200,w:226},{x:437,w:226},{x:674,w:226}]:[{x:330,w:440},{x:780,w:440},{x:1230,w:440}];
+  const rows=tall?[{y:250,h:250},{y:520,h:250}]:[{y:200,h:190},{y:400,h:190}];
+  const rx=tall?6:20, rw=tall?184:300;
+  let b=TX(vw/2,tall?40:44,"整理：兩種偵測器",{size:tall?32:36,w:900});
+  b+=TX(cols[1].x+cols[1].w/2,tall?92:96,"石蕊試紙分得出這三欄（看酸鹼性）",{size:tall?21:27,fill:"#1F5F8B"});
+  ["酸性","中性","鹼性"].forEach((s,i)=>{ const c=cols[i]; b+=`<rect x="${c.x+4}" y="${tall?118:122}" width="${c.w-8}" height="${tall?56:58}" rx="12" fill="#F2EEE4" stroke="${INK}" stroke-width="3"/>`+TX(c.x+c.w/2,tall?146:151,s,{size:tall?26:30,w:900,halo:0}); });
+  const rlab=[["LED 亮","（容易導電）"],["LED 不亮","（不容易導電）"]];
+  rows.forEach((r,j)=>{
+    b+=`<rect x="${rx}" y="${r.y+4}" width="${rw-8}" height="${r.h-8}" rx="12" fill="${j?"#F2EEE4":"#FFF3C4"}" stroke="${INK}" stroke-width="3"/>`;
+    b+=TX(rx+(rw-8)/2,r.y+r.h/2-14,rlab[j][0],{size:tall?23:30,w:900,halo:0})+TX(rx+(rw-8)/2,r.y+r.h/2+22,rlab[j][1],{size:tall?20:23,w:800,halo:0,fill:"#5C6970"});
+    cols.forEach(c=>{ b+=`<rect x="${c.x+4}" y="${r.y+4}" width="${c.w-8}" height="${r.h-8}" rx="12" fill="${j?"#fff":"#FFFBEA"}" stroke="${INK}" stroke-width="3"/>`; });
+  });
+  b+=TX(rx+(rw-8)/2,tall?224:178,"LED 分得出這兩排 →",{size:tall?17:23,fill:"#7A5B00"});
+  const chip=(ci,rj,k,line2,dy)=>{ const c=cols[ci], r=rows[rj], cx=c.x+c.w/2, cy=r.y+r.h/2+(dy||0);
+    return TX(cx,cy-18,CUPS[k].name,{size:tall?28:36,w:900,halo:0})+TX(cx,cy+24,line2,{size:tall?19:24,w:800,halo:0,fill:"#4A5960"}); };
+  b+=chip(0,0,"vin",tall?"有讓它變酸的帶電小粒子":"有讓水溶液變酸的帶電小粒子");
+  b+=chip(2,0,"soda",tall?"有讓它變鹼的帶電小粒子":"有讓水溶液變鹼的帶電小粒子");
+  b+=chip(1,0,"salt","有別的帶電小粒子");
+  b+=chip(1,1,"sugar",tall?"沒有帶電的小粒子":"沒有帶電的小粒子");
+  [[0,1],[2,1]].forEach(([ci,rj])=>{ const c=cols[ci], r=rows[rj]; b+=TX(c.x+c.w/2,r.y+r.h/2,"（沒有）",{size:tall?22:24,w:800,halo:0,fill:"#8A949B"}); });
+  const by=tall?830:650;
+  if(tall){
+    b+=TX(vw/2,by,"課本：酸性和鹼性水溶液容易導電；",{size:24,w:900,fill:"#2E7D4F"})+TX(vw/2,by+36,"中性水溶液不一定，食鹽水容易導電，",{size:24,w:900,fill:"#2E7D4F"})+TX(vw/2,by+72,"糖水不容易導電。",{size:24,w:900,fill:"#2E7D4F"});
+    b+=TX(vw/2,by+130,"想像的解釋：酸性、鹼性的水溶液裡，一定有",{size:19})+TX(vw/2,by+160,"讓它變酸、變鹼的帶電小粒子；中性的要看",{size:19})+TX(vw/2,by+190,"有沒有分成帶電的小粒子。",{size:19});
+    b+=TX(vw/2,by+232,"示意・國中才會學・看看就好，不考",{size:20,fill:"#5C6970"});
+  }else{
+    b+=TX(vw/2,by,"課本：酸性和鹼性水溶液容易導電；中性水溶液不一定，食鹽水容易導電，糖水不容易導電。",{size:28,w:900,fill:"#2E7D4F"});
+    b+=TX(vw/2,by+50,"想像的解釋：酸性、鹼性的水溶液裡，一定有讓它變酸、變鹼的帶電小粒子；中性的要看有沒有分成帶電的小粒子。",{size:25});
+    b+=TX(vw/2,by+100,"示意・國中才會學・看看就好，不考",{size:22,fill:"#5C6970"});
+  }
+  return b;
+}
+function layout(){
+  const tall=window.innerWidth<1100&&window.innerHeight>window.innerWidth*0.95;
+  const o=tall?"tall":"wide";
+  if(o!==ST.orient){ ST.orient=o; buildStage(); return; }
+  const L=LAYOUT[ST.view][ST.orient], [vw,vh]=L.vb;
+  const w=stage.clientWidth, h=stage.clientHeight;
+  ST.scale=Math.min(w/vw,h/vh); ST.offX=(w-vw*ST.scale)/2; ST.offY=(h-vh*ST.scale)/2;
+  ST.dpr=Math.min(window.devicePixelRatio||1,2);
+  (L.Z||[]).forEach((Z,i)=>{
+    const cv=i?cvB:cvA, cw=Z[2]*ST.scale, chh=Z[3]*ST.scale;
+    cv.style.left=(ST.offX+Z[0]*ST.scale)+"px"; cv.style.top=(ST.offY+Z[1]*ST.scale)+"px";
+    cv.style.width=cw+"px"; cv.style.height=chh+"px";
+    let d=ST.dpr; if(cw*chh*d*d>1.6e6) d=Math.sqrt(1.6e6/(cw*chh));
+    cv.width=Math.max(2,Math.round(cw*d)); cv.height=Math.max(2,Math.round(chh*d));
+  });
+}
+function setView(view,opt){
+  opt=opt||{};
+  const changed=view!==ST.view||(opt.rig&&opt.rig!==ST.rig);
+  ST.view=view; if(opt.rig) ST.rig=opt.rig;
+  ST.msg=opt.msg||null; ST.covered=!!opt.covered;
+  if(changed) buildStage(); else applyStageFlags();
+}
+/* 每一幀：LED、開關、電線發光、杯子名稱 */
+function levelOf(sim){ return (ST.view==="single"&&ST.rig==="clip")?(sim.S.on?2:0):sim.level(); }
+function updateRig(sim,label,lit){
+  const S=sim.S, lv=levelOf(sim);
+  ST.bright[0]+=(lv-ST.bright[0])*(1-Math.exp(-(ST.dt||1/60)*9));
+  const b=ST.bright[0];
+  const dome=document.getElementById("ledDome"); if(!dome) return;
+  dome.setAttribute("fill",b>1.4?"#FF4D4D":b>0.4?"#FF7B7B":"#E8B4B4");
+  $("ledGlow").setAttribute("opacity",Math.min(0.85,b*0.42).toFixed(2));
+  $("ledGlow").setAttribute("r",(34+b*11).toFixed(1));
+  $("ledRays").setAttribute("opacity",clamp(b-1,0,1).toFixed(2));
+  const t1=$("ledTxt"), t2=$("ledTxt2"), txt="LED："+LED_TXT[lv], t2s=lv===1?"（微微亮也算亮）":(S.on?"":"（開關還沒打開）");
+  if(t1.textContent!==txt) t1.textContent=txt;
+  if(t2.textContent!==t2s) t2.textContent=t2s;
+  const glowA=lv>0?Math.min(0.9,0.35+b*0.3):0;
+  ["gRed","gB1","gB2"].forEach(id=>$(id).setAttribute("opacity",glowA.toFixed(2)));
+  $("swKnob").setAttribute("cx",S.on?514:426); $("swKnob").setAttribute("fill",S.on?"#2E7D4F":"#C9C2B4");
+  const st=$("swTxt"); st.setAttribute("x",S.on?446:494); if(st.textContent!==(S.on?"開":"關")) st.textContent=S.on?"開":"關";
+  const nf=$("noflow"); if(nf) nf.style.display=(S.on&&lv===0&&ST.rig==="beaker"&&sim.done())?"":"none";
+  const ct=$("cupTxt"); if(ct&&ct.textContent!==label) ct.textContent=label;
+  const rb=$("rgB");
+  if(rb){ rb.setAttribute("fill",lit==="acid"?"#D9414E":"#9CC3EC"); $("rgR").setAttribute("fill",lit==="base"?"#2F62C9":"#F3B0B0");
+    const rt=lit?("→ "+PH_TXT[lit]):"還沒滴"; if($("rgRes").textContent!==rt) $("rgRes").textContent=rt; }
+  /* 倒進去的樣子（湯匙＋顆粒／液體） */
+  const pg=$("pourG");
+  if(pg){
+    if(S.rig&&ST.rig==="beaker"){
+      const t=S.rig.t; let g="";
+      if(S.rig.kind==="grain"){
+        g+=`<g transform="translate(372 214) rotate(${(-25+smooth(t/0.5)*35).toFixed(1)})"><ellipse cx="-26" cy="0" rx="26" ry="11" fill="#D9DDE1" stroke="${INK}" stroke-width="2.5"/><rect x="0" y="-4" width="70" height="8" rx="4" fill="#D9DDE1" stroke="${INK}" stroke-width="2.5"/></g>`;
+        for(let i=0;i<6;i++){ const tt=clamp((t-0.35-i*0.08)/0.55,0,1); if(tt<=0||tt>=1) continue;
+          g+=`<rect x="${336+i*5-((i%2)*8)}" y="${(226+tt*84).toFixed(1)}" width="9" height="9" fill="#fff" stroke="${INK}" stroke-width="1.5" opacity="${(1-tt*0.6).toFixed(2)}"/>`; }
+      }else{
+        const a=clamp(1-Math.abs(t-0.8)/0.9,0,1);
+        g+=`<path d="M330 200 C 336 240, 340 260, 340 300" fill="none" stroke="#9CC3EC" stroke-width="10" stroke-linecap="round" opacity="${a.toFixed(2)}"/>`;
+      }
+      pg.innerHTML=g;
+    }else if(pg.firstChild) pg.innerHTML="";
+  }
+}
+function updateDual(sims,cups,lit){
+  ["zA","zB"].forEach((id,i)=>{
+    const sim=sims[i], lv=sim.level(), nm=$(id+"Name"); if(!nm) return;
+    const name=CUPS[cups[i]].name; if(nm.textContent!==name) nm.textContent=name;
+    ST.bright[i]+=(lv-ST.bright[i])*(1-Math.exp(-(ST.dt||1/60)*9)); const b=ST.bright[i];
+    $(id+"Glow").setAttribute("opacity",Math.min(0.85,b*0.42).toFixed(2));
+    $(id+"Bulb").setAttribute("fill",b>1.4?"#FF4D4D":b>0.4?"#FF7B7B":"#E8B4B4");
+    const lt="LED："+LED_TXT[lv]+(lv===1?"（也算亮）":""); if($(id+"Led").textContent!==lt) $(id+"Led").textContent=lt;
+    const r=lit[i];
+    $(id+"LB").setAttribute("fill",r==="acid"?"#D9414E":"#9CC3EC");
+    $(id+"LR").setAttribute("fill",r==="base"?"#2F62C9":"#F3B0B0");
+    const ls=r?("石蕊試紙："+(r==="acid"?"藍色變紅色（酸性）":r==="base"?"紅色變藍色（鹼性）":"都不變色（中性）")):"石蕊試紙：還沒滴";
+    if($(id+"Lit").textContent!==ls) $(id+"Lit").textContent=ls;
+  });
+  const d=$("dualSw"); if(d){ const t="🔋 開關："+(sims[0].S.on?"開":"關"); if(d.textContent!==t) d.textContent=t; }
+}
+
+/* ---------- 側欄：LED、石蕊試紙、圖例 ---------- */
+const UI={jh:false,faint:false,speed:1,tab:"",lit:[null,null],legendKey:""};
+function setStatus(lv,lit,cupKey,noWhy,off){
+  $("sBulb").className="ledbulb"+(lv?" l"+lv:"");
+  const t="LED："+LED_TXT[lv]+(lv===1?"（微微亮也算亮）":off?"（開關還沒打開）":"");
+  if($("sLed").textContent!==t) $("sLed").textContent=t;
+  $("stBlue").style.background=lit==="acid"?"#D9414E":"#9CC3EC";
+  $("stRed").style.background=lit==="base"?"#2F62C9":"#F3B0B0";
+  const bt=lit?(lit==="acid"?"<b>變紅色</b>":"不變色"):"還沒滴", rt=lit?(lit==="base"?"<b>變藍色</b>":"不變色"):"還沒滴";
+  if($("stBlueR").innerHTML!==bt) $("stBlueR").innerHTML=bt;
+  if($("stRedR").innerHTML!==rt) $("stRedR").innerHTML=rt;
+  let res="";
+  if(lit){
+    res=`→ <b>${PH_TXT[lit]}</b>`;
+    if(noWhy){}
+    else if(lit==="acid") res+=`<span class="why">有「讓水溶液變酸的小粒子」，它帶電。</span>`;
+    else if(lit==="base") res+=`<span class="why">有「讓水溶液變鹼的小粒子」，它帶電。</span>`;
+    else if(cupKey&&CUPS[cupKey].charge>0) res+=`<span class="why">也有帶電的小粒子，但不是讓水溶液變酸、變鹼的那一種，所以試紙不變色。</span>`;
+    else res+=`<span class="why">沒有多出讓水溶液變酸或變鹼的小粒子。</span>`;
+  }
+  if($("stRes").innerHTML!==res) $("stRes").innerHTML=res;
+}
+const LEG_ORDER=["water","sugar","glc","eth","hac","cit","h","na","ca","cl","glu","hco3","soap","oh","ac","citm"];
+function genericName(k){
+  const q=KINDS[k].q;
+  if(k==="water") return KINDS.water.kid;
+  if(k==="h") return KINDS.h.kid;
+  return q===2?"帶正電的小粒子（帶得比較多）":q>0?"帶正電的小粒子":q<0?"帶負電的小粒子":"不帶電的小粒子";
+}
+function legendRows(cupKey,present,generic){
+  const c=CUPS[cupKey];
+  return c.kinds.filter(k=>present.has(k)||k==="water").sort((a,b)=>LEG_ORDER.indexOf(a)-LEG_ORDER.indexOf(b)).map(k=>{
+    const name=generic?genericName(k):UI.jh?KINDS[k].jh:(c.leg[k]||KINDS[k].kid);
+    return `<div class="row">${iconSVG(k)}<span>${esc(name)}</span></div>`;
+  }).join("");
+}
+function updateLegend(groups,hiddenMsg,generic){
+  const key=JSON.stringify([groups.map(g=>[g.cup,[...g.present].sort()]),UI.jh,hiddenMsg||"",!!generic]);
+  if(key===UI.legendKey) return; UI.legendKey=key;
+  let h="";
+  if(hiddenMsg) h=`<div class="row">${esc(hiddenMsg)}</div>`;
+  else groups.forEach(g=>{ if(groups.length>1) h+=`<div class="grp">${esc(CUPS[g.cup].name)}</div>`; h+=legendRows(g.cup,g.present,generic); });
+  $("legRows").innerHTML=h;
+  $("jhNote").classList.toggle("hidden",!UI.jh);
+}
+
+/* ==========================================================
+   ▶ 粒子動畫：步驟
+   ========================================================== */
+const STEPS=[
+  /* ⚡ 3 分鐘快速版（字幕照小學生每秒大約讀 5 個字排時間） */
+  {id:"q1",ch:"q",title:"食鹽水和糖水",dur:31,view:"dual",cups:["salt","sugar"],pre:{dissolved:true},ev:[[12.5,"on"]],
+   caps:[[0,"兩杯都是中性，食鹽和糖都溶解了、看不見了。"],
+         [4.5,"放大看（想像）：食鹽分成帶正電（＋）和帶負電（－）的小粒子；糖的小粒子一顆一顆散開，不會分開，不帶電。"],
+         [12.5,"按下開關！"],
+         [13.5,"食鹽水：帶正電的往右邊的銅線走、帶負電的往左邊的銅線走——帶電的小粒子被拉著移動，電通得過 → LED 發亮。"],
+         [24,"糖水：糖的小粒子不帶電，不會被拉著往兩邊走 → 電很難通過，LED 不亮。<span class=\"ev\">每一杯水溶液裡，正電和負電一樣多，整杯水溶液不帶電。</span>"]],
+   ask:"食鹽水和糖水都是中性，為什麼一杯亮、一杯不亮？",
+   ans:"想像的解釋：食鹽溶在水裡會分成帶電的小粒子，糖不會。<small>要看水溶液裡有沒有「帶電、會移動」的小粒子，不是看有沒有溶解。</small>"},
+  {id:"q2",ch:"q",title:"醋和小蘇打水",dur:39,view:"dual",cups:["vin","soda"],pre:{dissolved:true},ev:[[3,"litmus"],[9.5,"pulse"],[17,"on"],[29,"pulse"]],
+   caps:[[0,"醋和小蘇打水。先滴石蕊試紙……"],
+         [3,"醋讓藍色試紙變紅色（酸性），小蘇打水讓紅色試紙變藍色（鹼性）。"],
+         [9.5,"閃一閃的，就是「讓水溶液變酸」「讓水溶液變鹼」的小粒子——它們都帶電！"],
+         [17,"按下開關！"],
+         [18,"兩杯的帶電小粒子都被拉著移動 → 兩杯的 LED 都亮。"],
+         [23.5,"醋只有微微亮：大多數醋的小粒子沒有分開。微微亮也算亮。"],
+         [29,"再看一次：小蘇打水裡也有帶正電的小粒子（它不會閃），它不會讓水溶液變酸。只有閃一閃的那幾種，才會讓石蕊試紙變色。"]],
+   ask:"為什麼酸性、鹼性的水溶液都容易導電？",
+   ans:"想像的解釋：讓水溶液變酸、變鹼的小粒子，本身就帶電；酸性、鹼性的水溶液裡一定有它們，所以容易導電。<small>每一杯水溶液裡，正電和負電一樣多，整杯水溶液不帶電。</small>"},
+  {id:"q3",ch:"q",title:"結論",dur:12,view:"board",
+   caps:[[0,"整理一下：酸性、鹼性的，都在「LED 亮」這一排；中性的，分在兩排。"],
+         [7,"課本這樣說：酸性和鹼性水溶液容易導電；中性水溶液不一定，食鹽水容易導電，糖水不容易導電。"]],
+   ask:"中性的水溶液，怎樣才知道容不容易導電？",
+   ans:"要用 LED 電路測測看。<small>想像的解釋：看溶進去的東西會不會分成帶電的小粒子（食鹽會、糖不會）。</small>"},
+  /* ① 電要怎麼通過水溶液？ */
+  {id:"clip",ch:1,title:"迴紋針",dur:16,view:"single",rig:"clip",cup:"water",
+   msg:["🔩 金屬容易導電（四年級學過）","迴紋針、硬幣、鐵尺放在電路斷開的地方，LED 會亮。","等一下換成水溶液，再用「想像的超級放大鏡」看看水裡有什麼。"],ev:[[7,"on"]],
+   caps:[[0,"課本 78 頁：把東西接在電路斷開的地方，LED 亮了，就是好的導電物。"],
+         [7,"接上迴紋針，按下開關——LED 亮了！金屬容易導電（四年級學過）。"],
+         [13.5,"等一下要換成一杯水溶液：電要從一條銅線，通過水溶液，到另一條銅線。"]],
+   ask:"先猜猜看：水溶液裡要有什麼，電才通得過？",ans:null},
+  /* ② 純水、食鹽、糖 */
+  {id:"water",ch:2,title:"純水",dur:19,view:"single",rig:"beaker",cup:"water",ev:[[15,"on"]],
+   caps:[[0,"換成一杯純水，兩條銅線分開放進去。（純水是對照組：看看就好，不考）"],
+         [7,"放大兩條銅線中間的水（想像）：水是由很多很多「水的小粒子」組成的，它們一直在動。"],
+         [15,"按下開關……"],
+         [16.5,"水的小粒子不帶電，不會被拉著往兩邊走 → 電很難通過，LED 不亮。純水不容易導電。"]],
+   ask:"純水為什麼不容易導電？",
+   ans:"水的小粒子不帶電，通電時不會被拉著往兩邊走，電很難通過。<small>（純水是對照組：課本把純水當作配製水溶液用的水，看看就好，不考。）</small>"},
+  {id:"salt",ch:2,title:"食鹽溶解",dur:28,view:"single",rig:"beaker",cup:"salt",pre:{signA:0},hold:14.4,ev:[[0.6,"add"],[8.5,"reveal"]],
+   caps:[[0,"在純水裡加入食鹽。"],
+         [2.5,"〈一顆也沒少〉為了簡單，把食鹽的小粒子都畫成一樣的白色小球。"],
+         [8.5,"其實有兩種：一種帶正電（＋），一種帶負電（－），一個隔一個，排得整整齊齊。"],
+         [16,"排在食鹽顆粒裡時，它們不能到處跑；溶在水裡以後，正的、負的分開，就能自由移動了。"],
+         [24.5,"還沒按下開關，帶電的小粒子就已經在水裡了——不是電池做出來的。<span class=\"ev\">每一杯水溶液裡，正電和負電一樣多，整杯水溶液不帶電。</span>"]],
+   ask:"先猜猜看：按下開關以後，這些帶電的小粒子會怎樣？",ans:null},
+  {id:"salton",ch:2,title:"食鹽水通電",dur:22,view:"single",rig:"beaker",cup:"salt",pre:{dissolved:true},live:true,ev:[[1,"on"]],
+   caps:[[0,"按下開關！"],
+         [1.5,"電池讓右邊的銅線吸引帶正電的小粒子、左邊的銅線吸引帶負電的小粒子（正電和負電會互相吸引）。"],
+         [10.5,"帶正電的往右邊走、帶負電的往左邊走——帶電的小粒子被拉著移動，電通得過 → LED 發亮！"],
+         [19,"放大鏡只看得到中間一小段：有小粒子從一邊走出去，就有別的小粒子從另一邊走進來。"]],
+   ask:"食鹽水為什麼容易導電？",
+   ans:"想像的解釋：食鹽溶在水裡，會分成帶正電和帶負電的小粒子；通電時它們會被拉著往兩邊移動，電通得過，LED 發亮。"},
+  {id:"sugar",ch:2,title:"糖溶解",dur:14,view:"single",rig:"beaker",cup:"sugar",ev:[[0.6,"add"]],
+   caps:[[0,"換一杯純水，加入糖。"],
+         [2.5,"糖的小粒子一顆一顆離開糖粒，散到水的小粒子中間——一顆一顆散開，沒有分成帶電的小粒子。"],
+         [11,"糖溶解了、看不見了，可是一顆也沒少，還在水裡。糖的小粒子不帶電。"]],
+   ask:"先猜猜看：按下開關，LED 會亮嗎？",ans:null},
+  {id:"sugaron",ch:2,title:"糖水通電",dur:18,view:"single",rig:"beaker",cup:"sugar",pre:{dissolved:true},live:true,ev:[[1,"on"],[11,"more"]],
+   caps:[[0,"按下開關！"],
+         [1.5,"糖的小粒子和水的小粒子都不帶電，不會被拉著往兩邊走……"],
+         [7,"電很難通過 → LED 不亮。糖水不容易導電。"],
+         [11,"再加一匙糖……"],
+         [13,"糖加得再多，糖的小粒子還是不帶電，LED 還是不亮——要看有沒有帶電、會移動的小粒子，不是溶解了多少。"]],
+   ask:"食鹽水和糖水都是中性、都溶解了，為什麼一杯亮、一杯不亮？",
+   ans:"想像的解釋：食鹽溶在水裡會分成帶電的小粒子，糖不會。<small>溶解了、看不見了，不代表容易導電。</small>"},
+  /* ③ 酸和鹼 */
+  {id:"vin",ch:3,title:"醋",dur:21,view:"single",rig:"beaker",cup:"vin",hold:7.6,ev:[[0.6,"add"],[16.5,"litmus"]],
+   caps:[[0,"倒入醋（課本：2 毫升的醋加 20 毫升純水）。"],
+         [5,"大多數醋的小粒子沒有分開，不帶電。"],
+         [8.5,"只有一些會分開，放出帶正電的「讓水溶液變酸的小粒子」，剩下的另一部分帶負電。"],
+         [16.5,"滴在藍色石蕊試紙上 → 變紅色！<span class=\"ev\">閃一閃的，就是讓水溶液變酸的小粒子。</span>"]],
+   ask:"先猜猜看：醋通電以後，LED 會亮嗎？",ans:null},
+  {id:"vinon",ch:3,title:"醋通電",dur:14,view:"single",rig:"beaker",cup:"vin",pre:{dissolved:true,litmus:true},live:true,ev:[[1,"on"]],
+   caps:[[0,"按下開關！"],
+         [1.5,"讓水溶液變酸的小粒子，和醋分開後的另一部分，都帶電，被拉著往兩邊走 → LED 亮了。"],
+         [10,"大多數醋的小粒子沒有分開，只有一些分開成帶電的小粒子，所以 LED 微微亮——微微亮也算亮，醋容易導電。"]],
+   ask:"為什麼酸性的水溶液容易導電？",
+   ans:"想像的解釋：讓水溶液變酸的小粒子，本身就帶電；酸性的水溶液裡一定有它，所以容易導電。"},
+  {id:"soda",ch:3,title:"小蘇打水",dur:23,view:"single",rig:"beaker",cup:"soda",ev:[[0.6,"add"],[11.5,"litmus"],[18.5,"on"]],
+   caps:[[0,"換一杯純水，加入小蘇打。"],
+         [3,"小蘇打溶在水裡，分成帶正電和帶負電的兩種小粒子。"],
+         [8,"帶負電的那一種，會讓水溶液變成鹼性。"],
+         [11.5,"滴在紅色石蕊試紙上 → 變藍色！<span class=\"ev\">閃一閃的，就是讓水溶液變鹼的小粒子。</span>"],
+         [18.5,"按下開關：帶電的小粒子都被拉著往兩邊走 → LED 發亮。"]],
+   ask:"為什麼鹼性的水溶液容易導電？",
+   ans:"想像的解釋：讓水溶液變鹼的小粒子，本身就帶電；鹼性的水溶液裡一定有它，所以容易導電。"},
+  /* ④ 兩種偵測器 */
+  {id:"sum",ch:4,title:"兩種偵測器",dur:27,view:"board",
+   caps:[[0,"石蕊試紙只對「讓水溶液變酸」「讓水溶液變鹼」的小粒子變色。"],
+         [6,"LED 電路不挑：只要有帶電、會移動的小粒子，電就通得過。"],
+         [11.5,"中性的水溶液，沒有多出讓水溶液變酸或變鹼的小粒子，試紙不變色；可能有別的帶電小粒子（像食鹽水），也可能沒有（像糖水）。"],
+         [23.5,"食鹽水也有帶正電、帶負電的小粒子，但不是讓水溶液變酸、變鹼的那幾種，所以石蕊試紙不變色。"]],
+   ask:"為什麼酸性、鹼性的水溶液都容易導電，中性的卻不一定？",
+   ans:"想像的解釋：酸性、鹼性水溶液裡，一定有讓它變酸、變鹼的帶電小粒子，所以容易導電；中性水溶液不一定，要看溶進去的東西會不會分成帶電的小粒子。<small>課本這樣說：酸性和鹼性水溶液容易導電；中性水溶液不一定，食鹽水容易導電，糖水不容易導電。</small>"}
+];
+const CH_FIRST={}; STEPS.forEach((s,i)=>{ if(CH_FIRST[s.ch]==null) CH_FIRST[s.ch]=i; });
+const HASH_STEP={quick:"q1",quick2:"q2",quick3:"q3",copper:"clip",clip:"clip",water:"water",salt:"salt",salton:"salton",sugar:"sugar",sugaron:"sugaron",acid:"vin",acidon:"vinon",base:"soda",sum:"sum"};
+const simA=makeSim(11), simB=makeSim(23);
+const T={i:CH_FIRST[1],t:0,playing:false,ended:false,lastCap:-1,fired:0,litA:null,litB:null};
+function trackOf(i){ return STEPS[i].ch==="q"?"q":"full"; }
+function trackSteps(){ const tr=trackOf(T.i); return STEPS.map((s,i)=>i).filter(i=>trackOf(i)===tr); }
+function buildPills(){
+  const host=$("pills"); host.innerHTML="";
+  const list=trackSteps(), ch=STEPS[T.i].ch;
+  list.forEach((i,m)=>{
+    if(STEPS[i].ch!==ch) return;   /* 只列這一章的步驟（編號照整個版本算） */
+    const s=STEPS[i], li=document.createElement("li"), b=document.createElement("button");
+    b.type="button"; b.className="pill"; b.textContent=`${m+1} ${s.title}`; b.dataset.i=i;
+    b.addEventListener("click",()=>goStep(i,{play:true}));
+    li.appendChild(b); host.appendChild(li);
+  });
+}
+function refreshUI(){
+  const st=STEPS[T.i], list=trackSteps(), pos=list.indexOf(T.i);
+  document.querySelectorAll(".chap").forEach(b=>b.classList.toggle("on",String(b.dataset.ch)===String(st.ch)));
+  document.querySelectorAll(".pill").forEach(b=>{ const i=+b.dataset.i;
+    b.classList.toggle("on",i===T.i); b.classList.toggle("done",list.indexOf(i)<pos);
+    if(i===T.i) b.setAttribute("aria-current","step"); else b.removeAttribute("aria-current"); });
+  const chName=st.ch==="q"?"⚡ 快速版":`第 ${st.ch} 章`;
+  $("stTitle").textContent=`${chName}・第 ${pos+1} 步／共 ${list.length} 步：${st.title}`;
+  const last=pos===list.length-1;
+  $("bPlay").textContent=T.playing?"⏸ 暫停":(T.ended?(last?"↺ 從頭再看":"▶ 下一步"):"▶ 播放");
+  $("bPrev").disabled=pos===0; $("bNext").disabled=last&&T.ended;
+}
+function showCaption(force){
+  const st=STEPS[T.i]; let k=0;
+  st.caps.forEach((c,m)=>{ if(T.t>=c[0]) k=m; });
+  if(k===T.lastCap&&!force) return;
+  T.lastCap=k; $("cap").innerHTML=st.caps[k][1];
+  stage.setAttribute("aria-label","示意動畫："+st.caps[k][1].replace(/<[^>]+>/g,""));
+}
+function showQuestion(on){
+  const st=STEPS[T.i];
+  $("toSumRow").classList.add("hidden");
+  if(!on||!st.ask){ $("qbox").classList.add("hidden"); return; }
+  $("qbox").classList.remove("hidden");
+  $("qAsk").textContent=(st.ans?"🤔 想一想：":"")+st.ask;
+  $("qAns").classList.add("hidden"); $("qBtn").classList.toggle("hidden",!st.ans);
+  if(st.ans) $("qAns").innerHTML=st.ans;
+}
+function buildStep(i){
+  const st=STEPS[i], pre=st.pre||{};
+  T.litA=null; T.litB=null;
+  if(st.view==="dual"){
+    simA.reset(st.cups[0],{dissolved:!!pre.dissolved,seed:100+i}); simB.reset(st.cups[1],{dissolved:!!pre.dissolved,seed:200+i});
+  }else if(st.view==="single"){
+    simA.reset(st.cup,{dissolved:!!pre.dissolved,seed:100+i,signA:pre.signA});
+    if(pre.litmus) T.litA=simA.litmus();
+  }
+}
+function goStep(i,opt){
+  opt=opt||{};
+  i=clamp(i,0,STEPS.length-1);
+  const st=STEPS[i], prev=STEPS[T.i];
+  const live=!!opt.live&&st.live&&T.i===i-1&&T.ended&&prev.cup===st.cup&&prev.view==="single";
+  T.i=i; T.t=0; T.ended=false; T.lastCap=-1; T.fired=0;
+  $("summary").classList.add("hidden");
+  showQuestion(false);
+  setView(st.view,{rig:st.rig,msg:st.msg});
+  ST.lockSw=true; applyStageFlags();
+  if(!live){ buildStep(i); ST.bright=[0,0]; }
+  else{ if(st.pre&&st.pre.litmus&&!T.litA) T.litA=simA.litmus(); }
+  T.playing=opt.play!==false;
+  buildPills(); showCaption(true); refreshUI();
+  const h=Object.keys(HASH_STEP).find(k=>HASH_STEP[k]===st.id&&k!=="copper");
+  try{ history.replaceState(null,"",location.pathname+location.search+(h?"#"+h:"#anim")); }catch(_){}
+}
+function fire(ev){
+  const st=STEPS[T.i], dual=st.view==="dual", sims=dual?[simA,simB]:[simA];
+  if(ev==="on") sims.forEach(s=>s.setOn(true));
+  else if(ev==="off") sims.forEach(s=>s.setOn(false));
+  else if(ev==="add") sims.forEach(s=>s.add(st.hold));
+  else if(ev==="more") sims.forEach(s=>s.more());
+  else if(ev==="reveal") simA.reveal();
+  else if(ev==="pulse"){ simA.pulse(); if(dual) simB.pulse(); }
+  else if(ev==="litmus"){ T.litA=simA.litmus()||simA.S.cup.ph; simA.pulse(); if(dual){ T.litB=simB.litmus()||simB.S.cup.ph; simB.pulse(); } }
+}
+function stepEnd(){ T.playing=false; T.ended=true; showQuestion(true); refreshUI(); }
+function next(){
+  const list=trackSteps(), pos=list.indexOf(T.i);
+  if(pos<list.length-1) goStep(list[pos+1],{live:T.ended,play:true});
+  else if(!T.ended) fastForward(STEPS[T.i].dur);
+}
+function prev(){ const list=trackSteps(), pos=list.indexOf(T.i); if(pos<=0) return; goStep(list[pos-1],{play:true}); }
+let navLock=0;
+function navOk(){ const n=performance.now(); if(n<navLock) return false; navLock=n+320; return true; }   /* 連點兩下只算一下 */
+function togglePlay(){
+  if(T.ended){ const list=trackSteps(), pos=list.indexOf(T.i); if(pos<list.length-1) next(); else goStep(list[0],{play:true}); return; }
+  T.playing=!T.playing; refreshUI();
+}
+function animAdvance(dt){
+  const st=STEPS[T.i];
+  if(T.playing){
+    T.t+=dt*UI.speed;
+    while(T.fired<(st.ev||[]).length&&st.ev[T.fired][0]<=T.t){ fire(st.ev[T.fired][1]); T.fired++; }
+    if(T.t>=st.dur){ T.t=st.dur; stepEnd(); }
+  }
+}
+function fastForward(target){
+  const st=STEPS[T.i], was=T.playing; target=clamp(target,0,st.dur);
+  T.playing=true;   /* 快轉時一律照劇本跑（事件才會觸發） */
+  while(T.t<target-1e-6&&!T.ended){
+    const dt=Math.min(SUBDT,target-T.t);
+    animAdvance(dt);
+    simsForView().forEach(s=>s.step(dt));
+  }
+  if(!T.ended) T.playing=was;
+  if(T.t>=st.dur-1e-6&&!T.ended) stepEnd();
+}
+function simsForView(){ return ST.view==="dual"?[simA,simB]:ST.view==="single"?[simA]:[]; }
+
+/* ==========================================================
+   🧪 自己試試看
+   ========================================================== */
+const LAB_CUPS=["water","salt","sugar","vin","cit","soda","soap"];
+const LAB={cup:"salt"};
+function buildLab(){
+  const host=$("labCups"); host.innerHTML="";
+  LAB_CUPS.forEach(k=>{
+    const b=document.createElement("button"); b.type="button"; b.className="cupbtn"; b.dataset.cup=k;
+    const c=CUPS[k], t=c.tag||c.note; b.innerHTML=esc(c.name)+(t?`<small>${esc(t)}</small>`:"");
+    b.addEventListener("click",()=>{ LAB.cup=k; labReset(); });
+    host.appendChild(b);
+  });
+}
+function labReset(){
+  simA.reset(LAB.cup,{seed:300+LAB_CUPS.indexOf(LAB.cup)}); UI.lit[0]=null; ST.bright=[0,0]; LAB.prevDone=simA.done();
+  document.querySelectorAll(".cupbtn").forEach(b=>{ const on=b.dataset.cup===LAB.cup; b.classList.toggle("on",on); b.setAttribute("aria-pressed",String(on)); });
+  labNote(LAB.cup==="water"?"這是一杯純水（對照組，看看就好，不考）。可以直接按開關、滴試紙。":"先按「➕ 加進去」，看看它溶在水裡變成什麼樣子。");
+  labTick();
+}
+function labNote(s){ $("labNote").innerHTML=s; stage.setAttribute("aria-label","示意畫面：實驗臺，"+CUPS[LAB.cup].name); }
+function onSwitch(){
+  if(UI.tab==="lab"){ simA.setOn(!simA.S.on); labNote(simA.S.on?labOnText():"開關關掉了。"); }
+  else if(UI.tab==="game") gameSwitch();
+}
+function labOnText(){
+  const c=CUPS[LAB.cup], lv=simA.level();
+  if(!simA.done()&&c.add) return simA.S.added?"開關打開了。等它溶解完，看看小粒子會不會被拉著往兩邊走。":"開關打開了：現在杯子裡還只有純水。";
+  if(lv===0) return `${c.name}裡沒有帶電的小粒子，沒有小粒子被拉著往兩邊走 → 電很難通過，<b>LED 不亮</b>（不容易導電）。`;
+  return `${c.name}：帶正電的往右邊的銅線走、帶負電的往左邊的銅線走 → <b>LED ${LED_TXT[lv]}</b>${lv===1?"（微微亮也算亮）":""}，容易導電。`;
+}
+function labTick(){
+  const c=CUPS[LAB.cup], d=simA.done();
+  $("lAdd").disabled=!c.add||simA.S.added;
+  $("lAdd").textContent=c.add?(simA.S.added?"✓ 已經加進去了":"➕ 加進去"):"（純水不用加）";
+  $("lSw").textContent="🔋 開關："+(simA.S.on?"開":"關"); $("lSw").setAttribute("aria-pressed",String(simA.S.on));
+  $("lLit").disabled=!d;
+  const full=(simA.S.moreN||0)>=2;
+  $("lMore").classList.toggle("hidden",!c.more); $("lMore").disabled=!(c.more&&d)||full;
+  $("lMore").textContent=full?"（糖加到這裡就好）":"➕ 再加一匙糖";
+  if(d&&!LAB.prevDone&&simA.S.on) labNote(labOnText());   /* 開關開著時溶解完：LED 亮了要說出來 */
+  LAB.prevDone=d;
+}
+$("lAdd").addEventListener("click",()=>{ if(simA.add()) labNote(CUPS[LAB.cup].add.form==="grain"?"放大看：外面的小粒子先離開，一個一個散到水的小粒子中間。":"倒進去了：看看它的小粒子散開以後是什麼樣子。"); labTick(); });
+$("lSw").addEventListener("click",onSwitch);
+$("lLit").addEventListener("click",()=>{ const r=simA.litmus(); if(!r) return; UI.lit[0]=r; simA.pulse();
+  const c=CUPS[LAB.cup];
+  labNote(r==="acid"?"藍色石蕊試紙變紅色 → 酸性。閃一閃的是「讓水溶液變酸的小粒子」，它帶電。":
+          r==="base"?"紅色石蕊試紙變藍色 → 鹼性。閃一閃的是「讓水溶液變鹼的小粒子」，它帶電。":
+          c.charge>0?"兩種試紙都不變色 → 中性。這一杯也有帶電的小粒子，但不是讓水溶液變酸、變鹼的那一種。":"兩種試紙都不變色 → 中性。"); });
+$("lMore").addEventListener("click",()=>{ if(simA.more()) labNote("再加一匙糖……糖的小粒子再多，也都不帶電。"); });
+$("lReset").addEventListener("click",labReset);
+
+/* ==========================================================
+   🎮 LED 亮不亮？（神祕杯）
+   ========================================================== */
+const POOL={lit:["salt","msg","sugsalt"],unlit:["sugar","eth","glc"],acid:["vin","cit","sport"],base:["soda","soap","lime"]};   /* 純水是「不考」的對照組，不放進計分的遊戲 */
+const LABELS="甲乙丙丁戊己庚辛";
+const RANKS=[{min:0,t:"🔌 見習偵察員"},{min:13,t:"💡 帶電小粒子偵察員"},{min:15,t:"🏅 帶電小粒子大師！"}];
+const G={mode:"solo",deck:[],i:0,scores:[0,0],tickets:[0,0],turn:0,phase:"setup",used:false,answer:null,seed:Date.now()%100000,snd:true};
+function catOf(k){ const c=CUPS[k]; return c.ph==="acid"?"acid":c.ph==="base"?"base":c.level>0?"lit":"unlit"; }
+function makeDeck(mode,seed){
+  const r=mulberry32(seed), pick=(arr,n)=>{ const a=arr.slice(), out=[]; while(out.length<n&&a.length) out.push(a.splice(Math.floor(r()*a.length),1)[0]); return out; };
+  const shuffle=a=>{ for(let m=a.length-1;m>0;m--){ const j=Math.floor(r()*(m+1)); [a[m],a[j]]=[a[j],a[m]]; } return a; };
+  /* 中性杯每一局都是 4 杯，但會亮的有幾杯不一定（不能用「剩下的一定是…」推出來，一定要看小粒子） */
+  const acid=pick(POOL.acid,2), base=pick(POOL.base,2);
+  if(mode==="team"){
+    let k1=0, k2=0; do{ k1=Math.floor(r()*3); k2=Math.floor(r()*3); }while(k1+k2<1||k1+k2>3);
+    const lit=pick(POOL.lit,k1+k2), unlit=pick(POOL.unlit,4-k1-k2);
+    const h1=shuffle([acid[0],base[0]].concat(lit.slice(0,k1),unlit.slice(0,2-k1)));
+    const h2=shuffle([acid[1],base[1]].concat(lit.slice(k1),unlit.slice(2-k1)));
+    const first=r()<0.5?0:1, d=[];   /* 哪一隊先上臺也不一定 */
+    for(let m=0;m<4;m++){ const a={cup:h1[m],team:0}, b={cup:h2[m],team:1}; if(first) d.push(b,a); else d.push(a,b); }
+    return d;
+  }
+  const k=1+Math.floor(r()*3), lit=pick(POOL.lit,k), unlit=pick(POOL.unlit,4-k);
+  return shuffle(lit.concat(unlit,acid,base)).map(c=>({cup:c,team:0}));
+}
+/* 計分：酸、鹼不用券就答對 2 分（用券答對 1 分）；中性用券答對 2 分（沒用券猜對 1 分）；答錯 0 分 */
+function scoreOf(cup,used,ansLit){
+  const cat=catOf(cup), right=(ansLit===(CUPS[cup].level>0));
+  if(!right) return 0;
+  if(cat==="acid"||cat==="base") return used?1:2;
+  return used?2:1;
+}
+function gameRules(){
+  const team=G.mode==="team";
+  $("gRules").innerHTML=[
+    "8 個神祕杯都蓋起來，只寫代號（甲～辛），看不出裡面是什麼。每一杯先<b>滴石蕊試紙</b>（免費）。",
+    "再選「💡 會亮」或「⚫ 不會亮」；看不出來時，可以用一張「🔍 想像放大鏡券」看杯子裡的小粒子。",
+    team?"兩隊輪流上臺，每隊 4 杯、2 張放大鏡券。":"一共 4 張放大鏡券。",
+    "酸性、鹼性的杯子：不用券就答對 2 分（用了券 1 分）。中性的杯子：用券看清楚再答對 2 分（沒看就猜對 1 分）。答錯 0 分。",
+    "每一局的杯子都不一樣；中性的杯子有幾杯會亮，也不一定。",
+    "想一想：哪幾杯不用放大也知道答案？"
+  ].map(s=>`<li>${s}</li>`).join("");
+}
+function setMode(m){ G.mode=m; $("gSolo").setAttribute("aria-pressed",String(m==="solo")); $("gTeam").setAttribute("aria-pressed",String(m==="team")); gameRules(); }
+function startGame(){
+  G.seed=(G.seed*9301+49297)%233280;
+  G.deck=makeDeck(G.mode,G.seed); G.i=0; G.scores=[0,0]; G.tickets=G.mode==="team"?[2,2]:[4,0]; G.results=[];
+  $("gSetup").classList.add("hidden"); $("gPlay").classList.remove("hidden"); $("gameEnd").classList.add("hidden");
+  gameCup();
+}
+function gameCup(){
+  const d=G.deck[G.i]; G.turn=d.team; G.phase="litmus"; G.used=false; G.answer=null; UI.lit[0]=null;
+  simA.reset(d.cup,{dissolved:true,seed:500+G.i+G.seed%97}); ST.bright=[0,0];
+  setView("single",{rig:"beaker",covered:true});
+  ST.lockSw=true; applyStageFlags();
+  $("gFb").className="gfb"; $("gFb").innerHTML=""; $("gNext").classList.add("hidden");
+  gameRender(); draw();
+  stage.setAttribute("aria-label","示意畫面：神祕杯 "+LABELS[G.i]+"（用想像放大鏡券以後才看得到小粒子）");
+}
+function gameResume(){
+  const d=G.deck[G.i];
+  simA.reset(d.cup,{dissolved:true,seed:500+G.i+G.seed%97});
+  if(G.phase==="done") simA.setOn(true);
+  UI.lit[0]=G.phase==="litmus"?null:simA.litmus();
+  setView("single",{rig:"beaker",covered:!(G.used||G.phase==="done")});
+  ST.lockSw=G.phase!=="answered"; applyStageFlags();
+  ST.bright[0]=simA.level();
+  $("gSetup").classList.add("hidden"); $("gPlay").classList.remove("hidden");
+  gameRender();
+}
+function gameHud(){
+  const n=G.deck.length, lab=LABELS[G.i];
+  if(G.mode==="team"){
+    return `<span>第 ${G.i+1}／${n} 杯</span>`+[0,1].map(t=>`<span class="team t${t+1}${G.turn===t?" now":""}">第 ${t+1} 隊 ⭐${G.scores[t]} 🔍×${G.tickets[t]}</span>`).join("")+`<span>神祕杯 ${lab}</span>`;
+  }
+  return `<span>第 ${G.i+1}／${n} 杯：神祕杯 ${lab}</span><span>⭐ ${G.scores[0]} 分</span><span>🔍 放大鏡券 ×${G.tickets[0]}</span>`;
+}
+function gBtn(txt,cls,fn,dis){ const b=document.createElement("button"); b.type="button"; b.className="btn "+(cls||""); b.innerHTML=txt; if(dis) b.disabled=true; b.addEventListener("click",()=>{ if(performance.now()<(G.lockUntil||0)) return; fn(); }); return b; }   /* 按鈕換掉後 0.45 秒內不收：連點兩下不會點到新的按鈕 */
+function gameRender(){
+  G.lockUntil=performance.now()+450;
+  $("gHud").innerHTML=gameHud();
+  const host=$("gBtns"); host.innerHTML="";
+  if(G.kbd) setTimeout(()=>{ const f=[...host.querySelectorAll("button")].find(b=>!b.disabled)||(!$("gNext").classList.contains("hidden")&&$("gNext")); if(f) f.focus(); },0);   /* 用鍵盤玩：焦點留在按鈕上 */
+  const who=G.mode==="team"?`第 ${G.turn+1} 隊：`:"";
+  if(G.phase==="litmus"){
+    $("gQ").textContent=who+"先滴石蕊試紙，看看這一杯是酸性、中性還是鹼性。";
+    host.appendChild(gBtn("💧 滴石蕊試紙（免費）","",()=>{ UI.lit[0]=simA.litmus(); G.phase="decide"; Sound.soft(); gameRender(); }));
+  }else if(G.phase==="decide"){
+    const lt={acid:"藍色變紅色（酸性）",base:"紅色變藍色（鹼性）",neutral:"都不變色（中性）"}[UI.lit[0]]||"";
+    $("gQ").textContent=who+(lt?"石蕊試紙："+lt+"。":"")+"通電以後，LED 會亮嗎？";
+    host.appendChild(gBtn("💡 會亮","",()=>gameAnswer(true)));
+    host.appendChild(gBtn("⚫ 不會亮","plain",()=>gameAnswer(false)));
+    const t=G.tickets[G.turn];
+    if(!G.used) host.appendChild(gBtn(t>0?`🔍 用想像放大鏡券看看（剩 ${t} 張）`:"🔍 放大鏡券用完了","ticket",()=>{ G.tickets[G.turn]--; G.used=true; ST.covered=false; applyStageFlags(); Sound.soft(); gameRender(); },t<=0));
+  }else if(G.phase==="answered"){
+    $("gQ").innerHTML=who+`你選「${G.answer?"會亮":"不會亮"}」。按下開關看看！`;
+    host.appendChild(gBtn("🔋 按下開關","green",gameSwitch));
+  }else if(G.phase==="done"){
+    $("gQ").textContent="";
+  }
+}
+function gameAnswer(lit){ G.answer=lit; G.phase="answered"; ST.lockSw=false; applyStageFlags(); gameRender(); }
+function gameSwitch(){
+  if(G.phase!=="answered") return;
+  const d=G.deck[G.i], c=CUPS[d.cup], cat=catOf(d.cup);
+  simA.setOn(true); ST.covered=false; ST.lockSw=true; applyStageFlags();
+  const pts=scoreOf(d.cup,G.used,G.answer); G.scores[G.turn]+=pts;
+  G.results.push({cup:d.cup,team:d.team,pts,used:G.used,label:LABELS[G.i]});
+  const right=G.answer===(c.level>0);
+  let msg;
+  if(cat==="acid"||cat==="base") msg=right?(G.used?"答對了，＋1。其實不用放大也知道！":"不用放大就答對了，＋2！"):"答錯了，＋0。";
+  else msg=right?(G.used?"放大看清楚再答，答對了，＋2！":"沒看就猜對了，＋1。中性的杯子，只看試紙猜不出來喔（真的實驗要用 LED 測）。"):"答錯了，＋0。";
+  const lv=c.level;
+  const crit=cat==="acid"?"藍色石蕊試紙變紅色 → 酸性 → 水裡一定有「讓水溶液變酸的小粒子」，它帶電 → 不用放大也知道 LED 會亮。":
+             cat==="base"?"紅色石蕊試紙變藍色 → 鹼性 → 水裡一定有「讓水溶液變鹼的小粒子」，它帶電 → 不用放大也知道 LED 會亮。":
+             cat==="lit"?"兩種試紙都不變色 → 中性，要放大看：這一杯有帶電的小粒子（＋、－），通電時會被拉著往兩邊走 → LED 會亮。":
+             "兩種試紙都不變色 → 中性，要放大看：這一杯的小粒子都不帶電，通電時不會被拉著往兩邊走 → LED 不亮。";
+  $("gFb").className="gfb "+(right?"good":"bad");
+  $("gFb").innerHTML=`<span class="pts">${right?"✅":"❌"} LED ${LED_TXT[lv]}${lv===1?"（微微亮也算亮）":""}。${msg}</span><span class="crit">💡 ${crit}</span><span class="who">這一杯是：<b>${c.name}</b>${c.note?`（${c.note}）`:""}。${c.who||""}</span>`;
+  Sound[right?"ok":"bad"](); Sound.led(lv>0);
+  G.phase="done"; gameRender();
+  $("gNext").textContent=G.i<G.deck.length-1?"下一杯 →":"看結果 →";
+  $("gNext").classList.remove("hidden");
+}
+function gameNext(){ if(G.i<G.deck.length-1){ G.i++; gameCup(); } else gameEnd(); }
+function gameEnd(){
+  $("gPlay").classList.add("hidden"); $("gSetup").classList.remove("hidden");
+  const team=G.mode==="team";
+  let sc;
+  if(team){ const [a,b]=G.scores; sc=`第 1 隊 ⭐${a}、第 2 隊 ⭐${b}（每隊滿分 8）`+(a===b?"：平手！":`：<b>第 ${a>b?1:2} 隊獲勝！</b>`); }
+  else{ const s=G.scores[0]; let r=RANKS[0]; RANKS.forEach(x=>{ if(s>=x.min) r=x; }); sc=`⭐ ${s}／16 分　${r.t}`; }
+  $("geScore").innerHTML=sc;
+  /* 結算板：酸性／中性／鹼性 × 亮／不亮 */
+  const cell=(ph,lit)=>G.results.filter(x=>CUPS[x.cup].ph===ph&&(CUPS[x.cup].level>0)===lit)
+    .map(x=>`<span class="chip">${x.label} ${esc(CUPS[x.cup].name)}${team?` <small>第 ${x.team+1} 隊</small>`:""}</span>`).join("")||`<span class="none">（沒有）</span>`;
+  let b=`<div class="h"></div><div class="h">酸性</div><div class="h">中性</div><div class="h">鹼性</div>`;
+  [[true,"LED 亮"],[false,"LED 不亮"]].forEach(([lit,t])=>{ b+=`<div class="h rh">${t}</div>`+["acid","neutral","base"].map(ph=>`<div class="c${lit?" lit":""}">${cell(ph,lit)}</div>`).join(""); });
+  $("geBoard").innerHTML=b;
+  $("geCrit").innerHTML=`<span class="must">看看這張表</span>酸性、鹼性的杯子，全都在「LED 亮」這一排；中性的杯子分在兩排。<small>酸性和鹼性水溶液容易導電；中性水溶液不一定，食鹽水容易導電，糖水不容易導電。</small>`;
+  $("gameEnd").classList.remove("hidden");
+  G.phase="setup";
+  simA.reset("water",{seed:1}); UI.lit[0]=null; ST.bright=[0,0];
+  setView("single",{rig:"beaker",covered:true}); ST.lockSw=true; applyStageFlags();
+  stage.setAttribute("aria-label","示意畫面：實驗臺");
+  const d=document, show=()=>{ $("gameEnd").scrollIntoView({behavior:REDUCED?"auto":"smooth",block:"start"}); if(G.kbd) $("geAgain").focus({preventScroll:true}); };
+  if(d.fullscreenElement||d.webkitFullscreenElement){ (d.exitFullscreen||d.webkitExitFullscreen).call(d); setTimeout(show,350); } else show();   /* 結算板在播放器外面：全螢幕時先離開全螢幕 */
+}
+$("gamePanel").addEventListener("keydown",ev=>{ if(ev.key==="Enter"||ev.key===" ") G.kbd=true; });
+$("gamePanel").addEventListener("pointerdown",()=>{ G.kbd=false; });
+$("gSolo").addEventListener("click",()=>setMode("solo"));
+$("gTeam").addEventListener("click",()=>setMode("team"));
+$("gStart").addEventListener("click",startGame);
+$("gNext").addEventListener("click",()=>{ if(performance.now()<(G.lockUntil||0)) return; gameNext(); });
+$("geAgain").addEventListener("click",()=>{ startGame(); $("player").scrollIntoView({behavior:REDUCED?"auto":"smooth",block:"start"}); });
+$("gSnd").addEventListener("click",()=>{ G.snd=!G.snd; Sound.on=G.snd; $("gSnd").setAttribute("aria-pressed",String(G.snd)); $("gSnd").textContent="🔊 音效："+(G.snd?"開":"關"); });
+
+/* ---------- 音效（沿用〈水溶液偵探社〉的 Sound 模組：只用 sine／triangle、最大音量 0.16、最長 0.18 秒） ---------- */
+const Sound={
+  ctx:null,on:true,starts:[],
+  ensure(){ if(!this.on) return; try{ if(!this.ctx){ const AC=window.AudioContext||window.webkitAudioContext; if(AC) this.ctx=new AC(); } if(this.ctx&&this.ctx.state==="suspended") this.ctx.resume(); }catch(_){} },
+  tone(freq,delay,dur,type,vol){
+    if(!this.on) return; this.ensure(); if(!this.ctx) return;
+    try{
+      const now=this.ctx.currentTime, t=now+delay;
+      this.starts=this.starts.filter(s=>s>now-0.2);
+      if(this.starts.some(s=>Math.abs(s-t)<0.09)) return;
+      this.starts.push(t); dur=Math.min(dur,0.17);
+      const osc=this.ctx.createOscillator(), gain=this.ctx.createGain();
+      osc.type=type==="triangle"?"triangle":"sine"; osc.frequency.value=freq;
+      gain.gain.setValueAtTime(0.0001,t); gain.gain.linearRampToValueAtTime(Math.min(vol||0.1,0.16),t+0.02); gain.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+      osc.connect(gain).connect(this.ctx.destination); osc.start(t); osc.stop(t+dur+0.01);
+    }catch(_){}
+  },
+  soft(){ this.tone(440,0,0.12,"sine",0.07); },
+  ok(){ this.tone(660,0,0.1,"triangle",0.12); this.tone(990,0.1,0.14,"triangle",0.12); },
+  bad(){ this.tone(392,0,0.16,"triangle",0.08); this.tone(294,0.14,0.17,"triangle",0.08); },
+  led(on){ if(on){ this.tone(1320,0.33,0.14,"sine",0.07); this.tone(1760,0.43,0.12,"sine",0.05); } else this.tone(220,0.33,0.1,"triangle",0.08); }
+};
+
+/* ==========================================================
+   分頁切換、共用按鈕
+   ========================================================== */
+function setTab(tab,opt){
+  opt=opt||{};
+  if(tab===UI.tab&&!opt.force) return;   /* 點目前這一頁的分頁：什麼都不做（遊戲不會被清掉） */
+  UI.tab=tab; document.body.dataset.tab=tab;
+  document.querySelectorAll(".tabbtn").forEach(b=>{ const on=b.dataset.tab===tab; b.classList.toggle("on",on); if(on) b.setAttribute("aria-current","page"); else b.removeAttribute("aria-current"); });
+  $("summary").classList.add("hidden");
+  if(tab!=="game") $("gameEnd").classList.add("hidden");
+  if(tab==="anim"){
+    if(opt.step!=null) goStep(opt.step,{play:opt.play!==false});
+    else{ const t=T.t, was=T.playing; goStep(T.i,{play:false}); if(t>0){ T.playing=true; fastForward(t); if(!T.ended) T.playing=was; } refreshUI(); }
+  }
+  else if(tab==="lab"){ setView("single",{rig:"beaker"}); ST.lockSw=false; applyStageFlags(); labReset(); try{ history.replaceState(null,"",location.pathname+location.search+"#lab"); }catch(_){} }
+  else{
+    if(G.deck.length&&G.phase&&G.phase!=="setup") gameResume();   /* 玩到一半換分頁再回來：接著玩 */
+    else{ setView("single",{rig:"beaker",covered:true}); ST.lockSw=true; applyStageFlags(); simA.reset("water",{seed:1}); UI.lit[0]=null;
+      $("gSetup").classList.remove("hidden"); $("gPlay").classList.add("hidden"); gameRules(); }
+    try{ history.replaceState(null,"",location.pathname+location.search+"#game"); }catch(_){} }
+  UI.legendKey="";
+}
+document.querySelectorAll(".tabbtn").forEach(b=>b.addEventListener("click",()=>setTab(b.dataset.tab)));
+document.querySelectorAll("[data-goto]").forEach(b=>b.addEventListener("click",()=>{ setTab(b.dataset.goto); $("player").scrollIntoView({behavior:REDUCED?"auto":"smooth",block:"start"}); }));
+document.querySelectorAll(".chap").forEach(b=>b.addEventListener("click",()=>goStep(CH_FIRST[b.dataset.ch==="q"?"q":+b.dataset.ch],{play:true})));
+function playGuarded(){ if(T.ended){ if(navOk()) togglePlay(); } else if(performance.now()>=navLock) togglePlay(); }
+$("bPlay").addEventListener("click",playGuarded);
+$("bNext").addEventListener("click",()=>{ if(navOk()) next(); });
+$("bPrev").addEventListener("click",()=>{ if(navOk()) prev(); });
+$("bReplay").addEventListener("click",()=>goStep(T.i,{play:true}));
+$("qBtn").addEventListener("click",()=>{
+  $("qAns").classList.remove("hidden"); $("qBtn").classList.add("hidden");
+  const list=trackSteps(), last=list.indexOf(T.i)===list.length-1&&T.ended&&trackOf(T.i)==="full";
+  if(last){ fillSummary(); $("summary").classList.remove("hidden"); $("toSumRow").classList.remove("hidden"); }
+  ($(last?"toSumRow":"qAns")).scrollIntoView({block:"nearest",behavior:REDUCED?"auto":"smooth"});
+});
+$("toSum").addEventListener("click",()=>{ const d=document, go=()=>$("summary").scrollIntoView({block:"start",behavior:REDUCED?"auto":"smooth"});
+  if(d.fullscreenElement||d.webkitFullscreenElement){ (d.exitFullscreen||d.webkitExitFullscreen).call(d); setTimeout(go,350); } else go(); });
+$("againBtn").addEventListener("click",()=>{ goStep(CH_FIRST[1],{play:true}); $("player").scrollIntoView({behavior:REDUCED?"auto":"smooth",block:"start"}); });
+function fillSummary(){
+  const ic=k=>CUPS[k].kinds.filter(x=>x!=="water").map(iconSVG).join("");
+  $("sumVin").innerHTML=ic("vin")+"少數分開成帶電的小粒子"; $("sumSoda").innerHTML=ic("soda")+"分成帶電的小粒子";
+  $("sumSalt").innerHTML=ic("salt")+"分成帶電的小粒子"; $("sumSugar").innerHTML=ic("sugar")+"一顆一顆散開，不會分開，不帶電";
+}
+$("bJh").addEventListener("click",()=>{ UI.jh=!UI.jh; $("bJh").setAttribute("aria-pressed",String(UI.jh)); UI.legendKey=""; });
+$("bFaint").addEventListener("click",()=>{ UI.faint=!UI.faint; $("bFaint").setAttribute("aria-pressed",String(UI.faint)); });
+const SPEEDS=[0.5,1,2];
+$("bSpeed").addEventListener("click",()=>{ const i=(SPEEDS.indexOf(UI.speed)+1)%SPEEDS.length; UI.speed=SPEEDS[i]; $("bSpeed").textContent="速度 "+UI.speed+"×"; });
+const player=$("player"), fsOK=!!((document.fullscreenEnabled||document.webkitFullscreenEnabled)&&(player.requestFullscreen||player.webkitRequestFullscreen));
+if(!fsOK) $("bFull").classList.add("hidden");
+$("bFull").addEventListener("click",()=>{ const d=document;
+  if(d.fullscreenElement||d.webkitFullscreenElement) (d.exitFullscreen||d.webkitExitFullscreen).call(d);
+  else{ const p=(player.requestFullscreen||player.webkitRequestFullscreen).call(player); if(p&&p.catch) p.catch(()=>{}); } });
+document.addEventListener("fullscreenchange",()=>{ const on=!!document.fullscreenElement; $("bFull").textContent=on?"⛶ 離開全螢幕":"⛶ 全螢幕"; $("bFull").setAttribute("aria-pressed",String(on)); setTimeout(layout,60); });
+document.addEventListener("keydown",ev=>{
+  if(UI.tab!=="anim") return;
+  const tag=(ev.target&&ev.target.tagName)||"";
+  if(/INPUT|TEXTAREA|SELECT/.test(tag)||ev.ctrlKey||ev.metaKey||ev.altKey) return;
+  if(ev.key===" "&&tag!=="BUTTON"&&tag!=="A"){ ev.preventDefault(); playGuarded(); }
+  else if(ev.key==="ArrowRight"){ if(navOk()) next(); }
+  else if(ev.key==="ArrowLeft"){ if(navOk()) prev(); }
+});
+/* 用滑鼠、觸控按按鈕之後讓按鈕失焦，空白鍵才會回到「播放／暫停」 */
+document.addEventListener("click",ev=>{ const b=ev.target&&ev.target.closest&&ev.target.closest("button"); if(b&&ev.detail>0) b.blur(); });
+let rsT=null; window.addEventListener("resize",()=>{ clearTimeout(rsT); rsT=setTimeout(layout,80); });
+
+/* ==========================================================
+   主迴圈
+   ========================================================== */
+let lastNow=0;
+function tick(dt){
+  ST.dt=dt;
+  if(UI.tab==="anim") animAdvance(dt);
+  const sdt=UI.tab==="anim"?dt*UI.speed:dt;   /* 速度 2×：劇本和小粒子一起快 */
+  const sims=simsForView(); sims.forEach(s=>s.step(sdt));
+  draw();
+}
+function draw(){
+  const o={faint:UI.faint};
+  $("statusPanel").classList.toggle("hidden",ST.view!=="single");
+  if(ST.view==="single"){
+    const lbl=UI.tab==="game"?("神祕杯 "+(LABELS[G.i]||"")):CUPS[simA.S.cupKey].name;
+    const lit=UI.tab==="anim"?T.litA:UI.lit[0];
+    updateRig(simA,UI.tab==="game"&&G.phase==="setup"?"":lbl,lit);
+    render(simA,cvA,{faint:o.faint,covered:ST.covered});
+    setStatus(levelOf(simA),lit,simA.S.cupKey,UI.tab==="game"&&G.phase!=="done",!simA.S.on);
+    if(ST.msg) updateLegend([],"（這一步還沒有用「想像的超級放大鏡」看水）");
+    else if(UI.tab==="game"&&(ST.covered||G.phase==="setup")) updateLegend([],ST.covered&&G.phase!=="setup"?"（用想像放大鏡券以後，才看得到這一杯的小粒子）":"（開始挑戰以後，看這裡的圖例）");
+    else updateLegend([{cup:simA.S.cupKey,present:simA.present()}],null,UI.tab==="game"&&G.phase!=="done");
+  }else if(ST.view==="dual"){
+    render(simA,cvA,o); render(simB,cvB,o);
+    updateDual([simA,simB],[simA.S.cupKey,simB.S.cupKey],[T.litA,T.litB]);
+    updateLegend([{cup:simA.S.cupKey,present:simA.present()},{cup:simB.S.cupKey,present:simB.present()}]);
+  }else{
+    updateLegend([{cup:"vin",present:new Set(CUPS.vin.kinds)},{cup:"soda",present:new Set(CUPS.soda.kinds)},{cup:"salt",present:new Set(CUPS.salt.kinds)},{cup:"sugar",present:new Set(CUPS.sugar.kinds)}]);
+  }
+  if(UI.tab==="lab") labTick();
+  if(UI.tab==="anim") showCaption(false);
+}
+function frame(now){
+  if(!lastNow) lastNow=now;
+  const dt=Math.min(0.05,(now-lastNow)/1000); lastNow=now;
+  if(!document.hidden) tick(dt);
+  requestAnimationFrame(frame);
+}
+
+/* ---------- 開始 ---------- */
+buildLab(); setMode("solo");
+const h0=location.hash.slice(1), qs=QS.get("step");
+const startPaused=QS.get("pause")==="1"||REDUCED;
+buildStage();
+if(h0==="lab") setTab("lab");
+else if(h0==="game") setTab("game");
+else{
+  let first=CH_FIRST[1];
+  if(HASH_STEP[h0]) first=STEPS.findIndex(s=>s.id===HASH_STEP[h0]);
+  if(qs!=null) first=clamp(parseInt(qs,10)||0,0,STEPS.length-1);
+  setTab("anim",{step:first,play:!startPaused});
+  if(QS.get("t")){ const p=T.playing; T.playing=true; fastForward(parseFloat(QS.get("t"))||0); if(!p&&!T.ended){ T.playing=false; } refreshUI(); }
+}
+window.addEventListener("hashchange",()=>{
+  const h=location.hash.slice(1);
+  if(h==="lab"&&UI.tab!=="lab") setTab("lab");
+  else if(h==="game"&&UI.tab!=="game") setTab("game");
+  else if(h==="anim"&&UI.tab!=="anim") setTab("anim");
+  else if(HASH_STEP[h]){ const i=STEPS.findIndex(s=>s.id===HASH_STEP[h]); if(UI.tab!=="anim") setTab("anim",{step:i}); else if(i!==T.i) goStep(i,{play:true}); }
+});
+draw();   /* 先畫第一格（背景分頁、headless 截圖時 requestAnimationFrame 不會馬上跑） */
+requestAnimationFrame(frame);
+
+/* 測試用（headless 測試時直接呼叫，不靠 requestAnimationFrame） */
+window.__TEST={KINDS,CUPS,STEPS,T,ST,G,UI,simA,simB,makeSim,makeDeck,scoreOf,catOf,goStep,setTab,tick,fastForward,startGame,gameAnswer,gameSwitch,gameNext,labReset,layout,
+  ticket(){ const b=[...document.querySelectorAll("#gBtns .btn.ticket")][0]; if(b&&!b.disabled) b.click(); }};
+})();
+</script>
+<script>
+/* 從〈水溶液的導電性〉互動教材另開的分頁：按「回〈水溶液的導電性〉」就把這個分頁關掉，回到原來那個還留著紀錄的分頁（瀏覽器不讓關時，才照連結開） */
+(function(){
+  var from=new URLSearchParams(location.search).get("from")||"";
+  if(from.indexOf("lesson")!==0) return;
+  if(from==="lesson-compare") document.querySelectorAll('.sibs a[href*="水溶液的導電性_互動教材.html"]').forEach(function(a){ a.setAttribute("href","../水溶液的導電性/水溶液的導電性_互動教材.html#compare"); a.textContent="↩ 回〈水溶液的導電性〉⑤ 三種檢驗比一比"; });
+  document.querySelectorAll('a[href*="水溶液的導電性_互動教材.html"]').forEach(function(a){
+    a.addEventListener("click",function(ev){
+      if(history.length>1||ev.metaKey||ev.ctrlKey||ev.shiftKey) return;
+      ev.preventDefault(); window.close(); setTimeout(function(){ location.href=a.href; },400);
+    });
+  });
+})();
+</script>
+</body>
+</html>

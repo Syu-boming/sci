@@ -336,6 +336,9 @@ body[data-st="check"] .rulefab,body[data-st="demo"] .rulefab,body[data-st="oops"
 
 .safe{background:#FBE3E1;border:3px solid var(--wrong);border-radius:14px;padding:8px 12px;font-weight:800;color:#8E2A22;margin:10px 0 0}
 .qfigs{display:grid;grid-template-columns:minmax(0,1fr);gap:10px}
+/* 連到補充教材〈帶電才會亮〉粒子動畫（國中才會學・看看就好，不考） */
+.animlink{border-color:var(--water-dark);background:#F2F8FC}
+.animlink .btn{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;text-align:center}
 
 @media (prefers-reduced-motion:reduce){
   .screen{animation:none}
@@ -685,6 +688,14 @@ function teacherPhotoFallback(img){
           <div class="askagain">👩‍🏫 老師追問：<b>食鹽水和糖水都是中性，導電性一樣嗎？</b>（不一樣：食鹽水容易導電，糖水不容易導電）</div>
         </div>
         <div class="bigpoint" id="openRecall"></div>
+        <div class="panel animlink" style="margin:14px 0 0">
+          <p class="ptitle">🔬 放大看：為什麼食鹽水會亮、糖水不亮？<span class="sitag">示意</span></p>
+          <p class="lead">用「想像的超級放大鏡」看水溶液裡的小粒子（國中才會學・看看就好，不考）。</p>
+          <div class="btnrow center">
+            <a class="btn green" href="../補充教材%20帶電才會亮/帶電才會亮_互動教材.html?from=lesson#quick" target="_blank" rel="noopener">▶ 3 分鐘快速版</a>
+            <a class="btn plain" href="../補充教材%20帶電才會亮/帶電才會亮_互動教材.html?from=lesson#salt" target="_blank" rel="noopener">完整版：從食鹽開始</a>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -719,6 +730,7 @@ function teacherPhotoFallback(img){
       <p><b>看得到</b>：示範一結束就放大下面「老師課前試做的照片」；小助手拿著裝置沿走道巡迴展示約 30 秒（只拿出來看 LED，不碰水溶液）；每排一位觀察代表上前近看，回座位向同排報告。高能力當<b>數據審查員</b>：比較每杯 LED 的亮度、檢查兩條電線有沒有相碰。</p>
       <p><b>課前試做</b>：用學校的導電測試教具，照說明書先把 5 杯都測一次（電池數、LED 型號、有沒有限流電阻都記在備料單）；醋、肥皂水可能只微亮——多露一些銅線、兩條線靠近一點（但不相碰）；電池用新的；「先確認會亮」用一杯食鹽水測，<b>不讓兩條銅線直接相碰</b>；<b>只用電池，絕對不接插座</b>。試做時拍照，存成這個資料夾裡的 <b>photos/teacher-led.jpg</b>，上面那一格就會自動顯示；還沒放照片時只顯示虛線框。</p>
       <p><b>判準卡 3 分鐘</b>：5 杯做完會出現分類和判準卡，請全班唸「微微亮也算亮」那一句；開場的猜測在這裡回收。酸鹼性那一欄是上一課〈檢驗水溶液的酸鹼性〉測過的結果，用來帶出必會第 3 句。</p>
+      <p><b>想讓學生知道「為什麼」</b>（國中才會學・看看就好，不考）：判準卡下面的按鈕打開補充教材〈帶電才會亮〉的「⚡ 3 分鐘快速版」：食鹽水和糖水一起通電 → 醋和小蘇打水先滴石蕊試紙再通電 → 結論板。課堂時間不夠，就請學生回家看。</p>
     </div>
   </section>
 
@@ -818,12 +830,22 @@ function teacherPhotoFallback(img){
       <p class="lead">用石蕊試紙、紫色高麗菜汁、LED 和搧聞，找出每一杯水溶液的性質。兩隊輪流上臺。</p>
       <a class="btn green" href="../補充教材 水溶液偵探社/水溶液偵探社_互動教材.html">🕵️ 打開「水溶液偵探社」</a>
     </div>
+
+    <div class="panel center animlink">
+      <p class="ptitle">🔬 補充動畫＋遊戲：帶電才會亮</p>
+      <p class="lead">為什麼酸性、鹼性水溶液容易導電，中性的卻不一定？用「想像的超級放大鏡」看看，再玩「LED 亮不亮？」神祕杯挑戰（國中才會學・看看就好，不考）。</p>
+      <div class="btnrow center">
+        <a class="btn green" href="../補充教材%20帶電才會亮/帶電才會亮_互動教材.html?from=lesson-compare#quick" target="_blank" rel="noopener">▶ 3 分鐘快速版</a>
+        <a class="btn plain" href="../補充教材%20帶電才會亮/帶電才會亮_互動教材.html?from=lesson-compare#game" target="_blank" rel="noopener">🎮 LED 亮不亮？</a>
+      </div>
+    </div>
     <div class="navrow"><button class="btn green" data-next="quiz">最後一站：⑥ 出場卡 →</button></div>
     <div class="teacher-tip">
       <p><b class="time">給老師｜⑤ 三種檢驗比一比</b>（第 ⑨ 節只填 LED 一列；第 ⑩ 節單元三統整用 10 分鐘完成）</p>
       <p><b>第 ⑨ 節</b>：示範完按「⑨ 先填 LED 這一列」，讓學生知道 LED 看的是「導電性」，不是酸鹼性。<b>第 ⑩ 節</b>：暖身（三種檢驗各一題）3 分鐘 → 課本 82–83 頁圖解筆記回顧 8 分鐘 → 這一站 10 分鐘：先讓全班說石蕊試紙、紫色高麗菜汁兩列，再按「⑩ 全班完成另外兩列」，接著兩個全班提問 → 補充遊戲「水溶液偵探社」試玩 15 分鐘 → 習作 32–33 頁說明 2 分鐘（回家寫）→ 收束 2 分鐘。</p>
       <p>高能力學生可以帶全班完成比較表（他說、全班舉 ○╳ 確認）。全班提問先舉卡（甲＝石蕊試紙、乙＝紫色高麗菜汁、丙＝LED；○╳），只記不判，再按「揭曉」。</p>
       <p>遊戲按鈕連到〈補充教材 水溶液偵探社〉；遊戲做好放上網站之後才打得開。</p>
+      <p>補充教材〈帶電才會亮〉（國中才會學・看看就好，不考）：粒子動畫說明「為什麼酸性、鹼性容易導電，中性不一定」，另有「LED 亮不亮？」神祕杯挑戰（約 8 分鐘）；玩完偵探社還有時間再玩，或請學生回家玩。</p>
       <p>題庫對應：「看 LED 亮不亮不能判斷酸鹼」「食鹽水和糖水只能靠導電分辨」是 u3-conduct 的重點；素養題組〈四杯沒貼名稱的水溶液〉也考三種檢驗互補。</p>
     </div>
   </section>
