@@ -298,7 +298,7 @@ figure{margin:0}
 .warmq .btn{justify-self:start;min-height:52px;padding:8px 20px}
 .warmq .bigpoint{margin-top:0;text-align:left}
 
-/* 示範：器材、抓錯、老師課前試做的照片 */
+/* 示範：器材、抓錯 */
 .safety{margin-top:12px;background:#FFF1EE;border:3px solid var(--wrong);border-radius:14px;padding:8px 14px;font-weight:800;font-size:clamp(15px,1.6vw,20px)}
 .kchips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:10px 0 4px}
 .kchip{border:3px solid var(--ink);border-radius:14px;background:#fff;padding:4px 12px;font-weight:900;text-align:center;line-height:1.3;min-width:5.2em}
@@ -306,9 +306,6 @@ figure{margin:0}
 .catch{margin:12px 0;border:3px solid var(--wrong);border-radius:16px;padding:10px 12px;background:#FFF8F6}
 .catch .ask{background:#FFF1EE;border-color:var(--wrong)}
 .catch .opts{margin-top:10px;justify-content:center}
-.fig.teacher{background:#fff}
-.fig.teacher > img{object-fit:contain;background:#fff}
-.teacher-empty{font-size:clamp(14px,1.6vw,22px) !important}
 .steplist{margin:8px 0 0;padding:0;list-style:none;display:grid;gap:6px}
 .steplist li{font-weight:800;font-size:clamp(16px,1.75vw,23px);line-height:1.45}
 .steplist b.no{display:inline-block;background:var(--sun);border:3px solid var(--ink);border-radius:999px;padding:0 10px;margin-right:6px}
@@ -343,6 +340,124 @@ figure{margin:0}
 .logtab tr.now td{background:#FFF3C4}
 .chipc{display:inline-block;width:1em;height:1em;border-radius:50%;border:2px solid var(--ink);vertical-align:-2px;margin-right:4px}
 
+/* 示範重播（示意動畫）：老師不拍課前照片，改用一步一步的示意動畫重播真的示範。
+   setMixRp()／setAdjRp() 設定 svg 的 data-step；液體顏色由程式設定 --liq，這裡用 transition 慢慢變。
+   transform-origin 都是 viewBox 座標；沒有動畫時（prefers-reduced-motion）直接顯示每一步的結果 */
+/* 外框跟著圖的寬度（--rpar＝圖的長寬比；高度最多約半個螢幕，18px＝外框左右的留白和框線） */
+.svgbox.rpbox{width:min(100%, calc(54vh * var(--rpar,1.6) + 18px));max-width:none}
+.rp{display:block;width:100%;height:auto}
+.rp *{transform-box:view-box}
+.rpsteps{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.rpsteps li{
+  display:flex;gap:10px;align-items:flex-start;border:3px solid #D9CFBE;border-radius:14px;background:#fff;
+  padding:8px 12px;font-weight:800;font-size:clamp(16px,1.8vw,23px);line-height:1.45;
+}
+.rpsteps li.on{border-color:var(--ink);background:#FFF3C4;box-shadow:0 0 0 4px var(--sun)}
+.rpsteps .sn{
+  flex:none;width:1.75em;height:1.75em;border-radius:50%;border:3px solid var(--ink);background:#fff;
+  display:inline-flex;align-items:center;justify-content:center;font-weight:900;line-height:1;
+}
+.rpfrom{margin-bottom:12px}
+.rpfrom .note{margin:0 0 8px}
+.rpfrom .opts{gap:10px}
+.rpfrom .opt{min-height:52px;padding:8px 16px;font-size:clamp(16px,1.7vw,22px)}
+.srlive{position:absolute;width:1px;height:1px;margin:-1px;padding:0;border:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.rp .rp-liq{fill:var(--liq,#D6ECF8);transition:fill 1.4s ease}
+.rp-adj .rp-liq{transition-duration:.6s}
+.rp.rp-snap .rp-liq{transition:none}
+.rp-ptr{transition:transform .6s ease}
+.rp-mix.noans .rp-ans,.rp-mix:not(.noans) .rp-q{display:none}
+/* 到了那一步才出現的東西 */
+.rp-eq,.rp-lab2,.rp-bubs,.rp-foam,.rp-stream,.rp-dropper,.rp-dr,.rp-sw,.rp-res,.rp-qmark,.rp-mix .rp-rod,
+.rp-dlab,.rp-c1,.rp-c2,.rp-c2b,.rp-c3,.rp-stamp,.rp-fz,.rp-d,.rp-now{opacity:0}
+/* 氣泡平常散在杯子各處（沒有動畫時才不會像沉在杯底） */
+.rp-bubs circle{transform:translateY(var(--ty,0px))}
+/* ① 等量混合：兩個量杯以杯嘴為軸倒進大杯子；大杯子的液面分兩次升高 */
+.rp-cupL{transform-origin:139px 179px}
+.rp-cupR{transform-origin:341px 179px}
+.rp-inL{transform-origin:95px 249px}
+.rp-inR{transform-origin:385px 249px}
+.rp-rod{transform-origin:266px 74px}
+.rp-sw{transform-origin:240px 139px}
+.rp-stamp{transform-origin:386px 66px}
+.rp-mix .rp-fill{transform-origin:240px 238px;transform:scaleY(0)}
+.rp-mix[data-step="1"] .rp-eq{opacity:1;animation:rpShow .4s both}
+.rp-mix[data-step="2"] .rp-cupL{animation:rpPourL 3s ease-in-out both}
+.rp-mix[data-step="2"] .rp-cupR{animation:rpPourR 3s ease-in-out 3s both}
+.rp-mix[data-step="2"] .rp-inL{animation:rpEmpty 3s linear both}
+.rp-mix[data-step="2"] .rp-inR{animation:rpEmpty 3s linear 3s both}
+.rp-mix[data-step="2"] .rp-sL{animation:rpStream 3s linear both,rpFlow .35s linear infinite}
+.rp-mix[data-step="2"] .rp-sR{animation:rpStream 3s linear 3s both,rpFlow .35s linear infinite}
+.rp-mix[data-step="2"] .rp-fill{animation:rpFill 6s linear both}
+.rp-mix[data-step="2"] .rp-bubs{opacity:1;animation:rpShow .5s 4.2s both}
+.rp-mix[data-step="2"] .rp-foam{opacity:1;animation:rpShow .6s 4.8s both}
+.rp-mix[data-step="2"] .rp-lab2{opacity:1;animation:rpShow .4s 6s both}
+.rp-mix[data-step="2"] .rp-bubs circle,.rp-mix[data-step="3"] .rp-bubs circle{animation:rpBub 1.6s linear infinite}
+.rp-mix[data-step="2"] .rp-inL,.rp-mix[data-step="2"] .rp-inR,
+.rp-mix[data-step="3"] .rp-inL,.rp-mix[data-step="3"] .rp-inR{transform:scaleY(0)}
+.rp-mix[data-step="2"] .rp-fill,.rp-mix[data-step="3"] .rp-fill{transform:none}
+/* ② 滴入紫色高麗菜汁：滴管下來、三滴、汁液散開、攪拌，顏色變成老師按的顏色 */
+.rp-mix[data-step="3"] .rp-bubs,.rp-mix[data-step="3"] .rp-foam{animation:rpHide 1.6s .3s both}
+.rp-mix[data-step="3"] .rp-dropper{opacity:1;animation:rpDropper 2.8s ease both}
+.rp-mix[data-step="3"] .rp-dr1{animation:rpDrip .5s ease-in .8s both}
+.rp-mix[data-step="3"] .rp-dr2{animation:rpDrip .5s ease-in 1.3s both}
+.rp-mix[data-step="3"] .rp-dr3{animation:rpDrip .5s ease-in 1.8s both}
+.rp-mix[data-step="3"] .rp-sw1{animation:rpSwirl 1.2s ease-out 1.25s both}
+.rp-mix[data-step="3"] .rp-sw2{animation:rpSwirl 1.2s ease-out 1.75s both}
+.rp-mix[data-step="3"] .rp-sw3{animation:rpSwirl 1.2s ease-out 2.25s both}
+.rp-mix[data-step="3"] .rp-rod{opacity:1;animation:rpShow .3s 2.4s both,rpStir .6s ease-in-out 2.6s 3}
+.rp-mix[data-step="3"] .rp-res{opacity:1;animation:rpShow .4s 3.9s both}
+/* 老師還沒按顏色：杯子不畫顏色，只疊一個大「？」 */
+.rp-mix.noans[data-step="3"] .rp-qmark{opacity:1;animation:rpShow .4s 2.4s both}
+/* ③ 少量多次：一滴、冒一點泡、攪拌、看顏色；偏紫就停 */
+.rp-adj:not([data-step="0"]) .rp-dlab,.rp-adj:not([data-step="0"]) .rp-now{opacity:1}
+.rp-adj[data-step="1"] .rp-c1{opacity:1;animation:rpShow .4s both}
+.rp-adj[data-step="2"] .rp-c2{opacity:1;animation:rpShow .4s both}
+.rp-adj[data-step="2"] .rp-c2b{opacity:1;animation:rpShow .4s 2s both}
+.rp-adj[data-step="2"] .rp-d1{animation:rpDrip .45s ease-in .3s both}
+.rp-adj[data-step="2"] .rp-d2{animation:rpDrip .45s ease-in 2.4s both}
+.rp-adj[data-step="2"] .rp-fz1{animation:rpFizz 1s ease-out .75s both}
+.rp-adj[data-step="2"] .rp-fz2{animation:rpFizz 1s ease-out 2.85s both}
+.rp-adj[data-step="2"] .rp-rod{animation:rpStir .5s ease-in-out .9s 2,rpStir .5s ease-in-out 3s 2}
+/* 第 3 個畫面先寫「又加了好幾滴」：畫面上數不出到底加了幾滴（不先透露調色臺第幾滴會偏紫） */
+.rp-adj[data-step="3"] .rp-c3{animation:rpNote 2.6s ease both}
+.rp-adj[data-step="3"] .rp-d3{animation:rpDrip .45s ease-in .9s both}
+.rp-adj[data-step="3"] .rp-fz3{animation:rpFizz 1s ease-out 1.35s both}
+.rp-adj[data-step="3"] .rp-rod{animation:rpStir .5s ease-in-out 1.5s 2}
+.rp-adj[data-step="3"] .rp-stamp{opacity:1;animation:rpStamp .5s ease-out 2.6s both}
+@keyframes rpShow{from{opacity:0}to{opacity:1}}
+@keyframes rpHide{from{opacity:1}to{opacity:0}}
+@keyframes rpPourL{
+  0%{transform:translate(0,0) rotate(0)}
+  12%{transform:translate(0,-40px) rotate(0)}
+  25%{transform:translate(67px,-79px) rotate(80deg)}
+  35%,70%{transform:translate(67px,-79px) rotate(105deg)}
+  80%{transform:translate(67px,-79px) rotate(80deg)}
+  90%{transform:translate(0,-40px) rotate(0)}
+  100%{transform:translate(0,0) rotate(0)}
+}
+@keyframes rpPourR{
+  0%{transform:translate(0,0) rotate(0)}
+  12%{transform:translate(0,-40px) rotate(0)}
+  25%{transform:translate(-67px,-79px) rotate(-80deg)}
+  35%,70%{transform:translate(-67px,-79px) rotate(-105deg)}
+  80%{transform:translate(-67px,-79px) rotate(-80deg)}
+  90%{transform:translate(0,-40px) rotate(0)}
+  100%{transform:translate(0,0) rotate(0)}
+}
+@keyframes rpEmpty{0%,30%{transform:scaleY(1)}62%,100%{transform:scaleY(0)}}
+@keyframes rpStream{0%,34%{opacity:0}37%,68%{opacity:1}71%,100%{opacity:0}}
+@keyframes rpFlow{to{stroke-dashoffset:-20}}
+@keyframes rpFill{0%,17.5%{transform:scaleY(0)}35%,67.5%{transform:scaleY(.5)}85%,100%{transform:scaleY(1)}}
+@keyframes rpBub{0%{transform:translateY(0);opacity:0}15%,80%{opacity:1}100%{transform:translateY(-86px);opacity:0}}
+@keyframes rpDropper{0%{opacity:0;transform:translateY(-40px)}18%,80%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-40px)}}
+@keyframes rpDrip{0%{opacity:0;transform:translateY(0)}8%{opacity:1}88%{opacity:1;transform:translateY(24px)}100%{opacity:0;transform:translateY(26px)}}
+@keyframes rpSwirl{0%{opacity:.95;transform:scale(.3)}100%{opacity:0;transform:scale(2.6)}}
+@keyframes rpStir{0%,100%{transform:rotate(0)}25%{transform:rotate(-6deg)}75%{transform:rotate(6deg)}}
+@keyframes rpFizz{0%{opacity:0;transform:translateY(6px)}25%{opacity:1}100%{opacity:0;transform:translateY(-12px)}}
+@keyframes rpStamp{0%{opacity:0;transform:scale(1.5)}60%{opacity:1;transform:scale(.95)}100%{opacity:1;transform:scale(1)}}
+@keyframes rpNote{0%{opacity:0}12%,85%{opacity:1}100%{opacity:0}}
+
 /* 生活應用：配對白板（卡片有照片） */
 .fcard .ph img,.fcard .ph .img-fallback{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:10px;display:block;background:#fff}
 .fcard .ph .img-fallback{font-size:11px;padding:2px}
@@ -365,6 +480,7 @@ figure{margin:0}
 
 @media (prefers-reduced-motion:reduce){
   .screen,.tag{animation:none}
+  .rp *{animation:none !important;transition:none !important}
 }
 
 /* ===== RWD：手機 / 平板 / 筆電 / 75 吋觸控螢幕 ===== */
@@ -439,6 +555,8 @@ figure{margin:0}
   .logtab{ font-size:22px; }
   .beaker{ max-width:700px; }
   .warmq .btn{ min-height:68px; }
+  .rpsteps li{ font-size:26px; }
+  .rpfrom .opt{ min-height:72px; font-size:26px; }
 }
 @media (min-width:2600px){
   body{ font-size:34px; }
@@ -483,6 +601,8 @@ figure{margin:0}
   .logtab{ font-size:29px; }
   .beaker{ max-width:960px; }
   .warmq .btn{ min-height:88px; }
+  .rpsteps li{ font-size:34px; }
+  .rpfrom .opt{ min-height:96px; font-size:34px; }
 }
 </style>
 <script>
@@ -494,15 +614,6 @@ function imgFallback(img){
   const name=img.getAttribute("data-name")||img.getAttribute("alt")||"照片";
   span.setAttribute("aria-label","照片載入失敗："+name);
   span.textContent="📷 照片載入失敗："+name;
-  img.replaceWith(span);
-}
-/* 老師課前試做的照片：檔案還沒放時，顯示中性的虛線框（不是錯誤訊息） */
-function teacherFallback(img){
-  const span=document.createElement("span");
-  span.className="img-fallback teacher-empty";
-  span.setAttribute("role","img");
-  span.setAttribute("aria-label","老師課前試做的照片");
-  span.textContent="（老師課前試做的照片）";
   img.replaceWith(span);
 }
 </script>
@@ -602,31 +713,45 @@ function teacherFallback(img){
     </div>
 
     <div class="panel">
-      <p class="ptitle">📷 放大看</p>
-      <div class="duo">
-        <div>
-          <p class="lead" style="margin-top:0">課本 76 頁：兩組混合後的結果不一樣。要加哪一種，才能讓顏色變成偏紫？（先舉卡）</p>
-          <div class="groups">
-            <div class="gcard">
-              <div class="tubeimg"><div id="g1img"></div><div class="tcap">課本 76 頁</div></div>
-              <div class="gname">第一組：混合後偏紅<small>還偏酸</small></div>
-              <div id="g1Q"></div>
-              <div class="feedback" id="g1Feed" aria-live="polite"></div>
-            </div>
-            <div class="gcard">
-              <div class="tubeimg"><div id="g2img"></div><div class="tcap">課本 76 頁</div></div>
-              <div class="gname">第二組：混合後偏藍<small>偏鹼</small></div>
-              <div id="g2Q"></div>
-              <div class="feedback" id="g2Feed" aria-live="polite"></div>
-            </div>
-          </div>
-          <p class="note hidden" id="grpDone">👉 到底要加多少？下一站一滴一滴試試看。</p>
-        </div>
+      <p class="ptitle">🎬 示範重播：等量混合，再滴入紫色高麗菜汁<span class="sim">示意</span></p>
+      <div class="duo mid">
         <figure class="figbox">
-          <div class="fig teacher" style="--mh:34vh;--ar:4/3"><img src="photos/teacher-mix.jpg" alt="老師課前試做的照片" loading="lazy" decoding="async" onerror="teacherFallback(this)"></div>
-          <figcaption class="cap center">老師課前試做的照片（課前拍的：等量混合後滴入紫色高麗菜汁）</figcaption>
+          <div class="svgbox rpbox" style="--rpar:1.655"><span class="simtag">示意</span><div id="mixRp"></div></div>
+          <figcaption class="cap center">畫出來的示意動畫，不是錄影；最後的顏色跟著上面老師按的顏色。</figcaption>
         </figure>
+        <div>
+          <ol class="rpsteps" id="mixRpSteps">
+            <li data-step="1"><span class="sn">1</span><span>檸檬酸水（酸性）、小蘇打水（鹼性），各取<b>一樣多</b>。</span></li>
+            <li data-step="2"><span class="sn">2</span><span>倒進托盤上的大杯子：冒出很多<b>氣泡</b>，杯子<b>不加蓋</b>。</span></li>
+            <li data-step="3"><span class="sn">3</span><span>滴入紫色高麗菜汁、攪拌，<b>看顏色</b>。</span></li>
+          </ol>
+          <div class="btnrow">
+            <button class="btn" id="mixRpNext" type="button">▶ 播放畫面 1</button>
+            <button class="btn plain" id="mixRpReset" type="button">↺ 從頭看</button>
+          </div>
+          <p class="srlive" id="mixRpSay" aria-live="polite"></p>
+        </div>
       </div>
+    </div>
+
+    <div class="panel">
+      <p class="ptitle">📷 課本 76 頁：兩組的結果</p>
+      <p class="lead" style="margin-top:0">兩組混合後的結果不一樣。要加哪一種，才能讓顏色變成偏紫？（先舉卡）</p>
+      <div class="groups">
+        <div class="gcard">
+          <div class="tubeimg"><div id="g1img"></div><div class="tcap">課本 76 頁</div></div>
+          <div class="gname">第一組：混合後偏紅<small>還偏酸</small></div>
+          <div id="g1Q"></div>
+          <div class="feedback" id="g1Feed" aria-live="polite"></div>
+        </div>
+        <div class="gcard">
+          <div class="tubeimg"><div id="g2img"></div><div class="tcap">課本 76 頁</div></div>
+          <div class="gname">第二組：混合後偏藍<small>偏鹼</small></div>
+          <div id="g2Q"></div>
+          <div class="feedback" id="g2Feed" aria-live="polite"></div>
+        </div>
+      </div>
+      <p class="note hidden" id="grpDone">👉 到底要加多少？下一站一滴一滴試試看。</p>
     </div>
     <div class="navrow"><button class="btn green" data-next="adjust">下一站：少量多次調整 →</button></div>
     <div class="teacher-tip">
@@ -634,7 +759,7 @@ function teacherFallback(img){
       <p>器材：檸檬酸水、小蘇打水（各一大杯，食品級）、紫色高麗菜汁、透明大杯或燒杯、托盤、滴管（每種一支）、攪拌棒。只用檸檬酸水和小蘇打水，不用其他酸鹼。</p>
       <p><b>倒之前先講</b>：會冒出很多氣泡，這是兩種水溶液互相作用產生的氣體（課本沒有寫，國中會學）。用大杯、放在托盤上、<b>杯子不加蓋</b>。</p>
       <p>課前試做：先試出「等量」大概會偏哪一色。可以刻意調整濃度，讓第一次偏紅（偏酸），下一站好示範加小蘇打水調回。冒泡很多，用大杯、放托盤、不加蓋；滴管每種一支。</p>
-      <p>看得到：請把課前拍的「等量混合後滴入高麗菜汁」照片存成 <b>photos/teacher-mix.jpg</b>（放在本課資料夾），沒放時畫面是虛線框；小助手拿著杯子＋白底板沿走道巡迴展示約 30 秒；每排一位觀察代表上前近看，回座位向同排報告。</p>
+      <p>看得到：小助手拿著杯子＋白底板沿走道巡迴展示約 30 秒；每排一位觀察代表上前近看，回座位向同排報告。按完「看到的顏色」後，可以播下面的<b>示範重播</b>（示意動畫，一步一步按，全部約 20 秒），讓後排看清楚「等量、倒在一起、冒泡、滴入高麗菜汁」；最後的顏色跟著你按的顏色，還沒按就顯示「？」。</p>
       <p>小助手 2–3 人（男女輪替，優先點平常比較被動的學生）：倒等量、數滴數、唸顏色 → 全班複誦 → 每人同步填習作 P.29。老師按下真的看到的顏色，畫面會回收開場的預測。示意圖是線上題庫同一套圖，不是照片。</p>
       <p>課本 76 頁的兩支試管照片很小，只當小圖；兩組的問題用反應卡全班一起舉（第一組加小蘇打水、第二組加檸檬酸水）。低：看顏色條＋舉卡；中：說「我看到偏紅，所以還偏酸，要加小蘇打水」；高：先預測「大概要加幾滴才會偏紫」，當數據審查員。</p>
     </div>
@@ -647,6 +772,32 @@ function teacherFallback(img){
         <div class="ask">⚠️ 抓錯時間：混合液偏紅，老師說：「我直接倒一大杯小蘇打水，一定會變中性！」可以嗎？</div>
         <div id="catchQ"></div>
         <div class="feedback" id="catchFeed" aria-live="polite"></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <p class="ptitle">🎬 示範重播：一滴一滴調回偏紫<span class="sim">示意</span></p>
+      <div class="duo mid">
+        <figure class="figbox">
+          <div class="svgbox rpbox" style="--rpar:1.371"><span class="simtag">示意</span><div id="adjRp"></div></div>
+          <figcaption class="cap center">畫出來的示意動畫，不是錄影；只表示做法和顏色變化的方向，不代表要加幾滴。</figcaption>
+        </figure>
+        <div>
+          <div class="rpfrom">
+            <p class="note" id="adjRpFrom"></p>
+            <div class="opts" id="adjRpPick" aria-label="從哪一杯開始"></div>
+          </div>
+          <ol class="rpsteps" id="adjRpSteps">
+            <li data-step="1"><span class="sn">1</span><span>看顏色決定加哪一種：偏紅（還偏酸）加<b>小蘇打水</b>；偏藍綠（偏鹼）加<b>檸檬酸水</b>。</span></li>
+            <li data-step="2"><span class="sn">2</span><span>用滴管<b>一滴一滴</b>加，每加一滴就<b>攪拌</b>、看顏色；還沒偏紫，就再加一滴。</span></li>
+            <li data-step="3"><span class="sn">3</span><span>變成<b>偏紫</b>（接近中性）就<b>停下來</b>。</span></li>
+          </ol>
+          <div class="btnrow">
+            <button class="btn" id="adjRpNext" type="button">▶ 播放畫面 1</button>
+            <button class="btn plain" id="adjRpReset" type="button">↺ 從頭看</button>
+          </div>
+          <p class="srlive" id="adjRpSay" aria-live="polite"></p>
+        </div>
       </div>
     </div>
 
@@ -689,13 +840,6 @@ function teacherFallback(img){
       <div class="bigpoint hidden" id="must2">混合後偏酸性，就加鹼性水溶液（如小蘇打水）；偏鹼性，就加酸性水溶液（如檸檬酸水），結果可能接近中性。</div>
     </div>
 
-    <div class="panel">
-      <p class="ptitle">📷 放大看：真的示範</p>
-      <figure class="figbox">
-        <div class="fig teacher" style="--mh:34vh;--ar:4/3"><img src="photos/teacher-adjust.jpg" alt="老師課前試做的照片" loading="lazy" decoding="async" onerror="teacherFallback(this)"></div>
-        <figcaption class="cap center">老師課前試做的照片（課前拍的：一滴一滴加，調回偏紫）</figcaption>
-      </figure>
-    </div>
     <div class="navrow"><button class="btn green" data-next="life">下一站：生活中的應用 →</button></div>
     <div class="teacher-tip">
       <p><b class="time">給老師｜少量多次＋虛擬調色臺 6 分鐘</b></p>
@@ -703,7 +847,7 @@ function teacherFallback(img){
       <p>抓錯：老師說「我直接倒一大杯小蘇打水，一定會變中性」→ 全班舉 ╳ 喊停（不真的倒）→ 改用少量多次重做。低能力對照步驟卡就抓得到；高能力要說出「會加過頭，變成偏鹼性」。</p>
       <p>虛擬調色臺是示意，只表示<b>方向</b>（偏紅—偏紫—偏藍或偏綠），不顯示 pH 數字，也不代表真的要幾滴。「一次倒一大杯」按鈕用來示範加過頭；加過頭就再加另一種。每按一次前先問「再加一滴會怎樣？」全班舉卡。紀錄表的寫法和學習單「二」「★」一樣。</p>
       <p>迷思（題庫有考）：偏鹼還加小蘇打水（╳，要加檸檬酸水）；糖水可以把偏鹼調回來（╳，糖水是中性）。高能力：預測第幾滴會偏紫，當數據審查員。</p>
-      <p>真的示範照片請存成 <b>photos/teacher-adjust.jpg</b>（課前拍；沒放時是虛線框）。</p>
+      <p>示範重播（步驟 ③，示意）：放在抓錯下面，真的一滴一滴加的時候對照著按，或做完再播給後排看。一開始的杯子跟著「示範：混合」那一站按的顏色（偏紅→加小蘇打水；偏藍或綠→加檸檬酸水；偏紫或沒按→用課本第一組偏紅的一杯），也可以按「偏紅的一杯／偏藍綠的一杯」切換。畫面不顯示滴數，第 3 個畫面還會先寫「又加了好幾滴」，不會先透露調色臺第幾滴偏紫；每加一滴也會冒一點泡（兩種水溶液又互相作用）。</p>
     </div>
   </section>
 
@@ -852,8 +996,8 @@ function teacherFallback(img){
   <!-- ==================== 頁尾：出處 ==================== -->
   <footer class="credits" id="credits">
     <p><b>教學依據：</b><a href="https://reader.nani.com.tw/9200a013cbef8e66" target="_blank" rel="noopener">南一自然課本，第 76–77 頁</a>（閱讀器可能需要登入）；習作第 29–30 頁。</p>
-    <p><b>照片出處：</b>混合後偏紅、偏藍的兩支試管（課本第 76 頁）；胃藥、把檸檬酸倒進熱水瓶的水中、刷牙（課本第 77 頁）；用清潔劑清洗馬桶（課本第 77 頁，線上題庫裡裁好的課本照片）。「老師課前試做的照片」由老師自己拍攝。</p>
-    <p><b>示意畫面：</b>試管顏色圖（和線上題庫同一套示意圖）、虛擬調色臺和顏色條都是示意，不是真的拍到的結果，也不代表真的要加幾滴。</p>
+    <p><b>照片出處：</b>混合後偏紅、偏藍的兩支試管（課本第 76 頁）；胃藥、把檸檬酸倒進熱水瓶的水中、刷牙（課本第 77 頁）；用清潔劑清洗馬桶（課本第 77 頁，線上題庫裡裁好的課本照片）。</p>
+    <p><b>示意畫面：</b>試管顏色圖（和線上題庫同一套示意圖）、兩段示範重播動畫、虛擬調色臺和顏色條都是示意，不是真的拍到的結果，也不代表真的要加幾滴。</p>
   </footer>
 
 </div>
@@ -982,6 +1126,9 @@ function go(name,smooth){
     if(on) b.setAttribute("aria-current","step"); else b.removeAttribute("aria-current");
   });
   document.querySelectorAll(".screen").forEach(s=>s.classList.toggle("active",s.id==="screen-"+name));
+  /* 示範重播：換站回來時 CSS 動畫會從頭播，停在哪個畫面就從那個畫面的開頭重播 */
+  if(name==="mix") setMixRp(mixRpStep);
+  else if(name==="adjust") setAdjRp(adjRpStep);
   try{ history.replaceState(null,"","#"+name); }catch(_){}
   window.scrollTo({top:0,behavior:smooth?"smooth":"auto"});
 }
@@ -1028,6 +1175,7 @@ SEEN.forEach(([w,res,nat])=>{
     mixRes=res; mixWord=w;
     $("mixSeen").querySelectorAll(".opt").forEach(x=>{ x.classList.toggle("picked",x===b); x.setAttribute("aria-pressed",String(x===b)); });
     drawMix();
+    syncMixRp(); syncAdjStart();   /* 兩段示範重播跟著換顏色 */
     say("mixFeed","good",`等量混合，滴入紫色高麗菜汁後<b>${w}</b> → 這杯混合液是<b>${nat}</b>。`);
     recallGuess(w,nat);
     show("mixAsk");
@@ -1162,6 +1310,259 @@ $("bigPour").addEventListener("click",()=>{
 $("resetRed").addEventListener("click",()=>resetLab(-4));
 $("resetBlue").addEventListener("click",()=>resetLab(4));
 resetLab(-4);
+
+/* ==========================================================
+   示範重播（示意動畫）：老師不拍課前照片，改用一步一步的示意動畫重播真的示範。
+   兩段共用同一套托盤、大杯子、攪拌棒、滴管；動作寫在 CSS（看 svg 的 data-step），
+   液體顏色由這裡在該變色的時間點設定 --liq。顏色和題庫圖（CAB_COL）、虛擬調色臺（lvCol）同一套。
+   ========================================================== */
+const RP_REDUCE=matchMedia("(prefers-reduced-motion: reduce)").matches;
+const RP_F='font-family="Microsoft JhengHei,PingFang TC,Noto Sans TC,sans-serif"';
+const RP_T='font-weight="800" fill="#1E1E1E" text-anchor="middle" stroke="#FFFDF8" stroke-width="5" stroke-linejoin="round" paint-order="stroke"';
+/* 沒有顏色的水溶液（淡藍只是讓人看得出有水）、紫色高麗菜汁 */
+const RP_CLEAR="#D6ECF8", RP_JUICE="#7B4FA6";
+const RP_ANS={acid:["偏紅","還偏酸"],neutral:["偏紫","接近中性"],base:["偏藍或綠","偏鹼"]};
+const RP_TRAY=`<rect x="146" y="238" width="188" height="12" rx="5" fill="#CFD8DC" stroke="#1E1E1E" stroke-width="3"/>`;
+const RP_GLASS=`<path d="M184 110 H190 L196 238 H284 L290 110 H296" fill="none" stroke="#1E1E1E" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+  <line x1="203" y1="126" x2="207.5" y2="222" stroke="#fff" stroke-width="4" stroke-linecap="round" opacity=".85"/>`;
+/* 攪拌棒畫在液體後面：泡在水裡的那一段被液體蓋住 */
+const RP_ROD=`<g class="rp-rod"><line x1="266" y1="74" x2="230" y2="226" stroke="#1E1E1E" stroke-width="9" stroke-linecap="round"/><line x1="266" y1="74" x2="230" y2="226" stroke="#F4FAFD" stroke-width="5" stroke-linecap="round"/></g>`;
+function rpDropper(x,juice){
+  return `<rect x="${x-10}" y="26" width="20" height="26" rx="8" fill="#5B666C" stroke="#1E1E1E" stroke-width="2.5"/>
+    <path d="M${x-6} 52 H${x+6} V92 L${x+1.5} 104 H${x-1.5} L${x-6} 92 Z" fill="#F4FAFD" stroke="#1E1E1E" stroke-width="2.5" stroke-linejoin="round"/>
+    <path d="M${x-4} 70 H${x+4} V92 L${x+0.8} 100 H${x-0.8} L${x-4} 92 Z" fill="${juice}"/>`;
+}
+function rpLater(list,ms,fn){ if(RP_REDUCE) fn(); else list.push(setTimeout(fn,ms)); }
+function rpClear(list){ list.forEach(clearTimeout); list.length=0; }
+function rpMark(listId,n){ $(listId).querySelectorAll("li").forEach(li=>li.classList.toggle("on",+li.dataset.step===n)); }
+function rpStepText(listId,n){ const li=$(listId).querySelector(`li[data-step="${n}"]`); return li ? li.textContent.replace(/^\s*\d+/,"").trim() : ""; }
+/* 重設顏色時不要慢慢變（免得「從頭看」時，剛倒進去的水還帶著上一次的顏色） */
+function rpSnap(svg,col){
+  svg.classList.add("rp-snap");
+  svg.style.setProperty("--liq",col);
+  svg.querySelectorAll(".rp-liq").forEach(el=>getComputedStyle(el).fill);
+  svg.classList.remove("rp-snap");
+}
+/* 調色臺的顏色 lvCol() 只有整數格；重播要用中間的顏色（例如 -3.5）時，取前後兩格的中間 */
+function rpLvCol(l){
+  const a=Math.floor(l), t=l-a;
+  if(!t) return lvCol(l);
+  const p=lvCol(a).match(/\w\w/g).map(h=>parseInt(h,16)), q=lvCol(a+1).match(/\w\w/g).map(h=>parseInt(h,16));
+  return "#"+p.map((v,i)=>Math.round(v+(q[i]-v)*t).toString(16).padStart(2,"0")).join("");
+}
+
+/* ---------- 示範重播①：各取一樣多 → 倒在一起冒泡 → 滴入紫色高麗菜汁看顏色 ---------- */
+function mixRpSVG(){
+  /* --ty：沒有動畫時氣泡停的位置（往上散開） */
+  const bub=[[208,228,4,-10],[216,221,3,-62],[224,232,5,-30],[233,225,3.5,-78],[242,231,4.5,-18],[251,223,3,-52],[259,230,5,-6],[267,224,3.5,-70],[275,231,4,-40]]
+    .map(([x,y,r,ty],i)=>`<circle cx="${x}" cy="${y}" r="${r}" style="animation-delay:${(-i*0.37).toFixed(2)}s;--ty:${ty}px"/>`).join("");
+  const foam=[[203,131,4],[212,129,3],[220,132,4.5],[230,130,3.5],[240,132,4],[249,129,3],[258,131,4.5],[267,130,3.5],[276,132,3]]
+    .map(([x,y,r])=>`<circle cx="${x}" cy="${y}" r="${r}"/>`).join("");
+  /* 量杯：貼著標籤，倒的時候整個杯子以杯嘴為軸一起轉 */
+  const cup=(cls,inCls,clip,d,cx,name,kind)=>`<g class="${cls}">
+      <g clip-path="url(#${clip})"><rect class="${inCls}" x="${cx-40}" y="198" width="80" height="52" fill="${RP_CLEAR}"/></g>
+      <path d="${d}" fill="none" stroke="#1E1E1E" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"/>
+      <rect x="${cx-32}" y="215" width="64" height="32" rx="5" fill="#fff" stroke="#1E1E1E" stroke-width="1.5"/>
+      <text x="${cx}" y="230" font-size="14.5" font-weight="900" text-anchor="middle" fill="#1E1E1E">${name}</text>
+      <text x="${cx}" y="244" font-size="13" font-weight="800" text-anchor="middle" fill="#4A5960">${kind}</text>
+    </g>`;
+  const drops=[1,2,3].map(k=>`<circle class="rp-dr rp-dr${k}" cx="240" cy="108" r="4.5" fill="${RP_JUICE}" stroke="#1E1E1E" stroke-width="1.2"/>`).join("");
+  const swirls=[[1,240,138],[2,236,140],[3,244,139]].map(([k,x,y])=>`<ellipse class="rp-sw rp-sw${k}" cx="${x}" cy="${y}" rx="14" ry="7" fill="${RP_JUICE}"/>`).join("");
+  return `<svg class="rp rp-mix" id="mixRpSvg" data-step="0" viewBox="0 0 480 290" role="img" aria-label="示範重播的示意圖：檸檬酸水和小蘇打水各取一樣多，倒進托盤上的大杯子，冒出很多氣泡；再滴入紫色高麗菜汁看顏色" xmlns="http://www.w3.org/2000/svg" ${RP_F}>
+  <defs>
+    <clipPath id="rpmCup"><path d="M192.5 112 L198 236 H282 L287.5 112 Z"/></clipPath>
+    <clipPath id="rpmL"><path d="M59 186 L63 248 H127 L131 186 Z"/></clipPath>
+    <clipPath id="rpmR"><path d="M421 186 L417 248 H353 L349 186 Z"/></clipPath>
+  </defs>
+  <rect width="480" height="290" fill="#FFFDF8"/>
+  <rect x="0" y="250" width="480" height="40" fill="#EADFC8"/>
+  <line x1="0" y1="250" x2="480" y2="250" stroke="#1E1E1E" stroke-width="3"/>
+  ${RP_TRAY}
+  <text x="240" y="274" font-size="15" font-weight="800" text-anchor="middle" fill="#4A5960">托盤</text>
+  <g class="rp-eq" stroke="#2E86C1" stroke-width="2.5" stroke-dasharray="7 5"><line x1="38" y1="198" x2="196" y2="198"/><line x1="284" y1="198" x2="442" y2="198"/></g>
+  <text class="rp-eq" x="240" y="204" font-size="18" ${RP_T}>一樣多</text>
+  <path class="rp-stream rp-sL" d="M207 102 Q209 160 212 236" fill="none" stroke="#8CCBEB" stroke-width="6" stroke-linecap="round" stroke-dasharray="14 6"/>
+  <path class="rp-stream rp-sR" d="M273 102 Q271 160 268 236" fill="none" stroke="#8CCBEB" stroke-width="6" stroke-linecap="round" stroke-dasharray="14 6"/>
+  ${RP_ROD}
+  <g clip-path="url(#rpmCup)">
+    <rect class="rp-fill rp-liq" x="186" y="132" width="108" height="106"/>
+    ${swirls}
+    <g class="rp-bubs" fill="#fff" stroke="#1E1E1E" stroke-width="1.3">${bub}</g>
+    <g class="rp-foam" fill="#fff" stroke="#1E1E1E" stroke-width="1.2">${foam}</g>
+  </g>
+  ${RP_GLASS}
+  <text class="rp-qmark" x="240" y="205" font-size="60" font-weight="900" text-anchor="middle" fill="#1E1E1E" stroke="#fff" stroke-width="6" stroke-linejoin="round" paint-order="stroke">？</text>
+  ${cup("rp-cupL","rp-inL","rpmL","M57 184 L61 250 H129 L133 184 L139 179",95,"檸檬酸水","酸性")}
+  ${cup("rp-cupR","rp-inR","rpmR","M423 184 L419 250 H351 L347 184 L341 179",385,"小蘇打水","鹼性")}
+  <g class="rp-dropper">
+    ${rpDropper(240,RP_JUICE)}
+    <line x1="196" y1="57" x2="228" y2="64" stroke="#1E1E1E" stroke-width="2"/>
+    <text x="146" y="62" font-size="16" ${RP_T}>紫色高麗菜汁</text>
+  </g>
+  ${drops}
+  <g class="rp-lab2">
+    <line x1="152" y1="148" x2="212" y2="178" stroke="#1E1E1E" stroke-width="2"/>
+    <text x="108" y="144" font-size="16" ${RP_T}>冒出很多氣泡</text>
+    <text x="240" y="98" font-size="16" ${RP_T}>杯子不加蓋</text>
+  </g>
+  <g class="rp-res">
+    <line x1="302" y1="98" x2="276" y2="150" stroke="#1E1E1E" stroke-width="2.5"/>
+    <g class="rp-ans">
+      <rect x="302" y="40" width="168" height="84" rx="14" fill="#fff" stroke="#1E1E1E" stroke-width="3"/>
+      <rect class="rp-liq" x="314" y="58" width="22" height="48" rx="6" stroke="#1E1E1E" stroke-width="2.5"/>
+      <text class="rp-rw" x="402" y="87" font-size="28" font-weight="900" text-anchor="middle" fill="#1E1E1E"></text>
+      <text class="rp-rn" x="402" y="111" font-size="16" font-weight="800" text-anchor="middle" fill="#34444C"></text>
+    </g>
+    <g class="rp-q">
+      <rect x="298" y="44" width="176" height="74" rx="14" fill="#FFF6D8" stroke="#E0A800" stroke-width="3" stroke-dasharray="8 5"/>
+      <text x="386" y="75" font-size="15.5" font-weight="800" text-anchor="middle" fill="#1E1E1E">先看老師的杯子，</text>
+      <text x="386" y="101" font-size="15.5" font-weight="800" text-anchor="middle" fill="#1E1E1E">再按上面「看到的顏色」</text>
+    </g>
+  </g>
+</svg>`;
+}
+const MIX_RP_N=3, mixRpT=[];
+let mixRpStep=0, mixRpLit=false;
+$("mixRp").innerHTML=mixRpSVG();
+/* 第 3 個畫面的顏色和字：跟著老師按的「真的看到的顏色」；還沒按就不上色，只疊一個大「？」 */
+function mixRpAns(){
+  const svg=$("mixRpSvg"), a=mixRes?RP_ANS[mixRes]:null;
+  svg.classList.toggle("noans",!a);
+  if(a){ svg.querySelector(".rp-rw").textContent=a[0]; svg.querySelector(".rp-rn").textContent=a[1]; }
+  if(mixRpLit) svg.style.setProperty("--liq", a?CAB_COL[mixRes]:RP_CLEAR);
+  if(mixRpStep===3) $("mixRpSay").textContent=`畫面 3：${rpStepText("mixRpSteps",3)}`+(a?`這一杯${a[0]}，${a[1]}。`:"老師還沒按看到的顏色。");
+}
+/* 換站回來時也呼叫：CSS 動畫會從頭播，計時器跟著重來才不會對不上 */
+function setMixRp(n){
+  rpClear(mixRpT);
+  const svg=$("mixRpSvg");
+  mixRpStep=n; mixRpLit=false;
+  rpSnap(svg,RP_CLEAR);
+  svg.dataset.step=n;
+  rpMark("mixRpSteps",n);
+  $("mixRpSay").textContent = n ? `畫面 ${n}：${rpStepText("mixRpSteps",n)}` : "";
+  mixRpAns();
+  if(n===3) rpLater(mixRpT,2400,()=>{ mixRpLit=true; mixRpAns(); });
+  $("mixRpNext").textContent = n>=MIX_RP_N ? "▶ 再看一次：畫面 1" : `▶ 播放畫面 ${n+1}`;
+}
+function syncMixRp(){ mixRpAns(); }
+$("mixRpNext").addEventListener("click",()=>setMixRp(mixRpStep>=MIX_RP_N?1:mixRpStep+1));
+$("mixRpReset").addEventListener("click",()=>setMixRp(0));
+setMixRp(0);
+
+/* ---------- 示範重播②：一滴一滴加、攪拌、看顏色，偏紫就停（不顯示滴數） ---------- */
+function adjRpSVG(){
+  /* 每一滴加進去都會冒一點泡（還有沒作用完的檸檬酸或小蘇打） */
+  const fz=k=>`<g class="rp-fz rp-fz${k}" fill="#fff" stroke="#1E1E1E" stroke-width="1.2"><circle cx="214" cy="146" r="3.5"/><circle cx="222" cy="140" r="2.5"/><circle cx="207" cy="151" r="3"/><circle cx="219" cy="156" r="2.2"/></g>`;
+  const drops=[1,2,3].map(k=>`<circle class="rp-d rp-d${k}" cx="214" cy="108" r="4.5" fill="${RP_CLEAR}" stroke="#1E1E1E" stroke-width="1.5"/>`).join("");
+  const box=`<rect x="296" y="36" width="178" height="62" rx="12" fill="#FFF6D8" stroke="#1E1E1E" stroke-width="2.5"/>`;
+  return `<svg class="rp rp-adj" id="adjRpSvg" data-step="0" viewBox="0 0 480 350" role="img" aria-label="示範重播的示意圖：用滴管一滴一滴加，每加一滴就攪拌、看顏色，變成偏紫就停下來" xmlns="http://www.w3.org/2000/svg" ${RP_F}>
+  <defs><clipPath id="rpaCup"><path d="M192.5 112 L198 236 H282 L287.5 112 Z"/></clipPath></defs>
+  <rect width="480" height="350" fill="#FFFDF8"/>
+  <rect x="0" y="250" width="480" height="24" fill="#EADFC8"/>
+  <line x1="0" y1="250" x2="480" y2="250" stroke="#1E1E1E" stroke-width="3"/>
+  ${RP_TRAY}
+  <text x="240" y="268" font-size="14.5" font-weight="800" text-anchor="middle" fill="#4A5960">托盤</text>
+  ${RP_ROD}
+  <g clip-path="url(#rpaCup)">
+    <rect class="rp-liq" x="186" y="132" width="108" height="106"/>
+    ${fz(1)}${fz(2)}${fz(3)}
+  </g>
+  ${RP_GLASS}
+  ${rpDropper(214,RP_CLEAR)}
+  <g class="rp-dlab">
+    <line x1="176" y1="52" x2="203" y2="54" stroke="#1E1E1E" stroke-width="2"/>
+    <text class="rp-dn" x="134" y="50" font-size="17" ${RP_T}></text>
+    <text class="rp-dk" x="134" y="71" font-size="14.5" font-weight="800" text-anchor="middle" fill="#4A5960"></text>
+  </g>
+  ${drops}
+  <g class="rp-c1">${box}
+    <text class="rp-c1a" x="385" y="61" font-size="16" font-weight="900" text-anchor="middle" fill="#1E1E1E"></text>
+    <text class="rp-c1b" x="385" y="87" font-size="15" font-weight="800" text-anchor="middle" fill="#1E1E1E"></text>
+  </g>
+  <g class="rp-c2">${box}
+    <text x="385" y="61" font-size="16" font-weight="900" text-anchor="middle" fill="#1E1E1E">加一滴、攪拌、看顏色</text>
+    <text class="rp-c2b" x="385" y="87" font-size="15" font-weight="800" text-anchor="middle" fill="#1E1E1E"></text>
+  </g>
+  <g class="rp-c3">${box}
+    <text x="385" y="61" font-size="16" font-weight="900" text-anchor="middle" fill="#1E1E1E">……又加了好幾滴……</text>
+    <text x="385" y="87" font-size="15" font-weight="800" text-anchor="middle" fill="#1E1E1E">每一滴都攪拌、看顏色</text>
+  </g>
+  <g class="rp-stamp">
+    <rect x="306" y="38" width="160" height="56" rx="12" fill="#2E7D4F" stroke="#1E1E1E" stroke-width="3"/>
+    <text x="386" y="75" font-size="24" font-weight="900" text-anchor="middle" fill="#fff">偏紫了，停！</text>
+  </g>
+  <g class="rp-now">
+    <line x1="304" y1="151" x2="278" y2="160" stroke="#1E1E1E" stroke-width="2.5"/>
+    <rect x="304" y="112" width="166" height="78" rx="14" fill="#fff" stroke="#1E1E1E" stroke-width="3"/>
+    <rect class="rp-liq" x="316" y="128" width="20" height="46" rx="6" stroke="#1E1E1E" stroke-width="2.5"/>
+    <text class="rp-rw" x="402" y="155" font-size="28" font-weight="900" text-anchor="middle" fill="#1E1E1E"></text>
+    <text class="rp-rn" x="402" y="179" font-size="16" font-weight="800" text-anchor="middle" fill="#34444C"></text>
+  </g>
+  <path class="rp-ptr" d="M231 278 L249 278 L240 290 Z" fill="#1E1E1E"/>
+  <rect x="90" y="292" width="100" height="16" fill="#E2557F" stroke="#1E1E1E" stroke-width="2"/>
+  <rect x="190" y="292" width="100" height="16" fill="#8A5BB8" stroke="#1E1E1E" stroke-width="2"/>
+  <rect x="290" y="292" width="100" height="16" fill="#3A9AA8" stroke="#1E1E1E" stroke-width="2"/>
+  <g font-size="16" font-weight="900" fill="#1E1E1E" text-anchor="middle"><text x="140" y="327">偏紅</text><text x="240" y="327">偏紫</text><text x="340" y="327">偏藍或偏綠</text></g>
+  <g font-size="14" font-weight="700" fill="#4A5960" text-anchor="middle"><text x="140" y="345">還偏酸</text><text x="240" y="345">接近中性</text><text x="340" y="345">偏鹼</text></g>
+</svg>`;
+}
+const ADJ_RP_N=3, adjRpT=[];
+let adjRpStep=0, adjStart=-4, adjPicked=false;
+$("adjRp").innerHTML=adjRpSVG();
+/* 一開始的杯子：跟著「示範：混合」那一站老師按的顏色；偏紫或還沒按，就用課本第一組（混合後偏紅） */
+function adjDefault(){ return mixRes==="base" ? 4 : -4; }
+function adjRpShow(l){
+  const svg=$("adjRpSvg");
+  svg.style.setProperty("--liq",rpLvCol(l));
+  svg.querySelector(".rp-ptr").style.transform=`translateX(${Math.max(-130,Math.min(130,l*30))}px)`;
+  svg.querySelector(".rp-rw").textContent=lvWord(l);
+  svg.querySelector(".rp-rn").textContent=lvNat(l);
+}
+function adjRpText(){
+  const svg=$("adjRpSvg"), red=adjStart<0;
+  const put=(sel,t)=>{ svg.querySelector(sel).textContent=t; };
+  put(".rp-dn", red?"小蘇打水":"檸檬酸水");
+  put(".rp-dk", red?"鹼性":"酸性");
+  put(".rp-c1a", red?"偏紅＝還偏酸":"偏藍綠＝偏鹼");
+  put(".rp-c1b", red?"→ 加小蘇打水（鹼性）":"→ 加檸檬酸水（酸性）");
+  put(".rp-c2b", red?"還偏紅，繼續加……":"還偏藍綠，繼續加……");
+  $("adjRpFrom").textContent =
+      adjPicked ? `現在用：${red?"偏紅的一杯（加小蘇打水）":"偏藍綠的一杯（加檸檬酸水）"}。`
+    : mixRes==="acid" ? "跟著「示範：混合」那一站按的顏色：偏紅的一杯。"
+    : mixRes==="base" ? "跟著「示範：混合」那一站按的顏色：偏藍綠的一杯。"
+    : mixRes==="neutral" ? "「示範：混合」那一站已經偏紫，不用調；這裡用課本第一組（混合後偏紅）的一杯。"
+    : "「示範：混合」那一站還沒按顏色，先用課本第一組（混合後偏紅）的一杯。";
+  $("adjRpPick").querySelectorAll(".opt").forEach(b=>b.setAttribute("aria-pressed",String((+b.dataset.start<0)===red)));
+}
+function setAdjRp(n){
+  rpClear(adjRpT);
+  const svg=$("adjRpSvg"), dir=adjStart<0?1:-1;
+  adjRpStep=n; svg.dataset.step=n;
+  adjRpText();
+  rpMark("adjRpSteps",n);
+  /* 畫面 2 畫兩滴（每滴只變一點點，還偏紅）；畫面 3 先跳過好幾滴，最後一滴才偏紫：
+     數不出滴數，也不會和調色臺「第幾滴偏紫」對上 */
+  if(n<=1){ rpSnap(svg,rpLvCol(adjStart)); adjRpShow(adjStart); }
+  if(n===2){ adjRpShow(adjStart); rpLater(adjRpT,1300,()=>adjRpShow(adjStart+dir/2)); rpLater(adjRpT,3400,()=>adjRpShow(adjStart+dir)); }
+  if(n===3){ adjRpShow(adjStart+2*dir); rpLater(adjRpT,1900,()=>adjRpShow(adjStart+3*dir)); }
+  $("adjRpSay").textContent = n ? `畫面 ${n}：${rpStepText("adjRpSteps",n)}` : "";
+  $("adjRpNext").textContent = n>=ADJ_RP_N ? "▶ 再看一次：畫面 1" : `▶ 播放畫面 ${n+1}`;
+}
+/* 老師在「示範：混合」那一站換了顏色：沒有自己切換過，就換成新的那一杯 */
+function syncAdjStart(){
+  if(!adjPicked && adjDefault()!==adjStart){ adjStart=adjDefault(); setAdjRp(0); }
+  else adjRpText();
+}
+[["偏紅的一杯",-4],["偏藍綠的一杯",4]].forEach(([t,s])=>{
+  const b=document.createElement("button");
+  b.type="button"; b.className="opt"; b.textContent=t; b.dataset.start=s; b.setAttribute("aria-pressed","false");
+  b.addEventListener("click",()=>{ adjPicked=true; adjStart=s; setAdjRp(0); });
+  $("adjRpPick").appendChild(b);
+});
+$("adjRpNext").addEventListener("click",()=>setAdjRp(adjRpStep>=ADJ_RP_N?1:adjRpStep+1));
+$("adjRpReset").addEventListener("click",()=>setAdjRp(0));
+setAdjRp(0);
 
 /* ==========================================================
    生活中的應用：配對白板（揭曉前不顯示任何對錯）
