@@ -1,0 +1,2418 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>沙拉變色之謎｜科學探究六步驟 配音動畫</title>
+<link rel="icon" href="../../image/icon.svg" type="image/svg+xml">
+<style>
+/* ==========================================================
+   沙拉變色之謎 — 科學探究六步驟 配音動畫（〈自製酸鹼指示劑〉課本 74–75 頁的總整理）
+   ※ 本檔由 .handoff/indicator-anim/assemble.py 產生：要改請改 page/ 裡的檔案再重跑，不要直接改這個 HTML。
+   使用情境：教室 75 吋觸控螢幕全班看（建議全螢幕），學生在家用手機、平板也能看。
+   畫面＝SVG（viewBox 1600×900），render(T) 只看時間決定畫面；
+   聲音＝預先混好的 MP3，播放時以音檔時間當主時鐘。
+   旁白稿、時間軸、配樂由 .handoff/indicator-anim/ 的製作程式產生（assets/timeline.js）。
+   ========================================================== */
+:root{
+  --bg:#FDF6EC; --ink:#1E1E1E;
+  --green:#58B159; --green-dark:#2E7D4F;
+  --sun:#FFC93C; --coral:#FF7F66; --coral-dark:#E4574C;
+  --card:#FFFFFF; --muted:#6B7A82; --muted-dark:#5C6970;
+  --key:#B4410F;
+  --shadow:0 6px 18px rgba(46,86,110,.16);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  min-height:100vh;color:var(--ink);background:var(--bg);
+  font-family:-apple-system,"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif;
+  font-size:clamp(16px,1.6vw,20px);line-height:1.6;
+}
+#app{max-width:1280px;margin:0 auto;padding:10px 14px 34px}
+
+/* ---------- 頁首 ---------- */
+.sitehead{margin-bottom:10px}
+.headrow{display:flex;align-items:center;gap:6px 14px;flex-wrap:wrap}
+.back{
+  display:inline-flex;align-items:center;min-height:44px;padding:4px 16px;
+  border:3px solid var(--ink);border-radius:999px;background:var(--card);color:var(--ink);
+  font-weight:800;text-decoration:none;box-shadow:0 3px 0 var(--ink);font-size:clamp(14px,1.3vw,17px);
+}
+.back:active{transform:translateY(2px);box-shadow:0 1px 0 var(--ink)}
+.backs{display:flex;gap:8px;flex-wrap:wrap}
+.sitehead h1{margin:0;font-size:clamp(21px,2.5vw,31px);font-weight:900;letter-spacing:.5px}
+.sitehead .sub{color:var(--muted-dark);font-size:clamp(13px,1.3vw,17px);font-weight:700}
+
+/* ---------- 播放器 ---------- */
+#player{background:var(--card);border:3px solid var(--ink);border-radius:20px;box-shadow:var(--shadow);overflow:hidden;position:relative;
+  /* 舞台＋字幕＋控制列要一起塞進視窗高度（75 吋螢幕不用捲動就看得到控制列） */
+  max-width:max(560px, calc((100vh - 300px) * 16 / 9));margin:0 auto}
+#stageWrap{position:relative;width:100%;aspect-ratio:16/9;background:var(--bg);overflow:hidden;user-select:none;-webkit-user-select:none}
+@supports not (aspect-ratio:16/9){ #stageWrap{height:0;padding-top:56.25%} }
+#stage{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:manipulation}
+#stage text{font-family:"Microsoft JhengHei","PingFang TC","Noto Sans TC",sans-serif}
+
+/* 字幕：一般模式在舞台下方；全螢幕／匯出時疊在舞台裡 */
+#subBar{
+  min-height:3.3em;padding:8px 18px;border-top:3px solid var(--ink);background:#FFFDF7;
+  display:flex;align-items:center;justify-content:center;text-align:center;
+  font-weight:800;font-size:clamp(17px,2.05vw,30px);line-height:1.45;
+}
+#subBar b{color:var(--key)}
+#subBar.off{color:transparent}
+#subOv{
+  display:none;position:absolute;left:0;right:0;bottom:3.2%;margin:0 auto;width:fit-content;
+  max-width:92%;padding:.28em .8em;border-radius:.45em;background:rgba(24,24,24,.78);color:#fff;
+  font-weight:800;line-height:1.4;text-align:center;pointer-events:none;
+  font-size:calc(min(100vw, 177.78vh) * .026);
+}
+#subOv b{color:#FFD45C}
+#subOv:empty{display:none!important}
+
+/* 控制列 */
+#ctrl{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;padding:8px 12px;border-top:3px solid var(--ink);background:#fff}
+.cb{
+  min-width:48px;min-height:48px;padding:0 12px;border:3px solid var(--ink);border-radius:999px;
+  background:#fff;color:var(--ink);font:inherit;font-weight:900;cursor:pointer;
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;box-shadow:0 3px 0 var(--ink);
+  font-size:clamp(14px,1.35vw,17px);
+}
+.cb:active{transform:translateY(2px);box-shadow:0 1px 0 var(--ink)}
+.cb svg{width:22px;height:22px;flex:none}
+.cb.main{background:var(--sun);min-width:64px}
+.cb.tog[aria-pressed="true"]{background:var(--green-dark);color:#fff}
+.cb.tog[aria-pressed="false"]{background:#EDE8DE;color:#5C6970}
+.cb.tog[aria-pressed="false"] .lbl::after{content:" 關"}
+#time{font-weight:900;font-variant-numeric:tabular-nums;min-width:6.6em;text-align:center;font-size:clamp(14px,1.35vw,17px)}
+#prog{position:relative;flex:1 1 180px;height:44px;cursor:pointer;touch-action:none;min-width:140px}
+#prog .track{position:absolute;left:0;right:0;top:14px;height:16px;border:2px solid var(--ink);border-radius:999px;overflow:hidden;background:#EDE8DE;display:flex}
+#prog .seg{height:100%;border-right:2px solid rgba(30,30,30,.28)}
+#prog .seg.odd{background:#FFF0C2}
+#prog .seg.even{background:#DDF1D3}
+#prog .seg.s0{background:#F3E9D9}
+#prog .fill{position:absolute;left:0;top:14px;height:16px;border-radius:999px 0 0 999px;background:rgba(255,201,60,.92);border:2px solid var(--ink);border-right:0;pointer-events:none}
+#prog .thumb{position:absolute;top:8px;width:28px;height:28px;margin-left:-14px;border-radius:50%;background:#fff;border:3px solid var(--ink);box-shadow:0 2px 0 var(--ink);pointer-events:none}
+#prog .tip{position:absolute;bottom:46px;transform:translateX(-50%);background:var(--ink);color:#fff;border-radius:8px;padding:2px 10px;font-size:14px;font-weight:800;white-space:nowrap;pointer-events:none;display:none}
+
+/* 開始畫面、提示 */
+.ov{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:rgba(253,246,236,.86)}
+.ov.on{display:flex}
+.poster{text-align:center;padding:2%}
+.poster .big{
+  width:clamp(84px,13vw,170px);height:clamp(84px,13vw,170px);border-radius:50%;border:4px solid var(--ink);
+  background:var(--sun);box-shadow:0 6px 0 var(--ink);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;
+}
+.poster .big svg{width:46%;height:46%;margin-left:8%}
+.poster .big:active{transform:translateY(4px);box-shadow:0 2px 0 var(--ink)}
+.poster h2{margin:.5em 0 .1em;font-size:clamp(22px,3.6vw,52px);font-weight:900}
+.poster p{margin:0;font-weight:800;color:var(--muted-dark);font-size:clamp(13px,1.6vw,22px)}
+/* 提示框放在「探究路線」下面，載入圈放左上角（右上角是「示意圖」標記） */
+#toast{position:absolute;left:50%;top:16%;transform:translateX(-50%);background:var(--ink);color:#fff;border-radius:12px;padding:6px 16px;font-weight:800;font-size:clamp(13px,1.4vw,20px);display:none;max-width:90%;text-align:center}
+#buffering{position:absolute;left:2%;top:3%;width:clamp(26px,3vw,44px);height:clamp(26px,3vw,44px);border-radius:50%;border:5px solid rgba(30,30,30,.18);border-top-color:var(--ink);animation:spin 1s linear infinite;display:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+#rotateHint{display:none;padding:6px 12px;background:#FFF6D8;border-top:3px solid var(--ink);font-weight:800;font-size:15px;text-align:center}
+@media (orientation:portrait) and (max-width:640px){ #rotateHint{display:block} }
+
+/* 全螢幕（含 iPhone 用的「假全螢幕」） */
+#player.fs{position:fixed;inset:0;z-index:100;border:0;border-radius:0;background:#111;box-shadow:none;display:flex;flex-direction:column}
+#player.fs #stageWrap{flex:none;width:min(100vw, calc(100vh * 16 / 9));height:auto;margin:auto}
+#player.fs #subBar,#player.fs #rotateHint{display:none}
+#player.fs #subOv{display:block}
+#player.fs.subsoff #subOv{display:none}
+#player.fs #ctrl{position:absolute;left:0;right:0;bottom:0;background:rgba(255,255,255,.94);transition:opacity .35s}
+#player.fs.idle #ctrl{opacity:0;pointer-events:none}
+#player.fs.idle{cursor:none}
+
+/* 匯出（MP4）／截圖模式：只留舞台和字幕 */
+body.export{background:#000;overflow:hidden}
+body.export #app{max-width:none;padding:0}
+body.export .sitehead,body.export #ctrl,body.export #subBar,body.export #rotateHint,body.export #chapters,body.export .teacher,body.export footer{display:none!important}
+body.export #player{border:0;border-radius:0;box-shadow:none}
+body.export #stageWrap{position:fixed;inset:0;width:100vw;height:100vh;aspect-ratio:auto;padding:0}
+body.export #subOv{display:block;font-size:calc(min(100vw, 177.78vh) * .026)}
+body.export.nosub #subOv{display:none!important}
+
+/* ---------- 段落選單 ---------- */
+#chapters{margin-top:14px}
+.navbox{background:#fff;border:3px solid var(--ink);border-radius:18px;padding:10px 12px;box-shadow:var(--shadow)}
+.navbox h2{margin:0 0 6px;font-size:clamp(16px,1.6vw,21px);font-weight:900;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.navbox h2 small{font-weight:800;color:var(--muted-dark)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{
+  border:3px solid var(--ink);border-radius:14px;background:#fff;font:inherit;font-weight:800;cursor:pointer;
+  padding:4px 12px;min-height:44px;box-shadow:0 3px 0 var(--ink);font-size:clamp(14px,1.3vw,17px);text-align:left;
+}
+.chip small{color:var(--muted-dark);font-weight:800;margin-left:4px}
+.chip.on{background:var(--green-dark);color:#fff}
+.chip.on small{color:#E6F6EA}
+.chip:active{transform:translateY(2px);box-shadow:0 1px 0 var(--ink)}
+
+/* ---------- 給老師 ---------- */
+.teacher{margin-top:14px;background:#FFF6D8;border:3px dashed var(--sun);border-radius:16px;padding:8px 16px}
+.teacher summary{cursor:pointer;font-weight:900;font-size:clamp(16px,1.6vw,20px);min-height:44px;display:flex;align-items:center}
+.teacher h3{margin:12px 0 4px;font-size:1.02em}
+.teacher p,.teacher li{font-size:clamp(14px,1.35vw,17px)}
+.teacher ul{margin:4px 0;padding-left:1.3em}
+.teacher table{border-collapse:collapse;width:100%;font-size:clamp(13px,1.3vw,16px);background:#fff}
+.teacher th,.teacher td{border:2px solid var(--ink);padding:4px 8px;vertical-align:top;text-align:left}
+.teacher th{background:#FFE9A8}
+.teacher a{color:var(--green-dark);font-weight:800}
+kbd{border:2px solid var(--ink);border-bottom-width:3px;border-radius:6px;padding:0 6px;background:#fff;font-family:inherit;font-weight:800;font-size:.9em}
+
+/* ---------- 頁尾 ---------- */
+footer.credits{margin-top:14px;color:var(--muted-dark);font-size:clamp(12px,1.2vw,15px);line-height:1.7}
+footer.credits ul{margin:4px 0;padding-left:1.2em}
+footer.credits a{color:var(--muted-dark)}
+
+/* 矮的螢幕（筆電、橫放的手機）：頁首與字幕縮小，控制列盡量留在畫面內 */
+@media (max-height:700px){
+  .sitehead .sub{display:none}
+  .sitehead h1{font-size:22px}
+  #subBar{font-size:clamp(15px,1.6vw,22px);min-height:2.9em;padding:4px 14px}
+}
+/* 大螢幕：字和按鈕跟著放大（75 吋觸控螢幕多半回報 1920 寬） */
+@media (min-width:1800px){
+  #app{max-width:1700px}
+  #ctrl{gap:8px}
+  .cb{min-height:54px;min-width:54px;font-size:18px;padding:0 10px}
+  .cb svg{width:26px;height:26px}
+  #time{font-size:18px;min-width:5.6em}
+}
+@media (min-width:2600px){
+  #app{max-width:2400px}
+  body{font-size:26px}
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <header class="sitehead">
+    <div class="headrow">
+      <div class="backs">
+        <a class="back" href="../../index.html">← 回首頁</a>
+        <a class="back" href="../自製酸鹼指示劑/自製酸鹼指示劑_互動教材.html#inquiry">← 回〈自製酸鹼指示劑〉</a>
+      </div>
+      <div>
+        <h1>沙拉變色之謎</h1>
+        <div class="sub">五年級自然｜第三單元 水溶液｜科學探究六步驟 配音動畫（<span id="durText">片長約 4 分鐘</span>，有旁白、配樂、字幕）</div>
+      </div>
+    </div>
+  </header>
+
+  <section id="player" aria-label="動畫播放器">
+    <div id="stageWrap">
+      <svg id="stage" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid meet" role="img" aria-label="動畫畫面"></svg>
+      <div id="subOv" aria-hidden="true"></div>
+      <div id="buffering" aria-hidden="true"></div>
+      <div id="toast" role="status"></div>
+      <div class="ov on" id="poster">
+        <div class="poster">
+          <button class="big" id="bigPlay" type="button" aria-label="開始播放">
+            <svg viewBox="0 0 24 24"><path d="M6 3.5 L20 12 L6 20.5 Z" fill="#1E1E1E"/></svg>
+          </button>
+          <h2>沙拉變色之謎</h2>
+          <p>跟著豬豬，走一遍科學探究六步驟：觀察、提問、蒐集資料、假設、實驗、結論</p>
+        </div>
+      </div>
+    </div>
+    <div id="subBar" aria-live="off">&nbsp;</div>
+    <div id="rotateHint">📱 把手機橫過來、按「全螢幕」，畫面和字幕會比較大。</div>
+    <div id="ctrl">
+      <button class="cb" id="bPrev" type="button" title="上一段（PageUp）" aria-label="上一段">
+        <svg viewBox="0 0 24 24"><rect x="4" y="5" width="3" height="14" rx="1" fill="currentColor"/><path d="M20 5 L9 12 L20 19 Z" fill="currentColor"/></svg>
+      </button>
+      <button class="cb main" id="bPlay" type="button" title="播放／暫停（空白鍵）" aria-label="播放">
+        <svg viewBox="0 0 24 24" id="icoPlay"><path d="M7 4.5 L19 12 L7 19.5 Z" fill="currentColor"/></svg>
+        <svg viewBox="0 0 24 24" id="icoPause" style="display:none"><rect x="6" y="4.5" width="4" height="15" rx="1" fill="currentColor"/><rect x="14" y="4.5" width="4" height="15" rx="1" fill="currentColor"/></svg>
+      </button>
+      <button class="cb" id="bNext" type="button" title="下一段（PageDown）" aria-label="下一段">
+        <svg viewBox="0 0 24 24"><path d="M4 5 L15 12 L4 19 Z" fill="currentColor"/><rect x="17" y="5" width="3" height="14" rx="1" fill="currentColor"/></svg>
+      </button>
+      <div id="time">0:00 / 0:00</div>
+      <div id="prog" role="slider" aria-label="播放進度" tabindex="0" aria-valuemin="0">
+        <div class="track" id="progTrack"></div>
+        <div class="fill" id="progFill"></div>
+        <div class="thumb" id="progThumb"></div>
+        <div class="tip" id="progTip"></div>
+      </div>
+      <button class="cb tog" id="bVoice" type="button" aria-pressed="true" title="旁白開關（N）">
+        <svg viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path d="M16 8.5c1.2 1 1.8 2.2 1.8 3.5s-.6 2.5-1.8 3.5M18.5 6c2 1.6 3 3.6 3 6s-1 4.4-3 6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg><span class="lbl">旁白</span>
+      </button>
+      <button class="cb tog" id="bMusic" type="button" aria-pressed="true" title="配樂開關（M）">
+        <svg viewBox="0 0 24 24"><path d="M9 17.5V5.5l11-2.5v12" stroke="currentColor" stroke-width="2.4" fill="none" stroke-linejoin="round"/><ellipse cx="6.5" cy="17.5" rx="3" ry="2.4" fill="currentColor"/><ellipse cx="17.5" cy="15" rx="3" ry="2.4" fill="currentColor"/></svg><span class="lbl">配樂</span>
+      </button>
+      <button class="cb tog" id="bSubs" type="button" aria-pressed="true" title="字幕開關（C）">
+        <svg viewBox="0 0 24 24"><rect x="2.5" y="5" width="19" height="14" rx="3" stroke="currentColor" stroke-width="2.2" fill="none"/><path d="M6 13h5M13 13h5M6 16h8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span class="lbl">字幕</span>
+      </button>
+      <button class="cb" id="bFull" type="button" title="全螢幕（F）" aria-label="全螢幕">
+        <svg viewBox="0 0 24 24"><path d="M3.5 9V3.5H9M15 3.5h5.5V9M20.5 15v5.5H15M9 20.5H3.5V15" stroke="currentColor" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+  </section>
+
+  <nav id="chapters" aria-label="段落選單"></nav>
+
+  <details class="teacher">
+    <summary>👩‍🏫 給老師：怎麼用、每段重點、注意事項</summary>
+    <h3>建議用法</h3>
+    <ul>
+      <li>這是〈自製酸鹼指示劑〉課本 74–75 頁「科學探究的步驟」的<b>總整理</b>：每段一開始就說出步驟名稱和意思，中間不停。</li>
+      <li>建議在「探究步驟」白板排序、「示範：7 支試管」都做完之後再播；第一節（⑥）已排滿 40 分鐘，可以放在第二節（⑦）開頭，取代暖身第 ① 題（高麗菜汁的顏色；溶質與溶劑那題保留，暖身會從 3 分鐘變成約 6 分鐘），或請學生回家看。</li>
+      <li>先播會洩漏答案：白板排序的答案、7 支試管的顏色都在動畫裡。</li>
+      <li>75 吋觸控螢幕建議按<b>全螢幕</b>；簡報筆的上一頁／下一頁鍵（<kbd>PageUp</kbd>／<kbd>PageDown</kbd>）可以直接切換段落。</li>
+      <li>回到教材：<a href="../自製酸鹼指示劑/自製酸鹼指示劑_互動教材.html#inquiry">〈自製酸鹼指示劑〉互動教材</a>。</li>
+    </ul>
+    <h3>每段重點</h3>
+    <div id="teacherTable"></div>
+    <h3>內容上的處理</h3>
+    <ul>
+      <li>每段第一句和互動教材白板籃子上的提示一樣（例如「觀察：用眼睛看，發現一個現象」）；提問、假設、結論的卡片文字也和白板卡片相同。</li>
+      <li>試管顏色用網站和題庫的說法：醋、檸檬酸水偏紅，食鹽水、糖水偏紫，小蘇打水偏藍綠，肥皂水偏綠。課本、習作 P.26 把小蘇打水寫成「偏藍」（照片看起來是藍綠色），兩種都算對。</li>
+      <li>「未知水溶液」課本打「？」，動畫不替它編結果，只說「如果偏○色，就是○性」。</li>
+      <li>課本結論說「有些植物汁液」，動畫只實際演紫色高麗菜汁；其他植物汁液（課本 80 頁）留到第二節「其他植物汁液」那一站。</li>
+      <li>安全：熱水由老師處理；實驗用的東西一律不嘗；這個實驗由老師在學校示範，回家不用做。</li>
+      <li>動畫是示意圖；觀察與實驗結果兩段都接上<b>課本照片</b>（74、75 頁），可以問學生「動畫裡的顏色，照片上找得到嗎？」</li>
+    </ul>
+    <h3>鍵盤</h3>
+    <p><kbd>空白鍵</kbd> 播放／暫停　<kbd>←</kbd><kbd>→</kbd> 倒退／快轉 5 秒　<kbd>PageUp</kbd><kbd>PageDown</kbd> 上一段／下一段　<kbd>F</kbd> 全螢幕　<kbd>C</kbd> 字幕　<kbd>N</kbd> 旁白　<kbd>M</kbd> 配樂</p>
+  </details>
+
+  <footer class="credits">
+    <p><b>製作：</b>許博明老師（豬豬的自然探索）。旁白：電腦合成語音（微軟 曉雨）；動畫與配樂、音效：以程式繪製與合成。</p>
+    <p><b>照片來源</b></p>
+    <ul>
+      <li>紫色高麗菜絲加醋之後：取自南一版自然五上課本第 74 頁。</li>
+      <li>滴入紫色高麗菜汁後的試管：取自南一版自然五上課本第 75 頁。</li>
+      <li>紫色高麗菜、紅鳳菜、蝶豆花：取自南一版自然五上課本第 80 頁。</li>
+    </ul>
+    <p>課本內容：南一版自然五上第 74–75 頁（另參考第 70–73、80 頁）。<a href="../../index.html">← 回首頁</a></p>
+  </footer>
+</div>
+
+<script src="assets/timeline.js?v=54f3a353"></script>
+<script>
+/* ==========================================================
+   1. 共用工具：時間軸查詢、緩動、SVG 產生器、配色
+   ========================================================== */
+"use strict";
+const TL = window.FILM_TL;
+const $ = id => document.getElementById(id);
+const NS = "http://www.w3.org/2000/svg";
+const W0 = 1600, H0 = 900;
+
+const C = {
+  bg:"#FDF6EC", ink:"#1E1E1E", green:"#58B159", greenD:"#2E7D4F", leaf:"#4FA64F", leafD:"#2E7D4F",
+  sprout:"#A8D66A", soil:"#7A4E32", soilL:"#9C6B45", sand:"#E9CF9E", sandD:"#C9A47C",
+  sun:"#FFC93C", sky:"#CFEAF6", skyD:"#8FD3F4", coral:"#FF7F66", coralD:"#E4574C",
+  water:"#4FB0E5", waterD:"#2E86C1", gold:"#F2B33D", pollen:"#FFC93C", orange:"#F7931E",
+  cream:"#FFF6DC", white:"#FFFFFF", brown:"#8A5A34", grey:"#9AA5AD", hill:"#B9DC8C", hill2:"#9ACB6E",
+  /* 紫色高麗菜汁的顏色：和題庫 figures.js 的 F.cabbage 一致（課本 75 頁：酸偏紅、中偏紫、鹼偏藍綠／偏綠） */
+  juice:"#7B4FA6", acid:"#E2557F", neutral:"#8A5BB8", base:"#3A9AA8", baseG:"#5AAA4A",
+  clear:"#E4F3FA", glass:"#F4FBFF", wood:"#C98F5A", woodD:"#A8713F", wall:"#FFF3D6", lab:"#E6F2EC",
+  pig:"#FFD3B0", pigE:"#FFA5A8", pigE2:"#FD7E89", snout:"#FD7E84", pigInk:"#2C2F31"
+};
+const FONT = '"Microsoft JhengHei","PingFang TC","Noto Sans TC",sans-serif';
+
+/* ---- 數學 ---- */
+const clamp = (x, a = 0, b = 1) => x < a ? a : x > b ? b : x;
+const lerp = (a, b, t) => a + (b - a) * t;
+const Ease = {
+  lin: t => t,
+  io: t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2,
+  out: t => 1 - Math.pow(1 - t, 3),
+  in: t => t * t * t,
+  sine: t => -(Math.cos(Math.PI * t) - 1) / 2,
+  back: t => { const c1 = 1.70158, c3 = c1 + 1; return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2); },
+  outQ: t => 1 - (1 - t) * (1 - t),
+  elastic: t => t === 0 || t === 1 ? t : Math.pow(2, -10 * t) * Math.sin((t * 10 - .75) * (2 * Math.PI) / 3) + 1
+};
+/** t 在 [t0, t0+dur] 之間的進度（0～1），可指定緩動 */
+const P = (t, t0, dur, ef) => (ef || Ease.io)(clamp((t - t0) / Math.max(1e-6, dur)));
+/** 先升後降的「出現」進度：t0 開始淡入 fin 秒，t1 開始淡出 fout 秒 */
+const vis = (t, t0, t1, fin = .35, fout = .35) => Math.min(P(t, t0, fin, Ease.out), 1 - P(t, t1, fout, Ease.in));
+function lerpColor(a, b, t) {
+  const pa = parseInt(a.slice(1), 16), pb = parseInt(b.slice(1), 16);
+  const r = Math.round(lerp(pa >> 16, pb >> 16, t)), g = Math.round(lerp(pa >> 8 & 255, pb >> 8 & 255, t)), bl = Math.round(lerp(pa & 255, pb & 255, t));
+  return "#" + ((1 << 24) | (r << 16) | (g << 8) | bl).toString(16).slice(1);
+}
+/** 固定種子的亂數（每次畫出來都一樣，倒帶才不會變） */
+function rng(seed) {
+  let a = seed >>> 0;
+  return () => { a = (a + 0x6D2B79F5) >>> 0; let t = a; t = Math.imul(t ^ t >>> 15, t | 1); t ^= t + Math.imul(t ^ t >>> 7, t | 61); return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+}
+
+/* ---- 時間軸查詢 ---- */
+const LINE = {}, CH = {};
+TL.lines.forEach((l, i) => { l.i = i; LINE[l.id] = l; });
+TL.chapters.forEach((c, i) => { c.i = i; CH[c.id] = c; });
+const Ls = id => LINE[id].s, Le = id => LINE[id].e;
+/** 關鍵詞在旁白裡的位置；語音合成用的文字若換過同音字（彈→談），改用字幕原文找（字數相同） */
+function kwIndex(l, kw, n) {
+  for (const text of [l.tts, l.sub.replace(/[\[\]]/g, "")]) {
+    let idx = -1;
+    for (let k = 0; k < n; k++) { idx = text.indexOf(kw, idx + 1); if (idx < 0) break; }
+    if (idx >= 0) return idx;
+  }
+  return -1;
+}
+/** 旁白唸到關鍵詞 kw 的時間（第 n 次出現） */
+function Wt(id, kw, n = 1) {
+  const l = LINE[id];
+  if (!l) { console.error("沒有這句旁白", id); return 0; }
+  const idx = kwIndex(l, kw, n);
+  if (idx < 0) { console.error("旁白裡找不到", id, kw); return l.s; }
+  for (const [a, b, t0, t1] of l.w) {
+    if (idx >= a && idx < b) return t0 + (t1 - t0) * (idx - a) / Math.max(1, b - a);
+    if (a > idx) return t0;
+  }
+  return l.e;
+}
+/** 關鍵詞唸完的時間 */
+function We(id, kw, n = 1) {
+  const l = LINE[id];
+  const idx = kwIndex(l, kw, n);
+  const last = idx + kw.length - 1;
+  for (const [a, b, t0, t1] of l.w) if (last >= a && last < b) return t1;
+  return Wt(id, kw, n) + .4;
+}
+const Bs = n => { if (!TL.beats[n]) { console.error("沒有這段", n); return 0; } return TL.beats[n][0]; };
+const Bd = n => TL.beats[n] ? TL.beats[n][1] : 0;
+const Be = n => Bs(n) + Bd(n);
+
+/* ---- SVG 產生器 ---- */
+function E(tag, attrs, parent) {
+  const e = document.createElementNS(NS, tag);
+  if (attrs) for (const k in attrs) if (attrs[k] != null) e.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(e);
+  return e;
+}
+const G = (parent, attrs) => E("g", attrs, parent);
+function S(e, attrs) { for (const k in attrs) e.setAttribute(k, attrs[k]); return e; }
+/** 位移＋旋轉＋縮放（常用的 transform 字串） */
+const tf = (x, y, r = 0, s = 1, sy) => `translate(${x.toFixed(2)},${y.toFixed(2)})` + (r ? ` rotate(${r.toFixed(2)})` : "") + (s !== 1 || sy != null ? ` scale(${(+s).toFixed(4)}${sy != null ? "," + (+sy).toFixed(4) : ""})` : "");
+/** 設定透明度與顯示（透明時直接隱藏，省效能） */
+function op(e, a) {
+  if (a <= 0.001) { if (e.__d !== "none") { e.style.display = "none"; e.__d = "none"; } return; }
+  if (e.__d !== "") { e.style.display = ""; e.__d = ""; }
+  e.setAttribute("opacity", a >= .999 ? 1 : a.toFixed(3));
+}
+function T(parent, x, y, text, attrs) {
+  const t = E("text", Object.assign({ x, y, "font-family": FONT, "font-weight": 900, "text-anchor": "middle", "dominant-baseline": "central", fill: C.ink }, attrs || {}), parent);
+  t.textContent = text;
+  return t;
+}
+/** 估計中文字串寬度（中文字＝1em，英數＝0.58em） */
+function textW(s, size) { let w = 0; for (const ch of s) w += /[\x00-\xff]/.test(ch) ? .58 : 1; return w * size; }
+/** 有描邊的粗線條（先畫黑色粗線，再畫彩色細線） */
+function stroke2(parent, d, color, w, ow = 3.2, extra) {
+  const g = G(parent);
+  E("path", Object.assign({ d, fill: "none", stroke: C.ink, "stroke-width": w + ow * 2, "stroke-linecap": "round", "stroke-linejoin": "round" }, extra || {}), g);
+  const p = E("path", Object.assign({ d, fill: "none", stroke: color, "stroke-width": w, "stroke-linecap": "round", "stroke-linejoin": "round" }, extra || {}), g);
+  g.inner = p;
+  return g;
+}
+
+/* ---- 共用元件：標籤（引線會慢慢畫出來，再彈出膠囊） ---- */
+function makeLabel(parent, text, x, y, tx, ty, o = {}) {
+  const size = o.size || 38, col = o.color || C.ink, bg = o.bg || "#fff";
+  const g = G(parent);
+  const w = textW(text, size) + size * 1.1, h = size * 1.55;
+  let line = null, dot = null, len = 0;
+  if (tx != null) {
+    const ax = x, ay = y;
+    line = E("line", { x1: ax, y1: ay, x2: tx, y2: ty, stroke: col === C.ink ? C.ink : col, "stroke-width": 5, "stroke-linecap": "round" }, g);
+    len = Math.hypot(tx - ax, ty - ay);
+    line.setAttribute("stroke-dasharray", len);
+    dot = E("circle", { cx: tx, cy: ty, r: 8, fill: "#fff", stroke: col, "stroke-width": 5 }, g);
+  }
+  const pill = G(g);
+  E("rect", { x: -w / 2, y: -h / 2, width: w, height: h, rx: h / 2, fill: bg, stroke: col, "stroke-width": 5 }, pill);
+  const tx2 = T(pill, 0, 2, text, { "font-size": size, fill: o.textColor || C.ink });
+  g.text = tx2;
+  g.show = (p) => {          // p: 0～1
+    if (p <= 0) { op(g, 0); return; }
+    op(g, Math.min(1, p * 3));
+    if (line) { line.setAttribute("stroke-dashoffset", len * (1 - clamp(p * 1.8))); op(dot, clamp(p * 4)); }
+    const q = clamp((p - (line ? .4 : 0)) / (line ? .6 : 1));
+    pill.setAttribute("transform", tf(x, y, 0, q <= 0 ? .001 : Ease.back(q)));
+    op(pill, q > 0 ? 1 : 0);
+  };
+  g.show(0);
+  return g;
+}
+
+/* ---- 共用元件：照片卡（拍立得） ---- */
+function makePhoto(parent, href, cap, w, h, o = {}) {
+  const g = G(parent);
+  const pad = 14, capH = o.capH || 62;
+  const id = "clip" + Math.random().toString(36).slice(2, 8);
+  E("rect", { x: -w / 2 - pad + 6, y: -h / 2 - pad + 8, width: w + pad * 2, height: h + pad * 2 + capH, rx: 16, fill: "rgba(30,30,30,.18)" }, g);
+  E("rect", { x: -w / 2 - pad, y: -h / 2 - pad, width: w + pad * 2, height: h + pad * 2 + capH, rx: 16, fill: "#fff", stroke: C.ink, "stroke-width": 4 }, g);
+  const cp = E("clipPath", { id }, g);
+  E("rect", { x: -w / 2, y: -h / 2, width: w, height: h, rx: 8 }, cp);
+  const img = E("image", { href, x: -w / 2, y: -h / 2, width: w, height: h, preserveAspectRatio: o.par || "xMidYMid slice", "clip-path": `url(#${id})` }, g);
+  img.setAttribute("decoding", "async");
+  E("rect", { x: -w / 2, y: -h / 2, width: w, height: h, rx: 8, fill: "none", stroke: C.ink, "stroke-width": 2 }, g);
+  const capT = T(g, 0, h / 2 + pad + capH / 2 - 2, cap, { "font-size": o.capSize || 30 });
+  g.img = img; g.cap = capT;
+  g.place = (p, x, y, r = 0) => { op(g, p > 0 ? Math.min(1, p * 2) : 0); g.setAttribute("transform", tf(x, y + (1 - p) * 60, r * p, Math.max(.001, lerp(.7, 1, Ease.back(clamp(p)))))); };
+  g.place(0, 0, 0);
+  PHOTOS.push(href);
+  return g;
+}
+const PHOTOS = [];
+
+/* ---- 共用元件：放大鏡小窗（圓形，內容另外畫進 g.inner） ---- */
+function makeLens(parent, cx, cy, r, o = {}) {
+  const g = G(parent);
+  const id = "lens" + Math.random().toString(36).slice(2, 8);
+  const cp = E("clipPath", { id }, g);
+  E("circle", { cx: 0, cy: 0, r }, cp);
+  E("circle", { cx: 6, cy: 9, r: r + 6, fill: "rgba(30,30,30,.18)" }, g);
+  E("circle", { cx: 0, cy: 0, r, fill: o.bg || "#FFFDF4" }, g);
+  const inner = G(g, { "clip-path": `url(#${id})` });
+  E("circle", { cx: 0, cy: 0, r, fill: "none", stroke: C.ink, "stroke-width": 7 }, g);
+  E("path", { d: `M${r * .72},${r * .72} L${r * 1.08},${r * 1.08}`, stroke: C.ink, "stroke-width": 16, "stroke-linecap": "round" }, g);
+  g.inner = inner;
+  g.place = (p, x = cx, y = cy) => { op(g, p > 0 ? 1 : 0); g.setAttribute("transform", tf(x, y, 0, Math.max(.001, Ease.back(clamp(p))))); };
+  g.place(0);
+  return g;
+}
+
+/* ---- 場景登記 ---- */
+const SCENES = [];
+const svg = $("stage");
+const LAYER = { scenes: G(svg), fx: G(svg), ui: G(svg) };
+function scene(id, build) {
+  const ch = CH[id];
+  if (!ch) { console.error("沒有這段", id); return; }
+  const root = G(LAYER.scenes, { "data-scene": id });
+  root.style.display = "none";
+  const api = build(root, ch) || {};
+  SCENES.push({ id, ch, root, render: api.render || (() => {}), vis: false });
+}
+/** 每段共用的背景（天空＋遠山＋地面） */
+function makeSky(parent, o = {}) {
+  const g = G(parent);
+  E("rect", { x: -400, y: -400, width: 2400, height: 1700, fill: o.sky || C.sky }, g);
+  return g;
+}
+</script>
+
+<script>
+/* ==========================================================
+   2. 繪圖庫：通用元件（沿用〈種子的誕生與旅行〉）＋本片的角色與器材
+   規範：扁平插畫、粗黑描邊；實驗畫面標「示意圖」。
+   ========================================================== */
+"use strict";
+const OUT = 4.5;   // 主要描邊粗細
+
+
+/* ---------- 雲、閃光、光點、大標題 ---------- */
+function makeCloud(parent, x, y, s = 1) {
+  const g = G(parent, { transform: tf(x, y, 0, s) });
+  E("path", { d: "M-90,20 Q-104,-10 -70,-16 Q-66,-52 -24,-46 Q-6,-76 32,-56 Q70,-62 74,-26 Q104,-20 96,12 Q90,30 60,28 L-62,30 Q-86,32 -90,20 Z", fill: "#fff", stroke: C.ink, "stroke-width": 4, "stroke-linejoin": "round" }, g);
+  return g;
+}
+/** 閃光（4 角星） */
+function makeSpark(parent, size = 30, color = "#FFE16B") {
+  const g = G(parent);
+  const s = size;
+  E("path", { d: `M0,${-s} Q${s * .16},${-s * .16} ${s},0 Q${s * .16},${s * .16} 0,${s} Q${-s * .16},${s * .16} ${-s},0 Q${-s * .16},${-s * .16} 0,${-s} Z`, fill: color, stroke: C.ink, "stroke-width": 3.2, "stroke-linejoin": "round" }, g);
+  g.at = (x, y, p) => { if (p <= 0 || p >= 1) { op(g, 0); return; } op(g, 1); const k = Math.sin(p * Math.PI); g.setAttribute("transform", tf(x, y, p * 90, .2 + k)); };
+  g.at(0, 0, 0);
+  return g;
+}
+/** 柔和的背景光點（遠景，增加景深） */
+function makeBokeh(parent, seed, n, cols) {
+  const g = G(parent);
+  const r = rng(seed);
+  for (let k = 0; k < n; k++) E("circle", { cx: r() * 1600, cy: r() * 900, r: 30 + r() * 90, fill: cols[k % cols.length], opacity: .35 + r() * .3 }, g);
+  return g;
+}
+/** 大標題（白字黑框＋陰影） */
+function makeTitle(parent, text, size, o = {}) {
+  const g = G(parent);
+  T(g, 6, 8, text, { "font-size": size, fill: "rgba(30,30,30,.25)" });
+  T(g, 0, 0, text, { "font-size": size, fill: o.fill || "#fff", stroke: C.ink, "stroke-width": size * .16, "stroke-linejoin": "round", "paint-order": "stroke" });
+  return g;
+}
+
+/* ---------- 鏡頭：關鍵影格 [時間, 秒數, cx, cy, 倍率]，第一格是起始狀態 ---------- */
+function makeCam(keys) {
+  return (t) => {
+    let cx = keys[0][2], cy = keys[0][3], lz = Math.log(keys[0][4]);
+    for (let i = 1; i < keys.length; i++) {
+      const [t0, d, x, y, z] = keys[i];
+      const p = P(t, t0, d, Ease.io);
+      if (p <= 0) break;
+      cx = lerp(cx, x, p); cy = lerp(cy, y, p); lz = lerp(lz, Math.log(z), p);
+    }
+    const z = Math.exp(lz);
+    return { cx, cy, z, tr: `translate(800,450) scale(${z.toFixed(4)}) translate(${(-cx).toFixed(2)},${(-cy).toFixed(2)})` };
+  };
+}
+/** 說明卡（白底黑框圓角，會彈出來） */
+function makeCard(parent, w, h, o = {}) {
+  const g = G(parent);
+  E("rect", { x: -w / 2 + 8, y: -h / 2 + 10, width: w, height: h, rx: 26, fill: "rgba(30,30,30,.2)" }, g);
+  E("rect", { x: -w / 2, y: -h / 2, width: w, height: h, rx: 26, fill: o.fill || "#fff", stroke: o.stroke || C.ink, "stroke-width": 5 }, g);
+  g.body = G(g);
+  g.place = (p, x, y, r = 0) => { op(g, p > 0 ? Math.min(1, p * 2) : 0); g.setAttribute("transform", tf(x, y, r * (1 - p), Math.max(.001, Ease.back(clamp(p))))); };
+  g.place(0, 0, 0);
+  return g;
+}
+/** 打勾／打叉圓章 */
+function makeMark(parent, ok, r = 34) {
+  const g = G(parent);
+  E("circle", { r, fill: ok ? C.greenD : C.coralD, stroke: C.ink, "stroke-width": 4 }, g);
+  E("path", { d: ok ? `M${-r * .45},0 L${-r * .1},${r * .36} L${r * .5},${-r * .38}` : `M${-r * .36},${-r * .36} L${r * .36},${r * .36} M${r * .36},${-r * .36} L${-r * .36},${r * .36}`, fill: "none", stroke: "#fff", "stroke-width": r * .26, "stroke-linecap": "round", "stroke-linejoin": "round" }, g);
+  return g;
+}
+
+
+/* ---------- 示意圖標記（右上角小膠囊） ---------- */
+function makeSchematicTag(parent, right = 1572, y = 132, text = "示意圖") {   // 放在「探究路線」下面
+  const w = textW(text, 28) + 34;
+  const g = G(parent, { transform: tf(right - w / 2, y) });
+  E("rect", { x: -w / 2, y: -24, width: w, height: 48, rx: 24, fill: "#EDE8DE", stroke: C.ink, "stroke-width": 3.5 }, g);
+  T(g, 0, 1, text, { "font-size": 28, fill: "#5C6970" });
+  return g;
+}
+
+/* ==========================================================
+   本片的角色與器材
+   ========================================================== */
+
+/* ---------- 豬豬（照站標 image/icon.svg 的小豬畫成全身角色；原點＝兩腳中間的地面） ----------
+   g.set({x, y, s, face, blink, aL, aR, lean, bob, look})
+     face：smile 微笑｜wow 驚訝｜think 想事情｜happy 開心｜say 說話
+     aL／aR：手臂舉起的角度（0＝垂下、90＝水平往外、150＝高舉、負數＝往身體前面收）
+   g.hand("L"|"R")：上一次 set() 之後，手的位置（場景座標），拿東西用 */
+function makePig(parent, o = {}) {
+  const g = G(parent);
+  const shirt = o.shirt || "#58B159", shirtD = o.shirtD || "#2E7D4F";
+  const W = 4.5;
+  const SH = { L: [-50, -126], R: [50, -126] }, ARM = 74;
+  // 腿和鞋
+  const legs = G(g);
+  for (const sx of [-1, 1]) {
+    E("path", { d: `M${sx * 26},-46 L${sx * 28},-10`, stroke: C.ink, "stroke-width": 30, "stroke-linecap": "round" }, legs);
+    E("path", { d: `M${sx * 26},-46 L${sx * 28},-10`, stroke: o.pants || "#5C6970", "stroke-width": 21, "stroke-linecap": "round" }, legs);
+    E("ellipse", { cx: sx * 32, cy: -4, rx: 24, ry: 12, fill: "#3C3F44", stroke: C.ink, "stroke-width": 3.5 }, legs);
+  }
+  // 手臂（身體後面那層：手臂先畫，身體再蓋上肩膀）
+  const arms = {};
+  const armLayer = G(g);
+  for (const side of ["L", "R"]) {
+    const a = G(armLayer, { transform: tf(SH[side][0], SH[side][1]) });
+    const sl = stroke2(a, `M0,0 L0,${ARM - 14}`, shirt, 24, 3.6);
+    E("circle", { cx: 0, cy: ARM, r: 15, fill: C.pig, stroke: C.ink, "stroke-width": 3.6 }, a);
+    arms[side] = { g: a, sl };
+  }
+  // 身體（上衣）
+  const body = G(g);
+  E("path", { d: "M-54,-132 C-64,-108 -66,-70 -60,-40 C-30,-30 30,-30 60,-40 C66,-70 64,-108 54,-132 C30,-146 -30,-146 -54,-132 Z", fill: shirt, stroke: C.ink, "stroke-width": W, "stroke-linejoin": "round" }, body);
+  E("path", { d: "M-22,-140 Q0,-122 22,-140", fill: "none", stroke: shirtD, "stroke-width": 4, "stroke-linecap": "round" }, body);
+  // 手往身體前面收的時候（托下巴、抱東西），那隻手要畫在身體前面
+  const armFront = G(g);
+  // 實驗袍（做實驗的兩段才穿）
+  const coat = G(g);
+  E("path", { d: "M-58,-134 C-70,-104 -72,-60 -66,-24 L-6,-24 L-6,-120 L-26,-142 Z", fill: "#FFFFFF", stroke: C.ink, "stroke-width": 4, "stroke-linejoin": "round" }, coat);
+  E("path", { d: "M58,-134 C70,-104 72,-60 66,-24 L6,-24 L6,-120 L26,-142 Z", fill: "#FFFFFF", stroke: C.ink, "stroke-width": 4, "stroke-linejoin": "round" }, coat);
+  E("rect", { x: 20, y: -82, width: 28, height: 22, rx: 4, fill: "#EEF4F6", stroke: C.ink, "stroke-width": 3 }, coat);
+  E("path", { d: "M26,-82 L26,-92", stroke: "#2E86C1", "stroke-width": 4, "stroke-linecap": "round" }, coat);
+  // 頭
+  const head = G(g);
+  g.insertBefore(armFront, head);   // 身體前面的手：蓋在實驗袍上、頭的下面
+  const ear = sx => `M${sx * 46},-262 C${sx * 60},-300 ${sx * 88},-316 ${sx * 104},-308 C${sx * 112},-290 ${sx * 104},-262 ${sx * 80},-238 Z`;
+  for (const sx of [-1, 1]) {
+    E("path", { d: ear(sx), fill: C.pigE, stroke: C.ink, "stroke-width": W, "stroke-linejoin": "round" }, head);
+    E("path", { d: `M${sx * 62},-266 C${sx * 72},-288 ${sx * 88},-298 ${sx * 98},-294 C${sx * 100},-282 ${sx * 94},-266 ${sx * 80},-252 Z`, fill: C.pigE2 }, head);
+  }
+  E("path", { d: "M-96,-206 C-98,-262 -50,-284 0,-284 C50,-284 98,-262 96,-206 C94,-160 54,-134 0,-134 C-54,-134 -94,-160 -96,-206 Z", fill: C.pig, stroke: C.ink, "stroke-width": W }, head);
+  for (const sx of [-1, 1]) E("ellipse", { cx: sx * 62, cy: -182, rx: 15, ry: 9, fill: "#FFA5A8", opacity: .75 }, head);
+  // 眼睛（可眨眼、可看左右）
+  const eyes = [-1, 1].map(sx => {
+    const e = G(head, { transform: tf(sx * 36, -214) });
+    const ball = G(e);
+    E("ellipse", { cx: 0, cy: 0, rx: 9.5, ry: 12.5, fill: C.pigInk }, ball);
+    E("circle", { cx: 2.6, cy: -4.4, r: 3.4, fill: "#fff" }, ball);
+    return { e, ball, sx };
+  });
+  // 眉毛（想事情、驚訝時才出現）
+  const brows = [-1, 1].map(sx => E("path", { d: `M${sx * 24},-240 Q${sx * 36},-248 ${sx * 48},-242`, fill: "none", stroke: C.ink, "stroke-width": 4.5, "stroke-linecap": "round" }, head));
+  // 鼻子
+  E("ellipse", { cx: 0, cy: -180, rx: 33, ry: 23, fill: C.snout, stroke: C.ink, "stroke-width": 4 }, head);
+  for (const sx of [-1, 1]) E("ellipse", { cx: sx * 11, cy: -180, rx: 5, ry: 8.5, fill: C.pigInk }, head);
+  // 嘴巴
+  const mouths = {
+    smile: E("path", { d: "M-20,-151 Q0,-138 20,-151", fill: "none", stroke: C.ink, "stroke-width": 4.2, "stroke-linecap": "round" }, head),
+    wow: E("ellipse", { cx: 0, cy: -146, rx: 9, ry: 11, fill: "#8C3240", stroke: C.ink, "stroke-width": 3.4 }, head),
+    happy: E("path", { d: "M-24,-154 Q0,-124 24,-154 Z", fill: "#B5434F", stroke: C.ink, "stroke-width": 3.6, "stroke-linejoin": "round" }, head),
+    think: E("path", { d: "M-14,-148 Q2,-152 16,-146", fill: "none", stroke: C.ink, "stroke-width": 4.2, "stroke-linecap": "round" }, head)
+  };
+  // 護目鏡（做實驗才戴）
+  const gog = G(head);
+  E("path", { d: "M-94,-218 C-60,-228 60,-228 94,-218", fill: "none", stroke: "#3C3F44", "stroke-width": 8, "stroke-linecap": "round" }, gog);
+  for (const sx of [-1, 1]) E("rect", { x: sx * 36 - 25, y: -236, width: 50, height: 42, rx: 14, fill: "rgba(160,215,240,.42)", stroke: "#3C3F44", "stroke-width": 5 }, gog);
+  E("path", { d: "M-11,-216 Q0,-222 11,-216", fill: "none", stroke: "#3C3F44", "stroke-width": 5 }, gog);
+  // 眼鏡（家人用）
+  const glasses = G(head);
+  for (const sx of [-1, 1]) E("circle", { cx: sx * 36, cy: -214, r: 21, fill: "rgba(255,255,255,.18)", stroke: "#3C3F44", "stroke-width": 4.5 }, glasses);
+  E("path", { d: "M-15,-216 Q0,-224 15,-216", fill: "none", stroke: "#3C3F44", "stroke-width": 4.5 }, glasses);
+  op(glasses, o.glasses ? 1 : 0);
+
+  let last = { x: 0, y: 0, s: 1, aL: 0, aR: 0, lean: 0, bob: 0 };
+  g.set = (p) => {
+    const q = Object.assign({ x: 0, y: 0, s: 1, face: "smile", blink: 0, aL: 0, aR: 0, lean: 0, bob: 0, look: 0, coat: 0, gog: 0, legs: 1 }, p);
+    last = q;
+    g.setAttribute("transform", tf(q.x, q.y + q.bob, q.lean, q.s));
+    arms.L.g.setAttribute("transform", tf(SH.L[0], SH.L[1], q.aL));
+    arms.R.g.setAttribute("transform", tf(SH.R[0], SH.R[1], -q.aR));
+    for (const [side, a] of [["L", q.aL], ["R", q.aR]]) {
+      const want = a < -20 ? armFront : armLayer;
+      if (arms[side].g.parentNode !== want) want.appendChild(arms[side].g);
+    }
+    for (const k in mouths) op(mouths[k], (q.face === k || (q.face === "say" && k === "wow")) ? 1 : 0);
+    if (q.face === "say") S(mouths.wow, { ry: 7 }); else S(mouths.wow, { ry: 11 });
+    const by = q.face === "wow" ? -8 : q.face === "think" ? 0 : 0;
+    brows.forEach((b, i) => {
+      op(b, q.face === "wow" || q.face === "think" ? 1 : 0);
+      b.setAttribute("transform", q.face === "think" ? tf(0, i ? 2 : -7) : tf(0, by));
+    });
+    const bl = clamp(q.blink);
+    eyes.forEach(E2 => E2.ball.setAttribute("transform", tf(q.look * 4, q.face === "happy" ? 2 : 0, 0, 1, Math.max(.08, 1 - bl * .92) * (q.face === "wow" ? 1.15 : 1))));
+    op(coat, q.coat); op(gog, q.gog); op(legs, q.legs);
+  };
+  /** 手的場景座標（給拿東西用） */
+  g.hand = (side) => {
+    const a = (side === "L" ? last.aL : -last.aR) * Math.PI / 180;
+    const [sx, sy] = SH[side];
+    const lx = sx - Math.sin(a) * ARM, ly = sy + Math.cos(a) * ARM;
+    const r = last.lean * Math.PI / 180, c = Math.cos(r), s = Math.sin(r);
+    return [last.x + last.s * (lx * c - ly * s), last.y + last.bob + last.s * (lx * s + ly * c)];
+  };
+  g.set({});
+  return g;
+}
+/** 眨眼：每隔幾秒眨一次 */
+const blinkAt = (t, seed = 0) => { const u = (t + seed * 1.7) % 3.8; return u < .14 ? Math.sin(u / .14 * Math.PI) : 0; };
+
+/* ---------- 對話框、想法泡泡 ---------- */
+function makeBubble(parent, w, h, o = {}) {
+  const g = G(parent);
+  if (o.think) {
+    E("ellipse", { cx: -w * .5 - 4, cy: h * .5 + 34, rx: 16, ry: 12, fill: "#fff", stroke: C.ink, "stroke-width": 4 }, g);
+    E("ellipse", { cx: -w * .5 - 30, cy: h * .5 + 62, rx: 10, ry: 8, fill: "#fff", stroke: C.ink, "stroke-width": 4 }, g);
+    const bumps = [];
+    const n = Math.max(8, Math.round((w + h) / 52));
+    for (let k = 0; k < n; k++) { const a = k / n * Math.PI * 2; bumps.push([Math.cos(a) * w * .5, Math.sin(a) * h * .5]); }
+    E("path", { d: bumps.map(([x, y], k) => { const [x2, y2] = bumps[(k + 1) % n]; const mx = (x + x2) / 2 * 1.16, my = (y + y2) / 2 * 1.2; return (k ? "" : `M${x},${y} `) + `Q${mx.toFixed(1)},${my.toFixed(1)} ${x2.toFixed(1)},${y2.toFixed(1)}`; }).join(" ") + " Z", fill: "#fff", stroke: C.ink, "stroke-width": 4.5, "stroke-linejoin": "round" }, g);
+  } else {
+    E("path", { d: `M${-w / 2 + 26},${h / 2} L${-w / 2 + 10},${h / 2 + 40} L${-w / 2 + 62},${h / 2} Z`, fill: "#fff", stroke: C.ink, "stroke-width": 4.5, "stroke-linejoin": "round" }, g);
+    E("rect", { x: -w / 2, y: -h / 2, width: w, height: h, rx: 30, fill: "#fff", stroke: C.ink, "stroke-width": 4.5 }, g);
+    E("rect", { x: -w / 2 + 20, y: h / 2 - 6, width: 46, height: 10, fill: "#fff" }, g);
+  }
+  g.body = G(g);
+  g.place = (p, x, y) => { op(g, p > 0 ? Math.min(1, p * 2) : 0); g.setAttribute("transform", tf(x, y, 0, Math.max(.001, Ease.back(clamp(p))))); };
+  g.place(0, 0, 0);
+  return g;
+}
+
+/* ---------- 白板卡片（和互動教材「探究步驟」的卡片同一句話） ---------- */
+function makeTextCard(parent, w, lines, o = {}) {
+  const size = o.size || 40, lh = size * 1.42;
+  const h = lines.length * lh + (o.tag ? 92 : 50);
+  const card = makeCard(parent, w, h, { fill: o.fill || "#FFFDF4" });
+  const top = -h / 2 + (o.tag ? 70 : 26);
+  if (o.tag) {
+    const tw = textW(o.tag, 32) + 44;
+    E("rect", { x: -w / 2 + 26, y: -h / 2 - 22, width: tw, height: 52, rx: 26, fill: o.tagFill || C.sun, stroke: C.ink, "stroke-width": 4 }, card.body);
+    T(card.body, -w / 2 + 26 + tw / 2, -h / 2 + 4, o.tag, { "font-size": 32, fill: o.tagInk || C.ink });
+  }
+  card.lines = lines.map((s, i) => T(card.body, o.left ? -w / 2 + 40 : 0, top + lh * i + lh / 2, s, { "font-size": size, "font-weight": 800, "text-anchor": o.left ? "start" : "middle" }));
+  card.h = h;
+  return card;
+}
+
+/* ---------- 餐廳：桌子、沙拉、醋 ---------- */
+function makeTable(parent, x0, x1, y, o = {}) {
+  const g = G(parent);
+  E("rect", { x: x0 + 30, y: y + 30, width: 30, height: 400, fill: C.woodD, stroke: C.ink, "stroke-width": 4 }, g);
+  E("rect", { x: x1 - 60, y: y + 30, width: 30, height: 400, fill: C.woodD, stroke: C.ink, "stroke-width": 4 }, g);
+  E("path", { d: `M${x0},${y} L${x1},${y} L${x1 + 10},${y + 70} L${x0 - 10},${y + 70} Z`, fill: o.cloth || "#FFFFFF", stroke: C.ink, "stroke-width": OUT, "stroke-linejoin": "round" }, g);
+  for (let x = x0 + 20; x < x1; x += 70) E("path", { d: `M${x},${y + 2} L${x - 4},${y + 68}`, stroke: o.stripe || "#FFB3A6", "stroke-width": 14, opacity: .8 }, g);
+  E("path", { d: `M${x0},${y} L${x1},${y}`, stroke: C.ink, "stroke-width": OUT }, g);
+  return g;
+}
+/** 一盤紫色高麗菜沙拉：絲的顏色由 g.tint(fn) 決定（fn(x, y) → 0～1 的偏紅程度） */
+function makeSalad(parent, o = {}) {
+  const g = G(parent);
+  const R = o.R || 170;
+  E("ellipse", { cx: 0, cy: 34, rx: R + 6, ry: R * .26, fill: "rgba(30,30,30,.16)" }, g);
+  E("path", { d: `M${-R},0 C${-R + 10},${R * .62} ${R - 10},${R * .62} ${R},0 Z`, fill: "#FFFFFF", stroke: C.ink, "stroke-width": OUT, "stroke-linejoin": "round" }, g);
+  E("path", { d: `M${-R * .52},${R * .5} Q0,${R * .6} ${R * .52},${R * .5}`, fill: "none", stroke: "#BFD9E6", "stroke-width": 8 }, g);
+  E("ellipse", { cx: 0, cy: 0, rx: R, ry: R * .3, fill: "#F2F7F9", stroke: C.ink, "stroke-width": OUT }, g);
+  const pile = G(g);
+  const r = rng(o.seed || 7);
+  // 綠色生菜墊底
+  for (let k = 0; k < 7; k++) {
+    const a = (k / 7) * Math.PI * 2, x = Math.cos(a) * R * .62, y = Math.sin(a) * R * .16 - 6;
+    E("path", { d: `M${x - 34},${y + 8} Q${x - 10},${y - 30} ${x + 30},${y - 4} Q${x + 8},${y + 18} ${x - 34},${y + 8} Z`, fill: "#9BCB5A", stroke: C.ink, "stroke-width": 3 }, pile);
+  }
+  // 紫色高麗菜絲
+  const shreds = [];
+  for (let k = 0; k < 74; k++) {
+    const u = r(), v = r();
+    const x = (u - .5) * R * 1.45, y = -20 - Math.pow(v, .8) * R * .34 + Math.abs(x) * .14;
+    const L = 26 + r() * 30, a = (r() - .5) * 2.6, bend = (r() - .5) * 20;
+    const dx = Math.cos(a) * L / 2, dy = Math.sin(a) * L / 2;
+    const d = `M${(x - dx).toFixed(1)},${(y - dy).toFixed(1)} Q${(x + bend).toFixed(1)},${(y - bend * .5).toFixed(1)} ${(x + dx).toFixed(1)},${(y + dy).toFixed(1)}`;
+    E("path", { d, fill: "none", stroke: C.ink, "stroke-width": 9.5, "stroke-linecap": "round" }, pile);
+    const p = E("path", { d, fill: "none", stroke: "#6A3A97", "stroke-width": 5.5, "stroke-linecap": "round" }, pile);
+    shreds.push({ p, x, y, shade: r() });
+  }
+  // 小番茄
+  for (const [x, y] of [[-R * .45, -34], [R * .5, -30], [R * .1, -58]]) {
+    E("circle", { cx: x, cy: y, r: 15, fill: "#E9483B", stroke: C.ink, "stroke-width": 3.4 }, pile);
+    E("path", { d: `M${x - 6},${y - 13} L${x},${y - 8} L${x + 6},${y - 13}`, fill: "none", stroke: "#3E8E41", "stroke-width": 3.4, "stroke-linecap": "round" }, pile);
+  }
+  const RAW = ["#5E2E8C", "#6A3A97", "#7B4AA8"], RED = ["#D23A70", "#E2557F", "#C92F64"];
+  g.tint = (fn) => { shreds.forEach(s => { const k = clamp(fn(s.x, s.y)); const i = s.shade < .33 ? 0 : s.shade < .66 ? 1 : 2; S(s.p, { stroke: k <= 0 ? RAW[i] : lerpColor(RAW[i], RED[i], k) }); }); };
+  g.tint(() => 0);
+  g.R = R;
+  return g;
+}
+/** 醋瓶（原點＝瓶底中央；倒的時候繞瓶底轉） */
+function makeVinegar(parent) {
+  const g = G(parent);
+  const b = G(g);
+  E("path", { d: "M-34,0 L-34,-120 C-34,-140 -18,-150 -14,-166 L-14,-200 L14,-200 L14,-166 C18,-150 34,-140 34,-120 L34,0 Z", fill: "rgba(225,240,248,.95)", stroke: C.ink, "stroke-width": 4.5, "stroke-linejoin": "round" }, b);
+  const liq = E("path", { d: "M-30,-4 L-30,-104 L30,-104 L30,-4 Z", fill: "#E8C77A", opacity: .85 }, b);
+  E("rect", { x: -18, y: -214, width: 36, height: 18, rx: 4, fill: "#C0392B", stroke: C.ink, "stroke-width": 4 }, b);
+  E("rect", { x: -28, y: -86, width: 56, height: 56, rx: 8, fill: "#FFFFFF", stroke: C.ink, "stroke-width": 3.4 }, b);
+  T(b, 0, -58, "醋", { "font-size": 34 });
+  g.liq = liq;
+  return g;
+}
+
+/* ---------- 書、筆電、搜尋畫面 ---------- */
+function makeBook(parent, s = 1) {
+  const g = G(parent, { transform: `scale(${s})` });
+  E("path", { d: "M0,-60 C-30,-74 -70,-74 -96,-62 L-96,50 C-70,38 -30,38 0,52 Z", fill: "#FFFFFF", stroke: C.ink, "stroke-width": 4.5, "stroke-linejoin": "round" }, g);
+  E("path", { d: "M0,-60 C30,-74 70,-74 96,-62 L96,50 C70,38 30,38 0,52 Z", fill: "#FFFFFF", stroke: C.ink, "stroke-width": 4.5, "stroke-linejoin": "round" }, g);
+  for (const sx of [-1, 1]) for (let k = 0; k < 4; k++) E("path", { d: `M${sx * 18},${-38 + k * 20} L${sx * 78},${-42 + k * 20}`, stroke: "#9AA5AD", "stroke-width": 4, "stroke-linecap": "round" }, g);
+  E("path", { d: "M-102,-56 L-102,58 C-70,46 -30,46 0,60 C30,46 70,46 102,58 L102,-56", fill: "none", stroke: "#2E86C1", "stroke-width": 8, "stroke-linejoin": "round" }, g);
+  return g;
+}
+/** 筆電（原點＝鍵盤前緣中央；螢幕內容畫進 g.screen，螢幕座標原點在螢幕中央，寬 W 高 H） */
+function makeLaptop(parent, W = 560, H = 350) {
+  const g = G(parent);
+  E("path", { d: `M${-W / 2 - 50},0 L${W / 2 + 50},0 L${W / 2 + 20},-34 L${-W / 2 - 20},-34 Z`, fill: "#C9D2D8", stroke: C.ink, "stroke-width": OUT, "stroke-linejoin": "round" }, g);
+  E("rect", { x: -60, y: -12, width: 120, height: 8, rx: 4, fill: "#9AA5AD" }, g);
+  const scr = G(g, { transform: tf(0, -34 - H / 2 - 22) });
+  E("rect", { x: -W / 2 - 22, y: -H / 2 - 22, width: W + 44, height: H + 44, rx: 22, fill: "#3C4650", stroke: C.ink, "stroke-width": OUT }, scr);
+  const id = "scr" + Math.random().toString(36).slice(2, 7);
+  const cp = E("clipPath", { id }, scr);
+  E("rect", { x: -W / 2, y: -H / 2, width: W, height: H, rx: 6 }, cp);
+  E("rect", { x: -W / 2, y: -H / 2, width: W, height: H, rx: 6, fill: "#FFFFFF" }, scr);
+  g.screen = G(scr, { "clip-path": `url(#${id})` });
+  g.scrY = -34 - H / 2 - 22; g.W = W; g.H = H;
+  return g;
+}
+/** 放大鏡圖示（搜尋框用） */
+function makeSearchIcon(parent, x, y, s = 1, col = C.ink) {
+  const g = G(parent, { transform: tf(x, y, 0, s) });
+  E("circle", { cx: -4, cy: -4, r: 13, fill: "none", stroke: col, "stroke-width": 5 }, g);
+  E("path", { d: "M6,6 L16,16", stroke: col, "stroke-width": 6, "stroke-linecap": "round" }, g);
+  return g;
+}
+
+/* ---------- 筆記本＋鉛筆 ---------- */
+function makePencil(parent) {
+  const g = G(parent);
+  E("path", { d: "M0,0 L-14,-30 L-14,-160 L14,-160 L14,-30 Z", fill: "#FFC93C", stroke: C.ink, "stroke-width": 4, "stroke-linejoin": "round" }, g);
+  E("path", { d: "M0,0 L-14,-30 L14,-30 Z", fill: "#F3D7A6", stroke: C.ink, "stroke-width": 4, "stroke-linejoin": "round" }, g);
+  E("path", { d: "M0,0 L-5,-10 L5,-10 Z", fill: C.ink }, g);
+  E("rect", { x: -14, y: -184, width: 28, height: 24, rx: 5, fill: "#FF9CB0", stroke: C.ink, "stroke-width": 4 }, g);
+  return g;
+}
+
+/* ---------- 實驗器材 ---------- */
+/** 實驗桌（桌面上緣在 y） */
+function makeBench(parent, y) {
+  const g = G(parent);
+  E("rect", { x: -200, y: y + 34, width: 2000, height: 600, fill: "#B9C7C2", stroke: C.ink, "stroke-width": OUT }, g);
+  for (let x = 120; x < 1600; x += 360) {
+    E("rect", { x, y: y + 70, width: 300, height: 200, rx: 10, fill: "#C9D6D1", stroke: C.ink, "stroke-width": 3.5 }, g);
+    E("rect", { x: x + 130, y: y + 92, width: 40, height: 12, rx: 6, fill: "#7C8A93" }, g);
+  }
+  E("rect", { x: -200, y, width: 2000, height: 40, fill: "#4E5D62", stroke: C.ink, "stroke-width": OUT }, g);
+  return g;
+}
+/** 燒杯（原點＝杯底中央；g.setLiquid(高度比例, 顏色)） */
+function makeBeaker(parent, w = 180, h = 220, o = {}) {
+  const g = G(parent);
+  const id = "bk" + Math.random().toString(36).slice(2, 7);
+  const cp = E("clipPath", { id }, g);
+  E("path", { d: `M${-w / 2 + 6},${-h} L${-w / 2 + 6},-12 Q${-w / 2 + 6},-4 ${-w / 2 + 14},-4 L${w / 2 - 14},-4 Q${w / 2 - 6},-4 ${w / 2 - 6},-12 L${w / 2 - 6},${-h} Z` }, cp);
+  E("path", { d: `M${-w / 2},${-h - 10} L${-w / 2},-10 Q${-w / 2},0 ${-w / 2 + 12},0 L${w / 2 - 12},0 Q${w / 2},0 ${w / 2},-10 L${w / 2},${-h - 10} Z`, fill: C.glass, stroke: "none" }, g);
+  const inner = G(g, { "clip-path": `url(#${id})` });
+  // 液體放在會反向旋轉的群組裡：杯子傾斜時，液面仍然保持水平（再由杯子的內壁裁切）
+  const lg = G(inner);
+  const liq = E("rect", { x: -w * 1.5, y: -h * .5, width: w * 3, height: h * 3, fill: C.clear }, lg);
+  const surf = E("ellipse", { cx: 0, cy: -h * .5, rx: w / 2 - 6, ry: 7, fill: "rgba(255,255,255,.45)" }, lg);
+  g.inner = inner;
+  E("path", { d: `M${-w / 2},${-h - 10} L${-w / 2},-10 Q${-w / 2},0 ${-w / 2 + 12},0 L${w / 2 - 12},0 Q${w / 2},0 ${w / 2},-10 L${w / 2},${-h - 10} M${-w / 2},${-h - 10} L${-w / 2 - 14},${-h - 22}`, fill: "none", stroke: C.ink, "stroke-width": OUT, "stroke-linejoin": "round", "stroke-linecap": "round" }, g);
+  for (let k = 1; k <= 4; k++) E("path", { d: `M${w / 2 - 34},${-k * h / 5} L${w / 2 - 8},${-k * h / 5}`, stroke: "#7C8A93", "stroke-width": 3 }, g);
+  E("path", { d: `M${-w / 2 + 16},${-h + 12} L${-w / 2 + 16},-24`, stroke: "rgba(255,255,255,.85)", "stroke-width": 7, "stroke-linecap": "round" }, g);
+  /** lv：液量（0～1，以直立時的高度算）；tilt：杯子傾斜的角度（度，和杯子的 rotate 同向） */
+  g.setLiquid = (lv, col, tilt = 0) => {
+    const k = clamp(lv);
+    const span = lerp(h, w, Math.abs(Math.sin(tilt * Math.PI / 180)));   // 傾斜後，杯子在垂直方向的「深度」
+    const yTop = -h / 2 - (k - .5) * span;                               // 液面高度（相對杯身中心，反向旋轉後的座標）
+    lg.setAttribute("transform", tilt ? `rotate(${(-tilt).toFixed(2)} 0 ${(-h / 2).toFixed(1)})` : "");
+    S(liq, { y: yTop.toFixed(1), fill: col });
+    S(surf, { cy: yTop.toFixed(1), rx: (tilt ? w * .45 : w / 2 - 6).toFixed(1) });
+    op(lg, k > .005 ? 1 : 0);
+  };
+  g.setLiquid(o.level || 0, o.col || C.clear);
+  g.w = w; g.h = h;
+  return g;
+}
+/** 熱水壺（原點＝壺底中央；壺嘴在右上） */
+function makeKettle(parent) {
+  const g = G(parent);
+  E("path", { d: "M70,-110 C100,-120 118,-150 140,-176 L150,-168 C132,-136 116,-100 84,-80 Z", fill: "#C9D2D8", stroke: C.ink, "stroke-width": 4.5, "stroke-linejoin": "round" }, g);
+  E("path", { d: "M-90,0 C-104,-60 -86,-130 -40,-150 L40,-150 C86,-130 104,-60 90,0 Z", fill: "#DCE3E8", stroke: C.ink, "stroke-width": OUT, "stroke-linejoin": "round" }, g);
+  E("path", { d: "M-60,-150 C-60,-214 60,-214 60,-150", fill: "none", stroke: C.ink, "stroke-width": 16, "stroke-linecap": "round" }, g);
+  E("path", { d: "M-60,-150 C-60,-214 60,-214 60,-150", fill: "none", stroke: "#3C3F44", "stroke-width": 9, "stroke-linecap": "round" }, g);
+  E("ellipse", { cx: 0, cy: -150, rx: 40, ry: 10, fill: "#C9D2D8", stroke: C.ink, "stroke-width": 4 }, g);
+  E("path", { d: "M-62,-40 C-66,-80 -56,-110 -40,-124", fill: "none", stroke: "rgba(255,255,255,.9)", "stroke-width": 8, "stroke-linecap": "round" }, g);
+  g.spout = [148, -172];
+  return g;
+}
+/** 老師的手（袖子從畫面右上伸進來，手掌握在 0,0） */
+function makeTeacherArm(parent) {
+  const g = G(parent);
+  E("path", { d: "M10,-30 C140,-120 560,-370 1000,-600 L1070,-500 C660,-290 170,-30 40,30 Z", fill: "#7FA7C9", stroke: C.ink, "stroke-width": OUT, "stroke-linejoin": "round" }, g);
+  E("path", { d: "M28,-44 C40,-20 46,6 40,30", fill: "none", stroke: C.ink, "stroke-width": 4 }, g);
+  E("path", { d: "M-34,-20 C-40,-44 -14,-60 14,-52 C40,-44 48,-14 40,12 C30,40 -10,44 -28,26 C-40,14 -38,-4 -34,-20 Z", fill: "#F2C9A0", stroke: C.ink, "stroke-width": 4, "stroke-linejoin": "round" }, g);
+  return g;
+}
+/** 時鐘（g.set(分鐘)） */
+function makeClock(parent, r = 70) {
+  const g = G(parent);
+  E("circle", { r: r + 10, fill: "#FFC93C", stroke: C.ink, "stroke-width": OUT }, g);
+  E("circle", { r, fill: "#fff", stroke: C.ink, "stroke-width": 3.5 }, g);
+  for (let k = 0; k < 12; k++) { const a = k / 12 * Math.PI * 2; E("path", { d: `M${Math.sin(a) * r * .78},${-Math.cos(a) * r * .78} L${Math.sin(a) * r * .9},${-Math.cos(a) * r * .9}`, stroke: C.ink, "stroke-width": k % 3 ? 3 : 5, "stroke-linecap": "round" }, g); }
+  const hh = E("path", { d: `M0,0 L0,${-r * .45}`, stroke: C.ink, "stroke-width": 8, "stroke-linecap": "round" }, g);
+  const mh = E("path", { d: `M0,0 L0,${-r * .72}`, stroke: "#E4574C", "stroke-width": 6, "stroke-linecap": "round" }, g);
+  E("circle", { r: 7, fill: C.ink }, g);
+  g.set = (min) => { mh.setAttribute("transform", `rotate(${(min * 6).toFixed(1)})`); hh.setAttribute("transform", `rotate(${(300 + min * .5).toFixed(1)})`); };
+  g.set(0);
+  return g;
+}
+/** 漏斗＋濾紙（原點＝漏斗頸下端；g.res 放菜渣） */
+function makeFunnel(parent) {
+  const g = G(parent);
+  E("path", { d: "M-120,-190 L120,-190 L22,-64 L14,0 L-14,0 L-22,-64 Z", fill: "rgba(235,245,250,.9)", stroke: C.ink, "stroke-width": OUT, "stroke-linejoin": "round" }, g);
+  E("path", { d: "M-104,-186 L104,-186 L0,-70 Z", fill: "#FFFFFF", stroke: "#9AA5AD", "stroke-width": 3.5, "stroke-linejoin": "round" }, g);
+  E("path", { d: "M-104,-186 L0,-70", stroke: "#C9D2D8", "stroke-width": 3 }, g);
+  g.res = G(g);
+  E("path", { d: "M-120,-190 L120,-190", stroke: C.ink, "stroke-width": OUT, "stroke-linecap": "round" }, g);
+  return g;
+}
+/** 紫色高麗菜葉 */
+function makeCabbageLeaf(parent, s = 1) {
+  const g = G(parent, { transform: `scale(${s})` });
+  E("path", { d: "M0,90 C-90,80 -120,10 -100,-50 C-80,-110 -10,-120 30,-100 C90,-80 120,-20 100,40 C84,80 40,96 0,90 Z", fill: "#6A3A97", stroke: C.ink, "stroke-width": OUT, "stroke-linejoin": "round" }, g);
+  E("path", { d: "M0,86 C4,30 0,-40 -6,-96 M0,40 C-30,10 -60,-6 -82,-10 M2,0 C30,-24 60,-40 84,-46 M-2,-40 C-24,-60 -40,-74 -54,-86", fill: "none", stroke: "#D9C8EC", "stroke-width": 5, "stroke-linecap": "round" }, g);
+  return g;
+}
+/** 菜葉碎片（剝下來的小片） */
+function makeBits(parent, n, seed, s = 1) {
+  const r = rng(seed);
+  const bits = [];
+  for (let k = 0; k < n; k++) {
+    const b = G(parent);
+    const w = (22 + r() * 18) * s, h = (16 + r() * 14) * s;
+    E("path", { d: `M${-w / 2},${-h * .2} L${-w * .1},${-h / 2} L${w / 2},${-h * .3} L${w * .3},${h / 2} L${-w * .4},${h * .4} Z`, fill: "#6A3A97", stroke: C.ink, "stroke-width": 3, "stroke-linejoin": "round" }, b);
+    E("path", { d: `M${-w * .2},0 L${w * .2},${-h * .1}`, stroke: "#D9C8EC", "stroke-width": 2.4 }, b);
+    bits.push({ b, r1: r(), r2: r(), r3: r() });
+  }
+  return bits;
+}
+/** 蒸氣 */
+function makeSteam(parent, n = 3) {
+  const g = G(parent);
+  const w = [];
+  for (let k = 0; k < n; k++) w.push(E("path", { d: "M0,0 C-14,-20 14,-40 0,-60 C-14,-80 14,-100 0,-120", fill: "none", stroke: "#C9D2D8", "stroke-width": 7, "stroke-linecap": "round" }, g));
+  g.set = (t, a) => { w.forEach((p, k) => { const u = (t * .7 + k / n) % 1; p.setAttribute("transform", tf((k - (n - 1) / 2) * 34, -u * 40, 0, .7 + u * .4)); S(p, { opacity: (a * Math.sin(u * Math.PI)).toFixed(3) }); }); };
+  return g;
+}
+
+/* ---------- 平底試管 ---------- */
+/** 一支平底試管（原點＝管底中央）；g.setLiquid(顏色, 進度 0～1, 渦旋)：液體從透明變成指定顏色 */
+function makeTube(parent, o = {}) {
+  const g = G(parent);
+  const w = o.w || 64, h = o.h || 250, lv = o.lv || .62;
+  const id = "tb" + Math.random().toString(36).slice(2, 7);
+  const cp = E("clipPath", { id }, g);
+  E("path", { d: `M${-w / 2 + 5},${-h} L${-w / 2 + 5},-14 Q${-w / 2 + 5},-5 ${-w / 2 + 14},-5 L${w / 2 - 14},-5 Q${w / 2 - 5},-5 ${w / 2 - 5},-14 L${w / 2 - 5},${-h} Z` }, cp);
+  E("rect", { x: -w / 2, y: -h - 6, width: w, height: h + 6, rx: 12, fill: C.glass }, g);
+  const inner = G(g, { "clip-path": `url(#${id})` });
+  const base = E("rect", { x: -w / 2, y: -h * lv, width: w, height: h * lv, fill: C.clear }, inner);
+  const col = E("rect", { x: -w / 2, y: -h * lv, width: w, height: h * lv, fill: C.clear, opacity: 0 }, inner);
+  const swirls = [0, 1, 2].map(k => E("ellipse", { cx: 0, cy: -h * lv, rx: 10, ry: 8, fill: C.clear, opacity: 0 }, inner));
+  E("ellipse", { cx: 0, cy: -h * lv, rx: w / 2 - 6, ry: 5, fill: "rgba(255,255,255,.5)" }, inner);
+  E("path", { d: `M${-w / 2},${-h - 6} L${-w / 2},-12 Q${-w / 2},0 ${-w / 2 + 12},0 L${w / 2 - 12},0 Q${w / 2},0 ${w / 2},-12 L${w / 2},${-h - 6}`, fill: "none", stroke: C.ink, "stroke-width": 4.5, "stroke-linejoin": "round" }, g);
+  E("path", { d: `M${-w / 2 - 6},${-h - 6} L${w / 2 + 6},${-h - 6}`, stroke: C.ink, "stroke-width": 6, "stroke-linecap": "round" }, g);
+  E("path", { d: `M${-w / 2 + 12},${-h + 14} L${-w / 2 + 12},-26`, stroke: "rgba(255,255,255,.9)", "stroke-width": 6, "stroke-linecap": "round" }, g);
+  g.setLiquid = (c, p) => {
+    p = clamp(p);
+    S(col, { fill: c, opacity: Ease.out(p).toFixed(3) });
+    const top = -h * lv;
+    swirls.forEach((s, k) => {
+      const u = clamp(p * 1.6 - k * .2);
+      if (u <= 0 || u >= 1) { S(s, { opacity: 0 }); return; }
+      S(s, { fill: c, cx: ((k - 1) * 8 * u).toFixed(1), cy: (top + 14 + u * h * lv * .7).toFixed(1), rx: (8 + u * w * .5).toFixed(1), ry: (6 + u * 24).toFixed(1), opacity: (.85 * (1 - u * .6)).toFixed(3) });
+    });
+  };
+  g.setLiquid(C.clear, 0);
+  g.w = w; g.h = h; g.top = -h * lv;
+  return g;
+}
+/** 滴管（原點＝管尖；吸了紫色高麗菜汁） */
+function makeDropper(parent) {
+  const g = G(parent);
+  E("path", { d: "M-7,0 L-12,-110 L12,-110 L7,0 Z", fill: "rgba(235,245,250,.95)", stroke: C.ink, "stroke-width": 4, "stroke-linejoin": "round" }, g);
+  E("path", { d: "M-6,-8 L-9,-70 L9,-70 L6,-8 Z", fill: C.juice }, g);
+  E("path", { d: "M-17,-110 C-26,-140 -22,-182 0,-186 C22,-182 26,-140 17,-110 Z", fill: "#E4574C", stroke: C.ink, "stroke-width": 4, "stroke-linejoin": "round" }, g);
+  E("rect", { x: -18, y: -116, width: 36, height: 12, rx: 5, fill: "#C0392B", stroke: C.ink, "stroke-width": 3.4 }, g);
+  return g;
+}
+/** 一滴 */
+function makeDrop(parent, col = C.juice, r = 9) {
+  return E("path", { d: `M0,${-r * 1.6} C${r * .6},${-r * .6} ${r},0 0,${r} C${-r},0 ${-r * .6},${-r * .6} 0,${-r * 1.6} Z`, fill: col, stroke: C.ink, "stroke-width": 2.6 }, parent);
+}
+/** 小膠囊標籤（字＋框，不會彈） */
+function makeChip(parent, text, x, y, o = {}) {
+  const size = o.size || 30, w = textW(text, size) + size * 1.1, h = size * 1.55;
+  const g = G(parent, { transform: tf(x, y) });
+  E("rect", { x: -w / 2, y: -h / 2, width: w, height: h, rx: h / 2, fill: o.bg || "#fff", stroke: o.stroke || C.ink, "stroke-width": o.sw || 4 }, g);
+  g.t = T(g, 0, 2, text, { "font-size": size, fill: o.ink || C.ink });
+  g.w = w; g.h = h; g.x = x; g.y = y;
+  return g;
+}
+/** 禁止符號（紅圈斜線） */
+function makeNo(parent, r = 64) {
+  const g = G(parent);
+  E("circle", { r, fill: "none", stroke: "#D63A2F", "stroke-width": 12 }, g);
+  E("path", { d: `M${-r * .7},${-r * .7} L${r * .7},${r * .7}`, stroke: "#D63A2F", "stroke-width": 12, "stroke-linecap": "round" }, g);
+  return g;
+}
+/** 房子／學校圖示 */
+function makeHouse(parent, school) {
+  const g = G(parent);
+  E("path", { d: "M-70,-10 L0,-70 L70,-10", fill: "none", stroke: C.ink, "stroke-width": 7, "stroke-linejoin": "round", "stroke-linecap": "round" }, g);
+  E("path", { d: "M-56,-20 L-56,56 L56,56 L56,-20 L0,-62 Z", fill: school ? "#FFE9A8" : "#FFFFFF", stroke: C.ink, "stroke-width": 5, "stroke-linejoin": "round" }, g);
+  if (school) { E("path", { d: "M0,-62 L0,-104 M0,-104 L34,-94 L0,-84", fill: "#E4574C", stroke: C.ink, "stroke-width": 4, "stroke-linejoin": "round" }, g); E("circle", { cx: 0, cy: -16, r: 14, fill: "#fff", stroke: C.ink, "stroke-width": 4 }, g); }
+  E("rect", { x: -16, y: 18, width: 32, height: 38, fill: "#B98A5E", stroke: C.ink, "stroke-width": 4 }, g);
+  return g;
+}
+/** 嘴巴圖示（一律不嘗用） */
+function makeMouthIcon(parent) {
+  const g = G(parent);
+  E("path", { d: "M-46,-6 Q0,-30 46,-6 Q0,44 -46,-6 Z", fill: "#B5434F", stroke: C.ink, "stroke-width": 5, "stroke-linejoin": "round" }, g);
+  E("path", { d: "M-16,14 Q0,34 16,14 Q0,4 -16,14 Z", fill: "#FF8FA3", stroke: C.ink, "stroke-width": 3.4 }, g);
+  return g;
+}
+/** 箭頭 */
+function makeArrow(parent, x1, y1, x2, y2, o = {}) {
+  const g = G(parent);
+  const a = Math.atan2(y2 - y1, x2 - x1), L = 18, w = o.w || 7;
+  const hx = x2 - Math.cos(a) * 4, hy = y2 - Math.sin(a) * 4;
+  E("path", { d: `M${x1},${y1} L${hx},${hy} M${hx - Math.cos(a - .55) * L},${hy - Math.sin(a - .55) * L} L${hx},${hy} L${hx - Math.cos(a + .55) * L},${hy - Math.sin(a + .55) * L}`, fill: "none", stroke: o.col || C.ink, "stroke-width": w, "stroke-linecap": "round", "stroke-linejoin": "round" }, g);
+  return g;
+}
+</script>
+
+<script>
+/* ==========================================================
+   3. 各段場景（時間一律用旁白關鍵詞 Wt／句子 Ls、Le／無旁白段 Bs 取得，改稿重跑後會自己對齊）
+   ========================================================== */
+"use strict";
+const PH74 = "../../題庫/photos/u3/cabbage-vinegar.jpg";
+const PH75 = "../自製酸鹼指示劑/photos/p75-tubes.jpg";
+const PH80 = n => `../自製酸鹼指示劑/photos/p80-${n}.jpg`;
+/** 放一張圖（不是照片卡的小圖也要登記，匯出時才會先載好） */
+function img(parent, href, x, y, w, h, o = {}) {
+  PHOTOS.push(href);
+  const id = "im" + Math.random().toString(36).slice(2, 7);
+  const cp = E("clipPath", { id }, parent);
+  E("rect", { x, y, width: w, height: h, rx: o.rx || 8 }, cp);
+  const im = E("image", { href, x, y, width: w, height: h, preserveAspectRatio: o.par || "xMidYMid slice", "clip-path": `url(#${id})` }, parent);
+  im.setAttribute("decoding", "async");
+  E("rect", { x, y, width: w, height: h, rx: o.rx || 8, fill: "none", stroke: C.ink, "stroke-width": o.sw || 3 }, parent);
+  return im;
+}
+/** 標籤：從 t0 彈出、到 t1 收起 */
+const showLab = (lab, t, t0, t1 = 1e9) => lab.show(P(t, t0 - .1, .7, Ease.lin) * (1 - P(t, t1, .35)));
+/** 跟著時間彈出的群組 */
+function popAt(g, t, t0, t1, x, y, s = 1) {
+  const p = P(t, t0, .55, Ease.back) * (1 - P(t, t1, .35, Ease.in));
+  op(g, p > 0 ? Math.min(1, p * 2) : 0);
+  g.setAttribute("transform", tf(x, y, 0, Math.max(.001, p) * s));
+  return p;
+}
+/** 餐廳背景 */
+function makeRestaurant(parent) {
+  const g = G(parent);
+  E("rect", { x: -400, y: -400, width: 2400, height: 1700, fill: C.wall }, g);
+  for (let x = -380; x < 2000; x += 120) E("rect", { x, y: -400, width: 56, height: 1000, fill: "#FFE9BC", opacity: .8 }, g);
+  const win = G(g, { transform: tf(250, 300) });
+  E("rect", { x: -175, y: -150, width: 350, height: 270, rx: 18, fill: "#CFEAF6", stroke: C.ink, "stroke-width": OUT }, win);
+  E("circle", { cx: 95, cy: -70, r: 34, fill: C.sun, stroke: C.ink, "stroke-width": 4 }, win);
+  makeCloud(win, -60, -40, .55);
+  E("path", { d: "M-175,40 C-100,10 -20,30 60,10 C110,0 150,10 175,20 L175,120 L-175,120 Z", fill: "#B9DC8C", stroke: C.ink, "stroke-width": 3.5 }, win);
+  E("path", { d: "M0,-150 L0,120 M-175,-15 L175,-15", stroke: "#FFFFFF", "stroke-width": 12 }, win);
+  E("rect", { x: -175, y: -150, width: 350, height: 270, rx: 18, fill: "none", stroke: C.ink, "stroke-width": OUT }, win);
+  // 吊燈
+  for (const lx of [800, 1330]) {
+    E("path", { d: `M${lx},-20 L${lx},110`, stroke: C.ink, "stroke-width": 4 }, g);
+    E("path", { d: `M${lx - 70},170 Q${lx},80 ${lx + 70},170 Z`, fill: "#F7931E", stroke: C.ink, "stroke-width": OUT, "stroke-linejoin": "round" }, g);
+    E("ellipse", { cx: lx, cy: 176, rx: 22, ry: 10, fill: "#FFF1B8", stroke: C.ink, "stroke-width": 3 }, g);
+  }
+  // 牆上的小黑板菜單
+  const menu = G(g, { transform: tf(1340, 330) });
+  E("rect", { x: -120, y: -95, width: 240, height: 190, rx: 14, fill: "#3E5C50", stroke: "#8A5A34", "stroke-width": 12 }, menu);
+  T(menu, 0, -50, "今日沙拉", { "font-size": 34, fill: "#FFFFFF" });
+  E("path", { d: "M-80,0 L80,0 M-80,40 L50,40", stroke: "#DDE8E2", "stroke-width": 5, "stroke-linecap": "round", "stroke-dasharray": "14 10" }, menu);
+  E("rect", { x: -400, y: 590, width: 2400, height: 600, fill: "#E9C79A", stroke: C.ink, "stroke-width": 4 }, g);
+  return g;
+}
+/** 實驗室背景 */
+function makeLab(parent, o = {}) {
+  const g = G(parent);
+  E("rect", { x: -400, y: -400, width: 2400, height: 1700, fill: C.lab }, g);
+  for (let y = -40; y < 700; y += 80) E("path", { d: `M-400,${y} L2000,${y}`, stroke: "#D5E7DD", "stroke-width": 3 }, g);
+  for (let x = -400; x < 2000; x += 80) E("path", { d: `M${x},-400 L${x},700`, stroke: "#D5E7DD", "stroke-width": 3 }, g);
+  if (o.shelf === false) return g;
+  const shelf = G(g, { transform: tf(1360, 250) });
+  E("rect", { x: -170, y: 40, width: 340, height: 18, fill: C.wood, stroke: C.ink, "stroke-width": 4 }, shelf);
+  for (const [x, h, col] of [[-120, 70, "#BFD9E6"], [-50, 96, "#F3D7A6"], [30, 60, "#D9C8EC"], [110, 84, "#CFE8C0"]]) {
+    E("rect", { x: x - 24, y: 40 - h, width: 48, height: h, rx: 8, fill: col, stroke: C.ink, "stroke-width": 3.5 }, shelf);
+    E("rect", { x: x - 12, y: 30 - h, width: 24, height: 12, rx: 3, fill: "#7C8A93", stroke: C.ink, "stroke-width": 3 }, shelf);
+  }
+  return g;
+}
+
+/* ==================== 0 片頭 ==================== */
+scene("intro", (root, ch) => {
+  makeSky(root, { sky: "#FFF3D6" });
+  makeBokeh(root, 5, 11, ["#FFE7A8", "#EADCF5", "#FFE0CF", "#DDF1D3"]);
+  makeTable(root, 640, 1760, 700, { cloth: "#FFFFFF" });
+  const BX = 1150, BY = 668;
+  const bowlG = G(root, { transform: tf(BX, BY) });
+  const bowl = makeSalad(bowlG, { R: 175, seed: 3 });
+  const stream = E("path", { d: "", fill: "none", stroke: "#E8C77A", "stroke-width": 9, "stroke-linecap": "round" }, root);
+  const bottle = G(root);
+  makeVinegar(bottle);
+  const pig = makePig(root, {});
+  const exc = G(root);
+  E("path", { d: "M-14,-70 L14,-70 L8,0 L-8,0 Z", fill: "#E4574C", stroke: C.ink, "stroke-width": 4, "stroke-linejoin": "round" }, exc);
+  E("circle", { cx: 0, cy: 26, r: 11, fill: "#E4574C", stroke: C.ink, "stroke-width": 4 }, exc);
+  const title = G(root);
+  E("rect", { x: -400, y: -84, width: 800, height: 168, rx: 40, fill: C.sun, stroke: C.ink, "stroke-width": 6 }, title);
+  makeTitle(title, "沙拉變色之謎", 104);
+  const sub = G(title);
+  E("rect", { x: -220, y: 104, width: 440, height: 64, rx: 32, fill: "#fff", stroke: C.ink, "stroke-width": 4 }, sub);
+  T(sub, 0, 137, "科學探究六步驟", { "font-size": 40, fill: C.greenD });
+  const sp = [makeSpark(root, 34), makeSpark(root, 26), makeSpark(root, 30), makeSpark(root, 24)];
+  const tIn = Bs("intro.pig"), tPour = Wt("c0-1", "醋") - .5, tChange = Wt("c0-1", "變色") - .4, tWow = Wt("c0-1", "竟然") - .1;
+  const tTitle = Wt("c0-2", "找出") - .3;
+  return {
+    render(t) {
+      const walk = P(t, tIn, 1.1, Ease.out);
+      const wave = vis(t, tIn + .9, Ls("c0-1") - .1, .3, .3);
+      pig.set({ x: lerp(-220, 360, walk), y: 880, s: 1.3, bob: walk < 1 ? -Math.abs(Math.sin(t * 11)) * 12 : 0,
+        face: t > tWow && t < tTitle ? "wow" : t >= tTitle ? "happy" : "smile", blink: blinkAt(t),
+        aR: wave * (135 + Math.sin(t * 9) * 22) + (t > tWow && t < tTitle ? 40 : 0), aL: t > tWow && t < tTitle ? 40 : 6, look: .6 });
+      exc.setAttribute("transform", tf(560, 470 - Math.sin(t * 6) * 4, 12, Math.max(.001, P(t, tWow, .4, Ease.back) * (1 - P(t, tTitle, .3)))));
+      op(exc, t > tWow && t < tTitle + .3 ? 1 : 0);
+      // 醋瓶倒醋（瓶子在碗的左上方，瓶口往右下倒進碗裡）
+      const ap = vis(t, tPour - .5, tChange + 1.2, .4, .4);
+      const tilt = 118 * P(t, tPour, .5, Ease.io) * (1 - P(t, tChange + .7, .5));
+      const BXb = BX - 330, BYb = BY - 300;
+      bottle.setAttribute("transform", tf(BXb + (1 - ap) * 60, BYb - (1 - ap) * 40, tilt));
+      op(bottle, ap);
+      const pour = tilt > 96 && ap > .9;
+      if (pour) {
+        const a = tilt * Math.PI / 180, sx = BXb + Math.sin(a) * 214, sy = BYb - Math.cos(a) * 214;
+        S(stream, { d: `M${sx.toFixed(1)},${sy.toFixed(1)} Q${(sx + 22).toFixed(1)},${(sy + 40).toFixed(1)} ${(sx + 26).toFixed(1)},${(BY - 40).toFixed(1)}` });
+        op(stream, 1);
+      } else op(stream, 0);
+      // 變色：從倒醋的地方往外擴散
+      const cx0 = -112, k = P(t, tChange, 1.6, Ease.lin);
+      bowl.tint((x, y) => k * 2.2 - Math.hypot(x - cx0, (y + 40) * 2.2) / 150);
+      sp.forEach((s, i) => s.at(BX + [-120, 90, 10, 150][i], BY - [120, 150, 190, 90][i], P(t, tChange + .5 + i * .18, .8, Ease.lin)));
+      // 片名
+      const tp = P(t, tTitle, .8, Ease.back);
+      title.setAttribute("transform", tf(800, 300 + Math.sin(t * 1.6) * 4, (1 - tp) * -6, Math.max(.001, tp)));
+      op(title, tp > 0 ? 1 : 0);
+      op(sub, P(t, tTitle + .5, .5));
+    }
+  };
+});
+
+/* ==================== 1 觀察 ==================== */
+scene("observe", (root, ch) => {
+  const cam = G(root);
+  makeRestaurant(cam);
+  const sign = G(cam);
+  E("rect", { x: -88, y: -40, width: 176, height: 80, rx: 16, fill: "#FFFFFF", stroke: C.ink, "stroke-width": 4.5 }, sign);
+  E("circle", { cx: -48, cy: 0, r: 20, fill: C.sun, stroke: C.ink, "stroke-width": 3.5 }, sign);
+  T(sign, 22, 2, "假日", { "font-size": 40 });
+  // 家人（右邊）與豬豬（左邊）坐在桌子後面；桌面比肩膀低，倒醋時手才舉得到碗的上方
+  const TY = 800, PX = 560, PY = 845, PS = 1.12;
+  const fam = makePig(cam, { shirt: "#7FA7C9", shirtD: "#4F7DA3", glasses: true, pants: "#3C4650" });
+  const pig = makePig(cam, {});
+  makeTable(cam, 300, 1500, TY, { cloth: "#FFFFFF", stripe: "#FFB3A6" });
+  for (const x of [470, 1250]) {
+    E("ellipse", { cx: x, cy: TY + 34, rx: 92, ry: 24, fill: "#FFFFFF", stroke: C.ink, "stroke-width": 4 }, cam);
+    E("ellipse", { cx: x, cy: TY + 32, rx: 60, ry: 14, fill: "#F2F7F9", stroke: "#BFD9E6", "stroke-width": 3 }, cam);
+  }
+  const BX = 820, BY = TY - 12;
+  const bowlG = G(cam, { transform: tf(BX, BY) });
+  const bowl = makeSalad(bowlG, { R: 150, seed: 9 });
+  const stream = E("path", { d: "", fill: "none", stroke: "#E8C77A", "stroke-width": 7, "stroke-linecap": "round" }, cam);
+  const bottle = G(cam);
+  makeVinegar(G(bottle, { transform: "scale(.68)" }));
+  const BS = .68, BH = 214 * BS, BC = 100 * BS;      // 瓶高、瓶身中心到瓶底
+  const exc = G(cam);
+  E("path", { d: "M-12,-60 L12,-60 L7,0 L-7,0 Z", fill: "#E4574C", stroke: C.ink, "stroke-width": 4, "stroke-linejoin": "round" }, exc);
+  E("circle", { cx: 0, cy: 22, r: 10, fill: "#E4574C", stroke: C.ink, "stroke-width": 4 }, exc);
+  // 放大鏡：碗的左邊淋到醋（偏紅）、右邊沒淋到（還是紫色）——和碗裡的顏色同一邊
+  const lensLine = E("path", { d: "M774,642 L800,400", fill: "none", stroke: C.ink, "stroke-width": 5, "stroke-dasharray": "12 10" }, root);
+  const lens = makeLens(root, 800, 270, 130);
+  const lensTag = makeSchematicTag(root, 1060, 160);
+  const lr = rng(5);
+  for (let k = 0; k < 26; k++) {
+    const x = (lr() - .5) * 250, y = (lr() - .5) * 230, a = lr() * Math.PI, L = 60 + lr() * 50;
+    const red = x < 0;
+    const d = `M${(x - Math.cos(a) * L / 2).toFixed(1)},${(y - Math.sin(a) * L / 2).toFixed(1)} Q${(x + 14).toFixed(1)},${(y - 10).toFixed(1)} ${(x + Math.cos(a) * L / 2).toFixed(1)},${(y + Math.sin(a) * L / 2).toFixed(1)}`;
+    E("path", { d, fill: "none", stroke: C.ink, "stroke-width": 19, "stroke-linecap": "round" }, lens.inner);
+    E("path", { d, fill: "none", stroke: red ? "#D23A70" : "#6A3A97", "stroke-width": 12, "stroke-linecap": "round" }, lens.inner);
+  }
+  E("path", { d: "M0,-140 L0,140", stroke: "#fff", "stroke-width": 6, "stroke-dasharray": "14 10" }, lens.inner);
+  const labRed = makeLabel(root, "淋到醋：偏紅", 520, 270, null, null, { size: 34, color: "#C92F64", bg: "#FFE3EA" });
+  const labRaw = makeLabel(root, "沒淋到醋", 1040, 270, null, null, { size: 34, color: "#6A3A97", bg: "#F1E8FA" });
+  // 課本照片
+  const shade = E("rect", { x: -10, y: -10, width: 1620, height: 920, fill: "rgba(253,246,236,.75)" }, root);
+  const photo = makePhoto(root, PH74, "紫色高麗菜絲加醋之後（課本 74 頁）", 486, 325, { capSize: 27, capH: 58 });
+
+  // 醋落下的位置（碗的座標）：手舉到最高、瓶子倒到最斜時的瓶口
+  pig.set({ x: PX, y: PY, s: PS, aR: 128 });
+  const HIT = pig.hand("R")[0] + Math.sin(118 * Math.PI / 180) * (BH - BC) + 12 - BX;
+  const tSign = Wt("c1-2", "假日") - .2, tVin = Wt("c1-2", "醋") - .6;
+  const tPourEnd = Ls("c1-3") + .3, tChange = tVin + 1.0, tEh = Ls("c1-3"), tRed = Wt("c1-3", "偏紅") - .3;
+  const tLens = Wt("c1-3", "變色") - .1, tPh = Bs("obs.photoIn");
+  const camF = makeCam([[0, 0, 800, 450, 1], [tVin - 1.2, 1.2, 790, 620, 1.32], [tEh - .2, .7, 840, 600, 1.3], [tPh - .2, .8, 800, 500, 1.05]]);
+  return {
+    render(t) {
+      cam.setAttribute("transform", camF(t).tr);
+      popAt(sign, t, tSign, tVin - .4, 250, 120);
+      const eh = t > tEh && t < tPh;
+      // 豬豬拿起醋瓶、舉到碗的左上方、倒醋、放下
+      const ap = vis(t, tVin - .3, tPourEnd + .5, .5, .5);
+      const tilt = 118 * P(t, tVin + .3, .5, Ease.io) * (1 - P(t, tPourEnd, .45));
+      const aR = lerp(18, 128, ap);
+      pig.set({ x: PX, y: PY, s: PS, face: eh ? "wow" : "smile", blink: blinkAt(t, 1), aR, aL: eh ? 50 : 8, look: ap > .2 ? .8 : 0 });
+      const [hx, hy] = pig.hand("R");
+      const rest = [PX + 120, TY + 10 - BC];               // 瓶子原本立在桌上（瓶身中心）
+      const cx = lerp(rest[0], hx, ap), cy = lerp(rest[1], hy, ap);
+      const a = tilt * Math.PI / 180;
+      const bx = cx - Math.sin(a) * BC, by = cy + Math.cos(a) * BC;     // 瓶底
+      bottle.setAttribute("transform", tf(bx, by, tilt));
+      fam.set({ x: 1250, y: 860, s: 1.22, face: eh ? "wow" : "smile", blink: blinkAt(t, 3), aL: 8, aR: 8, look: -.8 });
+      if (tilt > 96 && t < tPourEnd) {
+        const sx = bx + Math.sin(a) * BH, sy = by - Math.cos(a) * BH;
+        S(stream, { d: `M${sx.toFixed(1)},${sy.toFixed(1)} Q${(sx + 10).toFixed(1)},${(sy + 26).toFixed(1)} ${(sx + 12).toFixed(1)},${(BY - 40).toFixed(1)}` });
+        op(stream, 1);
+      } else op(stream, 0);
+      // 變色：只有醋淋到的地方（碗的左邊）偏紅，越遠越淡，最右邊還是紫色
+      const k = P(t, tChange, 3.2, Ease.lin);
+      bowl.tint((x, y) => k * 1.8 - (Math.hypot(x - HIT, (y + 40) * 2) - 50) / 60);
+      exc.setAttribute("transform", tf(PX + 165, PY - 360, 12, Math.max(.001, P(t, tEh, .4, Ease.back) * (1 - P(t, tLens - .2, .3)))));
+      op(exc, t > tEh && t < tLens + .1 ? 1 : 0);
+      // 放大鏡（畫出來的近看，標「示意圖」）
+      const lp = P(t, tLens, .6) * (1 - P(t, tPh - .3, .3));
+      lens.place(lp);
+      op(lensLine, lp);
+      op(lensTag, lp);
+      showLab(labRed, t, tRed, tPh - .3);
+      showLab(labRaw, t, tRed + .5, tPh - .3);
+      // 課本照片
+      const pp = P(t, tPh, .6, Ease.out) * (1 - P(t, ch.e - .5, .4));
+      op(shade, pp * .9);
+      photo.place(pp, 800, 440, -2);
+    }
+  };
+});
+
+/* ==================== 2 提問 ==================== */
+scene("ask", (root, ch) => {
+  makeSky(root, { sky: "#FDF6EC" });
+  makeBokeh(root, 21, 9, ["#FFE7A8", "#EADCF5", "#DDF1D3"]);
+  const pig = makePig(root, {});
+  const bub = makeBubble(root, 260, 190, { think: true });
+  // 泡泡裡：一盤半紫半紅的高麗菜＋問號
+  const mini = G(bub.body, { transform: tf(-36, 18, 0, .36) });
+  const ms = makeSalad(mini, { R: 170, seed: 4 });
+  ms.tint(x => x > 0 ? 1 : 0);
+  T(bub.body, 78, -8, "？", { "font-size": 96, fill: "#E4574C" });
+  // 問題卡（白板卡片原文）
+  const QS = 48;
+  const card = makeTextCard(root, 980, ["紫色高麗菜的顏色變化，是否可以", "用來辨認醋或其他調味料的酸鹼性？"], { tag: "提問", size: QS });
+  // 螢光筆：畫在第二行「酸鹼性」三個字下半部（字是置中排的，位置照字數算）
+  const L2 = card.lines[1].textContent, w2 = textW(L2, QS);
+  const hlX = -w2 / 2 + L2.indexOf("酸鹼性") * QS - 4, hlW = 3 * QS + 8, hlY = -card.h / 2 + 70 + QS * 1.42 * 1.5 + 6;
+  const hl = E("rect", { x: hlX, y: hlY, width: 0, height: 22, rx: 8, fill: "#FFE16B" }, card.body);
+  card.body.insertBefore(hl, card.lines[0]);
+  // 醋和其他調味料（標問號：還不知道）
+  const cond = G(root);
+  const bots = [["醋", "#E8C77A"], ["？", "#7A4E32"], ["？", "#E9483B"]].map(([lab, col], i) => {
+    const b = G(cond, { transform: tf((i - 1) * 140, 0) });
+    E("path", { d: "M-30,0 L-30,-90 C-30,-110 -14,-116 -12,-130 L-12,-152 L12,-152 L12,-130 C14,-116 30,-110 30,-90 L30,0 Z", fill: "rgba(225,240,248,.95)", stroke: C.ink, "stroke-width": 4.5, "stroke-linejoin": "round" }, b);
+    E("path", { d: "M-26,-4 L-26,-80 L26,-80 L26,-4 Z", fill: col, opacity: .8 }, b);
+    E("rect", { x: -14, y: -166, width: 28, height: 16, rx: 4, fill: "#5C6970", stroke: C.ink, "stroke-width": 3.5 }, b);
+    E("rect", { x: -24, y: -66, width: 48, height: 46, rx: 7, fill: "#fff", stroke: C.ink, "stroke-width": 3 }, b);
+    T(b, 0, -42, lab, { "font-size": 30, fill: lab === "？" ? "#E4574C" : C.ink });
+    return b;
+  });
+  const tQ = Ls("c2-2") - .2, tAcid = Wt("c2-3", "酸鹼性") - .2, tCond = Wt("c2-3", "其他調味料") - .3;
+  return {
+    render(t) {
+      // 先想（雙手放下、皺眉），問題卡出來時舉手「提問」
+      const raise = P(t, tQ, .5, Ease.back);
+      pig.set({ x: 360, y: 860, s: 1.3, face: raise > .5 ? "say" : "think", blink: blinkAt(t, 2), aR: lerp(10, 140 + Math.sin(t * 3) * 6, raise), aL: 10, lean: Math.sin(t * 1.4) * 2, look: .5 });
+      bub.place(P(t, ch.s + .5, .6), 430, 265 + Math.sin(t * 1.5) * 5);
+      const cp = P(t, tQ, .6, Ease.out);
+      card.place(cp, 1030, 470 - (1 - cp) * 40, 1.5);
+      const hp = P(t, tAcid, .5, Ease.out);
+      S(hl, { width: (hlW * hp).toFixed(1) });
+      op(hl, hp > 0 ? 1 : 0);
+      popAt(cond, t, tCond, ch.e - .4, 1030, 770, .95);
+      bots.forEach((b, i) => b.setAttribute("transform", tf((i - 1) * 140, -Math.max(0, Math.sin((t - tCond - i * .15) * 6)) * 10 * (t > tCond && t < tCond + 1.2 ? 1 : 0))));
+    }
+  };
+});
+
+/* ==================== 3 蒐集資料 ==================== */
+scene("research", (root, ch) => {
+  makeSky(root, { sky: "#FDF6EC" });
+  const cam = G(root);
+  E("rect", { x: -400, y: 640, width: 2400, height: 600, fill: C.wood, stroke: C.ink, "stroke-width": OUT }, cam);
+  E("rect", { x: -400, y: 640, width: 2400, height: 30, fill: C.woodD }, cam);
+  const pig = makePig(cam, {});
+  const lap = makeLaptop(cam, 600, 360);
+  lap.setAttribute("transform", tf(880, 700));
+  const book = makeBook(cam, .9);
+  book.setAttribute("transform", tf(1360, 600, -8, .9));
+  const net = makeLabel(cam, "上網", 880, 230, null, null, { size: 40, color: "#2E86C1", bg: "#E3F2FB" });
+  const bk = makeLabel(cam, "查書", 1360, 470, null, null, { size: 40, color: "#2E86C1", bg: "#E3F2FB" });
+  // 螢幕內容（螢幕座標：中心 0,0，寬 600、高 360）
+  const S0 = lap.screen;
+  E("rect", { x: -300, y: -180, width: 600, height: 44, fill: "#EDF2F5" }, S0);
+  for (const [i, col] of [["0", "#FF7F66"], ["1", "#FFC93C"], ["2", "#58B159"]]) E("circle", { cx: -270 + i * 24, cy: -158, r: 7, fill: col }, S0);
+  const box = G(S0);
+  E("rect", { x: -260, y: -118, width: 420, height: 50, rx: 25, fill: "#fff", stroke: "#7C8A93", "stroke-width": 3 }, box);
+  makeSearchIcon(box, -228, -93, .9, "#7C8A93");
+  const typed = T(box, -200, -92, "", { "font-size": 28, "text-anchor": "start", "font-weight": 800 });
+  const caret = E("rect", { x: -200, y: -108, width: 3, height: 32, fill: C.ink }, box);
+  const btn = G(box);
+  E("rect", { x: 172, y: -118, width: 92, height: 50, rx: 25, fill: "#2E86C1", stroke: C.ink, "stroke-width": 3 }, btn);
+  T(btn, 218, -92, "搜尋", { "font-size": 24, fill: "#fff" });
+  const rows = [["cabbage", "紫色高麗菜"], ["gynura", "紅鳳菜"], ["pea", "蝶豆花"]].map(([f, name], i) => {
+    const r = G(S0, { transform: tf(0, -34 + i * 72) });
+    E("rect", { x: -270, y: -30, width: 540, height: 62, rx: 10, fill: "#FFFFFF", stroke: "#D5DEE3", "stroke-width": 2 }, r);
+    img(r, PH80(f), -262, -26, 84, 54, { rx: 6, sw: 2 });
+    T(r, -164, -10, name, { "font-size": 26, "text-anchor": "start", fill: "#1A5D8F" });
+    const tag = G(r);
+    E("rect", { x: -166, y: 6, width: 150, height: 24, rx: 12, fill: "#F1E8FA", stroke: "#7B4FA6", "stroke-width": 2 }, tag);
+    T(tag, -91, 19, "含有花青素", { "font-size": 18, fill: "#6A3A97" });
+    return { r, tag };
+  });
+  // 右邊的重點卡：花青素
+  const note = makeCard(root, 520, 430, { fill: "#FFFDF4" });
+  T(note.body, 0, -160, "花青素", { "font-size": 54, fill: "#6A3A97" });
+  const n1 = G(note.body);
+  T(n1, 0, -96, "會溶在水裡的", { "font-size": 34 });
+  T(n1, 0, -52, "水溶性色素", { "font-size": 40, fill: "#B4410F" });
+  const bk2 = makeBeaker(note.body, 120, 120, { level: .7, col: "#E4F3FA" });
+  bk2.setAttribute("transform", tf(-150, 120));
+  const dropG = G(note.body);
+  const drop = makeDrop(dropG, C.juice, 12);
+  const n2 = G(note.body);
+  T(n2, 60, 40, "遇到酸性或鹼性", { "font-size": 32 });
+  T(n2, 60, 82, "水溶液，", { "font-size": 32 });
+  T(n2, 60, 128, "顏色會產生變化", { "font-size": 34, fill: "#B4410F" });
+  const chg = makeSpark(note.body, 26);
+
+  const tNet = Wt("c3-1", "上網") - .2, tBook = Wt("c3-1", "查書") - .2;
+  const tZoom = Ls("c3-2") - .4, tType0 = Wt("c3-2", "植物") - .1, tType1 = We("c3-2", "變色") + .1;
+  const tGo = Bs("data.search") + .1;
+  const tR = [Wt("c3-3", "紫色高麗菜") - .2, Wt("c3-3", "紅鳳菜") - .2, Wt("c3-3", "蝶豆花") - .2];
+  const tHua = Wt("c3-3", "花青素") - .2, tNote = Ls("c3-4") - .3, tN2 = Ls("c3-5") - .2;
+  const KW = "植物汁液變色";
+  const camF = makeCam([[0, 0, 800, 450, 1], [tZoom, 1.1, 880, 510, 1.85], [tNote - .5, .9, 950, 470, 1.15]]);
+  return {
+    render(t) {
+      cam.setAttribute("transform", camF(t).tr);
+      pig.set({ x: 420, y: 940, s: 1.3, face: t > tHua && t < tNote ? "happy" : "smile", blink: blinkAt(t, 4), aR: 30 + Math.sin(t * 14) * (t > tType0 && t < tType1 ? 6 : 0), aL: 10, look: .8 });
+      showLab(net, t, tNet, tZoom - .2);
+      showLab(bk, t, tBook, tZoom - .2);
+      // 打字
+      const n = Math.round(clamp((t - tType0) / Math.max(.3, tType1 - tType0)) * KW.length);
+      typed.textContent = KW.slice(0, n);
+      S(caret, { x: (-200 + n * 28 + 2).toFixed(1) });
+      op(caret, (t < tGo && Math.floor(t * 2.4) % 2 === 0 && t > tZoom) ? 1 : 0);
+      const press = vis(t, tGo, tGo + .25, .08, .15);
+      btn.setAttribute("transform", tf(218 * press * .04, 0, 0, 1 - press * .08));
+      rows.forEach((R, i) => {
+        const p = P(t, Math.max(tGo + .3 + i * .12, tR[i]), .45, Ease.out);
+        op(R.r, p); R.r.setAttribute("transform", tf(0, -34 + i * 72 + (1 - p) * 20));
+        const hp = P(t, tHua, .4, Ease.back);
+        R.tag.setAttribute("transform", tf(-91 * (1 - Math.max(.001, hp)), 19 * (1 - Math.max(.001, hp)), 0, Math.max(.001, hp)));
+        op(R.tag, hp > 0 ? 1 : 0);
+      });
+      // 重點卡
+      const np = P(t, tNote, .6, Ease.out) * (1 - P(t, ch.e - .4, .3));
+      note.place(np, 1300, 450, 2);
+      const dp = P(t, tNote + .6, .9, Ease.in);
+      drop.setAttribute("transform", tf(-150, lerp(-60, 30, dp)));
+      op(drop, dp > 0 && dp < 1 ? 1 : 0);
+      const mix = P(t, tNote + 1.4, 1.4, Ease.lin);
+      bk2.setLiquid(.7, lerpColor("#E4F3FA", C.juice, mix * .75));
+      op(n1, P(t, Wt("c3-4", "水溶性") - .3, .5));
+      op(n2, P(t, tN2, .5));
+      chg.at(250, 30, P(t, Wt("c3-5", "變化") - .2, .9, Ease.lin));
+    }
+  };
+});
+
+/* ==================== 4 假設 ==================== */
+scene("hypo", (root, ch) => {
+  makeSky(root, { sky: "#FDF6EC" });
+  makeBokeh(root, 33, 8, ["#FFE7A8", "#DDF1D3", "#EADCF5"]);
+  const pig = makePig(root, {});
+  // 時間軸：假設（實驗前）→ 實驗 → 結論（實驗後）
+  const line = G(root);
+  E("path", { d: "M-460,0 L460,0", stroke: C.ink, "stroke-width": 8, "stroke-linecap": "round" }, line);
+  const nodes = [["假設", "實驗前", -400], ["實驗", "", 0], ["結論", "實驗後", 400]].map(([a, b, x], i) => {
+    const g = G(line, { transform: tf(x, 0) });
+    E("circle", { r: 24, fill: i === 0 ? C.sun : "#fff", stroke: C.ink, "stroke-width": 6 }, g);
+    T(g, 0, -66, a, { "font-size": 54 });
+    if (b) T(g, 0, 66, b, { "font-size": 38, fill: "#5C6970" });
+    return { g, x };
+  });
+  const here = makeLabel(root, "現在在這裡", 500, 492, null, null, { size: 36, color: "#B4410F", bg: "#FFF3C8" });
+  // 根據查到的資料（先在中間出現，寫假設時縮到左上角當「根據」）
+  const data = makeTextCard(root, 520, ["含有花青素的植物汁液，", "遇到酸鹼會變色"], { tag: "查到的資料", size: 36, tagFill: "#E3F2FB" });
+  // 假設卡（白板卡片原文），一行一行寫出來
+  const FS = 48, LH = FS * 1.42, CX = 960, CY = 530;
+  const card = makeTextCard(root, 1040, ["有顏色的植物汁液加入酸或鹼性", "水溶液後，會產生規律的顏色變化，", "可作為酸鹼指示劑。"], { tag: "假設", size: FS });
+  const lineY = i => -card.h / 2 + 70 + LH * i + LH / 2;
+  const arrow = makeArrow(root, 0, 0, 80, 64, { w: 8 });   // 從「查到的資料」指向假設卡（畫在卡片上面）
+  // 每行字是置中排的：遮罩從這一行字的左緣打開，和鉛筆用同一個寬度，字才會跟著筆尖出現
+  const LW = card.lines.map(ln => textW(ln.textContent, FS));
+  const clips = card.lines.map((ln, i) => {
+    const id = "hy" + i + Math.random().toString(36).slice(2, 6);
+    const cp = E("clipPath", { id }, card.body);
+    const r = E("rect", { x: -LW[i] / 2 - 4, y: -300, width: 0, height: 600 }, cp);
+    ln.setAttribute("clip-path", `url(#${id})`);
+    return r;
+  });
+  const pencil = makePencil(root);
+  const stamp = G(card.body);
+  E("rect", { x: -130, y: -36, width: 260, height: 72, rx: 14, fill: "#FFFDF4", stroke: "#E4574C", "stroke-width": 7 }, stamp);
+  T(stamp, 0, 2, "實驗前先猜", { "font-size": 40, fill: "#E4574C" });
+  // 重點詞底線：規律、酸鹼指示劑
+  const mkU = (li, kw) => {
+    const txt = card.lines[li].textContent, w = textW(txt, FS);
+    const r = E("rect", { x: -w / 2 + txt.indexOf(kw) * FS, y: lineY(li) + FS * .42, width: 0, height: 10, rx: 5, fill: "#FFC93C" }, card.body);
+    card.body.insertBefore(r, card.lines[0]);
+    return { r, w: kw.length * FS };
+  };
+  const u1 = mkU(1, "規律"), u2 = mkU(2, "酸鹼指示劑");
+  const tL = [Ls("c4-3"), (Ls("c4-3") + Le("c4-3")) / 2 + .5, Wt("c4-4", "可以當作") - .2];
+  const tLe = [tL[1] - .1, Math.min(Le("c4-4") - 1.6, tL[2] - .1), Le("c4-4")];   // 上一行寫完才寫下一行
+  // 重點詞的底線：等那幾個字寫出來、也唸到了才畫
+  const writtenAt = (li, kw) => { const s = card.lines[li].textContent; return tL[li] + (tLe[li] - tL[li]) * (s.indexOf(kw) + kw.length) / s.length; };
+  const tU1 = Math.max(Wt("c4-4", "規律") - .1, writtenAt(1, "規律")), tU2 = Math.max(Wt("c4-4", "酸鹼指示劑") - .1, writtenAt(2, "酸鹼指示劑"));
+  const tData = Ls("c4-2") - .3, tCard = Ls("c4-3") - .4;
+  return {
+    render(t) {
+      const writing = t > tL[0] && t < tLe[2];
+      pig.set({ x: 250, y: 880, s: 1.18, face: t < tData ? "think" : "smile", blink: blinkAt(t, 5), aR: writing ? 64 + Math.sin(t * 12) * 4 : 20, aL: 8, look: .7 });
+      // 時間軸
+      const lp = P(t, ch.s + .4, .6, Ease.out) * (1 - P(t, tData - .2, .4));
+      line.setAttribute("transform", tf(900, 360 + (1 - lp) * 30)); op(line, lp);
+      nodes[0].g.setAttribute("transform", tf(-400, 0, 0, 1 + .1 * Math.sin(t * 5) * lp));
+      here.show(P(t, Wt("c4-1", "之前") - .3, .6, Ease.lin) * (1 - P(t, tData - .2, .3)));
+      // 查到的資料：中間 → 左上角
+      const dp = P(t, tData, .55, Ease.out);
+      const mv = P(t, tCard, .7, Ease.io);
+      data.place(dp, lerp(800, 345, mv), lerp(400, 250, mv), -2 * (1 - mv));
+      data.setAttribute("transform", data.getAttribute("transform") + ` scale(${lerp(1, .68, mv).toFixed(3)})`);
+      op(arrow, P(t, tCard + .6, .4));
+      arrow.setAttribute("transform", tf(420, 300));
+      // 假設卡
+      const cp = P(t, tCard, .6, Ease.out);
+      card.place(cp, CX, CY, 1.5);
+      card.lines.forEach((ln, i) => S(clips[i], { width: ((LW[i] + 8) * P(t, tL[i], tLe[i] - tL[i], Ease.lin)).toFixed(1) }));
+      // 鉛筆跟著寫到的地方
+      let wi = -1;
+      for (let i = 0; i < 3; i++) if (t >= tL[i] && t < tLe[i] + .2) wi = i;
+      if (wi >= 0 && cp > .9) {
+        const u = P(t, tL[wi], tLe[wi] - tL[wi], Ease.lin);
+        const lw = textW(card.lines[wi].textContent, FS);
+        pencil.setAttribute("transform", tf(CX - lw / 2 + lw * u, CY + lineY(wi) + 18 + Math.sin(t * 30) * 3, 24));
+        op(pencil, 1);
+      } else op(pencil, 0);
+      const sp = P(t, Le("c4-4") - .2, .5, Ease.back);
+      stamp.setAttribute("transform", tf(1040 / 2 - 170, card.h / 2 + 8, -8, Math.max(.001, sp)));
+      op(stamp, sp > 0 ? 1 : 0);
+      const g1 = P(t, tU1, .4), g2 = P(t, tU2, .5);
+      S(u1.r, { width: (u1.w * g1).toFixed(1) }); op(u1.r, g1 > 0 ? 1 : 0);
+      S(u2.r, { width: (u2.w * g2).toFixed(1) }); op(u2.r, g2 > 0 ? 1 : 0);
+    }
+  };
+});
+
+/* ==================== 5 實驗：做紫色高麗菜汁 ==================== */
+scene("juice", (root, ch) => {
+  makeLab(root);
+  const BY = 700;
+  const pig = makePig(root, {});
+  makeBench(root, BY);
+  makeSchematicTag(root);
+  // 器材
+  const bkA = makeBeaker(root, 200, 210);
+  const funnel = makeFunnel(root);
+  const bitsLayer = G(root);
+  const FX = 1150, FY = 520;   // 漏斗頸下端（插進燒杯 B 的杯口）
+  funnel.setAttribute("transform", tf(FX, FY));
+  const stand = G(root);
+  E("path", { d: `M${FX + 150},${BY} L${FX + 150},${FY - 160} M${FX + 150},${FY - 120} L${FX + 70},${FY - 120}`, stroke: "#7C8A93", "stroke-width": 12, "stroke-linecap": "round" }, stand);
+  E("rect", { x: FX + 100, y: BY - 14, width: 100, height: 16, rx: 6, fill: "#7C8A93", stroke: C.ink, "stroke-width": 3 }, stand);
+  root.insertBefore(stand, funnel);
+  const bkB = makeBeaker(root, 170, 190);
+  bkB.setAttribute("transform", tf(FX, BY));
+  // 選植物：三張小照片（畫在器材上面，才不會被漏斗蓋住）
+  const choose = [["cabbage", "紫色高麗菜"], ["gynura", "紅鳳菜"], ["pea", "蝶豆花"]].map(([f, name], i) => {
+    const g = G(root);
+    E("rect", { x: -100, y: -88, width: 200, height: 176, rx: 18, fill: "#fff", stroke: C.ink, "stroke-width": 4.5 }, g);
+    img(g, PH80(f), -84, -74, 168, 110, { rx: 8 });
+    T(g, 0, 62, name, { "font-size": 30 });
+    return g;
+  });
+  const okMark = makeMark(root, true, 34);
+  const leaf = G(root);
+  makeCabbageLeaf(leaf, .62);
+  const bits = makeBits(bitsLayer, 11, 17, 1);
+  const kettleG = G(root);
+  const kettle = G(kettleG, { transform: "scale(-1,1)" });
+  makeKettle(kettle);
+  const steamK = makeSteam(root, 3);
+  const arm = makeTeacherArm(root);
+  const armP = makeTeacherArm(root);          // 過濾時：老師的手拿著剛泡好的熱汁液倒進漏斗
+  const water = E("path", { d: "", fill: "none", stroke: "#9ED4F0", "stroke-width": 12, "stroke-linecap": "round" }, root);
+  const pourS = E("path", { d: "", fill: "none", stroke: C.juice, "stroke-width": 10, "stroke-linecap": "round" }, root);
+  const dripG = G(root);
+  const drips = [0, 1, 2].map(() => makeDrop(dripG, C.juice, 8));
+  const clock = makeClock(root, 64);
+  const tenMin = makeChip(root, "約 10 分鐘", 0, 0, { size: 32, bg: "#FFF3C8" });
+  // 標籤
+  const labHot = makeLabel(root, "熱的純水", 600, 300, null, null, { size: 34, color: "#2E86C1", bg: "#E3F2FB" });
+  const warn = G(root);
+  E("rect", { x: -230, y: -36, width: 460, height: 72, rx: 36, fill: "#FFF3C8", stroke: "#C98A00", "stroke-width": 5 }, warn);
+  E("path", { d: "M-196,20 L-170,-24 L-144,20 Z", fill: "#FFC93C", stroke: C.ink, "stroke-width": 4, "stroke-linejoin": "round" }, warn);
+  T(warn, -170, 6, "!", { "font-size": 30 });
+  T(warn, 30, 2, "熱水由老師處理", { "font-size": 38 });
+  const labRes = makeLabel(root, "菜渣", FX - 300, FY - 20, FX - 40, FY - 110, { size: 34, color: "#6A3A97", bg: "#F1E8FA" });
+  // 兩個標籤都放在燒杯 B 的右邊，引線指到紫色的汁液（不要壓在漏斗頸或空杯上）
+  const labJuice = makeLabel(root, "紫色高麗菜汁", FX + 270, BY - 270, FX + 58, BY - 66, { size: 36, color: "#6A3A97", bg: "#F1E8FA" });
+  const labHua = makeLabel(root, "花青素溶在水裡", FX + 270, BY - 90, FX + 50, BY - 34, { size: 32, color: "#6A3A97", bg: "#F1E8FA" });
+  // 安全提醒卡
+  const shade = E("rect", { x: -10, y: -10, width: 1620, height: 920, fill: "rgba(230,242,236,.78)" }, root);
+  const c1 = makeCard(root, 420, 340, { fill: "#FFFDF4" });
+  const mouth = makeMouthIcon(c1.body); mouth.setAttribute("transform", tf(0, -50));
+  const no1 = makeNo(c1.body, 78); no1.setAttribute("transform", tf(0, -50));
+  T(c1.body, 0, 110, "一律不嘗", { "font-size": 48, fill: "#D63A2F" });
+  const c2 = makeCard(root, 640, 340, { fill: "#FFFDF4" });
+  const sch = makeHouse(c2.body, true); sch.setAttribute("transform", tf(-150, -40));
+  const ok2 = makeMark(c2.body, true, 30); ok2.setAttribute("transform", tf(-80, 10));
+  T(c2.body, -150, 110, "老師在學校示範", { "font-size": 34 });
+  const home = makeHouse(c2.body, false); home.setAttribute("transform", tf(160, -30));
+  const no2 = makeNo(c2.body, 74); no2.setAttribute("transform", tf(160, -24));
+  T(c2.body, 160, 110, "回家不用做", { "font-size": 34, fill: "#D63A2F" });
+
+  const tChoose = Wt("c5-2", "選了") - .2, tPick = Wt("c5-2", "紫色高麗菜") - .1, tTear = Wt("c5-2", "剝成") - .1;
+  const tTearEnd = Be("exp.tear");
+  const tHot = Wt("c5-3", "熱的純水") - .8, tPourW = Wt("c5-3", "熱的純水") - .2, tPourWEnd = Wt("c5-3", "十分鐘") - .2;
+  const tTeacher = Wt("c5-3", "老師") - .2, tSoak0 = Wt("c5-3", "十分鐘") - .3, tSoak1 = Be("exp.soak");
+  const tFil = Ls("c5-4") - .5, tFilEnd = Be("exp.filter") + .4;
+  const tRes = Wt("c5-4", "菜渣") - .2, tHua = Ls("c5-5") - .1, tNo = Ls("c5-6") - .3, tHome = Ls("c5-7") - .3;
+  const AX = 640, AW = 200, AH = 210;
+  return {
+    render(t) {
+      pig.set({ x: 250, y: 760, s: 1.3, face: t > tPick && t < tPick + 1.5 ? "happy" : "smile", blink: blinkAt(t, 6),
+        aR: t > tPick - .2 && t < tTearEnd ? 50 + Math.sin(t * 16) * (t > tTear ? 8 : 0) : 14, aL: t > tPick - .2 && t < tTearEnd ? 40 : 8,
+        look: .7, coat: 1, gog: 1, legs: 0 });
+      // 選植物
+      choose.forEach((g, i) => {
+        const p = P(t, tChoose + i * .15, .5, Ease.back) * (1 - P(t, tTear, .4));
+        const dim = i > 0 ? 1 - .55 * P(t, tPick + .2, .4) : 1;
+        op(g, p > 0 ? Math.min(1, p * 2) * dim : 0);
+        g.setAttribute("transform", tf(470 + i * 250, 250, 0, Math.max(.001, p) * (i === 0 ? 1 + .08 * P(t, tPick, .3) : 1)));
+      });
+      const mk = P(t, tPick, .4, Ease.back) * (1 - P(t, tTear, .4));
+      okMark.setAttribute("transform", tf(550, 180, 0, Math.max(.001, mk))); op(okMark, mk > 0 ? 1 : 0);
+      // 菜葉 → 碎片 → 燒杯
+      const [hx, hy] = pig.hand("R");
+      const lp = P(t, tPick + .3, .5, Ease.out);
+      leaf.setAttribute("transform", tf(hx + 40, hy - 40, Math.sin(t * 3) * 4, Math.max(.001, lp)));
+      op(leaf, lp > 0 && t < tTear + .1 ? 1 : 0);
+      // 過濾：老師的手把燒杯 A 舉到漏斗左上方、往右傾倒 75°（以杯身中心為軸），杯口剛好在漏斗邊緣上方
+      const tiltA = 75 * P(t, tFil, .7, Ease.io) * (1 - P(t, tFilEnd, .6));
+      const liftA = P(t, tFil - .4, .6, Ease.io) * (1 - P(t, tFilEnd + .2, .6));
+      const ax = lerp(AX, FX - 237, liftA), ay = lerp(BY, FY - 182, liftA);
+      bkA.setAttribute("transform", tf(ax, ay - AH / 2, tiltA) + ` translate(0,${AH / 2})`);
+      const a = tiltA * Math.PI / 180, ca = Math.cos(a), sa = Math.sin(a);
+      // 杯口右緣（局部 (AW/2, -AH-10)）傾斜後的位置：汁液和菜渣都從這裡倒出來
+      const lipX = ax + (AW / 2) * ca + (AH / 2 + 10) * sa, lipY = ay - AH / 2 + (AW / 2) * sa - (AH / 2 + 10) * ca;
+      armP.setAttribute("transform", tf(ax + 18, ay - AH / 2 - 6)); op(armP, liftA > .02 ? 1 : 0);
+      bits.forEach((B, i) => {
+        const u = P(t, tTear + i * .05, .75, Ease.in);
+        const restX = AX - 70 + (i % 6) * 26 + B.r1 * 8, restY = BY - 18 - Math.floor(i / 6) * 16;
+        const fx = FX - 50 + (i % 5) * 24 + B.r2 * 6, fy = FY - 100 - Math.floor(i / 5) * 14;
+        let x, y, r;
+        const v = P(t, tFil + .55 + i * .04, .5, Ease.in);
+        if (v > 0) { x = lerp(lipX, fx, v); y = lerp(lipY, fy, v) - Math.sin(v * Math.PI) * 30; r = B.r3 * 360 + v * 200; }
+        else if (u > 0) { x = lerp(hx + 40, restX, u); y = lerp(hy - 40, restY, u) - Math.sin(u * Math.PI) * 120; r = B.r3 * 360 + u * 300; }
+        else { op(B.b, 0); return; }
+        if (v <= 0 && liftA > 0) { op(B.b, 0); return; }   // 舉起來的時候在杯子裡（被汁液蓋住）
+        op(B.b, 1);
+        B.b.setAttribute("transform", tf(x, y, r));
+      });
+      // 熱水
+      const kp = vis(t, tHot, tPourWEnd + .6, .5, .5);
+      const kt = -62 * P(t, tPourW, .4, Ease.io) * (1 - P(t, tPourWEnd, .4));
+      const kx = AX + 250 + (1 - kp) * 300, ky = BY - 300 - (1 - kp) * 200;
+      kettleG.setAttribute("transform", tf(kx, ky, kt)); op(kettleG, kp > 0 ? 1 : 0);
+      arm.setAttribute("transform", tf(kx + Math.sin(kt * Math.PI / 180) * 185, ky - Math.cos(kt * Math.PI / 180) * 185)); op(arm, kp > 0 ? 1 : 0);
+      steamK.setAttribute("transform", tf(kx - 40, ky - 170)); steamK.set(t, kp * .9);
+      if (kt < -45) {
+        const k = kt * Math.PI / 180, sx = kx + (-148 * Math.cos(k) + 172 * Math.sin(k)), sy = ky + (-148 * Math.sin(k) - 172 * Math.cos(k));
+        S(water, { d: `M${sx.toFixed(1)},${sy.toFixed(1)} Q${(sx - 20).toFixed(1)},${(sy + 30).toFixed(1)} ${(AX + 20).toFixed(1)},${(BY - 60).toFixed(1)}` }); op(water, 1);
+      } else op(water, 0);
+      const lvA = .62 * P(t, tPourW + .1, tPourWEnd - tPourW, Ease.out) * (1 - P(t, tFil + .5, Math.max(1, tFilEnd - tFil - 1.0), Ease.lin) * .95);
+      const soak = P(t, tSoak0, tSoak1 - tSoak0 + .4, Ease.lin);
+      bkA.setLiquid(lvA, lerpColor(C.clear, C.juice, soak * .95), tiltA);
+      // 時鐘快轉 10 分鐘（分針轉 60°）
+      const ck = vis(t, tSoak0 - .2, tFil - .2, .4, .4);
+      clock.setAttribute("transform", tf(1360, 300, 0, Math.max(.001, ck))); op(clock, ck > 0 ? 1 : 0);
+      clock.set(10 * P(t, tSoak0, tSoak1 - tSoak0 + .3, Ease.io));
+      tenMin.setAttribute("transform", tf(1360, 430, 0, Math.max(.001, ck))); op(tenMin, ck > 0 ? 1 : 0);
+      showLab(labHot, t, Wt("c5-3", "熱的純水"), tSoak0);
+      popAt(warn, t, tTeacher, tFil - .3, 980, 180);
+      // 過濾：從杯口倒出來的流、滴下來的汁
+      if (tiltA > 55 && lvA > .05 && t < tFilEnd) {
+        S(pourS, { d: `M${lipX.toFixed(1)},${lipY.toFixed(1)} Q${(lipX + 30).toFixed(1)},${(lipY + 10).toFixed(1)} ${(FX - 50).toFixed(1)},${(FY - 150).toFixed(1)}` }); op(pourS, 1);
+      } else op(pourS, 0);
+      const fl = P(t, tFil + .6, tFilEnd - tFil + .6, Ease.out);
+      bkB.setLiquid(.5 * fl, C.juice);
+      drips.forEach((d, i) => {
+        const u = ((t - tFil - .7) * 1.6 + i / 3) % 1;
+        const on = t > tFil + .7 && t < tFilEnd + 1.2;
+        op(d, on ? 1 : 0);
+        d.setAttribute("transform", tf(FX, FY + 10 + u * (BY - FY - 40 - 190 * .5 * fl)));
+      });
+      showLab(labRes, t, tRes, tNo - .2);
+      showLab(labJuice, t, tHua - .2, tNo - .2);
+      showLab(labHua, t, Wt("c5-5", "溶在水裡") - .3, tNo - .2);
+      // 安全提醒
+      const sh = P(t, tNo - .2, .4) * (1 - P(t, ch.e - .5, .3));
+      op(shade, sh);
+      c1.place(P(t, tNo, .55, Ease.out) * (1 - P(t, ch.e - .5, .3)), 470, 440, -3);
+      c2.place(P(t, tHome, .55, Ease.out) * (1 - P(t, ch.e - .5, .3)), 1090, 440, 3);
+    }
+  };
+});
+
+/* ==================== 6 實驗：滴進不同的水溶液 ==================== */
+const SOLS = [
+  { name: "醋", res: "酸性", col: C.acid, word: "偏紅" },
+  { name: "檸檬酸水", res: "酸性", col: C.acid, word: "偏紅" },
+  { name: "食鹽水", res: "中性", col: C.neutral, word: "偏紫" },
+  { name: "糖水", res: "中性", col: C.neutral, word: "偏紫" },
+  { name: "小蘇打水", res: "鹼性", col: C.base, word: "偏藍綠" },
+  { name: "肥皂水", res: "鹼性", col: C.baseG, word: "偏綠" }
+];
+const TUBE_X = i => 800 + (i - 2.5) * 200;
+const TUBE_Y = 590;
+/** 試管下面的名字＋石蕊試紙測過的結果 */
+function makeTubeSet(parent) {
+  const set = SOLS.map((s, i) => {
+    const g = G(parent);
+    const tube = makeTube(g, { w: 70, h: 250 });
+    const name = makeChip(g, s.name, 0, 40, { size: 30 });
+    const res = makeChip(g, s.res, 0, 100, { size: 28, bg: "#EDE8DE", stroke: "#5C6970" });
+    const word = G(g);
+    const ww = textW(s.word, 32) + 74;
+    E("rect", { x: -ww / 2, y: -26, width: ww, height: 52, rx: 26, fill: "#fff", stroke: C.ink, "stroke-width": 4 }, word);
+    E("circle", { cx: -ww / 2 + 28, cy: 0, r: 12, fill: s.col, stroke: C.ink, "stroke-width": 3 }, word);
+    T(word, 14, 2, s.word, { "font-size": 32 });
+    return { g, tube, name, res, word, s };
+  });
+  return set;
+}
+scene("drops", (root, ch) => {
+  makeLab(root, { shelf: false });
+  makeBench(root, 690);
+  makeSchematicTag(root);
+  const rack = G(root);
+  E("rect", { x: 170, y: TUBE_Y - 120, width: 1260, height: 30, rx: 10, fill: C.wood, stroke: C.ink, "stroke-width": 4 }, rack);
+  E("rect", { x: 170, y: TUBE_Y - 4, width: 1260, height: 26, rx: 10, fill: C.woodD, stroke: C.ink, "stroke-width": 4 }, rack);
+  const set = makeTubeSet(root);
+  const head = makeChip(root, "石蕊試紙測過：", 0, 0, { size: 28, bg: "#FFFFFF", stroke: "#5C6970" });
+  const drop = makeDropper(root);
+  const fall = makeDrop(root, C.juice, 9);
+  // 課本照片（照照片的順序標名字）
+  const shade = E("rect", { x: -10, y: -10, width: 1620, height: 920, fill: "rgba(230,242,236,.82)" }, root);
+  const pc = G(root);
+  const PW = 900, PHh = 295;
+  E("rect", { x: -PW / 2 - 24 + 8, y: -PHh / 2 - 24 + 10, width: PW + 48, height: PHh + 200, rx: 18, fill: "rgba(30,30,30,.18)" }, pc);
+  E("rect", { x: -PW / 2 - 24, y: -PHh / 2 - 24, width: PW + 48, height: PHh + 200, rx: 18, fill: "#fff", stroke: C.ink, "stroke-width": 4 }, pc);
+  img(pc, PH75, -PW / 2, -PHh / 2, PW, PHh, { rx: 8, par: "xMidYMid meet" });
+  const P75 = [["小蘇打水", "偏藍綠"], ["肥皂水", "偏綠"], ["醋", "偏紅"], ["檸檬酸水", "偏紅"], ["食鹽水", "偏紫"], ["糖水", "偏紫"], ["未知", "？"]];
+  P75.forEach(([n, w], i) => {
+    const x = -PW / 2 + PW / 7 * (i + .5);
+    T(pc, x, PHh / 2 + 30, n, { "font-size": 24, fill: C.muted });
+    T(pc, x, PHh / 2 + 70, w, { "font-size": 32 });
+  });
+  T(pc, 0, PHh / 2 + 130, "課本 75 頁：滴入紫色高麗菜汁後", { "font-size": 30 });
+
+  const tTubes = Ls("c6-1") - .2, tPlat = Wt("c6-1", "平底試管") - .2;
+  const tRes = [Wt("c6-3", "酸性"), Wt("c6-3", "酸性"), Wt("c6-3", "中性"), Wt("c6-3", "中性"), Wt("c6-4", "鹼性"), Wt("c6-4", "鹼性")];
+  const tHead = Ls("c6-2") - .2;
+  const tD0 = Wt("c6-5", "分別") + .3, dT = (Be("exp.drops") - .7 - tD0) / 6;
+  const tWord = [Wt("c6-6", "偏紅色"), Wt("c6-6", "偏紅色") + .15, Wt("c6-6", "偏紫色"), Wt("c6-6", "偏紫色") + .15, Wt("c6-7", "偏藍綠色"), Wt("c6-7", "偏綠色")];
+  const tPh = Bs("exp.photoIn");
+  return {
+    render(t) {
+      set.forEach((S2, i) => {
+        const x = TUBE_X(i);
+        const p = P(t, tTubes + i * .18, .5, Ease.back);
+        S2.g.setAttribute("transform", tf(x, TUBE_Y + (1 - Math.min(1, p)) * 40, 0, 1));
+        op(S2.g, p > 0 ? Math.min(1, p * 2) : 0);
+        op(S2.name, P(t, tPlat + .2 + i * .1, .4));
+        const rp = P(t, tRes[i] - .2, .4, Ease.back);
+        S2.res.setAttribute("transform", tf(0, 100, 0, Math.max(.001, rp))); op(S2.res, rp > 0 ? 1 : 0);
+        const td = tD0 + i * dT;
+        S2.tube.setLiquid(S2.s.col, P(t, td + .25, .9, Ease.lin));
+        const wp = P(t, tWord[i] - .15, .45, Ease.back);
+        S2.word.setAttribute("transform", tf(0, -320, 0, Math.max(.001, wp))); op(S2.word, wp > 0 ? 1 : 0);
+      });
+      head.setAttribute("transform", tf(130, TUBE_Y + 100)); op(head, P(t, tHead, .5) * (1 - P(t, tPh - .3, .3)));
+      // 滴管：一支一支滴
+      const dp = vis(t, tD0 - .6, tD0 + dT * 6, .4, .4);
+      let di = Math.floor((t - tD0) / dT);
+      di = Math.max(0, Math.min(5, di));
+      const u = clamp((t - tD0 - di * dT) / dT);
+      const xx = t < tD0 ? lerp(TUBE_X(0) - 160, TUBE_X(0), P(t, tD0 - .6, .6)) : (u < .35 && di > 0 ? lerp(TUBE_X(di - 1), TUBE_X(di), Ease.io(u / .35)) : TUBE_X(di));
+      const squeeze = t > tD0 && u > .35 && u < .6 ? Math.sin((u - .35) / .25 * Math.PI) : 0;
+      drop.setAttribute("transform", tf(xx, TUBE_Y - 290 - squeeze * 6, 0, 1, 1 - squeeze * .06));
+      op(drop, dp);
+      const fu = clamp((u - .45) / .25);
+      if (t > tD0 && t < tD0 + dT * 6 && fu > 0 && fu < 1) { op(fall, 1); fall.setAttribute("transform", tf(TUBE_X(di), TUBE_Y - 280 + fu * 120)); } else op(fall, 0);
+      // 課本照片
+      const pp = P(t, tPh, .6, Ease.out) * (1 - P(t, ch.e - .5, .4));
+      op(shade, pp);
+      op(pc, pp > 0 ? Math.min(1, pp * 2) : 0);
+      pc.setAttribute("transform", tf(800, 420 + (1 - pp) * 60, 0, Math.max(.001, lerp(.8, 1, Ease.back(pp)))));
+    }
+  };
+});
+
+/* ==================== 7 結論 ==================== */
+scene("conclude", (root, ch) => {
+  makeSky(root, { sky: "#FDF6EC" });
+  makeBokeh(root, 41, 9, ["#FFE7A8", "#DDF1D3", "#EADCF5"]);
+  makeSchematicTag(root);
+  const set = makeTubeSet(root);
+  set.forEach(S2 => { S2.tube.setLiquid(S2.s.col, 1); op(S2.res, 0); });
+  const GX = [330, 800, 1270];
+  const heads = ["酸性", "中性", "鹼性"].map(s => makeChip(root, s, 0, 0, { size: 40, bg: "#EDE8DE", stroke: C.ink }));
+  const rules = [["偏紅色", C.acid], ["偏紫色", C.neutral], ["偏藍色或綠色", C.base]].map(([w, col], i) => {
+    const g = G(root);
+    const ww = textW(w, 36) + 84;
+    E("rect", { x: -ww / 2, y: -30, width: ww, height: 60, rx: 30, fill: "#fff", stroke: C.ink, "stroke-width": 4.5 }, g);
+    if (i < 2) E("circle", { cx: -ww / 2 + 32, cy: 0, r: 14, fill: col, stroke: C.ink, "stroke-width": 3 }, g);
+    else { E("circle", { cx: -ww / 2 + 24, cy: 0, r: 11, fill: C.base, stroke: C.ink, "stroke-width": 3 }, g); E("circle", { cx: -ww / 2 + 46, cy: 0, r: 11, fill: C.baseG, stroke: C.ink, "stroke-width": 3 }, g); }
+    T(g, i < 2 ? 14 : 22, 2, w, { "font-size": 36 });
+    return g;
+  });
+  const badge = G(root);
+  E("rect", { x: -190, y: -50, width: 380, height: 100, rx: 50, fill: C.sun, stroke: C.ink, "stroke-width": 6 }, badge);
+  makeTitle(badge, "有規律！", 60);
+  const sps = [makeSpark(root, 30), makeSpark(root, 24), makeSpark(root, 26)];
+  const brace = G(root);
+  E("path", { d: "M-85,302 L-85,292 Q0,252 85,292 L85,302", fill: "none", stroke: C.greenD, "stroke-width": 7, "stroke-linecap": "round", "stroke-linejoin": "round" }, brace);
+  const both = makeChip(root, "都是鹼性", 0, 0, { size: 34, bg: "#E3F4DA", stroke: C.greenD, ink: C.greenD });
+  root.insertBefore(brace, heads[0]);   // 標題膠囊蓋住弧頂
+  // 結論卡（白板卡片原文）
+  const shade = E("rect", { x: -10, y: -10, width: 1620, height: 920, fill: "rgba(253,246,236,.8)" }, root);
+  const card = makeTextCard(root, 1080, ["有些植物汁液遇到酸鹼會產生不同顏色變化，", "但都有規律性，可以作為酸鹼的指示劑。"], { tag: "結論", size: 42, tagFill: "#CFE8C0" });
+  // 未知水溶液：用規律判斷
+  const unk = G(root);
+  const ut = makeTube(unk, { w: 76, h: 260 });
+  ut.setLiquid(C.clear, 0);
+  T(unk, 0, -160, "？", { "font-size": 90, fill: "#E4574C" });
+  makeChip(unk, "不知道酸鹼性的水溶液", 0, 46, { size: 28 });
+  const ifs = [["如果偏紅色", "酸性", C.acid], ["如果偏紫色", "中性", C.neutral], ["如果偏藍色或綠色", "鹼性", C.base]].map(([a, b, col], i) => {
+    const g = G(root);
+    const two = i === 2, tx0 = two ? 66 : 46, aw = tx0 + textW(a, 32) + 24;
+    E("rect", { x: 0, y: -28, width: aw, height: 56, rx: 28, fill: "#fff", stroke: C.ink, "stroke-width": 4 }, g);
+    E("circle", { cx: 26, cy: 0, r: 11, fill: col, stroke: C.ink, "stroke-width": 3 }, g);
+    if (two) E("circle", { cx: 48, cy: 0, r: 11, fill: C.baseG, stroke: C.ink, "stroke-width": 3 }, g);
+    T(g, tx0, 2, a, { "font-size": 32, "text-anchor": "start" });
+    makeArrow(g, aw + 16, 0, aw + 86, 0, { w: 7 });
+    const bw = textW(b, 36) + 40;
+    E("rect", { x: aw + 100, y: -30, width: bw, height: 60, rx: 30, fill: "#EDE8DE", stroke: C.ink, "stroke-width": 4.5 }, g);
+    T(g, aw + 100 + bw / 2, 2, b, { "font-size": 36 });
+    return g;
+  });
+  const fan = G(root);
+  for (let i = 0; i < 3; i++) E("path", { d: `M0,0 C60,0 60,${(i - 1) * 120} 120,${(i - 1) * 120}`, fill: "none", stroke: C.ink, "stroke-width": 6, "stroke-linecap": "round" }, fan);
+  // 假設 vs 結論
+  const pair = G(root);
+  const mk = (x, tag, l1, l2, fill) => {
+    const c = makeTextCard(pair, 470, [l1, l2], { tag, size: 46, tagFill: fill });
+    c.place(1, x, 0);
+    return c;
+  };
+  const pa = mk(-440, "假設", "實驗前", "先猜的", C.sun);
+  const pb = mk(440, "結論", "看了結果", "才說的", "#CFE8C0");
+  const midChip = makeChip(pair, "實驗", 0, 0, { size: 40, bg: "#E3F2FB", stroke: "#2E86C1", ink: "#2E86C1" });
+  makeArrow(pair, -190, 0, -80, 0, { w: 8 });
+  makeArrow(pair, 80, 0, 190, 0, { w: 8 });
+
+  const tG = Bs("con.group"), tHead = tG - .1;
+  const tRule = [Wt("c7-2", "偏紅色"), Wt("c7-2", "偏紫色"), Wt("c7-2", "偏藍色")];
+  const tBadge = Ls("c7-3") + .1, tBoth = Ls("c7-4") - .1, tAllBase = Wt("c7-4", "都是鹼性") - .2, tCard = Wt("c7-5", "有些") - .3, tUnk = Ls("c7-7") - .3, tPair = Ls("c7-8") - .3;
+  const POS = i => { const gi = Math.floor(i / 2); return GX[gi] + (i % 2 ? 85 : -85); };
+  return {
+    render(t) {
+      const g = P(t, tG, 1.0, Ease.io);
+      const out = 1 - P(t, tCard - .2, .5);
+      set.forEach((S2, i) => {
+        const x = lerp(TUBE_X(i), POS(i), g), y = lerp(TUBE_Y, 565, g);
+        S2.g.setAttribute("transform", tf(x, y));
+        op(S2.g, P(t, ch.s, .4) * out);
+        op(S2.name, 1);
+        // 小蘇打水、肥皂水：在名字下面標出各自的顏色（偏藍綠、偏綠）
+        const wb = i >= 4 ? P(t, tBoth, .4, Ease.back) : 0;
+        S2.word.setAttribute("transform", tf(0, 98, 0, Math.max(.001, wb)));
+        op(S2.word, wb > 0 ? 1 : 0);
+      });
+      heads.forEach((h, i) => { const p = P(t, tHead + i * .15, .5, Ease.back) * out; h.setAttribute("transform", tf(GX[i], 250, 0, Math.max(.001, p))); op(h, p > 0 ? 1 : 0); });
+      rules.forEach((r, i) => { const p = P(t, tRule[i] - .15, .5, Ease.back) * out; r.setAttribute("transform", tf(GX[i], 752, 0, Math.max(.001, p))); op(r, p > 0 ? 1 : 0); });
+      const bp = P(t, tBadge, .5, Ease.back) * out;
+      badge.setAttribute("transform", tf(800, 150, -3, Math.max(.001, bp))); op(badge, bp > 0 ? 1 : 0);
+      sps.forEach((s, i) => s.at([590, 1010, 640][i], [120, 130, 190][i], P(t, tBadge + .2 + i * .15, .9, Ease.lin)));
+      const brp = P(t, tBoth + .2, .5, Ease.out) * out;
+      brace.setAttribute("transform", tf(GX[2], 0)); op(brace, brp);
+      const bt = P(t, tAllBase, .45, Ease.back) * out;
+      both.setAttribute("transform", tf(GX[2] + 196, 250, 0, Math.max(.001, bt))); op(both, bt > 0 ? 1 : 0);
+      // 結論卡
+      const cp = P(t, tCard, .6, Ease.out);
+      const up = P(t, tUnk, .6, Ease.io);
+      op(shade, cp * (1 - P(t, tPair - .2, .5)) * .95);
+      card.place(cp * (1 - P(t, tPair - .3, .4)), 800, lerp(420, 230, up), 0);
+      // 未知
+      const uP = P(t, tUnk + .2, .55, Ease.back) * (1 - P(t, tPair - .3, .4));
+      unk.setAttribute("transform", tf(300, 690, 0, Math.max(.001, uP))); op(unk, uP > 0 ? 1 : 0);
+      fan.setAttribute("transform", tf(388, 562)); op(fan, P(t, tUnk + .6, .4) * (1 - P(t, tPair - .3, .4)));
+      ifs.forEach((f, i) => { const p = P(t, tUnk + .8 + i * .35, .45, Ease.out) * (1 - P(t, tPair - .3, .4)); f.setAttribute("transform", tf(520, 442 + i * 120)); op(f, p); });
+      // 假設 vs 結論
+      const pp = P(t, tPair, .6, Ease.back);
+      pair.setAttribute("transform", tf(800, 470, 0, Math.max(.001, pp))); op(pair, pp > 0 ? 1 : 0);
+      op(pa, P(t, Wt("c7-8", "假設") - .2, .4));
+      op(pb, P(t, Wt("c7-8", "結論") - .2, .4));
+    }
+  };
+});
+
+/* ==================== 8 總整理 ==================== */
+scene("finale", (root, ch) => {
+  makeSky(root, { sky: "#FFF3D6" });
+  makeBokeh(root, 55, 11, ["#FFE7A8", "#EADCF5", "#DDF1D3", "#FFE0CF"]);
+  const ROWS = [
+    ["觀察", "沙拉加醋，發現紫色高麗菜會變色"],
+    ["提問", "顏色變化能不能用來辨認酸鹼性？"],
+    ["蒐集資料", "查到：紫色高麗菜等植物含有花青素"],
+    ["假設", "實驗前先猜：會有規律的顏色變化"],
+    ["實驗", "把紫色高麗菜汁滴進不同的水溶液"],
+    ["結論", "顏色變化有規律，可以當酸鹼指示劑"]
+  ];
+  const ladder = G(root);
+  const rows = ROWS.map(([nm, ds], i) => {
+    const g = G(ladder, { transform: tf(0, i * 92) });
+    E("rect", { x: -20, y: -38, width: 940, height: 76, rx: 38, fill: "#fff", stroke: C.ink, "stroke-width": 4.5 }, g);
+    E("circle", { cx: 22, cy: 0, r: 28, fill: C.greenD, stroke: C.ink, "stroke-width": 4 }, g);
+    T(g, 22, 2, String(i + 1), { "font-size": 34, fill: "#fff" });
+    T(g, 70, 2, nm, { "font-size": 38, "text-anchor": "start", fill: C.greenD });
+    T(g, 250, 2, ds, { "font-size": 35, "text-anchor": "start", "font-weight": 800 });
+    const glow = E("rect", { x: -20, y: -38, width: 940, height: 76, rx: 38, fill: "none", stroke: C.sun, "stroke-width": 10 }, g);
+    return { g, glow };
+  });
+  const pig = makePig(root, {});
+  const jar = G(root);
+  const jb = makeBeaker(jar, 110, 130, { level: .7, col: C.juice });
+  const jl = makeChip(jar, "自製酸鹼指示劑", 0, 40, { size: 26, bg: "#F1E8FA", stroke: "#7B4FA6", ink: "#6A3A97" });
+  const sps = [makeSpark(root, 30), makeSpark(root, 24), makeSpark(root, 28)];
+  // 片名、製作者
+  const endG = G(root);
+  E("rect", { x: -440, y: -96, width: 880, height: 192, rx: 42, fill: C.sun, stroke: C.ink, "stroke-width": 6 }, endG);
+  makeTitle(endG, "沙拉變色之謎", 104);
+  T(endG, 0, 150, "科學探究六步驟｜五年級自然 第三單元 水溶液", { "font-size": 34, fill: "#5C6970" });
+  const credit = G(root);
+  E("rect", { x: -520, y: -250, width: 1040, height: 500, rx: 48, fill: "#fff", stroke: C.ink, "stroke-width": 7 }, credit);
+  const icon = E("image", { href: "../../image/icon.svg", x: -64, y: -224, width: 128, height: 128 }, credit);
+  PHOTOS.push("../../image/icon.svg");
+  T(credit, 0, -40, TL.credit ? TL.credit.maker + "　製作" : "許博明老師　製作", { "font-size": 84 });
+  T(credit, 0, 58, (TL.credit && TL.credit.site) || "豬豬的自然探索", { "font-size": 44, fill: C.greenD });
+  T(credit, 0, 118, (TL.credit && TL.credit.url) || "syu-boming.github.io/sci", { "font-size": 34, fill: "#5C6970", "font-family": "Segoe UI, Arial, sans-serif" });
+  T(credit, 0, 172, "旁白：電腦合成語音（微軟 曉雨）．動畫與配樂：程式繪製與合成", { "font-size": 26, fill: "#5C6970" });
+  T(credit, 0, 212, "照片：南一版自然五上課本第 74、75、80 頁", { "font-size": 26, fill: "#5C6970" });
+  const STEPS = TL.steps || ["觀察", "提問", "蒐集資料", "假設", "實驗", "結論"];
+  const tRow = STEPS.map((s, i) => Wt("c8-1", s) - .15);
+  const tHold = Ls("c8-2") - .3, tWave = Ls("c8-3") - .2, tEnd = Bs("fin.end"), tCred = Bs("fin.credit");
+  return {
+    render(t) {
+      const lo = 1 - P(t, tEnd - .4, .4);
+      ladder.setAttribute("transform", tf(200, 210)); op(ladder, lo);
+      rows.forEach((R, i) => {
+        const p = P(t, tRow[i], .5, Ease.back);
+        R.g.setAttribute("transform", tf(0, i * 92) + ` scale(${Math.max(.001, p).toFixed(3)})`);
+        op(R.g, p > 0 ? 1 : 0);
+        const gl = vis(t, tWave + i * .45, tWave + i * .45 + .5, .2, .3);
+        op(R.glow, gl);
+      });
+      const jump = t > tHold && t < tHold + 1.4 ? Math.abs(Math.sin((t - tHold) * 6)) * 30 : 0;
+      const wave = vis(t, tWave, tEnd - .4, .3, .3);
+      pig.set({ x: 1360, y: 880 - jump, s: 1.05, face: t > tHold ? "happy" : "smile", blink: blinkAt(t, 7), aR: t > tHold && t < tWave ? 105 : wave * (140 + Math.sin(t * 9) * 22), aL: t > tHold ? 60 : 10, look: -.6 });
+      op(pig, lo);
+      const [hx, hy] = pig.hand("R");
+      const jp = P(t, tHold, .4, Ease.back) * (1 - P(t, tWave, .3));
+      jar.setAttribute("transform", tf(hx, hy + 10, 0, Math.max(.001, jp))); op(jar, jp > 0 ? lo : 0);
+      sps.forEach((s, i) => s.at(1360 + [-160, 140, 30][i], 380 + [0, -40, -120][i], P(t, tHold + .3 + i * .2, .9, Ease.lin)));
+      const ep = P(t, tEnd, .7, Ease.back) * (1 - P(t, tCred - .3, .4));
+      op(endG, ep > 0 ? 1 : 0); endG.setAttribute("transform", tf(800, 400, 0, Math.max(.001, ep)));
+      const cp = P(t, tCred, .7, Ease.back);
+      op(credit, cp > 0 ? 1 : 0); credit.setAttribute("transform", tf(800, 450, 0, Math.max(.001, cp)));
+      op(icon, cp > 0 ? 1 : 0);
+    }
+  };
+});
+</script>
+
+<script>
+/* ==========================================================
+   4. 播放器：時鐘、控制列、字幕、段落、探究路線、全螢幕、匯出
+   ========================================================== */
+"use strict";
+(function () {
+  const Q = new URLSearchParams(location.search);
+  const EXPORT = Q.has("export");
+  const DUR = TL.dur;
+  const fmt = s => { s = Math.max(0, s); const m = Math.floor(s / 60); return m + ":" + String(Math.floor(s % 60)).padStart(2, "0"); };
+  { const dt = $("durText"); if (dt) dt.textContent = "片長 " + fmt(DUR); }
+  const lsGet = (k, d) => { try { const v = localStorage.getItem(k); return v === null ? d : v; } catch (_) { return d; } };
+  const lsSet = (k, v) => { try { localStorage.setItem(k, v); } catch (_) {} };
+
+  const S0 = {
+    T: 0, playing: false, raf: 0, lastA: -1, lastP: 0, lastFrame: 0, waiting: false,
+    voice: lsGet("saladfilm-voice", "1") !== "0", music: lsGet("saladfilm-music", "1") !== "0",
+    subs: lsGet("saladfilm-subs", "1") !== "0",
+    audio: null, track: null, audioOK: true, unlocked: false
+  };
+
+  /* ---------- 畫面：轉場、探究路線（六個步驟，常駐畫面上方）、步驟說明 ---------- */
+  const dip = E("rect", { x: -10, y: -10, width: W0 + 20, height: H0 + 20, fill: C.bg }, LAYER.fx);
+  const STEPS = TL.steps || ["觀察", "提問", "蒐集資料", "假設", "實驗", "結論"];
+  const HINTS = TL.hints || [];
+  const route = G(LAYER.ui);
+  const GAPW = 34, RW = STEPS.map(s => textW(s, 32) + 76);
+  let rx0 = 800 - (RW.reduce((a, b) => a + b, 0) + GAPW * (STEPS.length - 1)) / 2;
+  const chips = STEPS.map((s, i) => {
+    const w = RW[i], cx = rx0 + w / 2;
+    rx0 += w + GAPW;
+    const g = G(route, { transform: tf(cx, 52) });
+    const bg = E("rect", { x: -w / 2, y: -31, width: w, height: 62, rx: 31, fill: "#fff", stroke: C.ink, "stroke-width": 4.5 }, g);
+    const nc = E("circle", { cx: -w / 2 + 31, cy: 0, r: 20, fill: "#EDE8DE", stroke: C.ink, "stroke-width": 3.5 }, g);
+    const nt = T(g, -w / 2 + 31, 1, String(i + 1), { "font-size": 24 });
+    const ck = E("path", { d: `M${-w / 2 + 21},0 L${-w / 2 + 29},9 L${-w / 2 + 42},-9`, fill: "none", stroke: "#fff", "stroke-width": 5.5, "stroke-linecap": "round", "stroke-linejoin": "round" }, g);
+    const tx = T(g, 18, 2, s, { "font-size": 32 });
+    return { g, bg, nc, nt, ck, tx, cx, w, st: "" };
+  });
+  chips.slice(0, -1).forEach(c => { const x = c.cx + c.w / 2 + GAPW / 2; E("path", { d: `M${x - 6},40 L${x + 5},52 L${x - 6},64`, fill: "none", stroke: C.ink, "stroke-width": 5, "stroke-linecap": "round", "stroke-linejoin": "round" }, route); });
+  const hint = G(LAYER.ui);
+  const hintBg = E("rect", { x: 0, y: -30, height: 60, rx: 30, fill: "#FFFDF4", stroke: C.ink, "stroke-width": 4 }, hint);
+  const hintT = E("text", { x: 0, y: 2, "font-family": FONT, "font-weight": 800, "font-size": 32, "text-anchor": "middle", "dominant-baseline": "central", fill: C.ink }, hint);
+  const hintA = E("tspan", { fill: "#B4410F", "font-weight": 900 }, hintT), hintB = E("tspan", {}, hintT);
+  // 每段第一句是「第 N 步，步驟名：說明」的段落，才在路線下面打出說明
+  TL.chapters.forEach(c => { const l = TL.lines.find(x => x.ch === c.id); c.hint = c.step && l && /^第/.test(l.sub) ? l : null; });
+  const tRoute = LINE["c0-2"] ? Wt("c0-2", "六個") - .2 : 0;
+  const tRouteOff = TL.beats["fin.end"] ? TL.beats["fin.end"][0] - .3 : DUR;
+  const tName = STEPS.map(s => LINE["c8-1"] ? Wt("c8-1", s) - .15 : 1e9);
+  let hintCh = null;
+  function setChip(c, st) {
+    if (c.st === st) return;
+    c.st = st;
+    S(c.bg, { fill: st === "now" ? C.sun : st === "done" ? "#E3F4DA" : "#fff", stroke: st === "todo" ? "#9AA5AD" : C.ink });
+    S(c.nc, { fill: st === "done" ? C.greenD : st === "now" ? "#fff" : "#EDE8DE", stroke: st === "todo" ? "#9AA5AD" : C.ink });
+    op(c.nt, st === "done" ? 0 : 1); op(c.ck, st === "done" ? 1 : 0);
+    S(c.tx, { fill: st === "todo" ? "#7C8A93" : C.ink });
+    S(c.nt, { fill: st === "todo" ? "#7C8A93" : C.ink });
+  }
+  function renderUI(T) {
+    // 段落之間：淡出到奶油色再淡入
+    let a = 0;
+    for (let i = 1; i < TL.chapters.length; i++) {
+      const b = TL.chapters[i].s, d = Math.abs(T - b);
+      if (d < .42) a = Math.max(a, 1 - Ease.sine(d / .42));
+    }
+    if (T < .5) a = Math.max(a, 1 - Ease.sine(T / .5));
+    op(dip, a);
+    // 探究路線：片頭唸到「六個步驟」才排出來，片尾卡之前收起
+    const ch = chapterAt(T);
+    op(route, P(T, tRoute - .2, .4) * (1 - P(T, tRouteOff, .4)));
+    const cur = ch.step || 0;
+    chips.forEach((c, i) => {
+      const n = i + 1;
+      let st = "todo";
+      if (ch.id === "finale") st = "done";
+      else if (cur > 0) st = n < cur ? "done" : n === cur ? "now" : "todo";
+      setChip(c, st);
+      const pin = P(T, tRoute + i * .12, .45, Ease.back);
+      const bump = st === "now" ? 1 + .1 * Math.sin(clamp((T - ch.s - .3) / .6) * Math.PI)
+        : ch.id === "finale" ? 1 + .12 * Math.sin(clamp((T - tName[i]) / .5) * Math.PI) : 1;
+      c.g.setAttribute("transform", tf(c.cx, 52, 0, Math.max(.001, pin) * bump));
+    });
+    // 步驟說明（路線下面）：和互動教材白板籃子上的提示同一句
+    const hl = ch.hint;
+    if (hl) {
+      if (hintCh !== ch) {
+        hintCh = ch;
+        hintA.textContent = STEPS[cur - 1] + "：";
+        hintB.textContent = HINTS[cur - 1] || "";
+        const w = textW(hintA.textContent + hintB.textContent, 32) + 64;
+        S(hintBg, { x: -w / 2, width: w });
+      }
+      const p = P(T, ch.s + .5, .45, Ease.back) * (1 - P(T, hl.e + 1.4, .4));
+      hint.setAttribute("transform", tf(800, 128, 0, Math.max(.001, p)));
+      op(hint, p > 0 ? 1 : 0);
+    } else op(hint, 0);
+  }
+
+  function chapterAt(T) {
+    const cs = TL.chapters;
+    for (let i = cs.length - 1; i >= 0; i--) if (T >= cs[i].s) return cs[i];
+    return cs[0];
+  }
+
+  function renderAt(T) {
+    for (const s of SCENES) {
+      const on = T >= s.ch.s && (T < s.ch.e || (s.ch.i === TL.chapters.length - 1 && T <= DUR + 1));
+      if (on !== s.vis) { s.root.style.display = on ? "" : "none"; s.vis = on; }
+      if (on) {
+        try { s.render(T); } catch (e) { if (!s.err) { s.err = 1; console.error("場景出錯", s.id, e); } }
+      }
+    }
+    renderUI(T);
+    renderSubs(T);
+    if (!EXPORT) renderCtrl(T);
+  }
+
+  /* ---------- 字幕 ---------- */
+  const esc = s => s.replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const fmtSub = s => esc(s).replace(/\[([^\]]+)\]/g, "<b>$1</b>");
+  let subIdx = -2;
+  function lineAt(T) {
+    const L = TL.lines;
+    let lo = 0, hi = L.length - 1, k = -1;
+    while (lo <= hi) { const m = (lo + hi) >> 1; if (L[m].s - .12 <= T) { k = m; lo = m + 1; } else hi = m - 1; }
+    if (k < 0) return -1;
+    const next = L[k + 1];
+    const until = Math.min(next ? next.s - .12 : Infinity, L[k].e + .9);
+    return T < until ? k : -1;
+  }
+  function renderSubs(T) {
+    const i = lineAt(T);
+    if (i === subIdx) return;
+    subIdx = i;
+    const html = i < 0 ? "" : fmtSub(TL.lines[i].sub);
+    $("subBar").innerHTML = html ? "<span>" + html + "</span>" : "&nbsp;";
+    $("subOv").innerHTML = html;
+  }
+
+  /* ---------- 控制列 ---------- */
+  const prog = $("prog"), fill = $("progFill"), thumb = $("progThumb"), tip = $("progTip");
+  TL.chapters.forEach(c => {
+    const d = document.createElement("div");
+    d.className = "seg " + (c.step ? (c.step % 2 ? "odd" : "even") : "s0");
+    d.style.width = ((c.e - c.s) / DUR * 100) + "%";
+    $("progTrack").appendChild(d);
+  });
+  prog.setAttribute("aria-valuemax", Math.round(DUR));
+  let lastCtrlCh = null, lastSec = -1;
+  function renderCtrl(T) {
+    const f = clamp(T / DUR) * 100;
+    fill.style.width = f + "%";
+    thumb.style.left = f + "%";
+    const sec = Math.floor(T);
+    if (sec !== lastSec) {
+      lastSec = sec;
+      $("time").textContent = fmt(T) + " / " + fmt(DUR);
+      prog.setAttribute("aria-valuenow", sec);
+      prog.setAttribute("aria-valuetext", fmt(T));
+    }
+    const ch = chapterAt(T);
+    if (ch !== lastCtrlCh) {
+      lastCtrlCh = ch;
+      document.querySelectorAll(".chip").forEach(b => { const on = b.dataset.ch === ch.id; b.classList.toggle("on", on); if (on) b.setAttribute("aria-current", "true"); else b.removeAttribute("aria-current"); });
+    }
+  }
+  function setPlayIcon() {
+    $("icoPlay").style.display = S0.playing ? "none" : "";
+    $("icoPause").style.display = S0.playing ? "" : "none";
+    $("bPlay").setAttribute("aria-label", S0.playing ? "暫停" : "播放");
+  }
+
+  /* 段落選單 */
+  const nav = $("chapters");
+  (function () {
+    const box = document.createElement("div");
+    box.className = "navbox";
+    box.innerHTML = `<h2>段落<small>點一下，就從那一段開始播</small></h2><div class="chips"></div>`;
+    const list = box.querySelector(".chips");
+    TL.chapters.forEach(c => {
+      const b = document.createElement("button");
+      b.type = "button"; b.className = "chip"; b.dataset.ch = c.id;
+      b.innerHTML = `${esc(c.label)}<small>${fmt(c.e - c.s)}</small>`;
+      list.appendChild(b);
+    });
+    nav.appendChild(box);
+  })();
+  nav.addEventListener("click", e => {
+    const b = e.target.closest("[data-ch]");
+    if (!b) return;
+    seek(CH[b.dataset.ch].s);
+    play();
+    $("player").scrollIntoView({ behavior: "smooth", block: "nearest" });
+  });
+
+  /* 給老師的表格 */
+  (function () {
+    const rows = TL.chapters.map(c => {
+      const subs = TL.lines.filter(l => l.ch === c.id).map(l => fmtSub(l.sub)).join("");
+      return `<tr><td style="white-space:nowrap">${esc(c.label)}<br><small>${fmt(c.s)}–${fmt(c.e)}</small></td><td>${subs}</td></tr>`;
+    }).join("");
+    $("teacherTable").innerHTML = `<table><tr><th style="width:9em">段落</th><th>旁白（粗體＝重點詞）</th></tr>${rows}</table>`;
+  })();
+
+  /* ---------- 聲音與時鐘 ---------- */
+  function trackName() {
+    if (!S0.audioOK) return null;
+    return S0.voice && S0.music ? "mix" : S0.voice ? "voice" : S0.music ? "music" : null;
+  }
+  function audioEl() {
+    if (S0.audio) return S0.audio;
+    const a = new Audio();
+    a.preload = "auto";
+    a.addEventListener("waiting", () => { S0.waiting = true; $("buffering").style.display = "block"; });
+    a.addEventListener("playing", () => { S0.waiting = false; $("buffering").style.display = "none"; });
+    a.addEventListener("canplay", () => { $("buffering").style.display = "none"; });
+    a.addEventListener("ended", () => {          // 音檔播完＝整支播完
+      if (!S0.playing) return;
+      S0.T = DUR; S0.playing = false; setPlayIcon(); renderAt(DUR); idleKick();
+    });
+    a.addEventListener("error", () => {
+      if (!S0.track) return;
+      S0.audioOK = false; S0.track = null; S0.waiting = false;
+      $("buffering").style.display = "none";
+      toast("聲音檔載入失敗，先用字幕播放。");
+    });
+    S0.audio = a;
+    return a;
+  }
+  /* 備援：伺服器不支援分段下載時，音檔沒辦法跳轉 → 整個下載到記憶體（blob）再播，就能隨意跳 */
+  const BLOB = {};
+  function useBlob(name) {
+    if (S0.blobTry === name) return;
+    S0.blobTry = name;
+    fetch(`assets/${name}.mp3?v=${TL.av || TL.v}`).then(r => r.ok ? r.blob() : Promise.reject(r.status)).then(bl => {
+      BLOB[name] = URL.createObjectURL(bl);
+      if (S0.track !== name) return;
+      const a = S0.audio;
+      a.src = BLOB[name]; a.load();
+      a.addEventListener("loadedmetadata", () => { try { a.currentTime = S0.T; } catch (_) {} if (S0.playing) { const pr = a.play(); if (pr && pr.catch) pr.catch(() => {}); } }, { once: true });
+    }).catch(() => {});
+  }
+  function setTrack(name) {
+    const a = audioEl();
+    if (S0.track === name) return a;
+    S0.track = name;
+    a.pause();
+    if (name) { a.src = BLOB[name] || `assets/${name}.mp3?v=${TL.av || TL.v}`; a.load(); }
+    else { a.removeAttribute("src"); a.load(); }
+    S0.lastA = -1;
+    return a;
+  }
+  function syncAudio() {
+    const a = S0.audio;
+    if (!a || !S0.track) return;
+    const go = () => { if (Math.abs(a.currentTime - S0.T) > .08) { try { a.currentTime = S0.T; } catch (_) {} } };
+    if (a.readyState >= 1) go(); else a.addEventListener("loadedmetadata", go, { once: true });
+  }
+  function play() {
+    if (EXPORT) return;
+    if (S0.T >= DUR - .05) seek(0);
+    $("poster").classList.remove("on");
+    S0.playing = true; setPlayIcon();
+    const name = trackName();
+    const a = setTrack(name);
+    if (name) {
+      syncAudio();
+      const pr = a.play();
+      if (pr && pr.catch) pr.catch(err => {
+        if (err && err.name === "NotAllowedError") { S0.playing = false; setPlayIcon(); toast("請再按一次播放。"); }
+      });
+    }
+    S0.lastFrame = performance.now(); S0.lastA = -1;
+    loop();
+    idleKick();
+  }
+  function pause() {
+    S0.playing = false; setPlayIcon();
+    if (S0.audio) S0.audio.pause();
+    if (S0.raf) { cancelAnimationFrame(S0.raf); S0.raf = 0; }
+    renderAt(S0.T);
+    idleKick();
+  }
+  function seek(t) {
+    S0.T = clamp(t, 0, DUR);
+    S0.lastA = -1;
+    if (S0.audio && S0.track) syncAudio();
+    renderAt(S0.T);
+  }
+  function clockNow(perf) {
+    if (!S0.playing) return S0.T;
+    const a = S0.audio;
+    if (S0.track && a && S0.audioOK) {
+      if (a.paused || a.readyState < 3 || S0.waiting || a.seeking) return S0.T;
+      const at = a.currentTime;
+      // 音檔時間和畫面差太多＝剛才的跳轉沒成功（伺服器不支援分段下載、或還沒下載到那裡）：再跳一次，畫面先停著等
+      if (Math.abs(at - S0.T) > .5) {
+        try { a.currentTime = S0.T; } catch (_) {}
+        S0.lastA = -1;
+        if (!S0.mis) S0.mis = perf;
+        else if (perf - S0.mis > 1200) useBlob(S0.track);
+        $("buffering").style.display = "block";
+        return S0.T;
+      }
+      if (S0.mis) { S0.mis = 0; $("buffering").style.display = "none"; }
+      if (at !== S0.lastA) { S0.lastA = at; S0.lastP = perf; }
+      let t = at + Math.min(.25, (perf - S0.lastP) / 1000) * (a.playbackRate || 1);
+      if (t < S0.T && S0.T - t < .08) t = S0.T;      // 避免補間造成的小倒退
+      return t;
+    }
+    return S0.T + Math.min(.1, (perf - S0.lastFrame) / 1000);
+  }
+  function loop() {
+    if (S0.raf) return;
+    const step = perf => {
+      S0.raf = 0;
+      let t = clockNow(perf);
+      S0.lastFrame = perf;
+      S0.T = Math.min(t, DUR);
+      renderAt(S0.T);
+      if (S0.T >= DUR) { S0.playing = false; setPlayIcon(); if (S0.audio) S0.audio.pause(); idleKick(); return; }
+      if (S0.playing) S0.raf = requestAnimationFrame(step);
+    };
+    S0.raf = requestAnimationFrame(step);
+  }
+  function toggle() { S0.playing ? pause() : play(); }
+  function curIdx() { return chapterAt(S0.T + .01).i; }
+  function prevCh() {
+    const c = chapterAt(S0.T + .01);
+    const target = (S0.T - c.s > 2.5 || c.i === 0) ? c : TL.chapters[c.i - 1];
+    seek(target.s); if (S0.playing) play();
+  }
+  function nextCh() {
+    const i = curIdx();
+    if (i < TL.chapters.length - 1) { seek(TL.chapters[i + 1].s); if (S0.playing) play(); }
+  }
+  let toastTimer = 0;
+  function toast(msg) {
+    const el = $("toast");
+    el.textContent = msg; el.style.display = "block";
+    clearTimeout(toastTimer); toastTimer = setTimeout(() => el.style.display = "none", 3200);
+  }
+
+  /* 開關 */
+  function setTog(btn, on) { btn.setAttribute("aria-pressed", on ? "true" : "false"); }
+  function applyTrack() {
+    const name = trackName();
+    if (name === S0.track) return;
+    const was = S0.playing;
+    if (S0.audio) S0.audio.pause();
+    setTrack(name);
+    if (was) { S0.playing = false; play(); }
+  }
+  function setVoice(on) { S0.voice = on; lsSet("saladfilm-voice", on ? "1" : "0"); setTog($("bVoice"), on); applyTrack(); }
+  function setMusic(on) { S0.music = on; lsSet("saladfilm-music", on ? "1" : "0"); setTog($("bMusic"), on); applyTrack(); }
+  function setSubs(on) {
+    S0.subs = on; lsSet("saladfilm-subs", on ? "1" : "0"); setTog($("bSubs"), on);
+    $("subBar").classList.toggle("off", !on);
+    $("player").classList.toggle("subsoff", !on);
+  }
+
+  /* 全螢幕（iPhone 不支援元素全螢幕 → 改用「假全螢幕」） */
+  const player = $("player");
+  function isFs() { return !!(document.fullscreenElement || document.webkitFullscreenElement) || player.classList.contains("pseudo"); }
+  function enterFs() {
+    const fn = player.requestFullscreen || player.webkitRequestFullscreen;
+    if (fn) {
+      const r = fn.call(player);
+      if (r && r.catch) r.catch(() => { player.classList.add("pseudo", "fs"); });
+    } else player.classList.add("pseudo", "fs");
+    try { screen.orientation && screen.orientation.lock && screen.orientation.lock("landscape").catch(() => {}); } catch (_) {}
+  }
+  function exitFs() {
+    if (player.classList.contains("pseudo")) { player.classList.remove("pseudo", "fs"); return; }
+    const fn = document.exitFullscreen || document.webkitExitFullscreen;
+    if (fn) fn.call(document);
+  }
+  function onFsChange() {
+    const real = !!(document.fullscreenElement || document.webkitFullscreenElement);
+    if (!player.classList.contains("pseudo")) player.classList.toggle("fs", real);
+    idleKick();
+  }
+  document.addEventListener("fullscreenchange", onFsChange);
+  document.addEventListener("webkitfullscreenchange", onFsChange);
+  let idleTimer = 0;
+  function idleKick() {
+    player.classList.remove("idle");
+    clearTimeout(idleTimer);
+    if (S0.playing) idleTimer = setTimeout(() => { if (S0.playing && player.classList.contains("fs")) player.classList.add("idle"); }, 2600);
+  }
+  player.addEventListener("pointermove", idleKick);
+  let wasIdle = false;
+  player.addEventListener("pointerdown", () => { wasIdle = player.classList.contains("idle"); }, true);
+  player.addEventListener("pointerdown", idleKick);
+
+  /* 進度條拖曳 */
+  let drag = null;
+  function posToT(clientX) { const r = prog.getBoundingClientRect(); return clamp((clientX - r.left) / r.width) * DUR; }
+  prog.addEventListener("pointerdown", e => {
+    drag = { was: S0.playing };
+    prog.setPointerCapture(e.pointerId);
+    if (S0.playing) { S0.playing = false; if (S0.audio) S0.audio.pause(); setPlayIcon(); }
+    S0.T = posToT(e.clientX); renderAt(S0.T);
+    $("poster").classList.remove("on");
+  });
+  prog.addEventListener("pointermove", e => {
+    const t = posToT(e.clientX);
+    if (drag) { S0.T = t; renderAt(t); }
+    const c = chapterAt(t);
+    tip.textContent = c.label + "　" + fmt(t);
+    tip.style.left = clamp(t / DUR) * 100 + "%"; tip.style.display = "block";
+  });
+  const endDrag = () => { if (!drag) return; const d = drag; drag = null; seek(S0.T); if (d.was) play(); };
+  prog.addEventListener("pointerup", endDrag);
+  prog.addEventListener("pointercancel", endDrag);
+  prog.addEventListener("pointerleave", () => { if (!drag) tip.style.display = "none"; });
+  prog.addEventListener("keydown", e => {
+    if (e.key === "ArrowLeft" || e.key === "ArrowRight") { e.preventDefault(); e.stopPropagation(); seek(S0.T + (e.key === "ArrowLeft" ? -5 : 5)); if (S0.playing) play(); }
+  });
+
+  /* 按鈕 */
+  $("bigPlay").addEventListener("click", () => play());
+  $("bPlay").addEventListener("click", e => { toggle(); if (e.detail) e.currentTarget.blur(); });
+  $("bPrev").addEventListener("click", e => { prevCh(); if (e.detail) e.currentTarget.blur(); });
+  $("bNext").addEventListener("click", e => { nextCh(); if (e.detail) e.currentTarget.blur(); });
+  $("bVoice").addEventListener("click", e => { setVoice(!S0.voice); if (e.detail) e.currentTarget.blur(); });
+  $("bMusic").addEventListener("click", e => { setMusic(!S0.music); if (e.detail) e.currentTarget.blur(); });
+  $("bSubs").addEventListener("click", e => { setSubs(!S0.subs); if (e.detail) e.currentTarget.blur(); });
+  $("bFull").addEventListener("click", e => { isFs() ? exitFs() : enterFs(); if (e.detail) e.currentTarget.blur(); });
+  $("stage").addEventListener("click", () => {
+    if ($("poster").classList.contains("on")) return;
+    if (wasIdle || (!S0.playing && S0.T >= DUR - .05)) { wasIdle = false; idleKick(); return; }
+    toggle();
+  });
+
+  /* 鍵盤（簡報筆的 PageUp／PageDown＝上一段／下一段） */
+  document.addEventListener("keydown", e => {
+    if (e.altKey || e.ctrlKey || e.metaKey) return;
+    const tag = (e.target && e.target.tagName) || "";
+    if (/INPUT|TEXTAREA|SELECT/.test(tag)) return;
+    const k = e.key;
+    if (k === " " || k === "k" || k === "K") { if (["BUTTON", "SUMMARY", "A"].includes(tag) && k === " ") return; e.preventDefault(); toggle(); }
+    else if (k === "ArrowLeft") { e.preventDefault(); seek(S0.T - 5); if (S0.playing) play(); }
+    else if (k === "ArrowRight") { e.preventDefault(); seek(S0.T + 5); if (S0.playing) play(); }
+    else if ((k === "PageUp" || k === "PageDown") && e.target.closest && e.target.closest(".teacher, footer")) return;
+    else if (k === "PageUp") { e.preventDefault(); prevCh(); }
+    else if (k === "PageDown") { e.preventDefault(); nextCh(); }
+    else if (k === "f" || k === "F") { isFs() ? exitFs() : enterFs(); }
+    else if (k === "c" || k === "C") setSubs(!S0.subs);
+    else if (k === "n" || k === "N") setVoice(!S0.voice);
+    else if (k === "m" || k === "M") setMusic(!S0.music);
+    else if (k === "Escape" && player.classList.contains("pseudo")) exitFs();
+  });
+
+  /* 初始狀態 */
+  setTog($("bVoice"), S0.voice); setTog($("bMusic"), S0.music); setSubs(S0.subs);
+  setPlayIcon();
+
+  /* 匯出／截圖模式：?export=1[&t=秒][&nosub=1]，提供 FILM.renderAt(t) 給製作程式逐格擷取 */
+  if (EXPORT) {
+    document.body.classList.add("export");
+    if (Q.has("nosub")) document.body.classList.add("nosub");
+    $("poster").classList.remove("on");
+  }
+  const ready = Promise.all([
+    document.fonts ? document.fonts.ready : Promise.resolve(),
+    ...[...new Set(PHOTOS)].map(src => new Promise(res => { const im = new Image(); im.onload = im.onerror = () => (im.decode ? im.decode().catch(() => {}) : Promise.resolve()).then(res); im.src = src; }))
+  ]);
+  window.FILM = {
+    renderAt: t => { S0.T = t; renderAt(t); return true; }, ready, dur: DUR, version: TL.v,
+    /* 測試用：目前的播放狀態 */
+    state: () => ({ T: +S0.T.toFixed(3), playing: S0.playing, track: S0.track, audioOK: S0.audioOK,
+      at: S0.audio ? +S0.audio.currentTime.toFixed(3) : null, rs: S0.audio ? S0.audio.readyState : null,
+      sub: $("subBar").textContent, fs: player.classList.contains("fs") })
+  };
+  const t0 = parseFloat(Q.get("t"));
+  if (!isNaN(t0)) { S0.T = clamp(t0, 0, DUR); $("poster").classList.remove("on"); }
+  renderAt(S0.T);
+  ready.then(() => renderAt(S0.T));
+})();
+</script>
+</body>
+</html>
