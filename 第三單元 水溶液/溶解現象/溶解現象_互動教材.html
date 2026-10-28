@@ -10,7 +10,7 @@
    溶解現象 — 樣式表
    使用情境：教室 75 吋觸控螢幕，全班共用、學生輪流上臺操作；學生回家用手機、平板複習。
    沿用〈植物與人類生活〉的調色盤與元件。照片一律是課本的真實照片；
-   讀數、虛擬實驗臺、蒸發時間軸是示意圖，畫面上都標「示意」。
+   讀數、虛擬實驗臺、蒸發時間軸、示範重播動畫是示意圖，畫面上都標「示意」。
    白色字只放在深綠 #2E7D4F 上；顏色不用來暗示答案，有顏色的地方一律也寫成字。
    ========================================================== */
 :root{
@@ -239,12 +239,112 @@ figure{margin:0}
 .audit{margin-top:10px;font-weight:800;line-height:1.5}
 .audit:empty{display:none}
 .audit p{margin:4px 0;background:#F2F8FC;border-left:5px solid var(--water-dark);border-radius:0 10px 10px 0;padding:4px 10px}
-/* 老師課前試做的照片（檔案不存在時顯示虛線框） */
-.tphoto{position:relative;width:min(100%, calc(42vh * 4 / 3));aspect-ratio:4/3;margin:0 auto;border-radius:14px;background:#F2EEE4;border:3px dashed #C9C2B4;overflow:hidden}
-.tphoto img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#fff;display:block}
-.tphoto.empty{aspect-ratio:auto;min-height:0}
-.tphoto.empty .tph-empty{position:static;padding:12px}
-.tph-empty{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;color:var(--muted);font-weight:800;padding:10px;font-size:clamp(15px,1.6vw,20px)}
+/* 示範重播（示意動畫）：老師不拍課前試做的照片，改用一步一步的示意動畫重播真的示範。
+   setupReplay() 設定 svg 的 data-step；每個畫面的動畫用 [data-step] 觸發，後面的畫面用靜態規則留住前面的結果。
+   沒有動畫時（prefers-reduced-motion）直接顯示每個畫面的結果；transform-origin 都是 viewBox 座標 */
+.rpwrap{margin-top:16px;border-top:3px dashed #C9C2B4;padding-top:14px}
+.rpwrap:not(:last-child){margin-bottom:16px;border-bottom:3px dashed #C9C2B4;padding-bottom:14px}
+.svgbox.rpbox{position:relative;background:#FFFDF8;border:3px solid var(--ink);border-radius:16px;padding:6px 6px 2px;margin:0 auto;overflow:hidden;width:min(100%, calc(54vh * var(--rpar,1.6) + 18px))}
+.svgbox.rpbox svg{max-height:none}
+.simtag{position:absolute;right:8px;top:6px;z-index:2;background:#fff;border:2px dashed var(--muted);border-radius:999px;padding:0 10px;font-weight:900;color:var(--muted);font-size:clamp(12px,1.3vw,17px)}
+.rp{display:block;width:100%;height:auto}
+.rp *{transform-box:view-box}
+.rpsteps{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.rpsteps li{display:flex;gap:10px;align-items:flex-start;border:3px solid #D9CFBE;border-radius:14px;background:#fff;padding:8px 12px;font-weight:800;font-size:clamp(16px,1.8vw,23px);line-height:1.45}
+.rpsteps li.on{border-color:var(--ink);background:#FFF3C4;box-shadow:0 0 0 4px var(--sun)}
+.rpsteps .sn{flex:none;width:1.75em;height:1.75em;border-radius:50%;border:3px solid var(--ink);background:#fff;display:inline-flex;align-items:center;justify-content:center;font-weight:900;line-height:1}
+.srlive{position:absolute;width:1px;height:1px;margin:-1px;padding:0;border:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+@keyframes rpShow{from{opacity:0}to{opacity:1}}
+@keyframes rpHide{from{opacity:1}to{opacity:0}}
+@media (prefers-reduced-motion:reduce){.rp *{animation:none !important;transition:none !important}}
+@media (min-width:1800px){.rpsteps li{font-size:26px}.simtag{font-size:20px}}
+@media (min-width:2600px){.rpsteps li{font-size:34px}.simtag{font-size:26px}}
+/* ① 秤秤看（側面圖）：左邊桌上是燒杯和放食鹽的紙，右邊是電子秤（畫法照下面虛擬實驗臺的秤）。
+   燒杯放上秤 translate(246px,-64px)、紙放上秤 translate(226px,-64px)；中途先抬高，才不會穿過另一樣東西 */
+.rpw-cyl,.rpw-stream,.rpw-water,.rpw-lw,.rpw-lsw,.rpw-finger,.rpw-btnon,.rpw-ring,.rpw-d0,.rpw-d1,.rpw-d2,.rpw-d3,.rpw-d4,
+.rpw-L1,.rpw-L2,.rpw-L3,.rpw-L4,.rpw-pour,.rpw-grains,.rpw-bpile,.rpw-rod,.rpw-l4b,.rpw-l4c{opacity:0}
+.rpw-water{transform-origin:114px 262px}
+.rpw-paper{transform-origin:182px 261px}
+.rpw-bpile{transform-origin:131px 261px}
+.rp-weigh:not([data-step="0"]) .rpw-water{opacity:1}
+/* 畫面 1：量筒的水倒進燒杯 */
+.rp-weigh[data-step="1"] .rpw-cyl{animation:rpwCyl 2.6s both}
+.rp-weigh[data-step="1"] .rpw-cylw{animation:rpHide 1.3s .6s both}
+.rp-weigh[data-step="1"] .rpw-stream{animation:rpwStream 2.6s both}
+.rp-weigh[data-step="1"] .rpw-water{animation:rpwFill 1.3s .6s both}
+.rp-weigh[data-step="1"] .rpw-lw{opacity:1;animation:rpShow .4s 2.4s both}
+.rp-weigh[data-step="2"] .rpw-lw,.rp-weigh[data-step="3"] .rpw-lw{opacity:1}
+@keyframes rpwCyl{0%{opacity:0}12%,78%{opacity:1}100%{opacity:0}}
+@keyframes rpwStream{0%,20%{opacity:0}26%,70%{opacity:1}78%,100%{opacity:0}}
+@keyframes rpwFill{from{transform:scaleY(0)}to{transform:none}}
+/* 畫面 2：空的秤按「歸零」 */
+.rp-weigh[data-step="2"] .rpw-finger{animation:rpwPress 1.8s .3s both}
+.rp-weigh[data-step="2"] .rpw-btnon{animation:rpwBtn 1.8s .3s both}
+.rp-weigh[data-step="2"] .rpw-d0,.rp-weigh[data-step="2"] .rpw-ring{opacity:1;animation:rpShow .3s 1.3s both}
+@keyframes rpwPress{0%{opacity:0;transform:translate(26px,18px)}20%{opacity:1;transform:translate(26px,18px)}45%,60%{opacity:1;transform:none}85%{opacity:1;transform:translate(26px,18px)}100%{opacity:0;transform:translate(26px,18px)}}
+@keyframes rpwBtn{0%,44%{opacity:0}46%,62%{opacity:1}64%,100%{opacity:0}}
+/* 畫面 3：燒杯放上秤 → 拿下來；紙放上秤；燒杯再放上去（一起秤） */
+.rp-weigh[data-step="3"] .rpw-beaker{transform:translate(246px,-64px);animation:rpwB3 5.8s both}
+.rp-weigh[data-step="3"] .rpw-paper{transform:translate(226px,-64px);animation:rpwP3 5.8s both}
+.rp-weigh[data-step="3"] .rpw-d0{animation:rpwD0c 5.8s both}
+.rp-weigh[data-step="3"] .rpw-d1,.rp-weigh[data-step="3"] .rpw-L1{animation:rpwD1c 5.8s both}
+.rp-weigh[data-step="3"] .rpw-d2,.rp-weigh[data-step="3"] .rpw-L2{animation:rpwD2c 5.8s both}
+.rp-weigh[data-step="3"] .rpw-d3,.rp-weigh[data-step="3"] .rpw-L3{opacity:1;animation:rpwD3c 5.8s both}
+@keyframes rpwB3{
+  0%{transform:none;animation-timing-function:ease-in-out}
+  7.5%{transform:translate(110px,-96px);animation-timing-function:ease-in-out}
+  15.5%,32.8%{transform:translate(246px,-64px);animation-timing-function:ease-in-out}
+  40%{transform:translate(110px,-96px);animation-timing-function:ease-in-out}
+  46.6%,79.3%{transform:none;animation-timing-function:ease-in-out}
+  86.2%{transform:translate(110px,-96px);animation-timing-function:ease-in-out}
+  93.1%,100%{transform:translate(246px,-64px)}
+}
+@keyframes rpwP3{0%,48.3%{transform:none;animation-timing-function:ease-in-out}55.2%{transform:translate(120px,-100px);animation-timing-function:ease-in-out}62.1%,100%{transform:translate(226px,-64px)}}
+@keyframes rpwD0c{0%,15%{opacity:1}16%,33.5%{opacity:0}34.5%,61.5%{opacity:1}62.5%,100%{opacity:0}}
+@keyframes rpwD1c{0%,15%{opacity:0}16%,33.5%{opacity:1}34.5%,100%{opacity:0}}
+@keyframes rpwD2c{0%,61.5%{opacity:0}62.5%,92.5%{opacity:1}93.5%,100%{opacity:0}}
+@keyframes rpwD3c{0%,92.5%{opacity:0}93.5%,100%{opacity:1}}
+/* 畫面 4：拿下來，食鹽倒進水裡，攪拌到看不見顆粒，攪拌棒拿出來 */
+.rp-weigh[data-step="4"] .rpw-beaker{animation:rpwOff 1s both}
+.rp-weigh[data-step="4"] .rpw-paper{animation:rpwP4 2.8s both}
+.rp-weigh[data-step="4"] .rpw-d3,.rp-weigh[data-step="4"] .rpw-L3{animation:rpHide .2s .25s both}
+.rp-weigh[data-step="4"] .rpw-d0{opacity:1;animation:rpShow .2s .5s both}
+.rp-weigh[data-step="4"] .rpw-pile,.rp-weigh[data-step="5"] .rpw-pile{opacity:0}
+.rp-weigh[data-step="4"] .rpw-pile{animation:rpHide .3s 1.4s both}
+.rp-weigh[data-step="4"] .rpw-lw{animation:rpHide .3s 1.4s both}
+.rp-weigh[data-step="4"] .rpw-pour{animation:rpwTmp 1.6s 1.1s both}
+.rp-weigh[data-step="4"] .rpw-grains{animation:rpwFall .8s 1.45s both}
+.rp-weigh[data-step="4"] .rpw-bpile{animation:rpwDis 2.9s 2.1s both}
+.rp-weigh[data-step="4"] .rpw-rod{animation:rpwStir 2.7s 2.5s both}
+.rp-weigh[data-step="4"] .rpw-l4b{opacity:1;animation:rpShow .4s 4.5s both}
+.rp-weigh[data-step="4"] .rpw-l4c{opacity:1;animation:rpShow .4s 5.2s both}
+.rp-weigh[data-step="4"] .rpw-lsw{opacity:1;animation:rpShow .4s 4.8s both}
+.rp-weigh[data-step="5"] .rpw-lsw{opacity:1}
+@keyframes rpwOff{0%{transform:translate(246px,-64px);animation-timing-function:ease-in-out}50%{transform:translate(110px,-96px);animation-timing-function:ease-in-out}100%{transform:none}}
+@keyframes rpwP4{
+  0%{transform:translate(226px,-64px) rotate(0deg);animation-timing-function:ease-in-out}
+  17%{transform:translate(120px,-100px) rotate(0deg);animation-timing-function:ease-in-out}
+  34%,38%{transform:translate(0px,0px) rotate(0deg);animation-timing-function:ease-in-out}
+  56%,72%{transform:translate(-40px,-88px) rotate(-32deg);animation-timing-function:ease-in-out}
+  100%{transform:translate(0px,0px) rotate(0deg)}
+}
+@keyframes rpwTmp{0%{opacity:0}15%,80%{opacity:1}100%{opacity:0}}
+@keyframes rpwFall{0%{opacity:0;transform:none}15%{opacity:1}85%{opacity:1;transform:translateY(70px)}100%{opacity:0;transform:translateY(74px)}}
+@keyframes rpwDis{0%{opacity:0;transform:none}6%,40%{opacity:1;transform:none}90%,100%{opacity:0;transform:scale(.25)}}
+@keyframes rpwStir{
+  0%{opacity:0;transform:translateY(-110px)}
+  12%{opacity:1;transform:none}
+  22%{transform:translateX(-12px)}32%{transform:translateX(12px)}42%{transform:translateX(-12px)}52%{transform:translateX(12px)}62%{transform:translateX(-12px)}
+  72%,82%{opacity:1;transform:none}
+  100%{opacity:0;transform:translateY(-120px)}
+}
+/* 畫面 5：燒杯和空的紙一起放上秤 */
+.rp-weigh[data-step="5"] .rpw-beaker{transform:translate(246px,-64px);animation:rpwOn 1.1s both}
+.rp-weigh[data-step="5"] .rpw-paper{transform:translate(226px,-64px);animation:rpwPOn 1.1s both}
+.rp-weigh[data-step="5"] .rpw-d0{animation:rpHide .2s 1.05s both}
+.rp-weigh[data-step="5"] .rpw-d4,.rp-weigh[data-step="5"] .rpw-L4{opacity:1;animation:rpShow .3s 1.15s both}
+@keyframes rpwOn{0%{transform:none;animation-timing-function:ease-in-out}50%{transform:translate(110px,-96px);animation-timing-function:ease-in-out}100%{transform:translate(246px,-64px)}}
+@keyframes rpwPOn{0%{transform:none;animation-timing-function:ease-in-out}50%{transform:translate(120px,-100px);animation-timing-function:ease-in-out}100%{transform:translate(226px,-64px)}}
 /* 示意圖（題庫 figures.js 或本頁自己畫的 SVG） */
 .qfig{width:100%;height:auto;display:block}
 .figcard{background:#FFFDF8;border:3px solid var(--ink);border-radius:16px;padding:6px;overflow:hidden}
@@ -335,10 +435,6 @@ figure{margin:0}
 .result{text-align:center;padding:16px}
 .result .big{font-size:clamp(30px,5vw,58px);font-weight:900;color:var(--green-dark)}
 .rankline{font-weight:900;font-size:clamp(22px,2.8vw,36px);margin:6px 0}
-.ticket{
-  margin:14px auto;max-width:900px;background:#FFF6D8;border:3px dashed var(--sun);border-radius:16px;
-  padding:12px 16px;font-weight:800;font-size:clamp(18px,2.1vw,26px);text-align:left;line-height:1.8;
-}
 /* 第 ② 節最後：到下一課 */
 .nextlesson{text-align:center;border-color:var(--water-dark);background:#F2F8FC}
 .nextlesson .btn{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;font-size:clamp(19px,2.2vw,28px);text-align:center}
@@ -410,8 +506,6 @@ figure{margin:0}
     .eqcell small{ font-size:19px; }
     .eqop{ font-size:48px; }
     .rec input{ min-height:72px; }
-    .tph-empty{ font-size:24px; }
-    .ticket{ font-size:30px; }
     .criterion .askagain{ font-size:22px; }
     .dot{ width:22px; height:22px; }
     .nextlesson .btn{ font-size:32px; }
@@ -452,8 +546,6 @@ figure{margin:0}
     .eqcell small{ font-size:25px; }
     .eqop{ font-size:62px; }
     .rec input{ min-height:96px; }
-    .tph-empty{ font-size:31px; }
-    .ticket{ font-size:39px; }
     .criterion .askagain{ font-size:29px; }
     .dot{ width:30px; height:30px; }
     .nextlesson .btn{ font-size:42px; }
@@ -482,14 +574,6 @@ function imgFallback(img){
   const name=img.getAttribute("data-name")||img.getAttribute("alt")||"照片";
   span.setAttribute("aria-label","照片載入失敗："+name);
   span.textContent="📷 照片載入失敗："+name;
-  img.replaceWith(span);
-}
-/* 老師課前試做的照片：檔案還沒放進 photos/ 時，安靜地顯示虛線框，不出現破圖或錯誤訊息 */
-function teacherFallback(img){
-  const span=document.createElement("span");
-  span.className="tph-empty";
-  if(img.parentElement) img.parentElement.classList.add("empty");
-  span.textContent="（老師課前試做的照片）";
   img.replaceWith(span);
 }
 </script>
@@ -568,8 +652,8 @@ function teacherFallback(img){
       <p><b>單元導入</b>：課本 62–63 頁，這個單元有三個活動，今天是活動 1。</p>
       <p><b>食鹽去哪裡了？</b>先不判對錯：全班先舉卡（甲乙丙丁），再請一位同學上臺按，畫面只記下「全班猜的是：○○」，到 ① 站示範後回收（重新整理頁面會清掉）。</p>
       <p>課本 64 頁有同學說「喝喝看會不會鹹」：請明講<b>實驗室裡的東西一律不嘗</b>，我們用秤的（安全）。</p>
-      <p><b>兩節課的時間</b>：<br>⏱ ①｜暖身 3｜開場（單元導入＋煮湯預測）7｜① 步驟卡＋預測 4｜① 示範＋抓錯＋同步填習作 P.24 12｜① 虛擬「如果……會怎樣」4｜② 溶質與溶劑 7｜判準卡＋出場卡 3｜合計 40<br>⏱ ②｜暖身（溶質溶劑＋總重量）3｜③ 取回溶質 12｜④ 闖關 5｜〈溶解現象〉學習單 12｜〈水溶液的各種性質〉開場 4｜〈水溶液的各種性質〉搧聞練習 4｜合計 40</p>
-      <p>第 ② 節可以直接開這一頁的 <b>#dry</b>（網址最後加 #dry）。節數不夠時：闖關改成 2 題出場卡；虛擬實驗臺只看結果，不做「如果……會怎樣」。</p>
+      <p><b>兩節課的時間</b>：<br>⏱ ①｜暖身 3｜開場（單元導入＋煮湯預測）7｜① 步驟卡＋預測 4｜① 示範＋抓錯＋同步填習作 P.24 12｜① 虛擬「如果……會怎樣」4｜② 溶質與溶劑 7｜判準卡＋下課前小複習 3｜合計 40<br>⏱ ②｜暖身（溶質溶劑＋總重量）3｜③ 取回溶質 12｜④ 闖關 5｜〈溶解現象〉學習單 12｜〈水溶液的各種性質〉開場 4｜〈水溶液的各種性質〉搧聞練習 4｜合計 40</p>
+      <p>第 ② 節可以直接開這一頁的 <b>#dry</b>（網址最後加 #dry）。節數不夠時：闖關驗收改成全班口頭回答 2 題；虛擬實驗臺只看結果，不做「如果……會怎樣」。</p>
       <p>請學生翻開課本 62 頁。</p>
     </div>
   </section>
@@ -628,19 +712,34 @@ function teacherFallback(img){
         <label class="rec"><span>溶解後的總重量</span><input id="r4" type="text" inputmode="decimal" autocomplete="off" spellcheck="false" placeholder="？" aria-label="溶解後的總重量（公克重）"><em>公克重</em></label>
       </div>
       <div class="audit" id="audit" aria-live="polite"></div>
-      <div class="duo mid" style="margin-top:14px">
+      <div class="rpwrap">
+      <p class="ptitle">🎬 示範重播：秤秤看<span class="shiyi">示意</span></p>
+      <div class="duo mid">
         <figure class="figbox">
-          <div class="tphoto" id="tpWeigh"></div>
-          <figcaption class="cap center">老師課前試做時拍的照片</figcaption>
+          <div class="svgbox rpbox" style="--rpar:2.16"><span class="simtag">示意</span><div id="rpWeigh"></div></div>
+          <figcaption class="cap center">畫出來的示意動畫，不是錄影；秤上的數字跟著上面紀錄板輸入的數字，沒有輸入就顯示「？」。</figcaption>
         </figure>
         <div>
-          <div class="btnrow center"><button class="btn green" id="resultBtn">🔍 看示範結果</button></div>
-          <div class="hidden" id="resultBox">
-            <div class="figcard" id="resultFig"></div>
-            <p class="cap center">示意圖：習作 24 頁的參考數據，溶解前 78 公克重，溶解後 78 公克重</p>
-            <div class="feedback good" id="predCompare" aria-live="polite"></div>
+          <ol class="rpsteps" id="rpWeighSteps">
+          <li data-step="1"><span class="sn">1</span><span>用量筒量 30 毫升的水，倒進燒杯。</span></li>
+          <li data-step="2"><span class="sn">2</span><span>空的電子秤先按「歸零」。</span></li>
+          <li data-step="3"><span class="sn">3</span><span>秤「水和燒杯」、秤「食鹽和紙」；再把兩樣一起放上秤，讀出溶解前的總重量。</span></li>
+          <li data-step="4"><span class="sn">4</span><span>把食鹽倒進水裡，攪拌到看不見顆粒，攪拌棒拿出來。</span></li>
+          <li data-step="5"><span class="sn">5</span><span>燒杯和空的紙一起放上秤，讀出溶解後的總重量。</span></li>
+          </ol>
+          <div class="btnrow">
+            <button class="btn" id="rpWeighNext" type="button">▶ 播放畫面 1</button>
+            <button class="btn plain" id="rpWeighReset" type="button">↺ 從頭看</button>
           </div>
+          <p class="srlive" id="rpWeighSay" aria-live="polite"></p>
         </div>
+      </div>
+    </div>
+      <div class="btnrow center"><button class="btn green" id="resultBtn">🔍 看示範結果</button></div>
+      <div class="hidden" id="resultBox" style="max-width:860px;margin:0 auto">
+        <div class="figcard" id="resultFig"></div>
+        <p class="cap center">示意圖：習作 24 頁的參考數據，溶解前 78 公克重，溶解後 78 公克重</p>
+        <div class="feedback good" id="predCompare" aria-live="polite"></div>
       </div>
       <div class="hidden" id="weighCrit">
         <div class="kbox" style="margin-top:14px">
@@ -695,7 +794,7 @@ function teacherFallback(img){
       <p><b>步驟</b>照課本 65 頁（上面的步驟卡）。<b>預測</b>：先寫在學習單的預測格，再舉卡（甲乙丙），按下全班多數的那一個，只記不判。</p>
       <p><b>小助手</b> 2–3 人：按歸零、倒食鹽、攪拌、唸讀數 → 全班複誦 → 每人填習作 P.24 的紀錄欄（結論回家寫）。男女輪替，優先點平常比較被動的學生。</p>
       <p><b>抓錯</b>（老師<b>正要</b>做錯時就讓全班舉 ╳ 喊停，再用正確做法）：①沒按歸零就要秤 → ╳ → 歸零重做　②秤溶解後的重量時，裝食鹽的紙沒放回秤上 → ╳ → 放回去重秤。高能力要說出後果：沒歸零，每個讀數都會多出空秤顯示的數字；少了紙，會以為變輕。</p>
-      <p><b>看得到</b>：示範一結束，放大「老師課前試做的照片」——照片請存成這個資料夾裡的 <b>photos/teacher-weigh.jpg</b>，就會出現在虛線框裡；小助手拿著燒杯和紙沿走道巡迴展示約 30 秒；每排一位觀察代表上前看秤的數字，回座位向同排報告。</p>
+      <p><b>看得到</b>：小助手拿著燒杯和紙沿走道巡迴展示約 30 秒；每排一位觀察代表上前看秤的數字，回座位向同排報告。示範一結束，可以播紀錄板下面的「🎬 示範重播」（示意動畫，一個畫面一個畫面按），讓後排看清楚每一步；秤上的數字跟著紀錄板輸入的數字，沒有輸入就顯示「？」。</p>
       <p><b>數據審查員</b>（高能力）：檢查每個讀數合不合理——「水和燒杯」加「食鹽和紙」，等不等於溶解前的總重量？紀錄板輸入數字後會自動算給大家看。</p>
       <p>示意圖的 78 是習作 P.24 的參考數據；習作請寫今天秤到的數字。按「看示範結果」後，先出現課本 65 頁的兩個討論題（討論 1 帶出「食鹽水比原來的水重」）；兩題都按「看答案」以後，才出現判準卡、必會 1，以及「回到開場」（回收開場的猜測）。</p>
       <p><b>虛擬實驗臺</b>：四組的按鈕和說明都不寫出錯在哪裡，請學生從圖上找線索（第 1 組看空秤的數字，第 2、3 組比一比兩臺秤上放的東西，第 4 組看秤的旁邊）。請高能力學生上臺按一個按鈕並解說；第 1 組（沒按歸零）：空秤顯示 2，溶解前把裝水的燒杯和放食鹽的紙一起放上秤、讀一次，溶解前後都讀成 80。時間不夠時只看結果，不做「如果……會怎樣」。</p>
@@ -744,7 +843,7 @@ function teacherFallback(img){
     </div>
 
     <div class="panel">
-      <p class="ptitle">🎫 出場卡（第 ① 節最後）</p>
+      <p class="ptitle">💬 下課前小複習（第 ① 節最後）</p>
       <p class="lead">第 1 題舉「○、╳」卡，第 2 題舉「甲、乙、丙」卡；先舉卡，再請一位同學上臺按。</p>
       <div class="qblock">
         <div class="ask">1. ○╳：食鹽溶解在水裡，就消失了。</div>
@@ -759,10 +858,10 @@ function teacherFallback(img){
     </div>
     <div class="navrow"><button class="btn green" data-next="dry">下一站：③ 取回溶質（第 ② 節）→</button></div>
     <div class="teacher-tip">
-      <p><b class="time">給老師｜② 溶質與溶劑 10 分鐘</b>（溶質與溶劑 7｜判準卡＋出場卡 3）</p>
+      <p><b class="time">給老師｜② 溶質與溶劑 10 分鐘</b>（溶質與溶劑 7｜判準卡＋下課前小複習 3）</p>
       <p>課本 64 頁小知識＋82 頁圖解筆記「水溶液＝溶質＋溶劑（水）」。用兩個動作來記：<b>被溶解的</b>是溶質，<b>溶解別人的</b>是溶劑。常見迷思：溶質和溶劑弄反。</p>
       <p>兩題都答對後出現判準卡，請一位同學唸出來，再全班一起唸「必會 2」。</p>
-      <p><b>出場卡</b>（第 ① 節最後）：第 1 題舉 ○╳ 卡，第 2 題舉甲乙丙卡。答錯的選項會停用，可以再試。</p>
+      <p><b>下課前小複習</b>（第 ① 節最後）：全班口頭回答或舉卡，不寫卡、不收。第 1 題舉 ○╳ 卡，第 2 題舉甲乙丙卡。答錯的選項會停用，可以再試。</p>
       <p><b>三層</b>：低＝看等式圖回答；中＝說出「糖被水溶解，所以糖是溶質」；高＝說出學習單第二題（檸檬酸水、小蘇打水）的溶質和溶劑。</p>
       <p>第 ① 節結束時，在窗邊<b>不會被打翻的地方</b>放一盤食鹽水，讓學生之後幾天自己看（第 ② 節用）。</p>
     </div>
@@ -786,7 +885,7 @@ function teacherFallback(img){
 
     <div class="panel">
       <p class="ptitle">☀️ 溶解在水裡的食鹽，還能變回食鹽顆粒嗎？（課本 66 頁）</p>
-      <div class="duo">
+      <div class="duo mid">
         <div>
           <div class="stepcard">
             <div class="sc-title">📋 小明查到的做法</div>
@@ -795,10 +894,6 @@ function teacherFallback(img){
               <li>放在通風處，觀察水分蒸發後，容器表面的樣子。</li>
             </ol>
           </div>
-          <figure class="figbox" style="margin-top:12px">
-            <div class="tphoto" id="tpDry"></div>
-            <figcaption class="cap center">老師課前放在窗邊、已經曬乾的食鹽水盤子（課前拍的照片）</figcaption>
-          </figure>
         </div>
         <div>
           <p class="ptitle">📅 一天一天看<span class="shiyi">示意</span></p>
@@ -876,7 +971,7 @@ function teacherFallback(img){
     <div class="teacher-tip">
       <p><b class="time">給老師｜③ 取回溶質 15 分鐘</b>（第 ② 節：暖身 3＋取回溶質 12）</p>
       <p><b>暖身</b>（溶質溶劑＋總重量）：用最上面兩題，全班口答或舉卡，再按「看答案」。這 3 分鐘小助手把曬乾的盤子拿出來。</p>
-      <p><b>課前試做</b>：課前 3–5 天，在窗邊放一淺盤約 10 毫升的食鹽水（天氣潮溼要更久：空氣溼度高於約 75% 時，濃食鹽水幾乎不會再變乾，臺灣常常在這附近；請放在冷氣房或陽光照得到的窗邊、用淺盤倒薄薄一層，並提早試做）。上課時請各排觀察代表上前看盤子，再由小助手巡迴展示。照片請存成這個資料夾裡的 <b>photos/teacher-dry.jpg</b>，就會出現在左邊的虛線框裡。</p>
+      <p><b>課前試做</b>：課前 3–5 天，在窗邊放一淺盤約 10 毫升的食鹽水（天氣潮溼要更久：空氣溼度高於約 75% 時，濃食鹽水幾乎不會再變乾，臺灣常常在這附近；請放在冷氣房或陽光照得到的窗邊、用淺盤倒薄薄一層，並提早試做）。上課時請各排觀察代表上前看盤子，再由小助手巡迴展示。</p>
       <p>第 ① 節放在窗邊的那一盤：請學生看看水剩多少、有沒有白色顆粒（可能還沒乾，正好說明蒸發需要時間）。蒸發時間軸是示意圖，實際要幾天看天氣和水量。</p>
       <p>提問「盤子上的白色顆粒是什麼？跑掉的是什麼？」→ 只有水跑掉。題庫常見迷思：用濾紙過濾可以分出食鹽（不行，溶解的食鹽會跟著水通過濾紙；「想一想」第 4 張卡）、食鹽跟著水蒸發、密閉的地方蒸發比較快。對應的素養題組：〈晾在窗邊的食鹽水〉、〈泳衣上的白色痕跡〉。</p>
       <p><b>安全提醒</b>：食鹽水盤放在不會被打翻的地方；熬煮甘蔗汁只看照片，教室裡不加熱。</p>
@@ -927,7 +1022,6 @@ function teacherFallback(img){
         <div class="big" id="finalScore"></div>
         <p class="rankline" id="finalRank"></p>
         <p class="lead" id="skipNote"></p>
-        <div class="ticket"><b>出場單</b>（寫在學習單最下面）：我原本以為＿＿＿＿，現在知道＿＿＿＿，證據是＿＿＿＿。</div>
         <button class="btn" id="againBtn">↺ 再挑戰一次</button>
       </div>
     </div>
@@ -959,7 +1053,7 @@ function teacherFallback(img){
   <footer class="credits" id="credits">
     <p><b>教學依據：</b><a href="https://reader.nani.com.tw/9200a013cbef8e66" target="_blank" rel="noopener">南一自然課本，第 62–66 頁</a>（閱讀器可能需要登入）；另引用課本第 82 頁圖解筆記、習作第 24 頁的參考數據。</p>
     <p>本頁照片取自南一版自然五上課本第 62–66 頁：蝶豆花泡的飲料（第 62–63 頁）、煮湯加鹽（第 64 頁）、電子秤溶解前後（第 65 頁，電子秤上的品牌標誌已遮住）、曬鹽場和熬煮甘蔗汁（第 66 頁）。</p>
-    <p>示意畫面：① 站的電子秤讀數圖與「如果……會怎樣」虛擬實驗臺、③ 站的蒸發時間軸、④ 闖關第 1 題的電子秤圖，都是示意圖，不是真實照片。「老師課前試做的照片」由老師上課前自己拍攝。① 站與 ③ 站連到的〈一顆也沒少〉是電腦模擬的 3D 粒子示意動畫。</p>
+    <p>示意畫面：① 站的示範重播動畫、電子秤讀數圖與「如果……會怎樣」虛擬實驗臺、③ 站的蒸發時間軸、④ 闖關第 1 題的電子秤圖，都是示意圖，不是真實照片；示範重播是畫出來的動畫，不是錄影。① 站與 ③ 站連到的〈一顆也沒少〉是電腦模擬的 3D 粒子示意動畫。</p>
   </footer>
 
 </div>
@@ -1028,10 +1122,6 @@ function addTag(fig,x,y,html,place,opt){
   fig.appendChild(d);
   fig.appendChild(t);
   return t;
-}
-/* 老師課前試做的照片：放在這個資料夾的 photos/ 裡；沒有檔案時由 teacherFallback 換成虛線框 */
-function teacherPhoto(el,file){
-  el.innerHTML=`<img src="photos/${file}" alt="老師課前試做的照片" loading="lazy" decoding="async" onerror="teacherFallback(this)">`;
 }
 /* 題庫示意圖：figures.js 讀不到時顯示文字說明，不讓整頁壞掉 */
 function qfig(p,alt){
@@ -1134,7 +1224,6 @@ voteQ($("guessOpts"),GUESSES,g=>{
    ========================================================== */
 renderFig($("wbFig"),"weigh-before");
 renderFig($("waFig"),"weigh-after");
-teacherPhoto($("tpWeigh"),"teacher-weigh.jpg");
 const PREDS=["甲　變輕","乙　不變","丙　變重"];
 const PRED_RIGHT=PREDS[1];
 let classPred=null, resultShown=false;
@@ -1366,7 +1455,7 @@ function buildZeroMore(host){
 buildVlab();
 
 /* ==========================================================
-   ② 溶質與溶劑＋出場卡
+   ② 溶質與溶劑＋下課前小複習
    ========================================================== */
 let wordsOk=0;
 function wordsCheck(){ wordsOk++; if(wordsOk>=2) $("wordsCrit").classList.remove("hidden"); }
@@ -1387,12 +1476,11 @@ choiceQ($("xQ1"),["○　對","╳　不對"],"╳　不對",
 choiceQ($("xQ2"),["甲　變輕","乙　不變","丙　變重"],"乙　不變",
   ()=>{ $("xF2").className="feedback good"; $("xF2").textContent="✅ 答對了！溶解前後的總重量一樣。"; exitDone(); },
   ()=>{ $("xF2").className="feedback hint"; $("xF2").textContent="🤔 再想想（不扣分）：回想 ① 站的示意圖，溶解前、後各是幾公克重？"; });
-function exitDone(){ exitOk++; if(exitOk>=2){ $("xF2").textContent+="　🎫 出場卡完成！"; } }
+function exitDone(){ exitOk++; if(exitOk>=2){ $("xF2").textContent+="　💬 下課前小複習完成！"; } }
 
 /* ==========================================================
-   ③ 取回溶質：老師的盤子、蒸發時間軸（示意）、為什麼、曬鹽與熬紅糖
+   ③ 取回溶質：蒸發時間軸（示意）、為什麼、曬鹽與熬紅糖
    ========================================================== */
-teacherPhoto($("tpDry"),"teacher-dry.jpg");
 /* 淺盤的側面示意圖：第 1、2、3 天各一張小圖（還沒按到的天數先畫「？」，讓全班先猜；手機上只顯示目前這一天） */
 const EVAP_DAYS=[
   {t:"第 1 天", water:20, salt:0, n:["水還很多"]},
@@ -1583,6 +1671,86 @@ $("againBtn").addEventListener("click",()=>{
   $("quizPanel").scrollIntoView({block:"start"});
 });
 renderQ();
+
+/* ---------- 示範重播（示意動畫）：老師不拍課前試做的照片，改用一步一步的示意動畫重播真的示範 ---------- */
+const RP_F='font-family="Microsoft JhengHei,PingFang TC,Noto Sans TC,sans-serif"';
+/* 字外圈描一層底色，疊在圖上也讀得清楚 */
+const RP_T='font-weight="800" fill="#1E1E1E" text-anchor="middle" stroke="#FFFDF8" stroke-width="5" stroke-linejoin="round" paint-order="stroke"';
+const RP_SKIN='fill="#F6C9A8" stroke="#1E1E1E" stroke-width="3" stroke-linejoin="round"';
+/* 箭頭：從 (x1,y1) 指到 (x2,y2) */
+function rpArrow(x1,y1,x2,y2,col,w=5){
+  const a=Math.atan2(y2-y1,x2-x1),c=Math.cos(a),s=Math.sin(a),h=w*3,k=w*1.8,bx=x2-h*c,by=y2-h*s,f=v=>+v.toFixed(1);
+  return `<line x1="${x1}" y1="${y1}" x2="${f(bx)}" y2="${f(by)}" stroke="${col}" stroke-width="${w}" stroke-linecap="round"/><path d="M${x2} ${y2} L${f(bx-k*s)} ${f(by+k*c)} L${f(bx+k*s)} ${f(by-k*c)} Z" fill="${col}" stroke="${col}" stroke-width="1.5" stroke-linejoin="round"/>`;
+}
+/* 按「▶ 播放畫面」一格一格往下看；只用 CSS 動畫，所以換站回來會從頭播目前這一格 */
+function setupReplay(id,n){
+  const svg=$(id+'Svg'),next=$(id+'Next'),say=$(id+'Say'),items=[...$(id+'Steps').querySelectorAll('li')];
+  let step=0;
+  function set(k){
+    step=k;svg.dataset.step=k;
+    items.forEach(li=>li.classList.toggle('on',+li.dataset.step===k));
+    const li=items.find(x=>+x.dataset.step===k);
+    say.textContent=li?'畫面 '+k+'：'+li.textContent.replace(/^\s*\d+/,'').trim():'';
+    next.textContent=k>=n?'▶ 再看一次：畫面 1':'▶ 播放畫面 '+(k+1);
+  }
+  next.addEventListener('click',()=>set(step>=n?1:step+1));
+  $(id+'Reset').addEventListener('click',()=>set(0));
+  set(0);
+}
+/* ① 秤秤看：示範重播（側面圖）。秤上的數字跟著上面的紀錄板，沒有輸入就顯示「？」；
+   只畫正確的做法，不畫沒歸零、紙沒放回秤上、攪拌棒留在杯裡、食鹽灑出來（那是虛擬實驗臺要學生自己從圖上找的） */
+function weighRpSVG(){
+  const T=(c,x,y,s,sz=16)=>`<text class="${c}" x="${x}" y="${y}" font-size="${sz}" ${RP_T} dominant-baseline="middle">${s}</text>`;
+  const dig=(c,s,id)=>`<text class="${c}"${id?` id="${id}"`:''} x="388" y="239" font-size="24" font-weight="700" fill="#9CFF8A" text-anchor="middle" dominant-baseline="middle" font-family="Consolas,monospace">${s}</text>`;
+  const salt=(x,y)=>`<circle cx="${x}" cy="${y}" r="3" fill="#fff" stroke="#777" stroke-width="1.2"/>`;
+  const grains=[[130,178],[136,185],[142,177],[147,184],[133,191],[144,191],[139,183]].map(([x,y])=>salt(x,y)).join('');
+  const ticks=[22,42,62,82].map(y=>`<line x1="4" y1="${y}" x2="13" y2="${y}" stroke="#1E1E1E" stroke-width="1.5"/>`).join('');
+  return `<svg class="rp rp-weigh" id="rpWeighSvg" data-step="0" viewBox="0 50 540 250" role="img" aria-label="示範重播的示意圖：用量筒把 30 毫升的水倒進燒杯；空的電子秤按歸零；分別秤水和燒杯、食鹽和紙，再一起秤，讀出溶解前的總重量；把食鹽倒進水裡，攪拌到看不見顆粒，攪拌棒拿出來；燒杯和空的紙一起放上秤，讀出溶解後的總重量。秤上的數字跟著紀錄板輸入的數字" xmlns="http://www.w3.org/2000/svg" ${RP_F}>
+  <rect width="540" height="300" fill="#FFFDF8"/>
+  <rect x="0" y="262" width="540" height="38" fill="#E2D3BC"/>
+  <line x1="0" y1="262" x2="540" y2="262" stroke="#1E1E1E" stroke-width="2.5"/>
+  <path d="M304 262 L318 208 H506 L520 262 Z" fill="#D7DBDE" stroke="#1E1E1E" stroke-width="2.5" stroke-linejoin="round"/>
+  <rect x="312" y="198" width="200" height="10" rx="4" fill="#B9C0C5" stroke="#1E1E1E" stroke-width="2.5"/>
+  <rect x="338" y="222" width="100" height="34" rx="4" fill="#2F3B2F"/>
+  ${dig('rpw-d0','0')}${dig('rpw-d1','？','rpwV1')}${dig('rpw-d2','？','rpwV2')}${dig('rpw-d3','？','rpwV3')}${dig('rpw-d4','？','rpwV4')}
+  <rect x="452" y="227" width="48" height="24" rx="6" fill="#FFFDF8" stroke="#1E1E1E" stroke-width="2"/>
+  <rect class="rpw-btnon" x="452" y="227" width="48" height="24" rx="6" fill="#FFC93C" stroke="#1E1E1E" stroke-width="2"/>
+  <text x="476" y="240" font-size="14" font-weight="800" fill="#1E1E1E" text-anchor="middle" dominant-baseline="middle">歸零</text>
+  <rect class="rpw-ring" x="446" y="221" width="60" height="36" rx="10" fill="none" stroke="#E4574C" stroke-width="3"/>
+  <g class="rpw-beaker">
+    <rect class="rpw-water" x="75.5" y="212" width="77" height="48.5" fill="#CFE8F6"/>
+    <path d="M74 184 V262 H154 V184" fill="none" stroke="#1E1E1E" stroke-width="3" stroke-linejoin="round"/>
+    ${T('rpw-lw',114,238,'水',18)}${T('rpw-lsw',114,238,'食鹽水',17)}
+  </g>
+  <g class="rpw-paper">
+    <path d="M182 261 L189 251 H237 L244 261 Z" fill="#F7C6D9" stroke="#1E1E1E" stroke-width="1.5" stroke-linejoin="round"/>
+    <g class="rpw-pile"><path d="M194 253 Q213 226 232 253 Z" fill="#fff" stroke="#999" stroke-width="1.5"/>${T('',213,214,'食鹽',16)}</g>
+  </g>
+  <g class="rpw-grains">${grains}</g>
+  <path class="rpw-bpile" d="M112 261 Q131 247 150 261 Z" fill="#fff" stroke="#999" stroke-width="1.5"/>
+  <g class="rpw-rod"><line x1="104" y1="256" x2="118" y2="150" stroke="#1E1E1E" stroke-width="8" stroke-linecap="round"/><line x1="104" y1="256" x2="118" y2="150" stroke="#C9D1D5" stroke-width="4" stroke-linecap="round"/></g>
+  <g class="rpw-cyl">
+    <g transform="translate(100 176) rotate(143)">
+      <rect class="rpw-cylw" x="-11" y="2" width="22" height="54" fill="#CFE8F6"/>
+      <rect x="-13" y="0" width="26" height="112" rx="3" fill="none" stroke="#1E1E1E" stroke-width="2.5"/>
+      <rect x="-20" y="112" width="40" height="8" rx="2" fill="#D7DBDE" stroke="#1E1E1E" stroke-width="2"/>${ticks}
+    </g>
+    ${T('',176,96,'量筒：30 毫升的水',16)}
+  </g>
+  <rect class="rpw-stream" x="98" y="178" width="4" height="82" fill="#9DCDEB"/>
+  <g class="rpw-finger"><g transform="rotate(35 494 246)"><rect x="494" y="238.5" width="80" height="15" rx="7.5" ${RP_SKIN}/></g></g>
+  ${T('rpw-L1',388,282,'水和燒杯')}${T('rpw-L2',388,282,'食鹽和紙')}${T('rpw-L3',388,282,'溶解前的總重量')}${T('rpw-L4',388,282,'溶解後的總重量')}
+  ${T('rpw-pour',262,140,'倒進水裡',17)}
+  <g class="rpw-l4b">${T('',232,150,'攪拌到看不見顆粒',16)}</g>
+  <g class="rpw-l4c">${rpArrow(114,178,114,128,'#E4574C',4)}${T('',114,110,'攪拌棒拿出來',16)}</g>
+</svg>`;
+}
+/* 紀錄板改了就跟著改秤上的數字（和數據審查員一樣：要大於 0、不超過 2000） */
+function syncWeighRp(){
+  ["r1","r2","r3","r4"].forEach((id,i)=>{ const v=num(id); $("rpwV"+(i+1)).textContent=(v===null||isNaN(v)||v<=0||v>2000)?"？":fmtG(v); });
+}
+$("rpWeigh").innerHTML=weighRpSVG(); setupReplay("rpWeigh",5); syncWeighRp();
+["r1","r2","r3","r4"].forEach(id=>$(id).addEventListener("input",syncWeighRp));
 
 /* ---------- 開頁：網址有 #站名 就直接跳過去 ---------- */
 (function(){

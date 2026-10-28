@@ -248,13 +248,11 @@ a.btn{display:inline-flex;align-items:center;justify-content:center;text-decorat
 #sortMsg{font-weight:800}
 .derive{margin-top:18px;border-top:3px dashed #C9C2B4;padding-top:16px}
 .evidence{display:grid;grid-template-columns:minmax(0,1fr);gap:12px;align-items:center;margin-top:12px}
-@media(min-width:720px){.evidence{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}}
-.evidence .cap{color:var(--ink)}
 .chips{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin:14px 0}
 .chip{background:#FFF6D8;border:2px solid var(--sun);border-radius:999px;padding:4px 14px;font-weight:800}
 
 /* ==========================================================
-   ⑤ 出場卡
+   ⑤ 闖關驗收
    ========================================================== */
 .quizbar{display:flex;align-items:center;gap:8px 14px;flex-wrap:wrap;
   background:var(--card);border:3px solid var(--ink);border-radius:26px;padding:8px 18px;
@@ -273,10 +271,6 @@ a.btn{display:inline-flex;align-items:center;justify-content:center;text-decorat
 .result{text-align:center;padding:16px}
 .result .big{font-size:clamp(30px,5vw,58px);font-weight:900;color:var(--green-dark)}
 .rankline{font-weight:900;font-size:clamp(22px,2.8vw,36px);margin:6px 0}
-.ticket{
-  margin:14px auto;max-width:900px;background:#FFF6D8;border:3px dashed var(--sun);border-radius:16px;
-  padding:12px 16px;font-weight:800;font-size:clamp(18px,2.1vw,26px);text-align:left;line-height:1.8;
-}
 
 /* ---------- 頁尾：照片來源 ---------- */
 .credits{
@@ -449,13 +443,6 @@ a.btn{display:inline-flex;align-items:center;justify-content:center;text-decorat
 .simcount b{font-size:1.3em;color:var(--green-dark)}
 .saltsvg .grain{animation:grainDrop .9s ease-in forwards}
 @keyframes grainDrop{from{transform:translateY(0);opacity:1}to{transform:translateY(120px);opacity:0}}
-/* ④ 老師課前試做的照片（老師之後自己放；沒有檔案時顯示中性的虛線框） */
-.tphoto{display:block;width:100%;height:auto;max-height:52vh;object-fit:contain;border-radius:14px;box-shadow:0 0 0 3px var(--ink);background:#F2EEE4}
-.tphoto-empty{
-  display:flex;align-items:center;justify-content:center;text-align:center;width:100%;aspect-ratio:4/3;max-height:40vh;
-  border:3px dashed #C9C2B4;border-radius:14px;background:#FAF7F0;color:var(--muted);font-weight:800;
-  font-size:clamp(15px,1.6vw,22px);padding:10px;
-}
 
 @media (prefers-reduced-motion:reduce){
   .screen,.tag,.hlbox{animation:none}
@@ -526,10 +513,8 @@ a.btn{display:inline-flex;align-items:center;justify-content:center;text-decorat
     .labelcard{ font-size:32px; }
     .scard{ font-size:26px; }
     .simcount{ font-size:34px; }
-    .tphoto-empty{ font-size:26px; }
     .chip{ font-size:24px; }
     .criterion .askagain{ font-size:22px; }
-    .ticket{ font-size:30px; }
     .guessbox .g{ font-size:32px; }
     .guessbox .later{ font-size:42px; }
     .bletter{ width:64px; font-size:34px; }
@@ -573,10 +558,8 @@ a.btn{display:inline-flex;align-items:center;justify-content:center;text-decorat
     .labelcard{ font-size:42px; }
     .scard{ font-size:34px; }
     .simcount{ font-size:44px; }
-    .tphoto-empty{ font-size:34px; }
     .chip{ font-size:31px; }
     .criterion .askagain{ font-size:29px; }
-    .ticket{ font-size:39px; }
     .guessbox .g{ font-size:42px; }
     .guessbox .later{ font-size:54px; }
     .bletter{ width:84px; font-size:44px; }
@@ -592,17 +575,6 @@ function imgFallback(img){
   span.setAttribute("aria-label","照片載入失敗："+name);
   span.textContent="📷 照片載入失敗："+name;
   img.replaceWith(span);
-}
-/* 老師課前試做的照片：老師之後才會放進 photos/；還沒放時顯示中性的虛線框，不顯示錯誤 */
-function teacherPhotoFallback(img){
-  const box=document.createElement("div");
-  box.className="tphoto-empty";
-  box.setAttribute("role","img");
-  box.setAttribute("aria-label","老師課前試做的照片（還沒放上來）");
-  box.textContent="（老師課前試做的照片）";
-  const fig=img.closest("figure");
-  img.replaceWith(box);
-  if(fig){ const cap=fig.querySelector("figcaption"); if(cap) cap.classList.add("hidden"); }
 }
 </script>
 </head>
@@ -621,7 +593,7 @@ function teacherPhotoFallback(img){
       <button class="station-btn" data-go="label">② 成分標示</button>
       <button class="station-btn" data-go="mix">③ 混合物</button>
       <button class="station-btn" data-go="make">④ 配製水溶液</button>
-      <button class="station-btn" data-go="quiz">⑤ 出場卡</button>
+      <button class="station-btn" data-go="quiz">⑤ 闖關驗收</button>
     </nav>
   </header>
 
@@ -1031,10 +1003,6 @@ function teacherPhotoFallback(img){
         </div>
 
         <div class="evidence">
-          <figure class="figbox">
-            <img class="tphoto" src="photos/teacher-make.jpg" alt="老師課前試做的照片" loading="lazy" decoding="async" onerror="teacherPhotoFallback(this)">
-            <figcaption class="cap center">老師課前試做時拍的照片</figcaption>
-          </figure>
           <div>
             <div class="btnrow center"><button class="btn green" id="saltReveal">🔍 揭曉：一直加食鹽，會怎樣？</button></div>
             <div class="criterion hidden" id="saltCrit">
@@ -1046,20 +1014,20 @@ function teacherPhotoFallback(img){
         </div>
       </div>
     </div>
-    <div class="navrow"><button class="btn green" data-next="quiz">最後一站：⑤ 出場卡 →</button></div>
+    <div class="navrow"><button class="btn green" data-next="quiz">最後一站：⑤ 闖關驗收 →</button></div>
     <div class="teacher-tip">
       <p><b class="time">給老師｜④ 配製水溶液 12 分鐘</b>（配製示範＋抓錯 8 分鐘、一直加食鹽 4 分鐘）</p>
       <p><b>示範器材</b>：純水（藥局或賣場的蒸餾水）、燒杯或透明塑膠杯 6 個、平匙、量筒、滴管、<b>攪拌棒 2 支</b>（或免洗湯匙；一杯一支，只有一支時換杯前用純水沖洗、擦乾）、標籤紙、食鹽、醋；另備 <b>1 個透明杯</b>做「一直加食鹽」（裝 20 毫升純水）；其餘四杯（糖水、檸檬酸水、小蘇打水、肥皂水）課前配好、貼好標籤。</p>
       <p><b>示範步驟</b>（照課本 69 頁）：①容器先用純水洗 ②量 20 毫升純水，加入 1 平匙固體攪拌 ③醋 2 毫升加 20 毫升純水 ④配好後貼名稱標籤。當堂只配食鹽水、醋兩杯。<b>小助手</b> 2–3 人：量 20 毫升純水、貼標籤、攪拌（男女輪替，優先點平常比較被動的學生）。</p>
       <p><b>抓錯②</b>：老師拿起自來水正要倒 → 全班舉 ╳ 喊停 → 換純水（高能力說：自來水裡的物質會影響酸鹼性）。<b>抓錯③</b>：配好正要不貼標籤就放著 → ╳ → 貼標籤。<b>平匙口頭題</b>（素養題組 s-u3-04 考過）：取不同材料要用乾淨、乾燥的平匙。</p>
-      <p><b>一直加食鹽</b>：同一杯 20 毫升純水一匙一匙加，每匙都攪拌到不再變化，小助手數匙數，直到杯底有溶不掉的食鹽；高能力把匙數記在學習單「五」的 ★，並預測再加 1 匙會怎樣。結論只說「一定量的水能溶解的量有限」，不用國中的專有名詞。示意畫面和老師的照片要等全班投票後才會出現，在示範之後用（後排看得清楚、回家複習）。時間抓緊：20 毫升水大約加到 7 公克重的食鹽才會溶不掉，課前試做時順便計時；超過 3 分鐘的話，可以課前先溶好一部分，上課再一匙一匙加。</p>
+      <p><b>一直加食鹽</b>：同一杯 20 毫升純水一匙一匙加，每匙都攪拌到不再變化，小助手數匙數，直到杯底有溶不掉的食鹽；高能力把匙數記在學習單「五」的 ★，並預測再加 1 匙會怎樣。結論只說「一定量的水能溶解的量有限」，不用國中的專有名詞。示意畫面要等全班投票後才會出現，在示範之後用（後排看得清楚、回家複習）。時間抓緊：20 毫升水大約加到 7 公克重的食鹽才會溶不掉，課前試做時順便計時；超過 3 分鐘的話，可以課前先溶好一部分，上課再一匙一匙加。</p>
       <p><b>課前試做</b>：肥皂水用<b>固體肥皂</b>刨少許溶在純水（課本沒寫做法；洗手乳、沐浴乳多半是弱酸性或中性，之後的試紙結果會不對），肥皂水會混濁，不要說成透明；小蘇打或檸檬酸若有少量溶不完，靜置後用上層的水溶液；「一直加食鹽」先試出大約幾匙會開始溶不掉。這六杯第 ④–⑨ 節都要用，一次配足量（每種約 150 毫升）裝在保存瓶並標日期；每次示範倒小份到小杯，用過的不倒回保存瓶。</p>
-      <p><b>照片</b>：課前試做時拍一張「杯底有溶不掉的食鹽」的照片（可以連同貼好標籤的六杯一起入鏡），存成這個資料夾裡的 <b>photos/teacher-make.jpg</b>，這一格就會自動顯示；還沒放照片時只顯示虛線框。示範一結束就放大給全班看，再請小助手拿杯子沿走道巡迴約 30 秒、各排觀察代表上前近看。</p>
+      <p><b>看得到</b>：示範一結束，請小助手拿杯子沿走道巡迴約 30 秒、各排觀察代表上前近看；後排看不清楚的，再用上面的示意畫面一匙一匙按一次（畫面上的匙數只是舉例，學習單「五」的 ★ 寫老師示範的匙數）。</p>
       <p><b>家長檢核</b>：清潔用品只用固體肥皂，不拿其他清潔劑；示範用的水溶液一律不嘗；回家不做實驗。</p>
     </div>
   </section>
 
-  <!-- ==================== ⑤ 出場卡（本課一節，3 題） ==================== -->
+  <!-- ==================== ⑤ 闖關驗收（本課一節，3 題） ==================== -->
   <section id="screen-quiz" class="screen">
     <div class="quizbar">
       <span id="qprog">第 1 / 3 題</span>
@@ -1073,7 +1041,7 @@ function teacherPhotoFallback(img){
         <div class="qphoto" id="qphoto"></div>
         <div>
           <div id="step1">
-            <span class="steptag">出場卡｜先舉反應卡，再按答案</span>
+            <span class="steptag">闖關｜先舉反應卡，再按答案</span>
             <p class="qtitle" id="q1title"></p>
             <div id="q1opts"></div>
             <div class="feedback" id="q1feed" aria-live="polite"></div>
@@ -1097,7 +1065,6 @@ function teacherPhotoFallback(img){
       <div class="result">
         <div class="big" id="finalScore"></div>
         <p class="rankline" id="finalRank"></p>
-        <div class="ticket"><b>出場單（寫在學習單最下面）：</b>我原本以為＿＿＿＿，現在知道＿＿＿＿。</div>
         <div class="btnrow center">
           <button class="btn" id="againBtn">↺ 再挑戰一次</button>
           <a class="btn plain" href="水溶液的各種性質_學習單.html">📄 學習單</a>
@@ -1106,7 +1073,7 @@ function teacherPhotoFallback(img){
       </div>
     </div>
     <div class="teacher-tip">
-      <p><b class="time">給老師｜⑤ 出場卡 3 分鐘</b>（之後寫學習單 9 分鐘）</p>
+      <p><b class="time">給老師｜⑤ 闖關驗收 3 分鐘</b>（之後寫學習單 9 分鐘）</p>
       <p>每題先讓全班舉反應卡（甲乙丙、○╳），再請一位同學上臺按。答錯的選項會停用，可以再試，分數減半；答對後一定出現判準卡，請一位同學用那句話說說看。</p>
       <p><b>學習單</b>（第 ③ 節最後 9 分鐘）：全班必做「一、二」；其餘依時間做；★、★★ 給先寫完的人；沒寫完的選做題不帶回家。<b>習作</b>：本課沒有習作頁。</p>
       <p><b>三層差異化</b>：低＝搧聞全班一起做（動作記憶）、圈選題、詞語框；中＝讀成分標示的小表格（學習單「二」）；高＝「一直加食鹽」時記錄匙數並預測、★★。</p>
@@ -1118,7 +1085,7 @@ function teacherPhotoFallback(img){
   <footer class="credits" id="credits">
     <p><b>本課三件套：</b>互動教材（這一頁）｜<a href="水溶液的各種性質_學習單.html">學習單</a>｜<a href="水溶液的各種性質_重點整理.html">重點整理</a></p>
     <p><b>教學依據：</b><a href="https://reader.nani.com.tw/9200a013cbef8e66" target="_blank" rel="noopener">南一自然課本，第 67–69 頁</a>（閱讀器可能需要登入）。</p>
-    <p>本頁照片取自南一版自然五上課本第 67、68 頁：紅茶、白開水、檸檬汁三杯飲料（第 67 頁）；洗衣精包裝上的成分標示（第 68 頁，只拍到包裝的一部分）。④ 站「老師課前試做的照片」由老師上課前自己拍攝。</p>
+    <p>本頁照片取自南一版自然五上課本第 67、68 頁：紅茶、白開水、檸檬汁三杯飲料（第 67 頁）；洗衣精包裝上的成分標示（第 68 頁，只拍到包裝的一部分）。</p>
     <p>示意畫面（不是照片）：開場的三杯透明無色液體、① 站的搧聞步驟圖、② 站的石蕊試紙和導電裝置（和線上題庫同一套示意圖）、④ 站「一匙一匙加食鹽」。</p>
   </footer>
 
@@ -1660,7 +1627,7 @@ guessPoll($("saltGuessOpts"),SALT_GUESSES,g=>{
   saltGuess=g;
   $("saltGuessText").textContent=g;
   $("saltGuessBox").classList.remove("hidden");
-  $("saltAfter").classList.remove("hidden");   /* 先投票，才看得到示意畫面和老師的照片 */
+  $("saltAfter").classList.remove("hidden");   /* 先投票，才看得到示意畫面 */
   updateSaltRecall();
 });
 
@@ -1726,8 +1693,8 @@ $("saltReveal").addEventListener("click",()=>{
 });
 
 /* ==========================================================
-   ⑤ 出場卡（本課一節，3 題）：答對後一定顯示判準卡
-   q.r／q.rAns 有寫時才出第 2 層「你怎麼知道？」（本課出場卡只用第 1 層）
+   ⑤ 闖關驗收（本課一節，3 題）：答對後一定顯示判準卡
+   q.r／q.rAns 有寫時才出第 2 層「你怎麼知道？」（本課闖關只用第 1 層）
    ========================================================== */
 const QUIZ=[
   {q:"1. 搧聞時，手掌要往哪個方向搧？",

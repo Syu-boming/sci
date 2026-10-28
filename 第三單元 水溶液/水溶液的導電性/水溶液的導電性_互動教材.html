@@ -179,7 +179,7 @@ a.btn{display:inline-flex;align-items:center;text-decoration:none}
 .saybox .no{display:inline-block;background:var(--sun);border:3px solid var(--ink);border-radius:999px;padding:0 12px;margin-right:8px;font-size:.8em}
 .derive{margin-top:18px;border-top:3px dashed #C9C2B4;padding-top:16px}
 
-/* ---------- 闖關（出場卡） ---------- */
+/* ---------- 闖關驗收 ---------- */
 .modebar{display:flex;align-items:center;gap:8px 12px;flex-wrap:wrap;margin-bottom:12px;font-weight:900}
 .modebar .btn{min-height:52px;padding:8px 18px}
 .quizbar{display:flex;align-items:center;gap:8px 14px;flex-wrap:wrap;
@@ -290,12 +290,69 @@ a.btn{display:inline-flex;align-items:center;text-decoration:none}
 .sortsum .grp b{font-size:1.15em}
 .photos2{display:grid;grid-template-columns:minmax(0,1fr);gap:14px}
 @media (min-width:720px){.photos2{grid-template-columns:repeat(2,minmax(0,1fr))}}
-.tphoto{display:block;width:100%;height:auto;max-height:52vh;object-fit:contain;border-radius:14px;box-shadow:0 0 0 3px var(--ink);background:#F2EEE4}
-.tphoto-empty{
-  display:flex;align-items:center;justify-content:center;text-align:center;width:min(100%,640px);aspect-ratio:4/3;max-height:40vh;margin:0 auto;
-  border:3px dashed #C9C2B4;border-radius:14px;background:#FAF7F0;color:var(--muted);font-weight:800;
-  font-size:clamp(15px,1.6vw,22px);padding:10px;
-}
+/* 示範重播（示意動畫）：老師不拍課前試做的照片，改用一步一步的示意動畫重播真的示範。
+   setupReplay() 設定 svg 的 data-step；每個畫面的動畫用 [data-step] 觸發，後面的畫面用靜態規則留住前面的結果。
+   沒有動畫時（prefers-reduced-motion）直接顯示每個畫面的結果；transform-origin 都是 viewBox 座標 */
+.svgbox.rpbox{position:relative;background:#FFFDF8;border:3px solid var(--ink);border-radius:16px;padding:6px 6px 2px;margin:0 auto;overflow:hidden;width:min(100%, calc(54vh * var(--rpar,1.6) + 18px))}
+.svgbox.rpbox svg{max-height:none}
+.simtag{position:absolute;right:8px;top:6px;z-index:2;background:#fff;border:2px dashed var(--muted);border-radius:999px;padding:0 10px;font-weight:900;color:var(--muted);font-size:clamp(12px,1.3vw,17px)}
+.rp{display:block;width:100%;height:auto}
+.rp *{transform-box:view-box}
+.rpsteps{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.rpsteps li{display:flex;gap:10px;align-items:flex-start;border:3px solid #D9CFBE;border-radius:14px;background:#fff;padding:8px 12px;font-weight:800;font-size:clamp(16px,1.8vw,23px);line-height:1.45}
+.rpsteps li.on{border-color:var(--ink);background:#FFF3C4;box-shadow:0 0 0 4px var(--sun)}
+.rpsteps .sn{flex:none;width:1.75em;height:1.75em;border-radius:50%;border:3px solid var(--ink);background:#fff;display:inline-flex;align-items:center;justify-content:center;font-weight:900;line-height:1}
+.srlive{position:absolute;width:1px;height:1px;margin:-1px;padding:0;border:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+@keyframes rpShow{from{opacity:0}to{opacity:1}}
+@keyframes rpHide{from{opacity:1}to{opacity:0}}
+@media (prefers-reduced-motion:reduce){.rp *{animation:none !important;transition:none !important}}
+@media (min-width:1800px){.rpsteps li{font-size:26px}.simtag{font-size:20px}}
+@media (min-width:2600px){.rpsteps li{font-size:34px}.simtag{font-size:26px}}
+/* ③ 示範 5 杯（導電測試）：畫法照題庫 figures.js 的導電測試圖。
+   電線前端（銅線）提起來 70：.rpl-el 往上移、.rpl-wv（電線最後一段直線）從 y=70 往上縮，兩段一直接在一起 */
+.rpl-wv{transform-origin:0 70px;transform:scaleY(.054)}
+.rpl-el{transform:translateY(-70px)}
+.rpl-glow,.rpl-q,.rpl-l1,.rpl-l2,.rpl-l3a,.rpl-l3b,.rpl-l3c,.rpl-wash,.rpl-towel,.rpl-s1,.rpl-s2,.rpl-drop1,.rpl-drop2{opacity:0}
+.rp-led[data-step="1"] .rpl-el,.rp-led[data-step="2"] .rpl-el,.rp-led[data-step="1"] .rpl-wv,.rp-led[data-step="2"] .rpl-wv{transform:none}
+/* 畫面 1：兩條電線分開放進確認電路用的食鹽水 → LED 亮了 */
+.rp-led[data-step="1"] .rpl-el{animation:rplElDown .9s .2s both}
+.rp-led[data-step="1"] .rpl-wv{animation:rplWvDown .9s .2s both}
+.rp-led[data-step="1"] .rpl-glow{opacity:1;animation:rpShow .25s 1.15s both}
+.rp-led[data-step="1"] .rpl-l1{opacity:1;animation:rpShow .4s 1.5s both}
+@keyframes rplElDown{from{transform:translateY(-70px)}to{transform:none}}
+@keyframes rplWvDown{from{transform:scaleY(.054)}to{transform:none}}
+@keyframes rplElUp{from{transform:none}to{transform:translateY(-70px)}}
+@keyframes rplWvUp{from{transform:none}to{transform:scaleY(.054)}}
+/* 畫面 2：提起來 → 食鹽水移走、要測的那一杯移過來 → 再放進去；LED 畫「？」 */
+.rp-led[data-step="2"] .rpl-el{animation:rplEl2 3.3s both}
+.rp-led[data-step="2"] .rpl-wv{animation:rplWv2 3.3s both}
+.rp-led[data-step="2"] .rpl-cup1,.rp-led[data-step="3"] .rpl-cup1{opacity:0;transform:translateX(-330px)}
+.rp-led[data-step="2"] .rpl-cup1{animation:rplOut1 .9s .8s both}
+.rp-led[data-step="2"] .rpl-cup2{transform:translateX(-220px);animation:rplIn .8s 1.7s both}
+.rp-led[data-step="2"] .rpl-q{opacity:1;animation:rpShow .3s 3.35s both}
+.rp-led[data-step="2"] .rpl-l2{opacity:1;animation:rpShow .4s 3.5s both}
+@keyframes rplEl2{0%{transform:none;animation-timing-function:ease-in-out}21%,76%{transform:translateY(-70px);animation-timing-function:ease-in-out}100%{transform:none}}
+@keyframes rplWv2{0%{transform:none;animation-timing-function:ease-in-out}21%,76%{transform:scaleY(.054);animation-timing-function:ease-in-out}100%{transform:none}}
+@keyframes rplOut1{from{opacity:1;transform:none}70%{opacity:1}to{opacity:0;transform:translateX(-330px)}}
+@keyframes rplIn{from{transform:none}to{transform:translateX(-220px)}}
+/* 畫面 3：立刻拿出 → 杯子移走 → 洗瓶的純水沖洗 → 紙巾擦乾 */
+.rp-led[data-step="3"] .rpl-el{animation:rplElUp .8s both}
+.rp-led[data-step="3"] .rpl-wv{animation:rplWvUp .8s both}
+.rp-led[data-step="3"] .rpl-l3c{opacity:1;animation:rpShow .3s .4s both}
+.rp-led[data-step="3"] .rpl-cup2{opacity:0;transform:translateX(-560px);animation:rplOut2 .9s .9s both}
+.rp-led[data-step="3"] .rpl-wash{opacity:1;animation:rplWash 1.9s 1.8s both}
+.rp-led[data-step="3"] .rpl-l3a{opacity:1;animation:rpShow .4s 2.1s both}
+.rp-led[data-step="3"] .rpl-s1{animation:rplFlash .5s 2.35s both}
+.rp-led[data-step="3"] .rpl-s2{animation:rplFlash .5s 2.85s both}
+.rp-led[data-step="3"] .rpl-drop1{animation:rplDrop .8s 2.5s both}
+.rp-led[data-step="3"] .rpl-drop2{animation:rplDrop .8s 3s both}
+.rp-led[data-step="3"] .rpl-towel{opacity:1;animation:rplTowel 1.9s 3.7s both}
+.rp-led[data-step="3"] .rpl-l3b{opacity:1;animation:rpShow .4s 3.9s both}
+@keyframes rplOut2{from{opacity:1;transform:translateX(-220px)}70%{opacity:1}to{opacity:0;transform:translateX(-560px)}}
+@keyframes rplWash{0%{opacity:0;transform:none}10%{opacity:1;transform:none}24%,82%{opacity:1;transform:translateX(-20px)}100%{opacity:1;transform:none}}
+@keyframes rplFlash{0%{opacity:0}15%,85%{opacity:1}100%{opacity:0}}
+@keyframes rplDrop{0%{opacity:0;transform:none}10%{opacity:1}80%{opacity:1;transform:translateY(60px)}100%{opacity:0;transform:translateY(70px)}}
+@keyframes rplTowel{0%{opacity:0;transform:none}8%{opacity:1;transform:none}25%{transform:translate(80px,-90px)}38%{transform:translate(80px,-74px)}50%{transform:translate(80px,-90px)}62%{transform:translate(80px,-74px)}75%{transform:translate(80px,-90px)}100%{opacity:1;transform:none}}
 
 /* ④ 抓錯實驗臺（示意） */
 .switches{display:flex;flex-direction:column;gap:10px;margin-top:10px}
@@ -400,7 +457,6 @@ body[data-st="check"] .rulefab,body[data-st="demo"] .rulefab,body[data-st="oops"
     .rulefab{ min-height:72px; font-size:26px; padding:10px 26px; }
     .rulecard{ width:min(820px,calc(100vw - 24px)); bottom:100px; }
     .modebar .btn{ min-height:68px; }
-    .tphoto-empty{ font-size:26px; width:min(100%,900px); }
   }
   @media (min-width:2600px){
     body{ font-size:34px; }
@@ -440,7 +496,6 @@ body[data-st="check"] .rulefab,body[data-st="demo"] .rulefab,body[data-st="oops"
     .rulefab{ min-height:96px; font-size:34px; padding:14px 34px; }
     .rulecard{ width:min(1100px,calc(100vw - 24px)); bottom:130px; }
     .modebar .btn{ min-height:88px; }
-    .tphoto-empty{ font-size:34px; width:min(100%,1200px); }
   }
   /* 筆電（矮螢幕）：示意圖不要佔掉整個畫面 */
   @media (min-width:1024px) and (max-height:760px){
@@ -458,17 +513,6 @@ function imgFallback(img){
   span.setAttribute("aria-label","照片載入失敗："+name);
   span.textContent="📷 照片載入失敗："+name;
   img.replaceWith(span);
-}
-/* 老師課前試做的照片：還沒放進 photos/ 時顯示中性的虛線框，不顯示錯誤 */
-function teacherPhotoFallback(img){
-  const box=document.createElement("div");
-  box.className="tphoto-empty";
-  box.setAttribute("role","img");
-  box.setAttribute("aria-label","老師課前試做的照片（還沒放上來）");
-  box.textContent="（老師課前試做的照片）";
-  const fig=img.closest("figure");
-  img.replaceWith(box);
-  if(fig){ const cap=fig.querySelector("figcaption"); if(cap) cap.classList.add("hidden"); }
 }
 </script>
 </head>
@@ -488,7 +532,7 @@ function teacherPhotoFallback(img){
       <button class="station-btn" data-go="demo">③ 示範 5 杯</button>
       <button class="station-btn" data-go="oops">④ 抓錯實驗臺</button>
       <button class="station-btn" data-go="compare">⑤ 三種檢驗比一比</button>
-      <button class="station-btn" data-go="quiz">⑥ 出場卡</button>
+      <button class="station-btn" data-go="quiz">⑥ 闖關驗收</button>
     </nav>
   </header>
 
@@ -530,7 +574,7 @@ function teacherPhotoFallback(img){
       <p><b>開場 2 分鐘</b>：課本 78 頁上方，複習四年級「電路形成通路燈泡才會亮」，迴紋針、硬幣、鐵尺（金屬）會讓燈泡亮。投票先不判對錯，只記下「全班猜的是：○○」，到 ③ 站 5 杯做完會自動回收（重新整理頁面會清掉）。</p>
       <p><b>學習目標</b>：①能說出 LED（發光二極體）的接法和優點 ②能用 LED 電路測試水溶液容易導電或不容易導電，並說出操作注意事項 ③能說出酸性和鹼性水溶液容易導電、中性水溶液不一定。</p>
       <p><b>時間</b>：<br>⏱ ⑨｜暖身（混合可能酸中鹼＋石蕊規則）3｜開場 2｜① LED 小知識＋抓錯 6｜② 先確認電路 2｜③ 示範 5 杯＋同步填習作 31 頁 13｜④ 抓錯實驗臺 3｜判準卡 3｜學習單 8｜合計 40<br>⏱ ⑩（單元三統整）｜暖身（三種檢驗各一題，在 ⑤ 站）3｜圖解筆記課本 82–83 頁回顧 8｜⑤ 三種檢驗比較表 10｜補充遊戲「水溶液偵探社」試玩 15｜習作 32–33 頁說明 2｜收束 2｜合計 40</p>
-      <p><b>學習單與習作</b>：本課一節，<b>學習單代替闖關</b>，在第 ⑨ 節最後 8 分鐘寫；全班必做「一、三」，二（預測表）在示範前先圈，其餘依時間做，★、★★ 給先寫完的人，沒寫完的選做題不帶回家。習作 31 頁在示範時同步填紀錄，討論題回家寫；習作 32–33 頁在第 ⑩ 節說明後回家寫。</p>
+      <p><b>學習單與習作</b>：本課一節，學習單在第 ⑨ 節最後 8 分鐘寫；全班必做「一、三」，二（預測表）在示範前先圈，其餘依時間做，★、★★ 給先寫完的人，沒寫完的選做題不帶回家。習作 31 頁在示範時同步填紀錄，討論題回家寫；習作 32–33 頁在第 ⑩ 節說明後回家寫。</p>
       <p><b>三層差異化</b>：低＝「亮／不亮」兩張卡、學習單一看圖圈選、右下角「📋 注意事項」隨時看；中＝學習單三看圖找問題；高＝示範時當數據審查員（比較每杯 LED 的亮度、檢查電線有沒有相碰）、學習單 ★★、第 ⑩ 節帶全班完成三種檢驗比較表。</p>
       <p><b>家長檢核</b>：只用電池，明講絕對不碰插座；電池和 LED 照教具說明書使用；不在現場故意讓兩條電線相碰（用 ④ 站的示意圖說明）；實驗室的東西一律不嘗；回家不做任何實驗。</p>
     </div>
@@ -715,11 +759,25 @@ function teacherPhotoFallback(img){
     </div>
 
     <div class="panel">
-      <p class="ptitle">📷 看不清楚時：老師課前試做的照片</p>
-      <figure class="figbox">
-        <img class="tphoto" src="photos/teacher-led.jpg" alt="老師課前試做的照片" loading="lazy" decoding="async" onerror="teacherPhotoFallback(this)">
-        <figcaption class="cap center">老師課前試做時拍的照片：各杯水溶液的 LED 測試結果</figcaption>
-      </figure>
+      <p class="ptitle">🎬 示範重播：導電測試怎麼做<span class="sitag">示意</span></p>
+      <div class="duo mid">
+        <figure class="figbox">
+          <div class="svgbox rpbox" style="--rpar:1.895"><span class="simtag">示意</span><div id="rpLed"></div></div>
+          <figcaption class="cap center">畫出來的示意動畫，不是錄影；LED 亮不亮，看上面每一杯的「看結果」。</figcaption>
+        </figure>
+        <div>
+          <ol class="rpsteps" id="rpLedSteps">
+          <li data-step="1"><span class="sn">1</span><span>先確認電路：兩條電線<b>分開</b>放進一杯食鹽水，LED 亮了，電路正常。</span></li>
+          <li data-step="2"><span class="sn">2</span><span>換成要測的那一杯：兩條電線<b>分開</b>放進去、<b>不相碰</b>，看 LED 亮不亮。</span></li>
+          <li data-step="3"><span class="sn">3</span><span>看完<b>立刻拿出</b>；用純水<b>沖洗</b>碰到水溶液的地方，再<b>擦乾</b>，才測下一杯（也可以換另一組乾淨的電線）。</span></li>
+          </ol>
+          <div class="btnrow">
+            <button class="btn" id="rpLedNext" type="button">▶ 播放畫面 1</button>
+            <button class="btn plain" id="rpLedReset" type="button">↺ 從頭看</button>
+          </div>
+          <p class="srlive" id="rpLedSay" aria-live="polite"></p>
+        </div>
+      </div>
     </div>
     <div class="navrow"><button class="btn green" data-next="oops">下一站：④ 抓錯實驗臺 →</button></div>
     <div class="teacher-tip">
@@ -727,8 +785,8 @@ function teacherPhotoFallback(img){
       <p><b>器材</b>：學校現有的導電測試教具（電池盒、LED，<b>照說明書</b>的電池數和接法；教具附限流電阻就照原樣接上）、兩組電線（前端多露一些銅線）、5 杯水溶液各 20 毫升（食鹽水、小蘇打水、肥皂水、醋、糖水，用純水配製）、一杯確認電路用的食鹽水、純水、紙巾。<b>不測純水</b>。步驟照課本 79 頁。</p>
       <p><b>流程</b>：每一杯先圈學習單二的預測表 → 舉「亮／不亮」卡（按全班最多的那一個）→ 老師把兩條電線分開放進去 → 小助手唸「亮／不亮」，全班複誦 → 亮了立刻拿出 → 小助手用另一組電線輪替，把剛用過的那組用純水沖洗並擦乾 → 按「看結果」→ 全班說「所以它……」→ 同步填習作 31 頁。</p>
       <p><b>抓錯 ③</b>（會汙染水溶液，只做到「正要」）：測完醋，老師拿著沒沖洗的電線正要放進糖水 → 全班舉 ╳ 喊停 → 用純水沖洗並擦乾（或換另一組電線）。所以這裡把糖水排在醋後面；萬一已經碰到，換一杯新倒出的糖水重測。</p>
-      <p><b>看得到</b>：示範一結束就放大下面「老師課前試做的照片」；小助手拿著裝置沿走道巡迴展示約 30 秒（只拿出來看 LED，不碰水溶液）；每排一位觀察代表上前近看，回座位向同排報告。高能力當<b>數據審查員</b>：比較每杯 LED 的亮度、檢查兩條電線有沒有相碰。</p>
-      <p><b>課前試做</b>：用學校的導電測試教具，照說明書先把 5 杯都測一次（電池數、LED 型號、有沒有限流電阻都記在備料單）；醋、肥皂水可能只微亮——多露一些銅線、兩條線靠近一點（但不相碰）；電池用新的；「先確認會亮」用一杯食鹽水測，<b>不讓兩條銅線直接相碰</b>；<b>只用電池，絕對不接插座</b>。試做時拍照，存成這個資料夾裡的 <b>photos/teacher-led.jpg</b>，上面那一格就會自動顯示；還沒放照片時只顯示虛線框。</p>
+      <p><b>看得到</b>：後排看不清楚電線怎麼放、怎麼拿出來沖洗時，播下面的「🎬 示範重播」（示意動畫，一個畫面一個畫面按；要測的那一杯 LED 畫成「？」，亮不亮看上面每一杯的「看結果」）；小助手拿著裝置沿走道巡迴展示約 30 秒（只拿出來看 LED，不碰水溶液）；每排一位觀察代表上前近看，回座位向同排報告。高能力當<b>數據審查員</b>：比較每杯 LED 的亮度、檢查兩條電線有沒有相碰。</p>
+      <p><b>課前試做</b>：用學校的導電測試教具，照說明書先把 5 杯都測一次（電池數、LED 型號、有沒有限流電阻都記在備料單）；醋、肥皂水可能只微亮——多露一些銅線、兩條線靠近一點（但不相碰）；電池用新的；「先確認會亮」用一杯食鹽水測，<b>不讓兩條銅線直接相碰</b>；<b>只用電池，絕對不接插座</b>。</p>
       <p><b>判準卡 3 分鐘</b>：5 杯做完會出現分類和判準卡，請全班唸「微微亮也算亮」那一句；開場的猜測在這裡回收。酸鹼性那一欄是上一課〈檢驗水溶液的酸鹼性〉測過的結果，用來帶出必會第 3 句。</p>
       <p><b>想讓學生知道「為什麼」</b>（國中才會學・看看就好，不考）：判準卡下面的按鈕打開補充教材〈帶電才會亮〉的「⚡ 3 分鐘快速版」：食鹽水和糖水一起通電 → 醋和小蘇打水先滴石蕊試紙再通電 → 結論板。課堂時間不夠，就請學生回家看。</p>
     </div>
@@ -839,7 +897,7 @@ function teacherPhotoFallback(img){
         <a class="btn plain" href="../補充教材%20帶電才會亮/帶電才會亮_互動教材.html?from=lesson-compare#game" target="_blank" rel="noopener">🎮 LED 亮不亮？</a>
       </div>
     </div>
-    <div class="navrow"><button class="btn green" data-next="quiz">最後一站：⑥ 出場卡 →</button></div>
+    <div class="navrow"><button class="btn green" data-next="quiz">最後一站：⑥ 闖關驗收 →</button></div>
     <div class="teacher-tip">
       <p><b class="time">給老師｜⑤ 三種檢驗比一比</b>（第 ⑨ 節只填 LED 一列；第 ⑩ 節單元三統整用 10 分鐘完成）</p>
       <p><b>第 ⑨ 節</b>：示範完按「⑨ 先填 LED 這一列」，讓學生知道 LED 看的是「導電性」，不是酸鹼性。<b>第 ⑩ 節</b>：暖身（三種檢驗各一題）3 分鐘 → 課本 82–83 頁圖解筆記回顧 8 分鐘 → 這一站 10 分鐘：先讓全班說石蕊試紙、紫色高麗菜汁兩列，再按「⑩ 全班完成另外兩列」，接著兩個全班提問 → 補充遊戲「水溶液偵探社」試玩 15 分鐘 → 習作 32–33 頁說明 2 分鐘（回家寫）→ 收束 2 分鐘。</p>
@@ -850,11 +908,11 @@ function teacherPhotoFallback(img){
     </div>
   </section>
 
-  <!-- ==================== ⑥ 出場卡（在家複習） ==================== -->
+  <!-- ==================== ⑥ 闖關驗收 ==================== -->
   <section id="screen-quiz" class="screen">
     <div class="modebar" role="group" aria-label="題數">
       <span>題數：</span>
-      <button class="btn plain" id="modeClass" aria-pressed="false">出場卡 2 題（第 1、3 題）</button>
+      <button class="btn plain" id="modeClass" aria-pressed="false">課堂 2 題（第 1、3 題）</button>
       <button class="btn plain" id="modeAll" aria-pressed="true">完整 5 題</button>
     </div>
     <div class="quizbar">
@@ -893,13 +951,13 @@ function teacherPhotoFallback(img){
       <div class="result">
         <div class="big" id="finalScore"></div>
         <p class="rankline" id="finalRank"></p>
-        <div class="ticket"><b>📝 學習單：</b>全班必做「一、三」；寫完的人挑戰 ★、★★，最後寫出場單。</div>
+        <div class="ticket"><b>📝 學習單：</b>全班必做「一、三」；寫完的人挑戰 ★、★★。</div>
         <button class="btn" id="againBtn">↺ 再挑戰一次</button>
       </div>
     </div>
     <div class="teacher-tip">
-      <p><b class="time">給老師｜⑥ 出場卡</b>（本課一節，課堂<b>用學習單代替</b>闖關）</p>
-      <p>第 ⑨ 節最後 8 分鐘寫學習單（全班必做一、三）。這一站給學生在家自由複習；課堂時間多時，按「出場卡 2 題」只做第 1、3 題（LED 接法、中性不一定）。第 2 層「你怎麼知道？」由高能力學生說理由；答錯的選項會停用，可以再試，分數減半。</p>
+      <p><b class="time">給老師｜⑥ 闖關驗收</b>（學習單寫完、有時間再做）</p>
+      <p>第 ⑨ 節最後 8 分鐘寫學習單（全班必做一、三）。學習單寫完還有時間，按「課堂 2 題」只做第 1、3 題（LED 接法、中性不一定）：每題全班先舉卡，再請一位同學上臺按。第 2 層「你怎麼知道？」由高能力學生說理由；答錯的選項會停用，可以再試，分數減半。</p>
       <p>收束：全班唸一次必會 3 句。</p>
     </div>
   </section>
@@ -908,8 +966,8 @@ function teacherPhotoFallback(img){
   <footer class="credits" id="credits">
     <p><b>本課三件套：</b>互動教材（這一頁）｜<a href="水溶液的導電性_學習單.html">學習單</a>｜<a href="水溶液的導電性_重點整理.html">重點整理</a></p>
     <p><b>教學依據：</b><a href="https://reader.nani.com.tw/9200a013cbef8e66" target="_blank" rel="noopener">南一自然課本，第 78–79 頁</a>（單元三統整用到第 82–83 頁；閱讀器可能需要登入）。</p>
-    <p>本頁照片取自南一版自然五上課本：電池盒、電線和 LED 接成的電路，手電筒、交通號誌燈（第 78 頁）；兩條電線放進水溶液、LED 發亮和沒有發亮（第 79 頁）。第 79 頁的兩張和線上題庫是同一張。③ 站「老師課前試做的照片」由老師上課前自己拍攝。</p>
-    <p>示意畫面（不是照片）：導電測試的示意圖（和線上題庫同一套）、④ 站的抓錯實驗臺。</p>
+    <p>本頁照片取自南一版自然五上課本：電池盒、電線和 LED 接成的電路，手電筒、交通號誌燈（第 78 頁）；兩條電線放進水溶液、LED 發亮和沒有發亮（第 79 頁）。第 79 頁的兩張和線上題庫是同一張。</p>
+    <p>示意畫面（不是照片）：導電測試的示意圖（和線上題庫同一套）、③ 站的示範重播動畫、④ 站的抓錯實驗臺。示範重播是畫出來的動畫，不是錄影。</p>
   </footer>
 
 </div>
@@ -1338,8 +1396,8 @@ $("cq1Btn").addEventListener("click",()=>{ $("cq1Ans").classList.remove("hidden"
 $("cq2Btn").addEventListener("click",()=>{ $("cq2Ans").classList.remove("hidden"); $("cq2Btn").disabled=true; cmpCheck(); });
 
 /* ==========================================================
-   ⑥ 出場卡　兩層：先選答案，再選「你怎麼知道？」
-   ★ 答對後一定要顯示「判準」。課堂由學習單代替；這裡給在家複習。
+   ⑥ 闖關驗收　兩層：先選答案，再選「你怎麼知道？」
+   ★ 答對後一定要顯示「判準」。學習單寫完、有時間再做；「課堂 2 題」只做第 1、3 題。
    ========================================================== */
 const QUIZ=[
   {photo:"led-circuit",cap:"課本 78 頁：LED 電路（紅色夾子那一邊標 ⊕，黑色夾子那一邊標 ⊖）",
@@ -1467,6 +1525,71 @@ $("modeClass").addEventListener("click",()=>setMode("class"));
 $("modeAll").addEventListener("click",()=>setMode("all"));
 $("againBtn").addEventListener("click",()=>{ restartQuiz(); $("quizPanel").scrollIntoView({block:"start"}); });
 restartQuiz();
+
+/* ---------- 示範重播（示意動畫）：老師不拍課前試做的照片，改用一步一步的示意動畫重播真的示範 ---------- */
+const RP_F='font-family="Microsoft JhengHei,PingFang TC,Noto Sans TC,sans-serif"';
+/* 字外圈描一層底色，疊在圖上也讀得清楚 */
+const RP_T='font-weight="800" fill="#1E1E1E" text-anchor="middle" stroke="#FFFDF8" stroke-width="5" stroke-linejoin="round" paint-order="stroke"';
+const RP_SKIN='fill="#F6C9A8" stroke="#1E1E1E" stroke-width="3" stroke-linejoin="round"';
+/* 箭頭：從 (x1,y1) 指到 (x2,y2) */
+function rpArrow(x1,y1,x2,y2,col,w=5){
+  const a=Math.atan2(y2-y1,x2-x1),c=Math.cos(a),s=Math.sin(a),h=w*3,k=w*1.8,bx=x2-h*c,by=y2-h*s,f=v=>+v.toFixed(1);
+  return `<line x1="${x1}" y1="${y1}" x2="${f(bx)}" y2="${f(by)}" stroke="${col}" stroke-width="${w}" stroke-linecap="round"/><path d="M${x2} ${y2} L${f(bx-k*s)} ${f(by+k*c)} L${f(bx+k*s)} ${f(by-k*c)} Z" fill="${col}" stroke="${col}" stroke-width="1.5" stroke-linejoin="round"/>`;
+}
+/* 按「▶ 播放畫面」一格一格往下看；只用 CSS 動畫，所以換站回來會從頭播目前這一格 */
+function setupReplay(id,n){
+  const svg=$(id+'Svg'),next=$(id+'Next'),say=$(id+'Say'),items=[...$(id+'Steps').querySelectorAll('li')];
+  let step=0;
+  function set(k){
+    step=k;svg.dataset.step=k;
+    items.forEach(li=>li.classList.toggle('on',+li.dataset.step===k));
+    const li=items.find(x=>+x.dataset.step===k);
+    say.textContent=li?'畫面 '+k+'：'+li.textContent.replace(/^\s*\d+/,'').trim():'';
+    next.textContent=k>=n?'▶ 再看一次：畫面 1':'▶ 播放畫面 '+(k+1);
+  }
+  next.addEventListener('click',()=>set(step>=n?1:step+1));
+  $(id+'Reset').addEventListener('click',()=>set(0));
+  set(0);
+}
+/* ③ 示範 5 杯：示範重播（導電測試的做法）。畫法照題庫的導電測試圖；
+   只有「確認電路」那杯食鹽水畫出 LED 亮（① ② 站已經教過），要測的那一杯一律畫「？」，亮不亮看每一杯的「看結果」 */
+function ledRpSVG(){
+  const T=(x,y,s,sz=16)=>`<text x="${x}" y="${y}" font-size="${sz}" ${RP_T} dominant-baseline="middle">${s}</text>`;
+  const f=v=>+v.toFixed(1);
+  const rays=[0,1,2,3,4,5,6,7].map(i=>{const a=i*Math.PI/4,c=Math.cos(a),s=Math.sin(a);return `<line x1="${f(110+c*22)}" y1="${f(70+s*22)}" x2="${f(110+c*32)}" y2="${f(70+s*32)}" stroke="#F2B705" stroke-width="3" stroke-linecap="round"/>`;}).join('');
+  const cup=(x,name)=>`<rect x="${x}" y="180" width="130" height="70" fill="#CFE8F6" opacity=".9"/><path d="M${x} 150 V250 H${x+130} V150" fill="none" stroke="#1E1E1E" stroke-width="2.5"/>${T(x+65,233,name,15)}`;
+  const bulb=`d="M98 88 V70 A12 12 0 0 1 122 70 V88 Z" stroke="#1E1E1E" stroke-width="2"`;
+  return `<svg class="rp rp-led" id="rpLedSvg" data-step="0" viewBox="0 0 540 285" role="img" aria-label="示範重播的示意圖：先把兩條電線分開放進一杯食鹽水，LED 亮了，電路正常；換成要測的那一杯，兩條電線分開放進去、不相碰，看 LED 亮不亮（畫成問號）；看完立刻把電線拿出來，用洗瓶的純水沖洗，再用紙巾擦乾，才測下一杯" xmlns="http://www.w3.org/2000/svg" ${RP_F}>
+  <rect width="540" height="285" fill="#FFFDF8"/>
+  <rect x="320" y="40" width="130" height="44" rx="6" fill="#2B2B2B"/><rect x="330" y="48" width="52" height="28" rx="12" fill="#C8642A"/><rect x="386" y="48" width="52" height="28" rx="12" fill="#C8642A"/>
+  <text x="322" y="28" font-size="20" font-weight="900" fill="#C62828" text-anchor="middle" dominant-baseline="middle">＋</text>
+  <text x="448" y="28" font-size="22" font-weight="900" fill="#1E1E1E" text-anchor="middle" dominant-baseline="middle">－</text>
+  <text x="385" y="24" font-size="13" font-weight="700" fill="#1E1E1E" text-anchor="middle" dominant-baseline="middle">電池盒</text>
+  <path d="M320 62 C 270 62, 220 12, 102 12 L 102 88" fill="none" stroke="#D32F2F" stroke-width="3"/>
+  <path d="M118 130 C 118 150, 208 120, 208 70" fill="none" stroke="#333" stroke-width="3"/>
+  <path d="M450 62 C 495 62, 495 100, 455 100 H 290 C 272 100, 262 90, 262 70" fill="none" stroke="#333" stroke-width="3"/>
+  <g class="rpl-wv"><line x1="208" y1="70" x2="208" y2="144" stroke="#333" stroke-width="3"/><line x1="262" y1="70" x2="262" y2="144" stroke="#333" stroke-width="3"/></g>
+  <g class="rpl-glow">${rays}<circle cx="110" cy="70" r="20" fill="#FFE58A" opacity=".75"/></g>
+  <path ${bulb} fill="#E8B4B4"/><path class="rpl-glow" ${bulb} fill="#FF4D4D"/>
+  <line x1="102" y1="88" x2="102" y2="148" stroke="#888" stroke-width="3"/><line x1="118" y1="88" x2="118" y2="130" stroke="#888" stroke-width="3"/>
+  <text x="158" y="58" font-size="14" font-weight="700" fill="#1E1E1E" text-anchor="middle" dominant-baseline="middle">LED</text>
+  <g class="rpl-cup1">${cup(170,'食鹽水')}${T(235,267,'確認電路用',14)}</g>
+  <g class="rpl-cup2">${cup(390,'要測的水溶液')}</g>
+  <g class="rpl-el"><line x1="208" y1="144" x2="208" y2="216" stroke="#B87333" stroke-width="4"/><line x1="262" y1="144" x2="262" y2="216" stroke="#B87333" stroke-width="4"/></g>
+  <g class="rpl-towel"><rect x="120" y="206" width="70" height="30" rx="4" fill="#FFFFFF" stroke="#9AA5AB" stroke-width="2"/><path d="M137 206 V236 M173 206 V236" stroke="#C9D1D5" stroke-width="1.5"/><text x="155" y="222" font-size="13" font-weight="700" fill="#4A5960" text-anchor="middle" dominant-baseline="middle">紙巾</text></g>
+  <g class="rpl-wash"><rect x="330" y="176" width="40" height="66" rx="9" fill="#E8F4FB" stroke="#1E1E1E" stroke-width="2.5"/><rect x="341" y="166" width="18" height="12" rx="3" fill="#2E86C1" stroke="#1E1E1E" stroke-width="2"/><path d="M350 166 V152 Q350 144 342 144 H306" fill="none" stroke="#1E1E1E" stroke-width="4" stroke-linecap="round"/><text x="350" y="212" font-size="14" font-weight="800" fill="#1E1E1E" text-anchor="middle" dominant-baseline="middle">純水</text></g>
+  <path class="rpl-s1" d="M286 144 Q275 137 266 140" fill="none" stroke="#4FB0E5" stroke-width="3" stroke-dasharray="6 5" stroke-linecap="round"/>
+  <path class="rpl-s2" d="M286 144 Q246 106 212 128" fill="none" stroke="#4FB0E5" stroke-width="3" stroke-dasharray="6 5" stroke-linecap="round"/>
+  <circle class="rpl-drop1" cx="263" cy="152" r="3.5" fill="#4FB0E5"/><circle class="rpl-drop2" cx="209" cy="152" r="3.5" fill="#4FB0E5"/>
+  <g class="rpl-q"><circle cx="56" cy="62" r="21" fill="#fff" stroke="#1E1E1E" stroke-width="2.5"/><path d="M75 70 L92 76 L77 80" fill="#fff" stroke="#1E1E1E" stroke-width="2" stroke-linejoin="round"/><text x="56" y="63" font-size="26" font-weight="900" fill="#1E1E1E" text-anchor="middle" dominant-baseline="middle">？</text></g>
+  <g class="rpl-l1">${T(170,84,'亮了！',17)}${T(66,206,'電路正常',17)}</g>
+  <g class="rpl-l2">${rpArrow(235,198,214,198,'#E4574C',3)}${rpArrow(235,198,256,198,'#E4574C',3)}${T(424,198,'兩條電線分開、不相碰',16)}</g>
+  <g class="rpl-l3c">${T(160,170,'立刻拿出',16)}</g>
+  <g class="rpl-l3a">${T(442,206,'用純水沖洗',16)}</g>
+  <g class="rpl-l3b">${T(90,222,'擦乾',16)}</g>
+</svg>`;
+}
+$("rpLed").innerHTML=ledRpSVG(); setupReplay("rpLed",3);
 
 /* ---------- 開頁：網址有 #站名 就直接跳過去 ---------- */
 (function(){

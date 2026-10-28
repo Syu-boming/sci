@@ -320,13 +320,6 @@ body[data-st="demo"] .rulefab,body[data-st="one"] .rulefab,body[data-st="boyle"]
 .sortsum .grp{border:3px solid var(--ink);border-radius:14px;background:#fff;padding:8px 12px;font-weight:800;line-height:1.5}
 .sortsum .grp b{font-size:1.15em}
 .recallbox{margin-top:14px}
-/* 老師課前試做的照片（老師之後自己放；沒有檔案時顯示中性的虛線框） */
-.tphoto{display:block;width:100%;height:auto;max-height:52vh;object-fit:contain;border-radius:14px;box-shadow:0 0 0 3px var(--ink);background:#F2EEE4}
-.tphoto-empty{
-  display:flex;align-items:center;justify-content:center;text-align:center;width:min(100%,640px);aspect-ratio:4/3;max-height:40vh;margin:0 auto;
-  border:3px dashed #C9C2B4;border-radius:14px;background:#FAF7F0;color:var(--muted);font-weight:800;
-  font-size:clamp(15px,1.6vw,22px);padding:10px;
-}
 
 /* ④ 虛擬實驗臺 */
 .labstep{border:3px dashed #C9C2B4;border-radius:18px;padding:12px;margin-top:12px;background:#FFFDF8}
@@ -397,7 +390,6 @@ body[data-st="demo"] .rulefab,body[data-st="one"] .rulefab,body[data-st="boyle"]
     .rulefab{ min-height:72px; font-size:26px; padding:10px 26px; }
     .rulecard{ width:min(820px,calc(100vw - 24px)); bottom:100px; }
     .modebar .btn{ min-height:68px; }
-    .tphoto-empty{ font-size:26px; width:min(100%,900px); }
     .criterion .askagain{ font-size:22px; }
     .ticket{ font-size:30px; }
     .guessbox .g{ font-size:32px; }
@@ -441,7 +433,6 @@ body[data-st="demo"] .rulefab,body[data-st="one"] .rulefab,body[data-st="boyle"]
     .rulefab{ min-height:96px; font-size:34px; padding:14px 34px; }
     .rulecard{ width:min(1100px,calc(100vw - 24px)); bottom:130px; }
     .modebar .btn{ min-height:88px; }
-    .tphoto-empty{ font-size:34px; width:min(100%,1200px); }
     .criterion .askagain{ font-size:29px; }
     .ticket{ font-size:39px; }
     .guessbox .g{ font-size:42px; }
@@ -468,17 +459,6 @@ function imgFallback(img){
   span.setAttribute("aria-label","照片載入失敗："+name);
   span.textContent="📷 照片載入失敗："+name;
   img.replaceWith(span);
-}
-/* 老師課前試做的照片：老師之後才會放進 photos/；還沒放時顯示中性的虛線框，不顯示錯誤 */
-function teacherPhotoFallback(img){
-  const box=document.createElement("div");
-  box.className="tphoto-empty";
-  box.setAttribute("role","img");
-  box.setAttribute("aria-label","老師課前試做的照片（還沒放上來）");
-  box.textContent="（老師課前試做的照片）";
-  const fig=img.closest("figure");
-  img.replaceWith(box);
-  if(fig){ const cap=fig.querySelector("figcaption"); if(cap) cap.classList.add("hidden"); }
 }
 </script>
 </head>
@@ -541,7 +521,7 @@ function teacherPhotoFallback(img){
       <p><b>暖身 3 分鐘</b>（上一課〈水溶液的各種性質〉：配製用純水＋搧聞）：全班口答或舉卡，再按「看答案」。這 3 分鐘請 2–3 位小助手布置示範臺（器材見 ③ 站的提示）。</p>
       <p><b>開場</b>：課本 70 頁「水溶液除了顏色、氣味不同，還有其他不同的性質，例如：酸鹼性」。洗衣精照片是上一課看過的課本 68 頁成分標示；「7 ± 1.0」是用 pH 值寫的酸鹼性，課本 80 頁〈自製酸鹼指示劑〉才學，這裡只說「包裝上可以標示酸鹼性」。投票先不判對錯，只記下「全班猜的是：○○」，到 ③ 站示範完 6 杯會自動回收（重新整理頁面會清掉）。</p>
       <p><b>學習目標</b>：①能正確使用石蕊試紙並說出每個步驟的理由 ②能用紅、藍兩種石蕊試紙的顏色變化判斷酸性、中性、鹼性 ③能說出只用一種石蕊試紙時，哪些水溶液分不出來。</p>
-      <p><b>兩節課的時間</b>：<br>⏱ ④｜暖身（配製用純水＋搧聞）3｜開場 3｜① 試紙用法＋抓錯 8｜② 顏色變化表 4｜③ 示範 7 杯＋同步填習作 25 頁 15｜判準卡 4｜出場卡 3｜合計 40<br>⏱ ⑤｜暖身（三條規則＋溶解）3｜④ 只用一種試紙 10｜⑤ 波以耳 6｜⑥ 闖關 7｜學習單 12｜收束 2｜合計 40</p>
+      <p><b>兩節課的時間</b>：<br>⏱ ④｜暖身（配製用純水＋搧聞）3｜開場 3｜① 試紙用法＋抓錯 8｜② 顏色變化表 4｜③ 示範 7 杯＋同步填習作 25 頁 15｜判準卡 4｜下課前小複習 3｜合計 40<br>⏱ ⑤｜暖身（三條規則＋溶解）3｜④ 只用一種試紙 10｜⑤ 波以耳 6｜⑥ 闖關 7｜學習單 12｜收束 2｜合計 40</p>
       <p><b>學習單與習作</b>：學習單等 ② 站按完「看課本 71 頁的顏色變化表」再發。學習單的預測格在第 ④ 節示範前先寫，其餘在第 ⑤ 節寫；全班必做「預測格、一、二、三」，其餘依時間做，★、★★ 給先寫完的人，沒寫完的選做題不帶回家。習作 25 頁在第 ④ 節示範時同步填結果；第 ⑤ 節之後回家寫分類與討論。</p>
       <p><b>三層差異化</b>：低＝先寫後舉卡、桌上放一張印好的重點整理（第一框就是規則表），需要時再打開右下角的「📋 規則表」（③～⑥ 站，看完按「收起來」）、當小助手夾試紙；中＝學習單三的小表格找出異常的一組；高＝當數據審查員（每杯先預測兩張試紙的顏色再對照）、學習單 ★★、闖關第 2 層由高能力學生回答。</p>
       <p><b>家長檢核</b>：示範只用課本的六種水溶液（不用鹽酸、漂白水）；波以耳故事裡的鹽酸只講不做；試紙一律用鑷子夾；實驗室的東西一律不嘗；回家不做任何實驗。</p>
@@ -741,17 +721,8 @@ function teacherPhotoFallback(img){
       </div>
     </div>
 
-    <div class="panel">
-      <p class="ptitle">📷 示範做完再看：老師課前試做的照片</p>
-      <button class="btn plain" id="tphotoBtn" type="button" aria-expanded="false" aria-controls="tphotoFig">📷 6 杯都做完了：看老師的照片</button>
-      <figure class="figbox hidden" id="tphotoFig" style="margin-top:12px">
-        <img class="tphoto" src="photos/teacher-litmus.jpg" alt="老師課前試做的照片" loading="lazy" decoding="async" onerror="teacherPhotoFallback(this)">
-        <figcaption class="cap center">老師課前試做時拍的照片：課本六種水溶液滴在藍色、紅色石蕊試紙上的結果</figcaption>
-      </figure>
-    </div>
-
     <div class="panel" id="exitPanel">
-      <p class="ptitle">🎫 出場卡（第 ④ 節）</p>
+      <p class="ptitle">💬 下課前小複習（第 ④ 節）</p>
       <div class="ask">1. 醋讓藍色石蕊試紙變成什麼顏色？</div>
       <div id="exit1" style="margin-top:10px"></div>
       <div class="feedback" id="exit1Feed" aria-live="polite"></div>
@@ -761,16 +732,16 @@ function teacherPhotoFallback(img){
     </div>
     <div class="navrow"><button class="btn green" data-next="one">下一站：④ 只用一種試紙 →</button></div>
     <div class="teacher-tip">
-      <p><b class="time">給老師｜③ 示範 7 杯 15 分鐘＋判準卡 4 分鐘＋出場卡 3 分鐘</b>（第 ④ 節）</p>
+      <p><b class="time">給老師｜③ 示範 7 杯 15 分鐘＋判準卡 4 分鐘＋下課前小複習 3 分鐘</b>（第 ④ 節）</p>
       <p><b>器材</b>：紅、藍石蕊試紙（剪成小段）、鑷子、白色底板、滴管 8 支（每杯一支，貼標籤）、7 杯水溶液（醋、檸檬酸水、食鹽水、糖水、小蘇打水、肥皂水、未知）＋1 杯純水。老師和負責滴的小助手都戴護目鏡。</p>
       <p><b>流程</b>：先做純水沾溼的試紙對照，之後每杯都和它比。每一杯：學習單預測格先寫 → 舉「酸／中／鹼」卡（按全班最多的那一個）→ 小助手用鑷子夾試紙放到底板、用那一杯的滴管滴一滴、唸結果，全班複誦 → 按「看結果」→ 全班說「所以它是……」→ 同步填習作 25 頁。每一杯都換<b>新的</b>一小段紅、藍試紙，照杯子順序排在底板<b>乾的地方</b>（底板先寫好杯名），不要碰到上一杯留下的水滴；巡迴展示完，再用鑷子把試紙夾進垃圾桶。小助手唸的結果和老師課前試做的結果不一樣時，先不要按「看結果」：換新試紙、換乾淨的滴管再滴一次，和全班想想哪裡出錯（像學習單三）。</p>
       <p>重新整理頁面，或從首頁重新點進來，③ 的紀錄會清掉（按瀏覽器的「上一頁」回來，通常還在）。清掉的話，6 杯各按一次「看結果」和「所以是？」，分類和判準卡就會再出現；全班預測請大家看學習單的預測格，再舉一次卡。</p>
-      <p><b>看得到</b>：示範一結束就放大「老師課前試做的照片」（6 杯做完才會出現）；小助手拿白底板沿走道巡迴展示約 30 秒；每排一位觀察代表上前近看，回座位向同排報告。高能力當數據審查員：每杯先預測兩張試紙的顏色，再對照結果。</p>
+      <p><b>看得到</b>：每一杯按「看結果」，畫面就畫出這一杯的試紙示意圖（醋、檸檬酸水另有課本 73 頁的照片）；小助手拿白底板沿走道巡迴展示約 30 秒；每排一位觀察代表上前近看，回座位向同排報告。高能力當數據審查員：每杯先預測兩張試紙的顏色，再對照結果。</p>
       <p><b>未知</b>：老師課前從課本六種水溶液裡選一種（不用其他液體），倒進沒有標籤的杯子；示範後按「記下老師示範的結果」，選看到的結果，再讓全班推理：它是○性，可能是哪兩杯？只用石蕊試紙分得出是哪一杯嗎？（分不出來：同一種性質的兩杯，試紙的變化一樣）。最後由老師揭曉是哪一種。</p>
-      <p><b>課前試做</b>：石蕊試紙放在蓋緊的罐子裡，收在乾燥的地方，不要和醋、清潔劑放在一起（放久了受潮會變質、不準；這和滴上純水只是深一點是兩回事）；剪好的小段當天用完；小蘇打水讓紅色試紙變藍可能又淡又慢，等 10–20 秒，和純水對照比；肥皂水用固體肥皂（上一課的配法）；醋用白醋（顏色淺，不會把試紙染色）；7 杯先自己全部測一次；拍照時只拍課本的 6 杯，未知那杯不要入鏡。照片存成這個資料夾裡的 <b>photos/teacher-litmus.jpg</b>。上面那一格要等 6 杯都做完（或按「看老師的照片」）才會出現；現場顏色不明顯的那幾杯，示範做完再放大照片給全班看；還沒放照片時只顯示虛線框。</p>
+      <p><b>課前試做</b>：石蕊試紙放在蓋緊的罐子裡，收在乾燥的地方，不要和醋、清潔劑放在一起（放久了受潮會變質、不準；這和滴上純水只是深一點是兩回事）；剪好的小段當天用完；小蘇打水讓紅色試紙變藍可能又淡又慢，等 10–20 秒，和純水對照比；肥皂水用固體肥皂（上一課的配法）；醋用白醋（顏色淺，不會把試紙染色）；7 杯先自己全部測一次，記下結果；現場顏色不明顯的那幾杯，把試紙和純水沾溼的對照試紙並排，再巡迴展示、請觀察代表上前近看。</p>
       <p>課本 73 頁只畫出醋、檸檬酸水這一組的結果，另外兩組打「？」，要靠示範找答案；畫面上醋、檸檬酸水兩杯會附課本 73 頁的試紙照片。</p>
-      <p><b>判準卡 4 分鐘</b>：6 杯都做完會出現分類和判準卡，請全班用「先看藍色、再看紅色」說一次；開場的猜測在這裡回收。<b>出場卡 3 分鐘</b>：第 1 題全班一起說出顏色，再請一位同學上臺按；第 2 題舉 ○╳ 卡。</p>
-      <p><b>時間不夠時</b>：預測格在示範前一次圈好 7 杯，示範時只舉卡；照課本 73 頁的分組，兩杯一起滴、一起看（兩杯都舉完卡再滴）；巡迴展示省略，示範做完放大老師的照片；出場卡只做第 1 題。未知那杯來不及，就由老師說出課前試做的結果，全班舉卡判斷它是什麼性質（30 秒）。</p>
+      <p><b>判準卡 4 分鐘</b>：6 杯都做完會出現分類和判準卡，請全班用「先看藍色、再看紅色」說一次；開場的猜測在這裡回收。<b>下課前小複習 3 分鐘</b>：全班口頭回答或舉卡，不寫卡、不收。第 1 題全班一起說出顏色，再請一位同學上臺按；第 2 題舉 ○╳ 卡。</p>
+      <p><b>時間不夠時</b>：預測格在示範前一次圈好 7 杯，示範時只舉卡；照課本 73 頁的分組，兩杯一起滴、一起看（兩杯都舉完卡再滴）；巡迴展示省略，改看畫面上每杯的示意圖；下課前小複習只做第 1 題。未知那杯來不及，就由老師說出課前試做的結果，全班舉卡判斷它是什麼性質（30 秒）。</p>
       <p><b>家長檢核</b>：示範只用課本的六種水溶液，不用鹽酸、漂白水；試紙一律用鑷子夾；回家不做實驗。</p>
     </div>
   </section>
@@ -936,7 +907,7 @@ function teacherPhotoFallback(img){
       <div class="result">
         <div class="big" id="finalScore"></div>
         <p class="rankline" id="finalRank"></p>
-        <div class="ticket"><b>📝 接下來寫學習單：</b>全班必做「一、二、三」（預測格第 ④ 節寫過了）；寫完的人做四，再挑戰 ★、★★，最後寫出場單。</div>
+        <div class="ticket"><b>📝 接下來寫學習單：</b>全班必做「一、二、三」（預測格第 ④ 節寫過了）；寫完的人做四，再挑戰 ★、★★。</div>
         <div class="criterion" style="text-align:left;max-width:900px;margin:14px auto"><div class="k">💡 收束：全班一起唸必會 3 句</div><ol class="must3 k" id="finalMust"></ol></div>
         <button class="btn" id="againBtn">↺ 再挑戰一次</button>
       </div>
@@ -952,7 +923,7 @@ function teacherPhotoFallback(img){
   <footer class="credits" id="credits">
     <p><b>本課三件套：</b>互動教材（這一頁）｜<a href="檢驗水溶液的酸鹼性_學習單.html">學習單</a>｜<a href="檢驗水溶液的酸鹼性_重點整理.html">重點整理</a></p>
     <p><b>教學依據：</b><a href="https://reader.nani.com.tw/9200a013cbef8e66" target="_blank" rel="noopener">南一自然課本，第 70–73、81 頁</a>（閱讀器可能需要登入）。</p>
-    <p>本頁照片取自南一版自然五上課本：石蕊試紙、用鑷子夾試紙、手拿滴管（第 70 頁）；試紙滴之前和滴之後的顏色（第 71 頁）；醋、檸檬酸水的試紙結果（第 73 頁，兩段試紙拼成一張）；波以耳和紫羅蘭（第 81 頁的插圖，是畫的）；洗衣精的成分標示（第 68 頁，和線上題庫同一張）。課本裡去背的照片已經放在白底上。③ 站「老師課前試做的照片」由老師上課前自己拍攝。</p>
+    <p>本頁照片取自南一版自然五上課本：石蕊試紙、用鑷子夾試紙、手拿滴管（第 70 頁）；試紙滴之前和滴之後的顏色（第 71 頁）；醋、檸檬酸水的試紙結果（第 73 頁，兩段試紙拼成一張）；波以耳和紫羅蘭（第 81 頁的插圖，是畫的）；洗衣精的成分標示（第 68 頁，和線上題庫同一張）。課本裡去背的照片已經放在白底上。</p>
     <p>示意畫面（不是照片）：石蕊試紙示意圖（和線上題庫同一套）、④ 站的虛擬實驗臺。</p>
   </footer>
 
@@ -1400,16 +1371,8 @@ function checkDemoEnd(){
     demoEnded=true;
     $("demoEnd").classList.remove("hidden");
     updateOpenRecall();
-    setTPhoto(true);
   }
 }
-/* 老師課前試做的照片：6 杯都做完才自動打開，免得全班在預測前先看到結果；老師也可以自己按 */
-function setTPhoto(open){
-  $("tphotoFig").classList.toggle("hidden",!open);
-  $("tphotoBtn").setAttribute("aria-expanded",String(open));
-  $("tphotoBtn").textContent=open?"📷 收起老師的照片":"📷 6 杯都做完了：看老師的照片";
-}
-$("tphotoBtn").addEventListener("click",()=>setTPhoto($("tphotoFig").classList.contains("hidden")));
 function updateOpenRecall(){
   const head = !classGuess ? "開場的問題：哪一杯會讓藍色石蕊試紙變紅色？答案是："
     : classGuess==="醋" ? "🎉 開場時全班猜「醋」，猜對了！" : `開場時全班猜「${classGuess}」。答案是：`;
@@ -1420,7 +1383,7 @@ renderCup();
 updateOpenRecall();
 renderFig($("p73Fig"),"p73-acid");
 
-/* 出場卡（第 ④ 節） */
+/* 下課前小複習（第 ④ 節）：全班口頭回答或舉卡，不寫卡、不收 */
 choiceQ($("exit1"),["紅色","還是藍色（不變色）"],"紅色",
   ()=>{ $("exit1Feed").className="feedback good"; $("exit1Feed").textContent="✅ 醋是酸性，讓藍色石蕊試紙變紅色。"; revealFocus($("exit1Feed")); },
   ()=>{ $("exit1Feed").className="feedback hint"; $("exit1Feed").textContent="🤔 再想想：醋是酸性、中性，還是鹼性？酸性會讓藍色石蕊試紙怎樣？"; });

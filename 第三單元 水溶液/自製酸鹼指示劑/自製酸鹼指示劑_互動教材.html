@@ -261,10 +261,6 @@ figure{margin:0}
 .result{text-align:center;padding:16px}
 .result .big{font-size:clamp(30px,5vw,58px);font-weight:900;color:var(--green-dark)}
 .rankline{font-weight:900;font-size:clamp(22px,2.8vw,36px);margin:6px 0}
-.ticket{
-  margin:14px auto;max-width:900px;background:#FFF6D8;border:3px dashed var(--sun);border-radius:16px;
-  padding:12px 16px;font-weight:800;font-size:clamp(18px,2.1vw,26px);text-align:left;line-height:1.8;
-}
 
 /* ---------- 頁尾：出處 ---------- */
 .credits{
@@ -321,9 +317,6 @@ figure{margin:0}
 .tubelabels span{font-size:clamp(11px,1.25vw,18px);font-weight:800;overflow-wrap:anywhere}
 .tubelabels small{display:block;font-size:.85em;color:#34444C;font-weight:700}
 .tubelabels b{display:block;font-weight:900}
-.fig.teacher{background:#fff}
-.fig.teacher > img{object-fit:contain;background:#fff}
-.teacher-empty{font-size:clamp(14px,1.6vw,22px) !important}
 
 /* 其他植物汁液：課本 80 頁 */
 .ptab{display:grid;gap:8px;margin-top:10px}
@@ -516,15 +509,6 @@ function imgFallback(img){
   const name=img.getAttribute("data-name")||img.getAttribute("alt")||"照片";
   span.setAttribute("aria-label","照片載入失敗："+name);
   span.textContent="📷 照片載入失敗："+name;
-  img.replaceWith(span);
-}
-/* 老師課前試做的照片：檔案還沒放時，顯示中性的虛線框（不是錯誤訊息） */
-function teacherFallback(img){
-  const span=document.createElement("span");
-  span.className="img-fallback teacher-empty";
-  span.setAttribute("role","img");
-  span.setAttribute("aria-label","老師課前試做的照片");
-  span.textContent="（老師課前試做的照片）";
   img.replaceWith(span);
 }
 </script>
@@ -728,21 +712,15 @@ function teacherFallback(img){
 
     <div class="panel">
       <p class="ptitle">📷 放大看：真的拍到的結果</p>
-      <div class="duo">
-        <figure class="figbox">
-          <div class="figwrap" style="--mh:26vh;--ar:533/175;max-width:799px"><div class="fig" id="p75Fig"></div></div>
-          <div class="figwrap" style="--mh:26vh;--ar:533/175;max-width:799px"><div class="tubelabels" id="p75Lab"></div></div>
-          <figcaption class="cap center">課本 75 頁：滴入紫色高麗菜汁後（未知水溶液課本打「？」）</figcaption>
-        </figure>
-        <figure class="figbox">
-          <div class="fig teacher" style="--mh:30vh;--ar:4/3"><img src="photos/teacher-cabbage.jpg" alt="老師課前試做的照片" loading="lazy" decoding="async" onerror="teacherFallback(this)"></div>
-          <figcaption class="cap center">老師課前試做的照片（課前拍的）</figcaption>
-        </figure>
-      </div>
+      <figure class="figbox">
+        <div class="figwrap" style="--mh:26vh;--ar:533/175;max-width:799px"><div class="fig" id="p75Fig"></div></div>
+        <div class="figwrap" style="--mh:26vh;--ar:533/175;max-width:799px"><div class="tubelabels" id="p75Lab"></div></div>
+        <figcaption class="cap center">課本 75 頁：滴入紫色高麗菜汁後（未知水溶液課本打「？」）</figcaption>
+      </figure>
     </div>
 
     <div class="panel" id="exitPanel">
-      <p class="ptitle">🎫 第一節出場卡（2 題，舉反應卡）</p>
+      <p class="ptitle">💬 下課前小複習（2 題，舉反應卡）</p>
       <div class="ask">1. 把紫色高麗菜汁滴入一杯沒有標籤的水溶液，結果偏紅色，這杯是什麼性？</div>
       <div id="ex1" class="mt"></div>
       <div class="feedback" id="ex1Feed" aria-live="polite"></div>
@@ -755,14 +733,14 @@ function teacherFallback(img){
     </div>
     <div class="navrow"><button class="btn green" data-next="others">第二節：其他植物汁液 →</button></div>
     <div class="teacher-tip">
-      <p><b class="time">給老師｜示範：7 支試管 15 分鐘＋判準卡 4 分鐘＋出場卡 5 分鐘</b>（含同步填習作 P.26–27）</p>
+      <p><b class="time">給老師｜示範：7 支試管 15 分鐘＋判準卡 4 分鐘＋下課前小複習 5 分鐘</b>（含同步填習作 P.26–27）</p>
       <p>器材：紫色高麗菜汁（老師課前做好）、7 支試管或透明塑膠杯＋白底板、每杯一支滴管。每支試管約 5 毫升水溶液＋1 毫升汁液，顏色才明顯。示範用的水溶液每次從保存瓶倒出小份，用過的不倒回。</p>
       <p>小助手 2–3 人（男女輪替，優先點平常比較被動的學生）：每杯滴入約 1 毫升高麗菜汁、搖勻、舉起來給全班看並唸「偏＿＿色」→ 全班複誦 → 每人同步填習作 P.26–27。老師在畫面上按那一杯，示意圖就會出現顏色和字。</p>
-      <p>看得到：示範一結束就放大「老師課前試做的照片」──請把課前拍的 7 支並排照片存成 <b>photos/teacher-cabbage.jpg</b>（放在本課資料夾），沒放時這裡是虛線框；小助手拿白底板沿走道巡迴展示約 30 秒；每排一位觀察代表上前近看，回座位向同排報告。</p>
+      <p>看得到：示範一結束就放大「📷 放大看」裡課本 75 頁的照片（七支試管＋文字）；小助手拿白底板沿走道巡迴展示約 30 秒；每排一位觀察代表上前近看，回座位向同排報告。</p>
       <p>抓錯：①老師拿著吸過醋的滴管，<b>正要</b>去吸別杯時就讓全班舉 ╳ 喊停（不真的吸；萬一碰到了，換乾淨滴管和新倒出的水溶液）。②老師說「小蘇打水偏藍綠、肥皂水偏綠，所以一個酸一個鹼」→ 全班舉 ╳（兩者都是鹼性）。低能力對照步驟卡就抓得到；高能力要說出「這樣會造成什麼結果」。</p>
       <p>未知水溶液：老師自己準備（建議用這六杯裡的一種），先不公布。老師按下真的看到的顏色，全班用規律判斷，最後老師公布答案或用石蕊試紙再測一次，驗證兩種方法的結果一樣。高能力當「數據審查員」：檢查每一杯的顏色和石蕊試紙的結果合不合規律。</p>
-      <p>示意圖是線上題庫同一套圖（不是照片）；真的結果請看課本 75 頁的照片和老師課前試做的照片。示範失敗或顏色不明顯時，直接用照片。</p>
-      <p>出場卡兩題都用反應卡全班一起舉（酸／中／鹼、○╳）。</p>
+      <p>示意圖是線上題庫同一套圖（不是照片）；真的結果請看課本 75 頁的照片。示範失敗或顏色不明顯時，直接用課本的照片。</p>
+      <p>下課前小複習：兩題都用反應卡全班一起舉（酸／中／鹼、○╳），不寫卡、不收。</p>
     </div>
   </section>
 
@@ -927,14 +905,13 @@ function teacherFallback(img){
         <div class="big" id="finalScore"></div>
         <p class="rankline" id="finalRank"></p>
         <p class="note" id="skipNote"></p>
-        <div class="ticket"><b>出場單（寫在學習單上）：</b>我預測「等量的酸性和鹼性水溶液混合後會是＿＿性」，因為＿＿＿＿＿＿。<br><span class="note">先寫下來再舉卡；第 ⑧ 節的示範揭曉！</span></div>
         <button class="btn" id="againBtn">↺ 再挑戰一次</button>
       </div>
     </div>
     <div class="teacher-tip">
-      <p><b class="time">給老師｜闖關驗收 4 分鐘＋學習單 9 分鐘＋寫下混合預測 3 分鐘</b></p>
+      <p><b class="time">給老師｜闖關驗收 4 分鐘＋學習單 12 分鐘</b></p>
       <p>課堂只做第 1、3 題（第 2、4 題按「這題在家複習，先跳過」），其餘留給學生在家自由複習。每題先給 15 秒想，全班舉卡，再請一位同學上臺按；第 2 層「你怎麼知道？」請不同的同學說理由。答錯的選項會停用，可以再試，分數減半。</p>
-      <p>學習單：全班必做＝預測格（第一節已寫）、一、三；其餘基本題依時間做，★、★★ 給先寫完的人；沒寫完的選做題不帶回家。最後 3 分鐘在學習單出場單寫下第 ⑧ 節的預測（只記下來，不評對錯）。</p>
+      <p>學習單：全班必做＝預測格（第一節已寫）、一、三；其餘基本題依時間做，★、★★ 給先寫完的人；沒寫完的選做題不帶回家。</p>
       <p>三層：低＝顏色卡（色塊＋字）、預測圈選、當小助手滴汁液；中＝蝶豆花小表格；高＝三杯辨認挑戰最少次數、探究步驟說理由、★★。</p>
       <p>回家只有習作（P.26–27 其餘欄位），不派任何實驗。線上題庫、互動教材是自由練習，提醒護眼：用眼 30 分鐘休息 10 分鐘。</p>
     </div>
@@ -943,7 +920,7 @@ function teacherFallback(img){
   <!-- ==================== 頁尾：出處 ==================== -->
   <footer class="credits" id="credits">
     <p><b>教學依據：</b><a href="https://reader.nani.com.tw/9200a013cbef8e66" target="_blank" rel="noopener">南一自然課本，第 74–75、80 頁</a>（閱讀器可能需要登入）；習作第 26–28、33 頁。</p>
-    <p><b>照片出處：</b>紫色高麗菜絲加醋（課本第 74 頁）、蝶豆花泡的飲料（課本第 62–63 頁）是線上題庫裡裁好的課本照片；做紫色高麗菜汁的三張照片、滴入紫色高麗菜汁後的七支試管（課本第 75 頁）；紫色高麗菜、紅鳳菜、蝶豆花、火龍果、葡萄的照片與顏色表（課本第 80 頁，色塊依課本的圖重新排列）。「老師課前試做的照片」由老師自己拍攝。</p>
+    <p><b>照片出處：</b>紫色高麗菜絲加醋（課本第 74 頁）、蝶豆花泡的飲料（課本第 62–63 頁）是線上題庫裡裁好的課本照片；做紫色高麗菜汁的三張照片、滴入紫色高麗菜汁後的七支試管（課本第 75 頁）；紫色高麗菜、紅鳳菜、蝶豆花、火龍果、葡萄的照片與顏色表（課本第 80 頁，色塊依課本的圖重新排列）。</p>
     <p><b>示意畫面：</b>試管顏色圖（和線上題庫同一套示意圖）、pH 值數線、三杯辨認的虛擬實驗臺都是示意，不是真的拍到的結果。</p>
   </footer>
 
@@ -1382,7 +1359,7 @@ UNK_OPTS.forEach(([w,res,nat])=>{
 renderFig($("p75Fig"),"p75-tubes");
 const P75_LAB=[["小蘇打水","偏藍綠"],["肥皂水","偏綠"],["醋","偏紅"],["檸檬酸水","偏紅"],["食鹽水","偏紫"],["糖水","偏紫"],["未知","？"]];
 $("p75Lab").innerHTML=P75_LAB.map(([n,w])=>`<span><small>${n}</small><b>${w}</b></span>`).join("");
-/* 第一節出場卡 */
+/* 第一節下課前小複習（全班舉反應卡，不寫卡、不收） */
 let exOk=0;
 function exDone(){ exOk++; if(exOk>=2) show("exCrit"); }
 choiceQ($("ex1"),["酸性","中性","鹼性"],"酸性",
