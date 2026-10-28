@@ -1071,23 +1071,6 @@ function paddleTilt(p){
   if(a.valid&&(a.state==="drag"||a.state==="set")) return a.th;
   const k=(M.t-p.swingT)/0.4; return k<1?p.tilt*(1-k):0;
 }
-function drawPlayer(sd){
-  const p=M.pad[sd], s=V.s, d=P.DIR[sd], fx=p.x-d*0.11, lw=Math.max(2,s*0.004);
-  const hipY=-0.03, shY=0.15, headY=0.215;
-  ctx.lineCap="round"; ctx.lineJoin="round";
-  /* 腳 */
-  ctx.strokeStyle="#1E1E1E"; ctx.lineWidth=Math.max(4,s*0.012);
-  for(const o of [-0.02,0.02]){ ctx.beginPath(); ctx.moveTo(X(fx+o*0.6),Y(hipY)); ctx.lineTo(X(fx+o),Y(C.FLOOR)); ctx.stroke(); }
-  /* 身體（隊伍顏色＝衣服） */
-  ctx.fillStyle=TEAM[sd]; ctx.strokeStyle="#1E1E1E"; ctx.lineWidth=lw;
-  rr(X(fx-0.035),Y(shY+0.01),0.07*s,(shY+0.01-hipY)*s,0.02*s); ctx.fill(); ctx.stroke();
-  /* 頭 */
-  ctx.fillStyle="#F6C9A8"; ctx.beginPath(); ctx.arc(X(fx),Y(headY),0.034*s,0,Math.PI*2); ctx.fill(); ctx.stroke();
-  /* 手臂：從肩膀到拍柄 */
-  const th=paddleTilt(p)*Math.PI/180, hx=p.x-d*Math.sin(th)*p.half*0.0+0, hy=p.y-p.half*1.25;
-  ctx.strokeStyle="#F6C9A8"; ctx.lineWidth=Math.max(5,s*0.013); ctx.beginPath(); ctx.moveTo(X(fx+d*0.02),Y(shY-0.01)); ctx.lineTo(X(hx-d*0.004),Y(hy)); ctx.stroke();
-  ctx.strokeStyle="#1E1E1E"; ctx.lineWidth=1;
-}
 function drawPaddle(sd){
   const p=M.pad[sd], s=V.s, d=P.DIR[sd], a=p.aim;
   const perfectNow=a.state==="set"&&M.pred&&M.pred.side===sd&&(M.t-a.tSet)<=C.PERFECT;
@@ -1188,7 +1171,7 @@ function draw(){
   if(!V.W||V.W<2) resize();
   camera(); drawScene();
   if(!M){ return; }
-  for(let sd=0;sd<2;sd++){ drawPlayer(sd); drawPaddle(sd); }
+  for(let sd=0;sd<2;sd++) drawPaddle(sd);   /* 老師說人物不像人，只畫球拍 */
   drawAimHelp(); drawBall(); drawForces(); drawPopups();
 }
 function updateCountdown(){
