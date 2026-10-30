@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>桌球力量王｜接觸力和超距力</title>
+<title>桌球力量王</title>
 <link rel="icon" href="../../image/icon.svg" type="image/svg+xml">
 <style>
 /* ==========================================================
@@ -75,7 +75,6 @@ button{font:inherit}
   background:rgba(255,255,255,.95);border:3px solid var(--green-dark);border-radius:14px;padding:4px 14px;font-size:clamp(15px,1.5vw,24px);pointer-events:none;transition:opacity .4s}
 .caption:empty{display:none}
 .caption.fade{opacity:0}
-.simtag{position:absolute;right:8px;bottom:8px;background:#fff;border:2px dashed var(--muted);border-radius:999px;padding:0 10px;font-weight:900;color:var(--muted-dark);font-size:clamp(12px,1.1vw,16px);pointer-events:none}
 .countdown{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:clamp(60px,12vw,200px);font-weight:900;color:var(--ink);pointer-events:none;text-shadow:0 0 12px #fff}
 .countdown:empty{display:none}
 
@@ -103,10 +102,7 @@ button{font:inherit}
 .statcard.s1{border-color:var(--p1)}
 .statcard h3{margin:0 0 4px;font-size:1.05em}
 .statcard ul{margin:0;padding-left:1.2em}
-.sciencecard{border:3px solid var(--green-dark);border-radius:16px;background:#F3FAF4;padding:8px 14px;margin:10px 0}
-.sciencecard h3{margin:0 0 4px;color:var(--green-dark)}
-.sciencecard ul{margin:0;padding-left:1.2em}
-.sciencecard .say{background:#fff;border:2px dashed var(--green-dark);border-radius:10px;padding:2px 10px;display:inline-block;margin-top:4px}
+.overtip{text-align:center;font-weight:800;color:var(--muted-dark);margin:10px 0}
 .btnrow{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin-top:10px}
 .win{font-size:clamp(28px,3.4vw,54px);font-weight:900;text-align:center}
 .rotate{display:none}
@@ -150,9 +146,8 @@ button{font:inherit}
   .optrow{margin:4px 0}
   .startrow{margin-top:4px}
   .btn.big{min-height:52px}
-  .simtag{font-size:11px}
 }
-/* 手機直式：球桌在上，下面是兩人的資訊和拉弓區 */
+/* 手機直式：球桌在上，下面是兩人的資訊和拖拉區 */
 @media (orientation:portrait),(max-width:640px){
   .stage{grid-template-columns:1fr 1fr;grid-template-areas:"arena arena" "s0 s1" "pad pad"}
   .arena{grid-area:arena;height:clamp(220px,62vw,460px)}
@@ -162,7 +157,6 @@ button{font:inherit}
   .side .hint{min-height:0}
   .rotate{display:block;text-align:center;font-weight:800;color:var(--muted-dark);margin:4px 0}
   .caption{font-size:14px;padding:2px 8px;top:44px;bottom:auto}   /* 手機直式：字幕放上面的天空，才不會蓋住球桌 */
-  .simtag{font-size:11px}
   .ready .btn{min-height:80px}
 }
 @media (max-width:640px){
@@ -201,7 +195,7 @@ button{font:inherit}
         <button class="btn sm ghost" id="fsBtn" type="button" aria-pressed="false">⛶ 全螢幕</button>
       </div>
     </div>
-    <p class="sub">五年級自然｜第四單元 力與運動　拉弓打桌球：箭頭指的方向和長短，就是力的方向和大小</p>
+    <p class="sub">五年級自然｜第四單元 力與運動　用手指拖著球拍打桌球：碰到球時球拍動得愈快，球飛得愈快</p>
   </header>
 
   <section class="player" id="player">
@@ -213,12 +207,11 @@ button{font:inherit}
         <div class="mini" id="mini0"></div>
       </div>
       <div class="arena" id="arena">
-        <canvas id="cv" role="img" aria-label="桌球示意圖：左邊是玩家 1，右邊是玩家 2。在自己那半邊用手指拖著球拍，往前揮過去碰到球就打出去。"></canvas>
+        <canvas id="cv" role="img" aria-label="桌球遊戲：左邊是玩家 1，右邊是玩家 2。在自己那半邊用手指拖著球拍去碰球，把球打回對方的桌面。"></canvas>
         <div class="scorebar" aria-live="polite"><span class="nm s0" id="sbName0">玩家 1</span><span class="srv" id="srv0">●</span><span class="sc" id="sc0">0</span><span>:</span><span class="sc" id="sc1">0</span><span class="srv" id="srv1">●</span><span class="nm s1" id="sbName1">玩家 2</span></div>
         <div class="banner" id="banner" aria-live="polite"></div>
         <div class="caption" id="caption" aria-live="polite"></div>
         <div class="countdown" id="countdown"></div>
-        <span class="simtag">示意：球和球拍畫得比較大</span>
       </div>
       <div class="side s1" id="side1">
         <div class="tag"><span class="pname" id="pname1">玩家 2</span><span class="who" id="who1">棕色・右邊</span></div>
@@ -226,14 +219,14 @@ button{font:inherit}
         <div class="hint" id="hint1"></div>
         <div class="mini" id="mini1"></div>
       </div>
-      <div class="dragpad" id="dragpad">在這裡用手指拖著球拍，往前揮</div>
+      <div class="dragpad" id="dragpad">在這裡用手指拖著球拍去碰球</div>
 
       <div class="overlay on" id="scrStart"><div class="sheet">
         <h2>🏓 桌球力量王</h2>
         <div class="cols">
           <div>
-            <p class="how"><b>怎麼打：</b>在自己那半邊用手指<b>拖著球拍</b>，把球拍移到球飛來的路上，<b>往前揮過去</b>就打到了。</p>
-            <p class="how"><b>往哪個方向揮</b>，力就往哪個方向；<b>揮得愈快</b>，力愈大。往前上方揮，球比較容易過網。</p>
+            <p class="how"><b>怎麼打：</b>在自己那半邊用手指<b>拖著球拍</b>，去碰飛過來的球，球就會彈回去。</p>
+            <p class="how">碰到球時，球拍<b>動得愈快</b>，球飛得愈快；球拍<b>往哪邊動</b>，球就往哪邊多飛一點。</p>
             <p class="how">像真的桌球：球要先在你這邊<b>彈一下</b>（球外面出現金色圈）才打得到。</p>
             <p class="how">球要落在<b>對方的桌面</b>：撞網、出界、打到自己這邊，都是對方得分。</p>
             <p class="rotate">📱 手機轉成橫的比較好玩</p>
@@ -259,14 +252,10 @@ button{font:inherit}
                 <button class="opt" type="button" data-speed="1" aria-pressed="true">標準</button>
                 <button class="opt" type="button" data-speed="0.8" aria-pressed="false">慢</button>
               </div>
-              <div class="optrow" role="group" aria-label="揮拍輔助"><span>揮拍輔助</span>
+              <div class="optrow" role="group" aria-label="擊球輔助"><span>擊球輔助</span>
                 <button class="opt" type="button" data-assist="strong" aria-pressed="false">強</button>
                 <button class="opt" type="button" data-assist="mid" aria-pressed="true">中</button>
                 <button class="opt" type="button" data-assist="weak" aria-pressed="false">弱</button>
-              </div>
-              <div class="optrow" role="group" aria-label="力的箭頭"><span>力的箭頭</span>
-                <button class="opt" type="button" data-arrows="1" aria-pressed="true">顯示</button>
-                <button class="opt" type="button" data-arrows="0" aria-pressed="false">隱藏</button>
               </div>
             </details>
             <div class="startrow"><button class="btn green big" id="startBtn" type="button">開始比賽 ▶</button></div>
@@ -292,7 +281,7 @@ button{font:inherit}
         <p class="win" id="overTitle"></p>
         <p class="how" style="text-align:center" id="overScore"></p>
         <div class="statgrid" id="overStats"></div>
-        <div class="sciencecard" id="overScience"></div>
+        <p class="how overtip" id="overTip"></p>
         <div class="btnrow"><button class="btn green big" id="againBtn" type="button">再比一場</button><button class="btn ghost" id="menuBtn" type="button">換設定</button></div>
       </div></div>
     </div>
@@ -300,10 +289,9 @@ button{font:inherit}
 
   <details class="teacher-tip">
     <summary>給老師｜怎麼在課堂上玩（一局約 2 分鐘）</summary>
-    <p><b>雙人對戰</b>：兩位同學各站電視的一邊，用手指拖自己的球拍、往前揮。電視如果只能單點觸控，請同學打完就放開手指，換對方。一局先得 5 分，大約 2～3 分鐘。第一次玩可以在「更多設定」選「球速：慢」、「揮拍輔助：強」。</p>
-    <p><b>對電腦</b>：一人上臺，或學生回家用手機、筆電玩。電腦分新手、普通、高手。</p>
-    <p><b>看力的箭頭</b>：球拍碰到球的那一下會出現藍色箭頭「球拍的力」（要碰到才有，是接觸力），揮的方向就是力的方向，揮得愈快箭頭愈長；紅色箭頭是重力（不必碰到，是超距力），一直向下。可以請全班看著說：「揮太快或方向太高，球就出界。」</p>
-    <p><b>示意</b>：球和球拍畫得比較大，球被打到時壓扁的樣子也放大了；為了來得及瞄準，整個球桌世界比真的慢。真的球被打到時只會變形一點點、馬上恢復，主要改變的是運動狀態（方向和快慢）。</p>
+    <p><b>雙人對戰</b>：兩位同學各站電視的一邊，用手指拖自己的球拍去碰球。電視如果只能單點觸控，請同學打完就放開手指，換對方。一局先得 5 分，大約 2 分鐘。第一次玩可以在「更多設定」選「球速：慢」、「擊球輔助：強」。</p>
+    <p><b>對電腦</b>：一人上臺，或學生回家用手機、筆電玩（用滑鼠時不用按住，球拍會跟著滑鼠）。電腦分新手、普通、高手。</p>
+    <p><b>示意</b>：球和球拍畫得比較大，球被打到時壓扁的樣子也放大了；為了來得及接球，整個球桌世界比真的慢。真的球被打到時只會變形一點點、馬上恢復。</p>
     <p>護眼 3010：用眼 30 分鐘，休息 10 分鐘。</p>
   </details>
   <footer class="credits">
@@ -318,7 +306,7 @@ button{font:inherit}
 (function(root){
 "use strict";
 const CFG={
-  G:0.85,            /* 重力加速度：整個球桌世界放慢，小學生才來得及瞄（示意） */
+  G:0.85,            /* 重力加速度：整個球桌世界放慢，小學生才來得及接（示意） */
   R:0.02,            /* 球半徑：約真的 3 倍，後排才看得到（示意） */
   NET_H:0.06, HALF:0.5, FLOOR:-0.28, FAR:1.3,
   E_TABLE:0.82, F_TABLE:0.12, E_NET:0.2,
@@ -333,9 +321,12 @@ const CFG={
   SPEEDUP_AFTER:6, SPEEDUP:0.05,
   POINT_PAUSE:1.4, HITSTOP:0.06, HITSTOP_PERFECT:0.10,
   PRED_EVERY:0.1,
-  /* 人用手指拖著球拍揮（第二個方案）：揮的方向＝力的方向，揮得愈快＝力愈大 */
-  PAD_T:0.016, SWING_MIN:0.25, SWING_FULL:2.4, TH_SAFE:32, P_SAFE:0.6, SWEET:0.3,
-  ASSIST:{strong:0.6,mid:0.35,weak:0.12},
+  /* 人用手指拖著球拍：球拍碰到球就打出去。球拍不動，球也會彈回去；碰到時球拍動得愈快，球飛得愈快 */
+  PAD_T:0.016, PAD_VMAX:4.5, SWEET:0.3,
+  REB_E:0.85, REB_MIN:0.5, REB_ANG:30, HIT_VMAX:1.6,
+  SERVE_BASE:0.68, SERVE_K:0.4,   /* 發球：球拍的速度只算一部分，比較不會一推就出界 */
+  /* 擊球輔助：k＝球拍速度加到球上的比例；pull＝把結果往「最穩的一拍」拉多少；aim＝球拍不動時自動找最穩的方向 */
+  ASSIST:{strong:{k:0.18,pull:0.5,aim:true},mid:{k:0.25,pull:0.25,aim:true},weak:{k:0.28,pull:0.05,aim:false}},
   AREA_NEAR:0.04, AREA_FAR:0.70, AREA_YMIN:-0.06, AREA_YMAX:0.78,
   TOSS_DX:0.09, TOSS_Y:0.20, READY_TILT:12
 };
@@ -390,8 +381,8 @@ function newMatch(cfg){
     fx:{hitstop:0,cine:null},events:[],acc:0,pred:null,predT:0,
     stats:{rallyHits:0,longest:0,points:0,rallies:[]},lastPoint:null,over:null};
   M.ai=[0,1].map(s=>cfg.ai[s]?aiNew(cfg.ai[s],(cfg.seed>>>0)*7919+s*104729+13):null);
-  for(let s=0;s<2;s++) M.pad[s].ctl=M.ai[s]?"auto":"swing";
-  M.bot=[0,1].map(s=>(!M.ai[s]&&cfg.bot[s])?swingBotNew(cfg.bot[s],(cfg.seed>>>0)*6151+s*3571+7):null);
+  for(let s=0;s<2;s++) M.pad[s].ctl=M.ai[s]?"auto":"hand";
+  M.bot=[0,1].map(s=>(!M.ai[s]&&cfg.bot[s])?handBotNew(cfg.bot[s],(cfg.seed>>>0)*6151+s*3571+7):null);
   startServe(M,cfg.firstServer);
   return M;
 }
@@ -401,19 +392,24 @@ function emit(M,e){ e.t=M.t; M.events.push(e); }
 function startServe(M,server){
   M.phase="serve"; M.phaseT=0; M.server=server; M.turn=server; M.turnId++;
   M.flight=null; M.patches=[];
-  for(let s=0;s<2;s++){ const p=M.pad[s]; p.x=p.tx=HOME[s]; p.y=p.ty=CFG.PAD_REST; p.vx=p.vy=0; p.moveN=0; p.aim=newAim(); p.pole=null; p.tilt=p.ctl==="swing"?CFG.READY_TILT:0; M.pl[s].lateUntil=-1; }
+  for(let s=0;s<2;s++){
+    const p=M.pad[s]; p.aim=newAim(); p.pole=null; M.pl[s].lateUntil=-1;
+    /* 人的球拍留在手指的位置（手指可能還按著）；剛開始這一分的一下子碰到球不算 */
+    if(p.ctl==="hand"){ p.noHit=M.t+0.3; continue; }
+    p.x=p.tx=HOME[s]; p.y=p.ty=CFG.PAD_REST; p.vx=p.vy=0; p.moveN=0; p.tilt=0;
+  }
   const b=M.ball; Object.assign(b,newBall()); holdBall(M);
   M.stats.rallyHits=0; M.pred={side:server,ok:true,serve:true,px:HOME[server],y:CFG.PAD_REST,tAt:M.t,vIn:0};
   emit(M,{type:"serve",side:server});
 }
 function holdBall(M){
   const s=M.server, p=M.pad[s], b=M.ball;
-  if(p.ctl==="swing"){ b.x=HOME[s]+DIR[s]*CFG.TOSS_DX; b.y=CFG.TOSS_Y; }   /* 人發球：球停在球桌後端上方，揮拍打過去 */
+  if(p.ctl==="hand"){ b.x=HOME[s]+DIR[s]*CFG.TOSS_DX; b.y=CFG.TOSS_Y; }   /* 人發球：球停在球桌後端上方，用球拍去碰它 */
   else{ b.x=p.x+DIR[s]*0.035; b.y=p.y+0.03; }
   b.vx=b.vy=0;
 }
 
-/* ---------- 拉弓瞄準：ax, ay 是「從按下的點拉到手指的位置」，以拉滿的長度為 1；y 向上為正 ---------- */
+/* ---------- 電腦的出拍：用「拉箭頭」的方式選方向和力量（畫面上看不到）。ax, ay 以拉滿的長度為 1；y 向上為正 ---------- */
 function canAim(M,s){
   if(M.phase==="serve") return s===M.server && M.ball.held;
   if(M.phase==="rally") return !!M.flight && s===M.turn && M.flight.hitter!==s;
@@ -449,71 +445,93 @@ function clampPad(s,x,y){
   return {x:-DIR[s]*ax,y:yy};
 }
 function setPaddle(M,s,x,y,jump){
-  const p=M.pad[s]; if(p.ctl!=="swing") return;
+  const p=M.pad[s]; if(p.ctl!=="hand") return;
   const c=clampPad(s,x,y);
-  if(jump){ p.x=p.tx=c.x; p.y=p.ty=c.y; p.vx=p.vy=0; p.moveN=0; p.noHit=M.t+0.06; return; }   /* 手指剛按下去：球拍直接跳過去，不算揮拍 */
+  if(jump){ p.x=p.tx=c.x; p.y=p.ty=c.y; p.vx=p.vy=0; p.moveN=0; return; }   /* 手指剛按下去：球拍直接跳過去，跳的這一下不算球拍的速度 */
   p.tx=c.x; p.ty=c.y;
 }
 /* 什麼時候打得到：自己發球時、或球已經在自己這邊彈過一次 */
-function canSwingHit(M,s){
+function canHit(M,s){
   if(M.phase==="serve") return s===M.server && M.ball.held;
   if(M.phase!=="rally"||!M.flight) return false;
   return M.flight.hitter!==s && M.flight.legal;
 }
 function movePads(M,h){
   for(const p of M.pad){
-    if(p.ctl!=="swing") continue;
+    if(p.ctl!=="hand") continue;
     if(p.moveN>0){ p.x+=p.mdx; p.y+=p.mdy; p.moveN--; }
-    /* 拍面跟著揮的方向轉（往前上方揮，拍面就打開）；不揮的時候回到準備的角度 */
+    /* 拍面：剛打完先停在球飛出去的方向；往前推的時候跟著推的方向轉一點；其他時候回到準備的角度 */
+    if(M.t-p.swingT<0.15) continue;
     const uf=p.vx*DIR[p.side], mag=Math.hypot(p.vx,p.vy);
-    const want=(uf>CFG.SWING_MIN && mag>0.4)?clamp(Math.atan2(p.vy,uf)*180/Math.PI,-25,50):CFG.READY_TILT;
+    const want=(uf>0.3 && mag>0.5)?clamp(Math.atan2(p.vy,uf)*180/Math.PI,-25,50):CFG.READY_TILT;
     p.tilt+=(want-p.tilt)*Math.min(1,14*h);
   }
 }
-function swingContact(M,s){
+/* 球拍是一片有厚度的板子；球碰到拍面（或拍面的邊）就算打到。球跑到球拍後面（你和球拍中間）時碰不到 */
+function padContact(M,s){
   const p=M.pad[s], b=M.ball;
-  if(M.t<p.noHit||!canSwingHit(M,s)) return null;
-  const phi=p.tilt*Math.PI/180, tx=-DIR[s]*Math.sin(phi), ty=Math.cos(phi);
-  const k=clamp((b.x-p.x)*tx+(b.y-p.y)*ty,-p.half,p.half);
-  const dx=b.x-(p.x+tx*k), dy=b.y-(p.y+ty*k);
-  if(Math.hypot(dx,dy)>CFG.R+CFG.PAD_T/2+0.004) return null;
-  return {k};
+  if(M.t<p.noHit||!canHit(M,s)) return null;
+  const phi=p.tilt*Math.PI/180, tx=-DIR[s]*Math.sin(phi), ty=Math.cos(phi), nx=DIR[s]*Math.cos(phi), ny=Math.sin(phi);
+  const rx=b.x-p.x, ry=b.y-p.y;
+  if(rx*nx+ry*ny<-(CFG.R*0.5+CFG.PAD_T/2)) return null;
+  const rel=(b.vx-p.vx)*nx+(b.vy-p.vy)*ny;
+  if(rel>(M.phase==="serve"?-0.1:0.05)) return null;   /* 發球時球拍要往球推過去才算，靠著不動不會自己發球 */   /* 球不是往拍面撞過來（例如球拍從前面往後退、拍子背面經過球）：不算 */
+  const k=clamp(rx*tx+ry*ty,-p.half,p.half);
+  if(Math.hypot(rx-tx*k,ry-ty*k)>CFG.R+CFG.PAD_T/2+0.004) return null;
+  return {k,tx,ty,nx,ny};
 }
-function hitSwing(M,s,k){
-  const b=M.ball, p=M.pad[s], pl=M.pl[s], serve=M.phase==="serve";
-  const vix=b.vx, viy=b.vy, vIn=Math.hypot(vix,viy);
-  const uf=p.vx*DIR[s], mag=Math.hypot(p.vx,p.vy);
-  let v, block=false, th=CFG.BLOCK_ANG, pw=0;
-  if(uf<CFG.SWING_MIN){
-    block=true;
-    const sp=clamp(CFG.BLOCK_K*vIn,serve?0.35:CFG.BLOCK_MIN,CFG.BLOCK_MAX), r=CFG.BLOCK_ANG*Math.PI/180;
-    v={vx:DIR[s]*sp*Math.cos(r),vy:sp*Math.sin(r),sp};
-  }else{
-    th=clamp(Math.atan2(p.vy,uf)*180/Math.PI,CFG.ANG_MIN,CFG.ANG_MAX);
-    pw=clamp((mag-CFG.SWING_MIN)/(CFG.SWING_FULL-CFG.SWING_MIN),0,1);
-    const a=CFG.ASSIST[M.cfg.assist]||0;                 /* 揮拍輔助：把角度和力量往「比較容易過網又不出界」拉一點 */
-    th+=(CFG.TH_SAFE-th)*a; pw+=(CFG.P_SAFE-pw)*a;
-    v=shotVel(M,s,th,pw,serve?0:vIn);
+/* 從接球點打出去最穩的一拍（落在對方桌面中間、網上留一點空間）。球拍不動時球照這個方向彈；擊球輔助也往這一拍拉 */
+function safeShot(M,s,c){
+  let best=null;
+  for(let th=5;th<=55;th+=5) for(let sp=0.5;sp<=1.31;sp+=0.1){
+    const r=simVel(M,s,c,th,sp*speedMul(M),1/120); if(r.res!=="in") continue;   /* 來回很久球會加速，用加速後的速度來試 */
+    const depth=r.x*DIR[s]; if(depth<0.06||depth>0.46) continue;
+    const sc=1-Math.abs(depth-0.28)*2.5+Math.min(0.3,(r.clear||0)*4)-0.25*Math.abs(sp-0.8);
+    if(!best||sc>best.sc) best={th,sp,sc};
   }
-  b.held=false; b.x=p.x+DIR[s]*(CFG.R+CFG.PAD_T/2+0.004); b.vx=v.vx; b.vy=v.vy;
+  return best||{th:35,sp:0.85,sc:-1};
+}
+/* 球拍碰到球：球拍不動時，球照最穩的方向彈回去（速度是來球的一部分）；再加上球拍碰到球那一下的速度。
+   ux, uy 是球拍的速度，c 是接球點（vIn＝來球的速度）。不改比賽狀態，測試用的機器人也用它來試 */
+function directVel(M,s,c,ux,uy,serve,safe){
+  const A=CFG.ASSIST[M.cfg.assist]||CFG.ASSIST.mid;
+  const base=serve?CFG.SERVE_BASE:Math.max(CFG.REB_MIN,CFG.REB_E*c.vIn);
+  const rb=(A.aim?safe.th:CFG.REB_ANG)*Math.PI/180;
+  const k=A.k*(serve?CFG.SERVE_K:1);
+  const f=Math.max(0.08,base*Math.cos(rb)+k*ux*DIR[s]), up=base*Math.sin(rb)+k*uy;   /* 球拍往後退，球也不會穿過球拍往後飛 */
+  let th=clamp(Math.atan2(up,f)*180/Math.PI,CFG.ANG_MIN,CFG.ANG_MAX), sp=clamp(Math.hypot(f,up),0.2,CFG.HIT_VMAX);
+  th+=(safe.th-th)*A.pull; sp+=(safe.sp-sp)*A.pull;
+  sp*=speedMul(M);
+  const r=th*Math.PI/180;
+  return {vx:DIR[s]*sp*Math.cos(r),vy:sp*Math.sin(r),sp,th};
+}
+function hitDirect(M,s,ct){
+  const b=M.ball, p=M.pad[s], pl=M.pl[s], serve=M.phase==="serve";
+  const vix=b.vx, viy=b.vy, off=CFG.R+CFG.PAD_T/2+0.004;
+  let cx=p.x+ct.tx*ct.k+ct.nx*off;
+  if(cx*DIR[s]>-CFG.R) cx=-DIR[s]*CFG.R;                     /* 不要把球放到網子另一邊 */
+  let cy=p.y+ct.ty*ct.k+ct.ny*off;
+  if(Math.abs(cx)<=CFG.HALF) cy=Math.max(cy,CFG.R);          /* 不要把球放進桌子裡 */
+  const c={x:cx,y:cy,vIn:Math.hypot(vix,viy)};
+  const v=directVel(M,s,c,p.vx,p.vy,serve,safeShot(M,s,c));
+  b.held=false; b.x=cx; b.y=cy; b.vx=v.vx; b.vy=v.vy;
   const dvx=v.vx-vix, dvy=v.vy-viy;
   setSquash(M,b,dvx,dvy,clamp(0.08+0.15*Math.hypot(dvx,dvy),0.1,0.42));
-  p.swingT=M.t;
-  const sweet=!block && Math.abs(k)<=CFG.SWEET*p.half;
-  if(block) pl.stats.blocks++; else pl.stats.hits++;
+  p.swingT=M.t; p.tilt=clamp(v.th,-25,50);
+  const sweet=Math.abs(ct.k)<=CFG.SWEET*p.half;
+  pl.stats.hits++;
   if(sweet){ pl.stats.perfect++; pl.bar=Math.min(CFG.BAR_MAX,pl.bar+CFG.BAR_PERFECT); emit(M,{type:"perfect",side:s,sweet:true}); }
   if(serve){ M.stats.rallyHits=1; M.phase="rally"; newFlight(M,s,{serve:true}); }
-  else{ M.stats.rallyHits++; M.stats.longest=Math.max(M.stats.longest,M.stats.rallyHits); newFlight(M,s,{block}); }
+  else{ M.stats.rallyHits++; M.stats.longest=Math.max(M.stats.longest,M.stats.rallyHits); newFlight(M,s); }
   M.fx.hitstop=sweet?CFG.HITSTOP_PERFECT:CFG.HITSTOP;
-  emit(M,{type:"hit",side:s,serve,p:pw,th,speed:v.sp,perfect:sweet,block,swing:true,dv:Math.hypot(dvx,dvy)});
+  emit(M,{type:"hit",side:s,serve,p:clamp((v.sp-0.4)/1.0,0,1),th:v.th,speed:v.sp,perfect:sweet,block:false,hand:true,dv:Math.hypot(dvx,dvy)});
   updatePred(M);
 }
 
 /* ---------- 擊球 ---------- */
+function speedMul(M){ const h=M.stats.rallyHits; return h>CFG.SPEEDUP_AFTER?Math.pow(1+CFG.SPEEDUP,h-CFG.SPEEDUP_AFTER):1; }   /* 來回很久以後，球慢慢變快 */
 function shotVel(M,s,th,p,vIn){
-  let sp=CFG.V_MIN+CFG.V_RANGE*p+CFG.V_IN*vIn;
-  const h=M.stats.rallyHits;
-  if(h>CFG.SPEEDUP_AFTER) sp*=Math.pow(1+CFG.SPEEDUP,h-CFG.SPEEDUP_AFTER);
+  const sp=(CFG.V_MIN+CFG.V_RANGE*p+CFG.V_IN*vIn)*speedMul(M);
   const r=th*Math.PI/180;
   return {vx:DIR[s]*sp*Math.cos(r),vy:sp*Math.sin(r),sp};
 }
@@ -641,7 +659,7 @@ function interpAt(path,xq){
 }
 function updatePads(M,h){
   for(let s=0;s<2;s++){
-    const p=M.pad[s]; if(p.ctl==="swing") continue;
+    const p=M.pad[s]; if(p.ctl==="hand") continue;
     let tx=HOME[s], ty=CFG.PAD_REST;
     if(M.phase==="rally" && M.pred && M.pred.side===s && M.pred.ok){ tx=M.pred.px; ty=M.pred.y; }
     p.tx=tx; p.ty=clamp(ty,CFG.PAD_YMIN,CFG.PAD_YMAX);
@@ -661,13 +679,14 @@ function step(M,dtReal){
   if(M.fx.hitstop>0){ const u=Math.min(M.fx.hitstop,dtReal); M.fx.hitstop-=u; dtReal-=u; if(dtReal<=1e-9) return M.events; }
   if(M.phase==="pointEnd"){ M.phaseT+=dtReal; if(M.phaseT>=CFG.POINT_PAUSE) nextPoint(M); return M.events; }
   const dt=dtReal*timeScale(M)*(M.cfg.speed||1);
-  for(let s=0;s<2;s++){ if(M.ai[s]) aiTick(M,s,M.ai[s],dt); else if(M.bot[s]) swingBotTick(M,s,M.bot[s],dt); }
+  for(let s=0;s<2;s++){ if(M.ai[s]) aiTick(M,s,M.ai[s],dt); else if(M.bot[s]) handBotTick(M,s,M.bot[s],dt); }
   const nSub=Math.floor((M.acc+dt)/CFG.SUB+1e-9);
   for(const p of M.pad){
-    if(p.ctl!=="swing") continue;
-    if(nSub>0){ const fx=(p.tx-p.x)/(nSub*CFG.SUB), fy=(p.ty-p.y)/(nSub*CFG.SUB);
-      p.vx=0.35*p.vx+0.65*fx; p.vy=0.35*p.vy+0.65*fy;     /* 揮拍速度：這一幀移動的距離÷時間（稍微平滑） */
-      p.mdx=(p.tx-p.x)/nSub; p.mdy=(p.ty-p.y)/nSub; p.moveN=nSub; }
+    if(p.ctl!=="hand"||nSub<=0) continue;
+    let dx=p.tx-p.x, dy=p.ty-p.y; const d=Math.hypot(dx,dy), T=nSub*CFG.SUB, mx=CFG.PAD_VMAX*T;
+    if(d>mx){ dx*=mx/d; dy*=mx/d; }                       /* 手指甩得太快時，球拍最快只能這麼快，會晚一點點跟上 */
+    p.vx=0.35*p.vx+0.65*dx/T; p.vy=0.35*p.vy+0.65*dy/T;   /* 球拍的速度：這一幀移動的距離÷時間（稍微平滑） */
+    p.mdx=dx/nSub; p.mdy=dy/nSub; p.moveN=nSub;
   }
   M.acc+=dt;
   while(M.acc>=CFG.SUB-1e-12){
@@ -685,7 +704,7 @@ function substep(M,h){
   updatePads(M,h); movePads(M,h);
   if(M.phase==="serve"){
     M.phaseT+=h; holdBall(M);
-    if(M.pad[M.server].ctl==="swing"){ const c=swingContact(M,M.server); if(c){ hitSwing(M,M.server,c.k); return; } }
+    if(M.pad[M.server].ctl==="hand"){ const c=padContact(M,M.server); if(c){ hitDirect(M,M.server,c); return; } }
     if(M.phaseT>=CFG.SERVE_WAIT && M.pad[M.server].aim.state!=="drag") autoServe(M);
     return;
   }
@@ -700,7 +719,7 @@ function substep(M,h){
   if(M.phase!=="rally") return;
   /* 接球：球從網子那邊越過接球方球拍的平面，而且已經合法落地一次 */
   const rs=M.turn, p=M.pad[rs];
-  if(p.ctl==="swing"){ const c=swingContact(M,rs); if(c){ hitSwing(M,rs,c.k); return; } }
+  if(p.ctl==="hand"){ const c=padContact(M,rs); if(c){ hitDirect(M,rs,c); return; } }
   else if(!f.passed && f.hitter!==rs){
     const before=(x0-p.x)*DIR[rs], after=(b.x-p.x)*DIR[rs];
     if(before>0 && after<=0){
@@ -723,11 +742,11 @@ function substep(M,h){
   M.predT+=h; if(M.predT>=CFG.PRED_EVERY) updatePred(M);
 }
 
-/* ---------- 電腦對手：和人用同一套拉弓函式，只在自己的回合動作 ---------- */
+/* ---------- 電腦對手：用上面「拉箭頭」的函式出拍（畫面上看不到），只在自己的回合動作 ---------- */
 const AI_LEVELS={
   easy:  {name:"新手",react:[0.55,0.85],drag:[0.45,0.70],tsd:0.14,angSD:7,  pSD:0.15, mistake:0.06,jit:1,style:"safe"},
-  normal:{name:"普通",react:[0.38,0.55],drag:[0.35,0.55],tsd:0.09,angSD:5.6,pSD:0.12, mistake:0,   jit:4,style:"mixed"},
-  hard:  {name:"高手",react:[0.25,0.38],drag:[0.28,0.42],tsd:0.05,angSD:4.3,pSD:0.09, mistake:0,   jit:4,style:"deep"},
+  normal:{name:"普通",react:[0.38,0.55],drag:[0.35,0.55],tsd:0.09,angSD:6.2,pSD:0.13, mistake:0,   jit:4,style:"mixed"},
+  hard:  {name:"高手",react:[0.25,0.38],drag:[0.28,0.42],tsd:0.05,angSD:3.3,pSD:0.07, mistake:0,   jit:4,style:"deep"},
   kid:   {name:"學生",react:[0.55,0.90],drag:[0.50,0.80],tsd:0.16,angSD:7,  pSD:0.15, mistake:0.05,jit:1,style:"safe"},
   /* 測試用的偷懶玩法 */
   noaim: {name:"都不拉",degen:"noaim"},
@@ -755,8 +774,10 @@ function contactInfo(M,s){
   return {x:pr.px+DIR[s]*CFG.R*1.05,y:pr.y,vIn:pr.vIn,tAt:pr.tAt};
 }
 /* 模擬一拍打出去的結果：第一次落地在哪裡、有沒有撞網、到對方球拍時多高 */
-function simShot(M,s,c,th,p,h){
-  const v=shotVel(M,s,th,p,c.vIn), b={x:c.x,y:c.y,vx:v.vx,vy:v.vy,gMul:1}, evs=[], opp=1-s;
+function simShot(M,s,c,th,p,h){ const v=shotVel(M,s,th,p,c.vIn); return simFrom(M,s,c,v.vx,v.vy,v.sp,h); }
+function simVel(M,s,c,th,sp,h){ const r=th*Math.PI/180; return simFrom(M,s,c,DIR[s]*sp*Math.cos(r),sp*Math.sin(r),sp,h); }
+function simFrom(M,s,c,vx,vy,sp,h){
+  const v={sp}, b={x:c.x,y:c.y,vx,vy,gMul:1}, evs=[], opp=1-s;
   let t=0, land=null, minClear=9;
   for(let i=0;i<600;i++){
     evs.length=0; physMove(b,h,NORMAL_ENV,evs); t+=h;
@@ -830,55 +851,50 @@ function aiPlan(M,s,B){
   return {stage:"wait",react,dragT,ax,ay,releaseAt,th,p};
 }
 
-/* ---------- 瞄準虛線：從預測的接球點照現在的箭頭打出去；long 畫到第一次落地，short 畫到過網 ---------- */
-function previewPath(M,s,mode){
-  const a=M.pad[s].aim; if(!a.valid||(a.state!=="drag"&&a.state!=="set")) return null;
-  const c=contactInfo(M,s); if(!c) return null;
-  const v=shotVel(M,s,a.th,a.p,c.vIn), b={x:c.x,y:c.y,vx:v.vx,vy:v.vy,gMul:1}, evs=[], pts=[{x:b.x,y:b.y}];
-  for(let i=0;i<600;i++){
-    evs.length=0; physMove(b,1/120,NORMAL_ENV,evs);
-    if(i%3===2) pts.push({x:b.x,y:b.y});
-    if(evs.some(e=>e.k==="net"||e.k==="table")||(mode==="short"&&evs.some(e=>e.k==="cross"))){ pts.push({x:b.x,y:b.y}); break; }
-    if(b.y<CFG.FLOOR||Math.abs(b.x)>CFG.FAR) break;
-  }
-  return pts;
-}
-
-/* ---------- 測試用：模擬「人用手指揮拍」的機器人（手的速度有限、會晚一點、揮的方向和快慢有誤差） ---------- */
-const SWING_BOTS={
-  kid: {react:[0.35,0.7],hand:1.6,posSD:0.03,angSD:10,magSD:0.25,early:[0.10,0.20],style:"safe"},
-  good:{react:[0.2,0.4], hand:2.4,posSD:0.015,angSD:5, magSD:0.12,early:[0.10,0.16],style:"mixed"},
-  still:{still:true}
+/* ---------- 測試用：模擬「人用手指拖球拍」的機器人（會晚一點反應、手的速度有限、位置和推的方向快慢有誤差） ----------
+   kid：照情況決定推不推、往哪推；still：只把球拍擋在球會經過的地方，不動；wild：亂推；max：每次都用最快的速度往前推 */
+const HAND_BOTS={
+  kid:  {react:[0.35,0.7],hand:1.6,posSD:0.03, angSD:14,magSD:0.35,lead:[0.08,0.16],style:"safe", mags:[0.6,1.2,1.8,2.4,3.0]},
+  good: {react:[0.2,0.4], hand:2.4,posSD:0.015,angSD:7, magSD:0.15,lead:[0.08,0.14],style:"mixed",mags:[0.6,1.2,1.8,2.4,3.0,3.6]},
+  still:{react:[0.35,0.7],hand:1.6,posSD:0.03, still:true},
+  wild: {react:[0.35,0.7],hand:1.6,posSD:0.03, wild:true,lead:[0.08,0.16]},
+  max:  {react:[0.35,0.7],hand:1.6,posSD:0.03, maxPush:true,angSD:14,lead:[0.08,0.16]}
 };
-function swingBotNew(level,seed){ return {level,L:SWING_BOTS[level]||SWING_BOTS.kid,rng:mulberry32(seed>>>0||1),turnId:-1,plan:null,t:0}; }
-function swingBotTick(M,s,B,dt){
-  const L=B.L, p=M.pad[s]; if(L.still) return;
+function handBotNew(level,seed){ return {level,L:HAND_BOTS[level]||HAND_BOTS.kid,rng:mulberry32(seed>>>0||1),turnId:-1,plan:null,t:0}; }
+function handBotPlan(M,s,B){
+  const L=B.L, rng=B.rng, serve=M.phase==="serve", off=CFG.R+CFG.PAD_T/2;
+  let c;
+  if(serve) c={x:M.ball.x,y:M.ball.y,vIn:0,tAt:M.t+lerpR(L.react,rng())+0.5};
+  else{ const pr=M.pred; if(!pr||!pr.ok||pr.side!==s) return null; c={x:pr.px+DIR[s]*off,y:pr.y,vIn:pr.vIn,tAt:pr.tAt}; }
+  let ux=0, uy=0;
+  if(L.wild){ const a=(-30+110*rng())*Math.PI/180, m=4*rng(); ux=DIR[s]*m*Math.cos(a); uy=m*Math.sin(a); }
+  else if(L.maxPush){ const a=gauss(rng)*L.angSD*Math.PI/180; ux=DIR[s]*CFG.PAD_VMAX*Math.cos(a); uy=CFG.PAD_VMAX*Math.sin(a); }
+  else if(!L.still){
+    const safe=safeShot(M,s,c), score=(cx,cy)=>{ const v=directVel(M,s,c,cx,cy,serve,safe); return shotScore(M,s,simFrom(M,s,c,v.vx,v.vy,v.sp,1/120),{style:L.style}); };
+    let best={a:0,m:0,sc:score(0,0)};
+    for(let a=-20;a<=60;a+=10) for(const m of L.mags){
+      const r=a*Math.PI/180, sc=score(DIR[s]*m*Math.cos(r),m*Math.sin(r));
+      if(sc>best.sc) best={a,m,sc};
+    }
+    const a=(best.a+gauss(rng)*L.angSD)*Math.PI/180, m=Math.max(0,best.m*(1+gauss(rng)*L.magSD));
+    ux=DIR[s]*m*Math.cos(a); uy=m*Math.sin(a);
+  }
+  return {c,react:lerpR(L.react,rng()),ux,uy,lead:L.lead?lerpR(L.lead,rng()):0,
+    hx:c.x-DIR[s]*off+gauss(rng)*L.posSD,hy:c.y+gauss(rng)*L.posSD};
+}
+function handBotTick(M,s,B,dt){
+  const p=M.pad[s];
   const mine=(M.phase==="serve"&&M.server===s&&M.ball.held)||(M.phase==="rally"&&M.flight&&M.flight.hitter!==s);
   if(!mine){ B.plan=null; return; }
-  if(B.turnId!==M.turnId||!B.plan){
-    let c;
-    if(M.phase==="serve") c={x:M.ball.x,y:M.ball.y,vIn:0,tAt:M.t+lerpR(L.react,B.rng())+0.6};
-    else{ const pr=M.pred; if(!pr||!pr.ok||pr.side!==s) return; c={x:pr.px+DIR[s]*CFG.R,y:pr.y,vIn:pr.vIn,tAt:pr.tAt}; }
-    B.turnId=M.turnId; B.t=0;
-    const shot=aiChoose(M,s,c,{L:{style:L.style,jit:1,angSD:0,pSD:0},rng:B.rng});
-    const a=CFG.ASSIST[M.cfg.assist]||0;
-    const thIn=(shot.th-a*CFG.TH_SAFE)/(1-a), pIn=clamp((shot.p-a*CFG.P_SAFE)/(1-a),0,1);
-    const ang=(thIn+gauss(B.rng)*L.angSD)*Math.PI/180;
-    const mag=Math.max(0,(CFG.SWING_MIN+pIn*(CFG.SWING_FULL-CFG.SWING_MIN))*(1+gauss(B.rng)*L.magSD));
-    const early=lerpR(L.early,B.rng());
-    B.plan={c,react:lerpR(L.react,B.rng()),ux:DIR[s]*Math.cos(ang)*mag,uy:Math.sin(ang)*mag,early,
-      ex:gauss(B.rng)*L.posSD,ey:gauss(B.rng)*L.posSD};
-  }
+  if(B.turnId!==M.turnId||!B.plan){ const P=handBotPlan(M,s,B); if(!P) return; B.plan=P; B.turnId=M.turnId; B.t=0; }
   const P=B.plan; B.t+=dt;
   if(B.t<P.react) return;
+  /* 先把球拍移到出手的地方等；球快到時往前推，在預測的時間經過接球點（推過頭也繼續推） */
   const tl=P.c.tAt-M.t;
-  /* 揮拍前先把球拍移到球會經過的點的後面；接觸前 early 秒開始往前揮過去 */
-  const hx=P.c.x+P.ex, hy=P.c.y+P.ey;
-  let tx, ty;
-  if(tl>P.early){ tx=hx-P.ux*P.early; ty=hy-P.uy*P.early; }
-  else{ const k=P.early-tl; tx=hx-P.ux*(P.early-k); ty=hy-P.uy*(P.early-k); }
-  const lim=(tl>P.early?L.hand:9)*dt, dx=tx-p.tx, dy=ty-p.ty, d=Math.hypot(dx,dy);
-  const f=d>lim?lim/d:1;
+  let tx, ty, lim;
+  if(tl>P.lead){ tx=P.hx-P.ux*P.lead; ty=P.hy-P.uy*P.lead; lim=B.L.hand*dt; }
+  else{ tx=P.hx-P.ux*tl; ty=P.hy-P.uy*tl; lim=9; }
+  const dx=tx-p.tx, dy=ty-p.ty, d=Math.hypot(dx,dy), f=d>lim?lim/d:1;
   setPaddle(M,s,p.tx+dx*f,p.ty+dy*f,false);
 }
 
@@ -911,7 +927,7 @@ function hash(M){
 }
 
 root.PP_MODEL={CFG,DIR,HOME,REASON,AI_LEVELS,mulberry32,physMove,newMatch,step,canAim,aimStart,aimMove,aimRelease,aimCancel,
-  shotVel,simShot,updatePred,startServe,playMatch,runBots,hash,contactInfo,previewPath,setPaddle,canSwingHit,clampPad};
+  shotVel,simShot,updatePred,startServe,playMatch,runBots,hash,contactInfo,setPaddle,canHit,clampPad,directVel,safeShot};
 })(typeof globalThis!=="undefined"?globalThis:this);
 </script>
 <script>
@@ -926,12 +942,12 @@ const FROM=Q.get("from")||"";
 const REDUCE=!!(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches);
 if(FROM==="unit4") $("backUnit").classList.remove("hidden");
 if(FROM==="lesson-force") $("backLesson").classList.remove("hidden");
-const TEAM=["#286b8b","#ad5a2f"], FORCE={contact:"#2E86C1",gravity:"#B03A30"};
+const TEAM=["#286b8b","#ad5a2f"];
 
 /* ---------- 設定：存在這臺裝置，讀不到就用預設 ---------- */
 const SET_KEY="pingpong-force-v1", SOUND_KEY="pingpong-force-sound";
-const DEF={mode:"ai",lv:"normal",win:5,speed:1,assist:"mid",arrows:1};
-const OK={mode:["ai","duo"],lv:["easy","normal","hard"],win:[3,5,7,11],speed:[1,0.8],assist:["strong","mid","weak"],arrows:[0,1]};
+const DEF={mode:"ai",lv:"normal",win:5,speed:1,assist:"mid"};
+const OK={mode:["ai","duo"],lv:["easy","normal","hard"],win:[3,5,7,11],speed:[1,0.8],assist:["strong","mid","weak"]};
 const settings=Object.assign({},DEF);
 try{ const o=JSON.parse(localStorage.getItem(SET_KEY)||"{}"); for(const k in OK) if(o&&OK[k].includes(o[k])) settings[k]=o[k]; }catch(_){}
 function saveSettings(){ try{ localStorage.setItem(SET_KEY,JSON.stringify(settings)); }catch(_){} }
@@ -939,7 +955,7 @@ function saveSettings(){ try{ localStorage.setItem(SET_KEY,JSON.stringify(settin
 function syncOptions(){
   document.querySelectorAll("#scrStart .opt").forEach(b=>{
     const k=Object.keys(b.dataset)[0], v=b.dataset[k];
-    const key={mode:"mode",lv:"lv",win:"win",speed:"speed",assist:"assist",arrows:"arrows"}[k];
+    const key={mode:"mode",lv:"lv",win:"win",speed:"speed",assist:"assist"}[k];
     const cur=String(settings[key]);
     b.setAttribute("aria-pressed",String(cur===v));
   });
@@ -952,7 +968,6 @@ document.querySelectorAll("#scrStart .opt").forEach(b=>b.addEventListener("click
   else if(k==="win") settings.win=+v;
   else if(k==="speed") settings.speed=+v;
   else if(k==="assist") settings.assist=v;
-  else if(k==="arrows") settings.arrows=+v;
   saveSettings(); syncOptions(); Sound.ensure();
 }));
 syncOptions();
@@ -1000,7 +1015,7 @@ function show(id){ ["scrStart","scrReady","scrPause","scrOver"].forEach(k=>$(k).
 function newGame(cfg){
   const lvName={easy:"新手",normal:"普通",hard:"高手"}[settings.lv];
   M=P.newMatch(Object.assign({seed:(Date.now()%1000000007)>>>0,toWin:settings.win,ai:[null,settings.mode==="ai"?settings.lv:null],speed:settings.speed,assist:settings.assist,firstServer:0},cfg||{}));
-  matchId++; trail=[]; popups=[]; ptr.clear(); paused=false; running=false; firstHitShown=false;
+  matchId++; trail=[]; popups=[]; ptr.clear(); padRect.clear(); hoverOn=false; paused=false; running=false;
   const nm=names();
   $("pname0").textContent=nm[0]; $("pname1").textContent=nm[1];
   $("who0").textContent=settings.mode==="ai"?"藍色・左邊":"藍色・左邊";
@@ -1033,21 +1048,16 @@ document.addEventListener("visibilitychange",()=>{ if(document.hidden&&M&&runnin
 
 /* ---------- 事件：音效、跳字、橫幅 ---------- */
 const REASON_SAY={net:"撞網",own:"打到自己這邊",out:"出界",double:"讓球彈了兩次",miss:"沒接到"};
-let firstHitShown=false, captionTimer=0;
+let captionTimer=0;
 function caption(t){ const c=$("caption"); c.classList.remove("fade"); c.textContent=t; clearTimeout(captionTimer); if(t) captionTimer=setTimeout(()=>{ c.classList.add("fade"); setTimeout(()=>{ if(c.classList.contains("fade")) c.textContent=""; },450); },3500); }
 function popup(side,text,color){ popups.push({side,text,color:color||"#1E1E1E",t0:performance.now()}); }
 function onEvent(e){
   const nm=names();
   switch(e.type){
-    case "hit":
-      Sound.hit(e.p||0,e.block);
-      if(e.block) popup(e.side,e.swing?"擋球（沒有往前揮）":"擋球","#5C6970");
-      if(!firstHitShown){ firstHitShown=true; caption("球拍碰到球才有力（接觸力）：球的方向和快慢都改變了。"); }
-      break;
-    case "perfect": popup(e.side,e.sweet?"打在拍子中間！":"好時機！","#9A6B00"); Sound.perfect(); break;
+    case "hit": Sound.hit(e.p||0,e.block); break;
+    case "perfect": if(!isAI(e.side)){ popup(e.side,"打在拍子中間！","#9A6B00"); Sound.perfect(); } break;
     case "bounce": Sound.bounce(); break;
     case "net": Sound.net(); break;
-    case "short": popup(e.side,"再拉長一點！","#5C6970"); break;
     case "autoServe": popup(e.side,"自動發球","#5C6970"); break;
     case "whiff": popup(e.side,"沒接到！","#5C6970"); break;
     case "replay": banner("這一球重來","卡住了，重新發球"); break;
@@ -1079,15 +1089,15 @@ function setText(id,t,cls){ if(hudCache[id]!==t){ hudCache[id]=t; $(id).textCont
 function updateHud(){
   if(!M) return;
   for(let s=0;s<2;s++){
-    if(isAI(s)){ const my=P.canAim(M,s)&&running&&!paused; setText("turn"+s,my?"電腦準備接球…":"電腦",false); setText("hint"+s,""); continue; }
+    if(isAI(s)){ const my=P.canAim(M,s)&&running&&!paused; setText("turn"+s,my?(M.phase==="serve"?"電腦準備發球…":"電腦準備接球…"):"電腦",false); setText("hint"+s,""); continue; }
     const coming=running&&!paused&&((M.phase==="serve"&&M.server===s)||(M.phase==="rally"&&M.flight&&M.flight.hitter!==s));
-    const can=coming&&P.canSwingHit(M,s);
+    const can=coming&&P.canHit(M,s);
     setText("turn"+s,coming?(settings.mode==="ai"?"輪到你！":`輪到${names()[s]}！`):"　",coming);
     let h="";
     if(coming){
-      if(M.phase==="serve") h="把球拍移到球的後面，往前揮過去發球";
+      if(M.phase==="serve") h="用球拍去碰球，就發球了";
       else if(!can) h="等球在你這邊彈一下";
-      else h="揮！往前上方揮過去";
+      else h="用球拍碰球！碰到時往前推，球飛得更快";
     }else if(settings.mode==="duo"&&M.phase==="rally") h="打完先放開手指，換對方";
     setText("hint"+s,h);
   }
@@ -1098,26 +1108,27 @@ function showOver(){
   const nm=names(), w=M.over.winner;
   $("overTitle").textContent=settings.mode==="ai"?(w===0?"🏆 你贏了！":"電腦贏了，再挑戰一次！"):`🏆 ${nm[w]} 獲勝！`;
   $("overScore").textContent=`比分 ${M.score[0]} : ${M.score[1]}　最長來回 ${M.stats.longest} 拍`;
-  $("overStats").innerHTML=[0,1].map(s=>{ const t=M.pl[s].stats;
-    return `<div class="statcard s${s}"><h3>${esc(nm[s])}</h3><ul><li>擊球 ${t.hits} 次（好時機 ${t.perfect} 次）</li><li>擋球 ${t.blocks} 次</li><li>失分：出界 ${t.out||0}、撞網 ${t.net||0}、打到自己這邊 ${t.own||0}、沒接到 ${(t.miss||0)+(t.double||0)}</li></ul></div>`; }).join("");
-  const me=M.pl[0].stats, tip=(me.out||0)>=(me.net||0)+(me.own||0)&&(me.out||0)>0?"出界比較多：箭頭太長（力太大）或方向太高。":((me.net||0)+(me.own||0)>0?"撞網或打到自己這邊比較多：箭頭再往上一點，或拉長一點。":"打得很穩！試試看用不同的箭頭長短，讓對手來不及接。");
-  $("overScience").innerHTML=`<h3>🔬 科學小卡</h3><ul>
-    <li>球拍碰到球才有力，是<b>接觸力</b>；重力不必碰到球也一直向下，是<b>超距力</b>。</li>
-    <li>球被打到時短暫變形、馬上恢復；主要改變的是<b>運動狀態</b>（方向和快慢）。</li>
-    <li>箭頭的方向和長短，就是<b>力的方向和大小</b>。${esc(tip)}</li></ul>
-    <span class="say">說說看：我看到＿＿，所以＿＿。</span>`;
+  $("overStats").innerHTML=[0,1].map(s=>{ const t=M.pl[s].stats, n=t.hits+t.blocks;
+    const sweet=isAI(s)?"":`（打在拍子中間 ${t.perfect} 次）`;
+    return `<div class="statcard s${s}"><h3>${esc(nm[s])}</h3><ul><li>擊球 ${n} 次${sweet}</li><li>失分：出界 ${t.out||0}、撞網 ${t.net||0}、打到自己這邊 ${t.own||0}、沒接到 ${(t.miss||0)+(t.double||0)}</li></ul></div>`; }).join("");
+  /* 小提示：看「你」（雙人時看輸的那一邊）哪一種失分最多 */
+  const who=settings.mode==="ai"?0:1-w, me=M.pl[who].stats, out=me.out||0, low=(me.net||0)+(me.own||0), miss=(me.miss||0)+(me.double||0);
+  const tip=Math.max(out,low,miss)===0?"打得很穩！試試看推快一點，讓對手來不及接。":(miss>=out&&miss>=low?"沒接到比較多：球拍先移到球會經過的地方等球。":(out>=low?"出界比較多：碰到球的時候，球拍動慢一點。":"撞網或打到自己這邊比較多：碰到球的時候往前上方推一點。"));
+  $("overTip").textContent=`小提示${settings.mode==="ai"?"":`（給${nm[who]}）`}：${tip}`;
   show("scrOver");
 }
 
-/* ---------- 輸入：手指拖著球拍（球拍跟著手指；揮過去碰到球就打）。每根手指記住是哪一邊的球拍 ---------- */
+/* ---------- 輸入：手指拖著球拍（球拍跟著手指，碰到球就打）。每根手指記住是哪一邊的球拍 ---------- */
 const stage=$("stage");
 function sideOf(e){
   if(settings.mode==="ai") return 0;
   const r=stage.getBoundingClientRect(); return e.clientX<r.left+r.width/2?0:1;
 }
-/* 螢幕座標 → 球桌座標。手機直式在下方的拉弓區時，整塊區域對應到自己那半邊 */
+/* 螢幕座標 → 球桌座標。手機直式按在下方的拖拉區時，整塊區域對應到自己那半邊 */
+/* 拖拉區的位置在手指按下去時記住：拖到一半提示字變長、拖拉區往下移，球拍也不會突然跳 */
+const padRect=new Map();
 function toWorld(e,s){
-  const pad=$("dragpad"), pr=pad.getBoundingClientRect();
+  const pad=$("dragpad"), pr=padRect.get(e.pointerId)||pad.getBoundingClientRect();
   if(pad.offsetParent&&e.clientY>=pr.top){
     let u=(e.clientX-pr.left)/pr.width, w=(e.clientY-pr.top)/pr.height;
     if(settings.mode==="duo"){ u=s===0?u*2:(u-0.5)*2; }
@@ -1128,7 +1139,7 @@ function toWorld(e,s){
   const r=cv.getBoundingClientRect();
   return {x:(e.clientX-r.left-V.W/2)/V.s,y:YB+(V.H-3-(e.clientY-r.top))/V.s};
 }
-function canControl(s){ return M&&running&&!paused&&!isAI(s)&&M.pad[s].ctl==="swing"; }
+function canControl(s){ return M&&running&&!paused&&!isAI(s)&&M.pad[s].ctl==="hand"; }
 stage.addEventListener("pointerdown",e=>{
   if(e.target.closest("button,a,summary,.overlay")) return;
   if(e.pointerType==="mouse"&&e.button!==0) return;
@@ -1136,7 +1147,7 @@ stage.addEventListener("pointerdown",e=>{
   if(!canControl(s)) return;
   for(const v of ptr.values()) if(v===s) return;          /* 這一邊已經有手指在拖 */
   e.preventDefault();
-  ptr.set(e.pointerId,s);
+  ptr.set(e.pointerId,s); padRect.set(e.pointerId,$("dragpad").getBoundingClientRect());
   try{ stage.setPointerCapture(e.pointerId); }catch(_){}
   const w=toWorld(e,s); P.setPaddle(M,s,w.x,w.y,true); Sound.ensure();
 });
@@ -1151,11 +1162,11 @@ stage.addEventListener("pointermove",e=>{
 });
 let hoverOn=false;
 stage.addEventListener("pointerleave",e=>{ if(e.pointerType==="mouse") hoverOn=false; });
-function endPtr(e){ if(ptr.has(e.pointerId)) ptr.delete(e.pointerId); }
+function endPtr(e){ ptr.delete(e.pointerId); padRect.delete(e.pointerId); }
 stage.addEventListener("pointerup",endPtr);
 stage.addEventListener("pointercancel",endPtr);
 stage.addEventListener("contextmenu",e=>e.preventDefault());
-function cancelDrag(){ ptr.clear(); hoverOn=false; }
+function cancelDrag(){ ptr.clear(); padRect.clear(); hoverOn=false; }
 
 /* ---------- 畫圖 ---------- */
 const cv=$("cv"), ctx=cv.getContext("2d");
@@ -1183,13 +1194,6 @@ function label(t,x,y,size,color,align){
   ctx.lineWidth=Math.max(3,size*0.28); ctx.strokeStyle="#fff"; ctx.strokeText(t,x,y);
   ctx.fillStyle=color||"#1E1E1E"; ctx.fillText(t,x,y);
 }
-function arrow(x1,y1,x2,y2,color,w){
-  const a=Math.atan2(y2-y1,x2-x1), hl=w*3.2, hw=w*1.9;
-  const bx=x2-hl*Math.cos(a), by=y2-hl*Math.sin(a);
-  ctx.strokeStyle=color; ctx.lineWidth=w; ctx.lineCap="round";
-  ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(bx,by); ctx.stroke();
-  ctx.fillStyle=color; ctx.beginPath(); ctx.moveTo(x2,y2); ctx.lineTo(bx-hw*Math.sin(a),by+hw*Math.cos(a)); ctx.lineTo(bx+hw*Math.sin(a),by-hw*Math.cos(a)); ctx.closePath(); ctx.fill();
-}
 function drawScene(){
   const s=V.s, lw=Math.max(1.5,s*0.003);
   /* 背景、地板 */
@@ -1211,15 +1215,14 @@ function drawScene(){
   ctx.fillStyle="#1E1E1E"; ctx.fillRect(X(0)-nw*0.25,Y(C.NET_H)-0.006*s,nw*0.5,(C.NET_H+0.006)*s);
 }
 function paddleTilt(p){
-  if(p.ctl==="swing") return p.tilt;
+  if(p.ctl==="hand") return p.tilt;
   const a=p.aim;
   if(a.valid&&(a.state==="drag"||a.state==="set")) return a.th;
   const k=(M.t-p.swingT)/0.4; return k<1?p.tilt*(1-k):0;
 }
 function drawPaddle(sd){
   const p=M.pad[sd], s=V.s, d=P.DIR[sd], a=p.aim;
-  const perfectNow=a.state==="set"&&M.pred&&M.pred.side===sd&&(M.t-a.tSet)<=C.PERFECT;
-  const half=p.half*(perfectNow?C.PERFECT_PAD:1)*s, w=Math.max(5,0.016*s);
+  const half=p.half*s, w=Math.max(5,0.016*s);
   const th=paddleTilt(p), ang=-d*th*Math.PI/180;
   const push=Math.max(0,1-(M.t-p.swingT)/0.14)*0.022*s;
   ctx.save();
@@ -1245,26 +1248,10 @@ function drawBall(){
   ctx.beginPath(); ctx.arc(0,0,r,0,Math.PI*2); ctx.fill(); ctx.stroke();
   ctx.restore();
 }
-function drawForces(){
-  if(!settings.arrows) return;
-  const b=M.ball, s=V.s, fs=Math.max(14,s*0.028);
-  /* 重力：一直向下（球拿在手上發球時不畫，免得畫出兩個抵消的力） */
-  if(!b.held && M.phase==="rally"){
-    const x=X(b.x), y=Y(b.y), L=0.055*s;
-    arrow(x,y+Math.max(5,C.R*s)*0.6,x,y+L,FORCE.gravity,Math.max(3,s*0.005));
-    label("重力",x+Math.max(6,s*0.012),y+L*0.7,fs*0.85,FORCE.gravity);
-  }
-  /* 擊球那一下（停格時）：球拍的力只在碰到球的時候才有 */
-  if(M.fx.hitstop>0 && b.squash && M.t-b.squash.t0<0.001){
-    const x=X(b.x), y=Y(b.y), L=(0.045+0.05*Math.min(1,(b.squash.s0-0.1)/0.3))*s, nx=b.squash.nx, ny=b.squash.ny;
-    arrow(x,y,x+nx*L,y-ny*L,FORCE.contact,Math.max(4,s*0.008));
-    label("球拍的力",x+nx*L+(nx>=0?6:-6),y-ny*L-fs*0.7,fs,FORCE.contact,nx>=0?"left":"right");
-  }
-}
 /* 球已經在你這邊彈過、打得到了：球外面加一圈金色 */
 function drawHittable(){
   for(let sd=0;sd<2;sd++){
-    if(isAI(sd)||!P.canSwingHit(M,sd)||M.phase!=="rally") continue;
+    if(isAI(sd)||!P.canHit(M,sd)||M.phase!=="rally") continue;
     const b=M.ball, s=V.s, r=Math.max(5,C.R*s)*1.9;
     ctx.strokeStyle="#E0A800"; ctx.lineWidth=Math.max(3,s*0.005);
     ctx.beginPath(); ctx.arc(X(b.x),Y(b.y),r,0,Math.PI*2); ctx.stroke();
@@ -1285,7 +1272,7 @@ function draw(){
   camera(); drawScene();
   if(!M){ return; }
   for(let sd=0;sd<2;sd++) drawPaddle(sd);   /* 老師說人物不像人，只畫球拍 */
-  drawHittable(); drawBall(); drawForces(); drawPopups();
+  drawHittable(); drawBall(); drawPopups();
 }
 function updateCountdown(){
   const el=$("countdown");
