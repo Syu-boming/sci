@@ -821,7 +821,7 @@ function makeCalendar(parent) {
      kind："soap" 洗衣精（不透明藍瓶＋按壓頭，看不到裡面）｜"soda" 氣泡水（透明瓶，裡面的小氣泡往上冒）｜"vinegar" 醋（瓶身寫「醋」）
      bt.panel(p, x, y)：soap／soda 瓶身的成分標示放大成卡片「成分：水、香精……」／「成分：水、二氧化碳……」（p 0→1 從瓶身飛到 (x,y)；省略 x,y＝瓶子正上方）
      bt.hi(i, k)：第 i 個成分（0＝水，1＝香精／二氧化碳）加黃色螢光（k 0→1 像螢光筆畫過去）｜bt.bubbles(t, k)：soda 的氣泡｜bt.mouth() 瓶口
-     放大的卡片畫在 parent 裡（瓶子上面），bt.zoom.W／H 是卡片寬高（soap 約 470×134，soda 約 560×134）
+     放大的卡片畫在 parent 裡（瓶子上面），bt.zoom.W／H 是卡片寬高（soap 約 478×138，soda 約 570×138）
    makeBasket(parent, hint, o={w:300, h:150, front}) → bk   混合物的籃子（三個都同一種顏色，不用顏色暗示答案）。原點＝籃底中心；hint（外觀提示）寫在籃子下面的膠囊裡。
      o.front＝另一個圖層：籃子前面那一片畫在那裡（卡片掉進籃子時，下半被籃子擋住）。圖層順序：籃子 → 卡片 → front。
      bk.at／place／show（前後兩片一起動）｜bk.reveal(name, p) 名牌從「？」換成名字（固態混合物…）｜bk.note(text, p) 下面的小字（#B4410F）｜
@@ -2078,7 +2078,8 @@ function makeBottle(parent, kind, o = {}) {
     const ln = [0, 1].map(() => E("line", { stroke: "#9AA5AD", "stroke-width": 3, "stroke-dasharray": "8 7" }, lines));
     const card = G(zoom);
     const parts = BOTTLE_TEXT[kind], size = o.size || 46;
-    const pw2 = s => s === "……" ? size * 1.25 : textW(s, size);
+    // 「……」的實際寬度看字型：微軟正黑體每個「…」約 0.86em，蘋方（Mac、iPad）是 1em → 用 2em 估，兩種字型都在框內（第六輪）
+    const pw2 = s => s === "……" ? size * 2 : textW(s, size);
     const tw = parts.reduce((a, s) => a + pw2(s), 0), cw = tw + 64, chh = size * 1.6 + 64;
     E("rect", { x: -cw / 2 + 7, y: -chh / 2 + 9, width: cw, height: chh, rx: 22, fill: "rgba(30,30,30,.2)" }, card);
     E("rect", { x: -cw / 2, y: -chh / 2, width: cw, height: chh, rx: 22, fill: "#FFFDF8", stroke: C.ink, "stroke-width": 5 }, card);
@@ -2748,6 +2749,12 @@ scene("fan", (root, ch) => {
   const W1 = [tWave - .3, tWave - .3 + 1.8];      // 3 下：EV、EV＋0.6、EV＋1.2
   const W2 = [tS[3] - .3, tS[3] - .3 + 1.2];      // 2 下：EV、EV＋0.6
   const IN = [tS[2] + .3, tS[2] + .9];            // 吸氣 0.6 秒
+  // 抬手：fan.s2＋0.1 起 1.4 秒（和原本一樣）。lib 的 makePigSide 把 arm 分兩段（0～0.55 胸前抬起、手掌轉正；0.55～1 往前伸到杯口上方），
+  // 每一段自己有 Ease.io；外面再疊一層 Ease.io 時速度全擠在中段（30fps 一格最多 92px）。這裡改成直接給每一段的進度
+  // （第一段 0.8 秒、第二段 0.6 秒，都用 sine），再用 Ease.io 的反函數換回 arm：30fps 一格最多約 31px（查核標準 ≤40）
+  const A0 = tS[1] + .1, A1 = A0 + .8, A2 = A0 + 1.4;
+  const ioInv = k => k < .5 ? Math.cbrt(k / 4) : 1 - Math.cbrt(2 * (1 - k)) / 2;
+  const armAt = t => { const k2 = P(t, A1, A2 - A1, Ease.sine); return k2 > 0 ? .55 + .45 * ioInv(k2) : .55 * ioInv(P(t, A0, A1 - A0, Ease.sine)); };
 
   /* ---------- 擺法（照 lib 的構圖參考：道具測試板 1） ---------- */
   const BY = LAB.benchY, S1 = 1.35, PSX = 330, LEAN = -5;
@@ -2788,7 +2795,7 @@ scene("fan", (root, ch) => {
   return {
     render(t) {
       /* ---------- 側面豬豬：抬手 → 搧 → 吸 → 再搧 ---------- */
-      const arm = P(t, tS[1] + .1, 1.4, Ease.io);
+      const arm = armAt(t);
       const inW1 = t > W1[0] && t < W1[1], inW2 = t > W2[0] && t < W2[1];
       const wave = inW1 ? fanWave(t, W1[0], W1[1]) : inW2 ? fanWave(t, W2[0], W2[1]) : .5;
       const swish = Math.max(vis(t, W1[0], W1[1] - .15, .15, .2), vis(t, W2[0], W2[1] - .15, .15, .2));
@@ -3040,6 +3047,9 @@ scene("label", (root, ch) => {
   const tAsk = Le("c5-2") + .05;                     // 配樂的「問號」
   const tHi = [Wt("c5-4", "水", 1), Wt("c5-4", "香精"), Wt("c5-4", "水", 3), Wt("c5-4", "二氧化碳")];
   const tLand = [tShow, tShow + .25];               // 兩個瓶子落到桌上（配樂 thud）
+  // 瓶子在桌面上方 DROP_H 淡入、DROP_T 秒等加速度落下（落地時間不變）：落地前一格約 35px（30fps 標準 ≤40）；
+  // 0.31 秒＝洗衣精等問題卡往右上縮、離開瓶子上方以後才出現（不從問題卡後面穿過）
+  const DROP_H = 170, DROP_T = .31;
 
   /* ---------- 擺法 ---------- */
   const BY = LAB.benchY;                             // 桌面 y＝714：杯子、瓶子下面的名字（y≈748）才不會進字幕區
@@ -3176,12 +3186,12 @@ scene("label", (root, ch) => {
       op(qCard, qIn > 0 ? Math.min(1, qIn * 2) : 0);
       qCard.setAttribute("transform", tf(lerp(Q0[0], Q1[0], mv), lerp(Q0[1], Q1[1], mv), -3 * (1 - qIn), Math.max(.001, Ease.back(qIn)) * lerp(1, QS, mv)));
 
-      /* ---------- 瓶子：EV、EV＋0.25 落到桌上（落下 0.38 秒＋小彈一下） ---------- */
+      /* ---------- 瓶子：EV、EV＋0.25 落到桌上（淡入、落下 0.31 秒＋小彈一下） ---------- */
       [soap, soda].forEach((b, i) => {
-        const p = P(t, tLand[i] - .38, .38, Ease.lin);
+        const p = P(t, tLand[i] - DROP_T, DROP_T, Ease.lin);
         const hop = -10 * Math.sin(Math.PI * clamp((t - tLand[i]) / .2));
-        b.at(BOT_X[i], lerp(BY - 560, BY, Ease.in(p)) + hop, 0, BOT_S);
-        b.show(p > 0 ? 1 : 0);
+        b.at(BOT_X[i], BY - DROP_H * (1 - p * p) + hop, 0, BOT_S);
+        b.show(p > 0 ? Ease.out(clamp(p / .4)) : 0);
         op(botNames[i], P(t, tLand[i] + .1, .3, Ease.lin));
       });
       const lIn = P(t, tShow + .4, .6, Ease.lin), lOut = P(t, tMany - .45, .3, Ease.lin);   // 結論卡出來前收起來
@@ -3597,7 +3607,8 @@ scene("water", (root, ch) => {
            「20 毫升」小牌子不跟著量筒轉；spoon.level 放大鏡示意「舀起來刮平」（刮平在 EV＋0.3）；
            spoon.jars 三罐 → 三杯的箭頭（EV＋0.35k），杯裡的粉淡入（平匙都插在罐子裡沒動）；攪拌棒在杯口淡入
    鏡頭 B：豬豬左手捏住檸檬酸罐裡那支平匙（柄朝左上，離臉遠）的手把中段：先抬高、再橫移到小蘇打粉罐口上方
-           （勺底比兩個罐口高）；spoon.no ╳ 蓋在罐身（EV＋0.1 蓋好）；「殘留的檸檬酸」、虛線箭頭、「會混進小蘇打水」；原路放回
+           （勺底比兩個罐口高）；spoon.no ╳ 蓋在罐口（勺子下面、名字上面，在平匙後面；不蓋住「小蘇打粉」；EV＋0.1 蓋好）；
+           「殘留的檸檬酸」、虛線箭頭、「會混進小蘇打水」；原路放回
    鏡頭 C：豬豬走到平匙架（三支乾淨平匙柄朝上、勺子整支藏在架子裡），右手捏住手把，在架子後面邊轉邊往左拿出來，
            從架子和第 4 杯中間升高，勺底高過杯口才橫移到小蘇打粉罐口上方；柄一直朝右上，不碰第 4 杯；
            舀一平匙，spoon.clean＋2.4 在第 4 杯杯口上方斜過去倒（勺子不進杯子、不碰水，平匙一直是乾的），
@@ -3635,6 +3646,9 @@ scene("spoon", (root, ch) => {
   const F_JAR = [J[3] + 26, 495, 140], F_DIP = [J[3] + 10, 560, 145], F_POUR0 = [CX[3] + 2, 495, 140], F_TILT = [CX[3] + 15, 493, 130], F_REST = [J[3] + 24, 590, 115];
   const cam = makeCam([[0, 0, 815, 450, 1], [t82 - .1, .9, 1150, 485, 1.2], [tVin, .8, 1630, 470, 1]]);
   const LENS = [720, 240], LR = 118;                            // 放大鏡（舞臺座標；在兩支平匙柄中間、豬豬耳朵左邊）
+  // ╳：小蘇打粉罐的罐口（中心在罐蓋上；含外框的下緣 y≈612.7，在名字字框（615.2）上面，上端在勺子後面、不冒出勺子上緣）；
+  // 畫在 bench.on（罐子上面、平匙下面）。第六輪：原本在罐身 (J[3], 618) 半徑 42，蓋住「蘇打」4.7 秒
+  const NO_AT = [J[3] - 8, 573], NO_R = 31;
 
   /* ---------- 小工具 ---------- */
   const rad = d => d * Math.PI / 180;
@@ -3726,7 +3740,7 @@ scene("spoon", (root, ch) => {
   const residLine = E("line", { stroke: C.ink, "stroke-width": 4, "stroke-linecap": "round" }, resid);
   const residDot = E("circle", { r: 7, fill: "#fff", stroke: C.ink, "stroke-width": 4 }, resid);
   const residPill = pill(resid, "殘留的檸檬酸", 30, C.key);
-  const no = makeStop(bench.front, 42);
+  const no = makeStop(bench.on, NO_R);                                      // 在 bench.on 最上面：罐子、杯子上面，平匙、手、名字牌下面
   const ifArrow = makeArrow(bench.front, { color: C.muted, w: 6, dash: true });
   const freshSpark = makeSpark(bench.front, 26);
   // 罐身的名字標籤另外畫一層，蓋在罐子裡的平匙上面（平匙在罐子裡，不會蓋住「砂」「食」「檸」「打」）
@@ -3803,7 +3817,8 @@ scene("spoon", (root, ch) => {
       const fAll = .62 * P(t, cE + .05, .4, Ease.out);
       cups.forEach((c, k) => { c.set({ fill: k === 0 ? f1 : fAll }); op(c, edge(CX[k] - 55, CX[k] + 55)); });
       jars.forEach((j, k) => op(j, edge(J[k] - 75, J[k] + 75)));
-      jarTags.forEach((g, k) => op(g, k < 3 || t >= tCitEnd + .5 ? 1 : 0));   // 和罐子一樣不做邊緣淡出（罐子本身不淡）；小蘇打粉罐的那層等 ╳ 消失、新平匙要來了才出現
+      // 名字牌跟著罐子做一樣的邊緣淡出（罐子淡掉時牌子不會留在畫面上）；小蘇打粉罐的那層等 ╳ 消失、新平匙要來了才出現
+      jarTags.forEach((g, k) => op(g, edge(J[k] - 75, J[k] + 75) * (k < 3 || t >= tCitEnd + .5 ? 1 : 0)));
       const vk = P(t, k0 + .2, .6, Ease.lin);
       cup5.set({ fill: .62 + .04 * vk });
       S(cup5.children[0].children[1], { fill: lerpColor(COL.liq, VIN, vk) });
@@ -3887,7 +3902,8 @@ scene("spoon", (root, ch) => {
       op(lens, lp > 0 ? Math.min(1, lp * 2) : 0);
       const lg = lsp.gripFor(8, 26, 0, 2.3);
       lsp.set({ x: lg[0], y: lg[1], r: 0, s: 2.3, load: 1, level: P(t, tLevel + .02, .28, Ease.lin) });
-      scraper.setAttribute("transform", tf(lerp(-230, 230, P(t, tLevel - .05, .35, Ease.io)), 4, -6));
+      // 刮板 0.6 秒從左到右掃過去（梯形速度，30fps 一格 ≤35px）：level−0.05 進到鏡子裡、level＋0.41 出去，刮平（level＋0.02 起 0.28 秒）在中間
+      scraper.setAttribute("transform", tf(lerp(-230, 230, trap((t - (tLevel - .12)) / .6)), 4, -6));
       op(scraper, vis(t, tLevel - .25, tLevel + .4, .15, .2));
       spPop(lensCap, LENS[0], LENS[1] + LR + 64, P(t, tLevel + .05, .4, Ease.lin) * (1 - P(t, tJars - .3, .3, Ease.lin)));
 
@@ -3897,7 +3913,7 @@ scene("spoon", (root, ch) => {
       S(residLine, { x1: (RP[0] + 92).toFixed(1), y1: (RP[1] + 20).toFixed(1), x2: (s3[0] + 2).toFixed(1), y2: (s3[1] - 9).toFixed(1) });
       S(residDot, { cx: (s3[0] + 2).toFixed(1), cy: (s3[1] - 9).toFixed(1) });
       residPill.setAttribute("transform", tf(RP[0], RP[1]));
-      no.at(J[3], 618, t >= tNo - .1 ? P(t, tNo - .1, .2, Ease.lin) : 0);
+      no.at(NO_AT[0], NO_AT[1], t >= tNo - .1 ? P(t, tNo - .1, .2, Ease.lin) : 0);
       if (t >= tCitEnd) no.show(1 - P(t, tCitEnd, .3, Ease.lin));
       const ik = P(t, tResid, .6, Ease.out);
       ifArrow.set(J[3] + 48, 556, CX[3] - 10, Y - 62, ik, -40);
@@ -3911,7 +3927,9 @@ scene("spoon", (root, ch) => {
       const vs = .9;
       const [bx, by, ba] = kf(t, VBK);
       vin.at(bx, by, ba, vs);                                               // 一開始就擺在桌上，不彈出來
-      op(vin, edgeT(VB - 40, VB + 40, 100));
+      // 瓶身（含筆畫）半寬約 45.5：整支進到畫面裡才出現、再往裡 50px 變到 1；鏡頭 D 停好時右緣在 x≈1546，不透明度 1
+      // （第五輪的 edgeT(VB±40, 100) 在鏡頭 D 算出 0.6，整段半透明）
+      op(vin, edgeT(VB - 46, VB + 46, 50));
       op(cap, 1 - P(t, vA - .1, .2, Ease.lin) + P(t, vR - .2, .2, Ease.lin));   // 拿起來之前把瓶蓋拿掉，放回去再蓋上
       const ml2 = 2 * P(t, v0 + .06, .54, Ease.sine) * (1 - P(t, k0 + .02, .55, Ease.sine));
       const [ccx, ccy, ca] = kf(t, CMK), car = rad(ca);
