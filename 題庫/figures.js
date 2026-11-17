@@ -207,8 +207,11 @@
   };
 
   /* 9. 素養題組的統計圖：{type:"bar"|"line", xLabel, yLabel, x:[...], series:[{name,data:[數字或 null]}],
-        yMin, yMax（可省略，自動取整）, labels（可省略：一條資料時預設標數值）}
-        只有一個 y 軸；兩條以上資料一定有圖例；文字一律用墨色，顏色只給資料記號。 */
+        yMin, yMax（可省略，自動取整）, labels（可省略：一條資料時預設標數值）,
+        origin（可省略：true 時畫出縱軸線；折線圖的第一個橫軸值畫在縱軸線上，從原點開始，例 0、10、20 公克重）,
+        digits（可省略：數值標籤固定顯示幾位小數，例 1 → 2.0；縱軸刻度不變）}
+        只有一個 y 軸；兩條以上資料一定有圖例；文字一律用墨色，顏色只給資料記號。
+        沒有寫 origin、digits 的圖，畫法和加這兩個選項之前完全一樣。 */
   const SERIES=["#2E86C1","#D9822B","#2E7D4F"];
   const niceStep=span=>{ const raw=span/5, p=Math.pow(10,Math.floor(Math.log10(raw||1))), m=raw/p;
     return (m<=1?1:m<=2?2:m<=2.5?2.5:m<=5?5:10)*p; };
@@ -218,14 +221,17 @@
     const W=480, T=se.length>1?66:42, B=60, Lm=50, R=14, H=310, pw=W-Lm-R, ph=H-T-B;
     let lo=c.yMin!=null?c.yMin:Math.min(0,...vals), hi=c.yMax!=null?c.yMax:Math.max(1,...vals);
     const step=niceStep(hi-lo); lo=Math.floor(lo/step)*step; hi=c.yMax!=null?hi:Math.ceil(hi/step)*step; if(hi<=lo) hi=lo+step;
-    const Y=v=>T+ph-(v-lo)/(hi-lo)*ph, band=pw/n, X=i=>Lm+band*(i+.5);
+    /* org：折線圖從原點開始，第一個橫軸值在縱軸線上，最後一個離右邊留半格 */
+    const org=!!c.origin&&c.type==="line", Y=v=>T+ph-(v-lo)/(hi-lo)*ph, band=pw/n, gap=org?pw/(n-.5):band, X=org?(i=>Lm+gap*i):(i=>Lm+band*(i+.5));
     const lab=c.labels!=null?c.labels:se.length===1;
+    const dg=Number.isInteger(c.digits)&&c.digits>=0&&c.digits<=6?c.digits:null, fmtVal=v=>dg==null?fmtNum(v):Number(v).toFixed(dg);
     let b=`<rect width="${W}" height="${H}" fill="#fff"/>`;
     for(let v=lo;v<=hi+1e-9;v+=step){ const y=Y(v);
       b+=`<line x1="${Lm}" y1="${y}" x2="${W-R}" y2="${y}" stroke="${v===lo?"#8A949A":"#E6E1D6"}" stroke-width="1"/>`;
       b+=`<text x="${Lm-7}" y="${y}" font-size="15" fill="${C.muted}" text-anchor="end" dominant-baseline="middle">${fmtNum(v)}</text>`; }
+    if(c.origin) b+=`<line x1="${Lm}" y1="${Y(hi)}" x2="${Lm}" y2="${Y(lo)}" stroke="#8A949A" stroke-width="1"/>`;
     if(c.yLabel) b+=`<text x="${Lm-8}" y="${T-16}" font-size="15" font-weight="700" fill="${C.ink}" text-anchor="start">${esc(c.yLabel)}</text>`;
-    x.forEach((s,i)=>{ const parts=String(s).length>4&&band<80&&/\s/.test(s)?String(s).split(/\s+/):[String(s)];
+    x.forEach((s,i)=>{ const parts=String(s).length>4&&gap<80&&/\s/.test(s)?String(s).split(/\s+/):[String(s)];
       parts.forEach((t,k)=>{ b+=`<text x="${X(i)}" y="${T+ph+20+k*17}" font-size="15" fill="${C.ink}" text-anchor="middle">${esc(t)}</text>`; }); });
     if(c.xLabel) b+=`<text x="${W-R}" y="${H-6}" font-size="15" font-weight="700" fill="${C.ink}" text-anchor="end">${esc(c.xLabel)}</text>`;
     if(se.length>1){ let lx=12; se.forEach((s,k)=>{ const col=SERIES[k];
@@ -233,13 +239,13 @@
                         :`<rect x="${lx}" y="8" width="16" height="16" rx="3" fill="${col}"/>`;
       b+=`<text x="${lx+(c.type==="line"?28:22)}" y="17" font-size="15" font-weight="700" fill="${C.ink}" dominant-baseline="middle">${esc(s.name||"")}</text>`;
       lx+=48+String(s.name||"").length*15; }); }
-    const valTxt=(x0,y0,v)=>`<text x="${x0}" y="${y0}" font-size="14" font-weight="700" fill="${C.ink}" text-anchor="middle" stroke="#fff" stroke-width="3" paint-order="stroke">${fmtNum(v)}</text>`;
+    const valTxt=(x0,y0,v,a="middle")=>`<text x="${x0}" y="${y0}" font-size="14" font-weight="700" fill="${C.ink}" text-anchor="${a}" stroke="#fff" stroke-width="3" paint-order="stroke">${fmtVal(v)}</text>`;
     if(c.type==="line"){
       se.forEach((s,k)=>{ const col=SERIES[k], d=s.data||[]; let path="", pen=false;
         d.forEach((v,i)=>{ if(v==null){ pen=false; return; } path+=`${pen?"L":"M"}${X(i)},${Y(v)} `; pen=true; });
         b+=`<path d="${path}" fill="none" stroke="${col}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>`;
         d.forEach((v,i)=>{ if(v==null) return; b+=`<circle cx="${X(i)}" cy="${Y(v)}" r="4.5" fill="${col}" stroke="#fff" stroke-width="2"/>`;
-          if(lab) b+=valTxt(X(i),Y(v)-12,v); }); });
+          if(lab) b+=org&&i===0?valTxt(X(i)+7,Y(v)-12,v,"start"):valTxt(X(i),Y(v)-12,v); }); });   /* 原點的數值寫在縱軸右邊，不壓到刻度 */
     }else{
       const bw=Math.min(24,(band*.72-2*(se.length-1))/se.length), gw=bw*se.length+2*(se.length-1), base=Y(Math.max(lo,Math.min(0,hi)));
       se.forEach((s,k)=>{ const col=SERIES[k];
@@ -249,7 +255,7 @@
                    : `<rect x="${x0}" y="${top}" width="${bw}" height="${h}" fill="${col}"/>`;
           if(lab) b+=valTxt(x0+bw/2,top-8,v); }); });
     }
-    const desc=`${c.type==="line"?"折線圖":"長條圖"}：`+se.map(s=>`${s.name||""} `+x.map((t,i)=>`${t} ${s.data&&s.data[i]!=null?fmtNum(s.data[i]):"沒有資料"}`).join("、")).join("；");
+    const desc=`${c.type==="line"?"折線圖":"長條圖"}：`+se.map(s=>`${s.name||""} `+x.map((t,i)=>`${t} ${s.data&&s.data[i]!=null?fmtVal(s.data[i]):"沒有資料"}`).join("、")).join("；");
     return `<svg class="qchart" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(desc)}" xmlns="http://www.w3.org/2000/svg" font-family="Microsoft JhengHei,PingFang TC,Noto Sans TC,sans-serif">${b}</svg>`;
   };
 
@@ -361,7 +367,7 @@
     const W=Math.max(360,110+items.length*110), H=top+Math.max(maxCm*k+10,...items.map((it,i)=>lens[i]*k+(it.n||0)*20+24))+56;
     let b=`<rect width="${W}" height="${H}" fill="${C.bg}"/>`+line(10,top-16,W-10,top-16,C.ink,5);
     /* 直尺 */
-    b+=`<rect x="24" y="${top}" width="46" height="${maxCm*k+10}" rx="3" fill="#F4F4F0" stroke="${C.ink}" stroke-width="1.5"/>`;
+    b+=`<rect x="24" y="${top-10}" width="46" height="${maxCm*k+20}" rx="3" fill="#F4F4F0" stroke="${C.ink}" stroke-width="1.5"/>`;
     for(let c=0;c<=maxCm*10;c++){ const y=top+c*k/10, big=c%10===0, mid=c%5===0;
       b+=line(70,y,70-(big?14:mid?10:6),y,C.ink,big?1.6:1);
       if(big) b+=`<text x="34" y="${y}" font-size="11" fill="${C.ink}" text-anchor="middle" dominant-baseline="middle">${c/10}</text>`; }
@@ -372,7 +378,8 @@
       /* 線圈 */
       let d=`M${x} ${y1}`; const turns=14; for(let t=1;t<=turns;t++){ const yy=y1+(y2-y1)*t/turns; d+=` L${x+(t%2?9:-9)} ${yy-(y2-y1)/turns/2} L${x} ${yy}`; }
       b+=`<path d="${d}" fill="none" stroke="#6C7A86" stroke-width="2.5"/>`;
-      b+=line(x-60,y2,x-14,y2,C.muted,1.2,"4 3");
+      /* 只有一條彈簧時，虛線從直尺右緣畫到彈簧下端，看得出下端對到尺上幾公分；多條時畫短的，免得穿過別條彈簧 */
+      b+=line(items.length===1?70:x-60,y2,x-14,y2,C.muted,1.2,"4 3");
       for(let w=0;w<(it.n||0);w++){ const wy=y2+8+w*20; b+=line(x,wy-8,x,wy,C.ink,1.5)+`<rect x="${x-12}" y="${wy}" width="24" height="14" rx="3" fill="#B0B6BB" stroke="${C.ink}" stroke-width="1.5"/>`; }
       if(it.lab) b+=badge(x+30,top+6,it.lab);
       if(p.show) b+=txt(x+38,y2,`${len} 公分`,{size:13}); });
@@ -404,14 +411,16 @@
     if(p.load==="hand") b+=ray(bx+bw/2+40,ly-10,bx+bw/2+40,ly+20,C.ray)+txt(bx+bw/2+70,ly+4,"手往下拉",{size:13});
     b+=txt(36,Y(max/2),"公克重",{size:13});
     if(p.eyes){ const lab=p.lab||["甲","乙","丙"], py=Y(val), ex=W-70;
-      [py-60,py,py+60].forEach((ey,i)=>{ b+=`<ellipse cx="${ex}" cy="${ey}" rx="16" ry="9" fill="#fff" stroke="${C.ink}" stroke-width="2"/><circle cx="${ex-6}" cy="${ey}" r="5" fill="${C.ink}"/>`;
+      [Math.max(py-60,50),py,py+60].forEach((ey,i)=>{ b+=`<ellipse cx="${ex}" cy="${ey}" rx="16" ry="9" fill="#fff" stroke="${C.ink}" stroke-width="2"/><circle cx="${ex-6}" cy="${ey}" r="5" fill="${C.ink}"/>`;
         b+=line(ex-18,ey,bx+bw/2+10,py,C.muted,1.5,"5 4")+badge(ex+32,ey,lab[i]); }); }
     b+=txt(W/2,H-8,"（示意圖：紅色是指針）",{size:12,w:400,fill:C.muted});
     return svg(`0 0 ${W} ${H}`,b,"彈簧秤的示意圖");
   };
 
   /* 16. 模擬拔河（課本 p.95）：桌面中線、中間一根迴紋針，左右各用一個彈簧秤拉。
-        left、right：兩邊的拉力（公克重，會寫在彈簧秤下面）；labs：左右兩方的名稱（預設 ["甲","乙"]）。 */
+        left、right：兩邊的拉力（公克重，會寫在彈簧秤下面）；labs：左右兩方的名稱（預設 ["甲","乙"]）。
+        像課本照片：刻度的 0 在手拉的外側，拉力愈大，紅色指針愈靠近迴紋針。
+        紅色箭頭長短和拉力成正比（250 公克重最長）；拉力 0 不畫箭頭。 */
   F.tug=p=>{
     const W=500,H=200, L=p.left||0, R=p.right||0, labs=p.labs||["甲","乙"], max=p.max||250, cy=96;
     let b=`<rect width="${W}" height="${H}" fill="#F3EBDD"/>`;
@@ -419,10 +428,11 @@
     b+=`<rect x="214" y="${cy-9}" width="72" height="18" rx="9" fill="none" stroke="#7B8794" stroke-width="3"/><rect x="224" y="${cy-5}" width="52" height="10" rx="5" fill="none" stroke="#7B8794" stroke-width="2.5"/>`+line(250,cy-12,250,cy+12,C.ink,2);
     const scale=(x0,dir,v,name)=>{ const x1=x0+dir*150, bl=Math.min(x0,x1);
       let s=`<rect x="${bl}" y="${cy-14}" width="150" height="28" rx="5" fill="#F6D24A" stroke="${C.ink}" stroke-width="2"/>`;
-      for(let t=0;t<=max;t+=10){ const xx=x0+dir*(10+t/max*130), big=t%50===0; s+=line(xx,cy-14,xx,cy-14+(big?9:5),C.ink,1);
+      for(let t=0;t<=max;t+=10){ const xx=x1-dir*(10+t/max*130), big=t%50===0; s+=line(xx,cy-14,xx,cy-14+(big?9:5),C.ink,1);
         if(big&&p.nums===false) s+=`<text x="${xx}" y="${cy+9}" font-size="9" fill="${C.ink}" text-anchor="middle">${t}</text>`; }
-      const px=x0+dir*(10+Math.min(v,max)/max*130); s+=`<rect x="${px-2.5}" y="${cy-6}" width="5" height="18" fill="#E53935"/>`;
-      s+=line(x0,cy,x0-dir*0,cy,C.ink,2)+ray(x1,cy,x1+dir*34,cy,C.ray,3.5);
+      const px=x1-dir*(10+Math.min(v,max)/max*130); s+=`<rect x="${px-2.5}" y="${cy-6}" width="5" height="18" fill="#E53935"/>`;
+      const al=Math.round(56*Math.min(v,max)/max);
+      s+=line(x0,cy,x0-dir*0,cy,C.ink,2)+(v>0?line(x1,cy,x1+dir*al,cy,C.ray,3.5)+arrowHead(x1,cy,x1+dir*al,cy,C.ray,Math.min(10,al)):"");
       s+=txt(bl+75,cy+32,p.nums===false?"彈簧秤":`拉力 ${v} 公克重`,{size:14})+txt(x1+dir*20,cy-28,name,{size:16,w:900});
       return s; };
     b+=scale(212,-1,L,labs[0])+scale(288,1,R,labs[1]);
@@ -448,7 +458,9 @@
       if(r.g!=null) b+=txt(270,y+20,`彈簧秤 ${r.g} 公克重`,{size:14});
       if(r.lab) b+=badge(30,y+44,r.lab); });
     b+=txt(W/2,H-8,"（示意圖：每個盒子都放一樣多的砝碼）",{size:12,w:400,fill:C.muted});
-    return svg(`0 0 ${W} ${H}`,b,"用彈簧秤拉盒子的示意圖");
+    /* 報讀文字也念出每一列的桌面和讀數（和圖上寫的一樣） */
+    const said=rows.map(r=>[r.lab,(SURF[r.surf]||SURF.smooth)[1],r.g!=null?`彈簧秤 ${r.g} 公克重`:""].filter(Boolean).join(" ")).join("；");
+    return svg(`0 0 ${W} ${H}`,b,"用彈簧秤拉盒子的示意圖"+(said?"："+said:""));
   };
 
   /* 18. 盪秋千：三個位置（依序：左邊最高點／最低點／右邊最高點），代號用 lab。 */

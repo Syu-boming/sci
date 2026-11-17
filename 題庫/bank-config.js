@@ -69,7 +69,7 @@ window.BANK = {
       { id: "u4-balance",  name: "力的平衡",             pages: "課本 94–95" },
       { id: "u4-friction", name: "摩擦力",               pages: "課本 96–98" },
       { id: "u4-speed",    name: "運動的快慢",           pages: "課本 99–103" },
-      { id: "u4-energy",   name: "能量的轉換",           pages: "課本 104–105" }
+      { id: "u4-energy",   name: "能量轉換與能量守恆",   pages: "課本 104–105" }
     ]}
   ],
   exams: [
