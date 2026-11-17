@@ -19,7 +19,7 @@
   --coral-dark:#E4574C;
   --wrong:#E4574C;
   --card:#FFFFFF;
-  --muted:#6B7A82;
+  --muted:#5E6C74;      /* 手機小字在奶油底上也要 ≥4.5:1 */
   --shadow:0 6px 18px rgba(46,86,110,.16);
   --hs:clamp(44px,4.4vw,60px);  /* 照片熱點直徑（觸控至少 44px） */
 }
@@ -61,7 +61,7 @@ figure{margin:0}
 .clip-track,.rope-track{position:relative;height:96px;margin:14px 4px;border-bottom:4px solid #333}
 .clip-track .ct-mid,.rope-track .rt-mid{position:absolute;left:50%;top:0;bottom:0;border-left:3px dashed #b33;padding-left:6px;font-weight:800;color:#8a1f1f;font-size:.85em}
 .ct-side,.rt-team{position:absolute;top:2px;font-weight:900}.ct-l,.rt-l{left:0}.ct-r,.rt-r{right:0}
-.ct-clip{position:absolute;bottom:4px;transform:translateX(-50%);font-weight:900;background:#fff;border:2px solid #555;border-radius:999px;padding:0 10px;transition:left .6s}
+.ct-clip{position:absolute;bottom:4px;transform:translateX(-50%);font-weight:900;background:#fff;border:2px solid #555;border-radius:999px;padding:0 10px;transition:left .6s;white-space:nowrap}
 .rope-track{border-bottom:none}.rt-rope{position:absolute;left:0;right:0;bottom:22px;border-bottom:6px solid #a07a44}
 .rt-ribbon{position:absolute;bottom:4px;transform:translateX(-50%);font-weight:900;background:#ffd9d9;border:3px solid #c62828;color:#8a1f1f;border-radius:6px;padding:0 8px;transition:left .6s}
 #screen-open .check-question .opts.col{flex-direction:row;align-items:center}#screen-open .check-question .opts.col .opt{text-align:center;font-size:clamp(18px,1.7vw,30px);padding:8px 22px}
@@ -196,7 +196,7 @@ ol.steps{margin:8px 0 12px;padding-left:1.6em;font-size:1.05em}ol.steps li{margi
 }
 .criterion .k{font-weight:900;color:var(--green-dark);font-size:clamp(18px,2.1vw,25px)}
 .criterion .askagain{
-  margin-top:8px;font-size:clamp(13px,1.5vw,17px);color:var(--muted);font-weight:800;
+  margin-top:8px;font-size:clamp(13px,1.5vw,17px);color:#4A5960;font-weight:800;
   border-top:2px dashed #B9D8C4;padding-top:8px;
 }
 .bigpoint{
@@ -357,6 +357,7 @@ ol.steps{margin:8px 0 12px;padding-left:1.6em;font-size:1.05em}ol.steps li{margi
 
 @media (prefers-reduced-motion:reduce){
   .screen,.tag,.hs.shake{animation:none}
+  .ct-clip,.rt-ribbon{transition:none}
 }
 
   /* ===== RWD：手機 / 平板 / 筆電 / 75 吋觸控螢幕 ===== */
@@ -401,6 +402,7 @@ ol.steps{margin:8px 0 12px;padding-left:1.6em;font-size:1.05em}ol.steps li{margi
     .saybox{ font-size:34px; }
     .bigpoint{ font-size:33px; }
     .criterion .k{ font-size:30px; }
+    .criterion .askagain{ font-size:22px; }
     .bname{ font-size:34px; }
     .bhint,.fcard .label,.fcard .mark{ font-size:22px; }
     .note,.lead{ font-size:20px; }
@@ -433,6 +435,7 @@ ol.steps{margin:8px 0 12px;padding-left:1.6em;font-size:1.05em}ol.steps li{margi
     .saybox{ font-size:44px; }
     .bigpoint{ font-size:43px; }
     .criterion .k{ font-size:39px; }
+    .criterion .askagain{ font-size:29px; }
     .bname{ font-size:44px; }
     .bhint,.fcard .label,.fcard .mark{ font-size:29px; }
     .note,.lead{ font-size:26px; }
@@ -528,6 +531,10 @@ ol.steps{margin:8px 0 12px;padding-left:1.6em;font-size:1.05em}ol.steps li{margi
 /* Unit 4 additions: the template palette, controls and classroom font sizes remain. */
 .qfig,.qchart{width:100%;height:auto;display:block}.diagram{max-width:650px;margin:12px auto}.diagram .note{margin:4px 0}
 .diagram svg{max-height:50vh}.must-list{margin:0;padding-left:1.5em}.must-list li{margin:8px 0}
+/* 75 吋大螢幕：示意圖和全班預測題放大；4K 時軌道加高，迴紋針、紅布條不會蓋住「中心線」 */
+@media (min-width:1800px){.diagram{max-width:min(100%,1050px)}.diagram svg{max-height:62vh}.guessbox .g{font-size:32px}}
+@media (min-width:2600px){.diagram{max-width:min(100%,2100px)}.guessbox .g{font-size:42px}.clip-track,.rope-track{height:136px}}
+a.btn{display:inline-flex;align-items:center;text-decoration:none;color:var(--ink)}
 .tab{border-collapse:collapse;width:100%;table-layout:fixed;margin:10px 0}.tab th,.tab td{border:2px solid #777;padding:6px;overflow-wrap:anywhere}.tab th{background:#FFF6D8}
 /* 示範重播（示意動畫）：老師不拍課前試做的照片，改用一步一步的示意動畫重播真的示範。
    setupReplay() 設定 svg 的 data-step；每個畫面的動畫用 [data-step] 觸發，後面的畫面用靜態規則留住前面的結果。
@@ -554,9 +561,11 @@ ol.steps{margin:8px 0 12px;padding-left:1.6em;font-size:1.05em}ol.steps li{margi
 .rpb-press,.rpb-line,.rpb-l1,.rpb-f2,.rpb-f3,.rpb-go,.rpb-c2,.rpb-c3,.rpb-r2,.rpb-r3{opacity:0}
 .rp-balance[data-step="1"] .rpb-press{opacity:1;animation:rpShow .5s both}
 .rp-balance[data-step="1"] .rpb-line,.rp-balance[data-step="1"] .rpb-l1{opacity:1;animation:rpShow .5s 1s both}
-.rp-balance[data-step="2"] .rpb-press,.rp-balance[data-step="3"] .rpb-press{animation:rpbLift 3.4s both}
+.rp-balance[data-step="2"] .rpb-press{animation:rpbLift 3.4s both}
+.rp-balance[data-step="3"] .rpb-press{animation:rpbLift3 3.4s both}
 .rp-balance[data-step="2"] .rpb-f2,.rp-balance[data-step="3"] .rpb-f3{animation:rpbForce 3.4s both}
-.rp-balance[data-step="2"] .rpb-go,.rp-balance[data-step="3"] .rpb-go{animation:rpbGo 3.4s both}
+.rp-balance[data-step="2"] .rpb-go{animation:rpbGo 3.4s both}
+.rp-balance[data-step="3"] .rpb-go{animation:rpbGo3 3.4s both}
 .rp-balance[data-step="2"] .rpb-c2,.rp-balance[data-step="3"] .rpb-c3{opacity:1;animation:rpShow .4s .3s both}
 .rp-balance[data-step="2"] .rpb-move{transform:translateX(-30px);animation:rpbSlide 3.4s both}
 .rp-balance[data-step="2"] .rpb-r2{opacity:1;animation:rpShow .4s 2.9s both}
@@ -564,6 +573,9 @@ ol.steps{margin:8px 0 12px;padding-left:1.6em;font-size:1.05em}ol.steps li{margi
 @keyframes rpbLift{0%,42%{opacity:1}50%,100%{opacity:0}}
 @keyframes rpbForce{0%,8%{opacity:0}25%,46%{opacity:1}56%,100%{opacity:0}}
 @keyframes rpbGo{0%,38%{opacity:0}44%,58%{opacity:1}70%,100%{opacity:0}}
+/* 畫面 3 用另一組動畫名稱：從畫面 2 接著播時，「壓住的手」和「鬆手！」才會重播 */
+@keyframes rpbLift3{0%,42%{opacity:1}50%,100%{opacity:0}}
+@keyframes rpbGo3{0%,38%{opacity:0}44%,58%{opacity:1}70%,100%{opacity:0}}
 @keyframes rpbSlide{0%,50%{transform:none;animation-timing-function:ease-in}85%,100%{transform:translateX(-30px)}}
 .btnrow[hidden]{display:none}
 .lab-controls{display:flex;flex-wrap:wrap;gap:12px;align-items:center}.lab-controls label{display:flex;flex-wrap:wrap;gap:8px;align-items:center;min-width:0}.lab-controls input[type=range]{width:min(260px,100%);height:44px}.lab-controls input[type=number],.lab-controls select{min-height:44px;font:inherit;max-width:100%;width:auto}.lab-controls input[type=number]{width:110px}
@@ -589,18 +601,29 @@ details.teacher-tip[open]>summary{border-bottom:1px dashed #baa975;margin-bottom
 .energy-total span{min-width:0;overflow:hidden;flex-shrink:0}
 .solution{border:2px dashed #a5b6a5;padding:6px 12px;border-radius:12px;margin:10px 0}
 summary:focus-visible{outline:3px solid var(--water-dark);outline-offset:3px}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:4px solid var(--water-dark);outline-offset:3px}
 .task-cue{font-size:.95em;color:#34444c;font-weight:400!important}.lab-controls select{min-width:44px}
 /* 同一螢幕：基本任務與原有選做題幹同時可見，核對答案仍收合。 */
 .task-start,.task-extension{min-width:0}.task-extension{padding-left:12px;border-left:4px solid var(--sun)}
 .seat-task{border-left:5px solid var(--water);background:#f2f8fc;padding:10px 14px;margin:10px 0}
 @media(min-width:1024px){.participate[data-learning-task]{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:22px;align-items:start}.participate[data-learning-task]>.learning-task,.participate[data-learning-task]>.challenge{margin-top:0}}
-</style><script>function imgFallback(img){const span=document.createElement("span");span.className="img-fallback";span.setAttribute("role","img");span.textContent="圖片未載入："+(img.alt||"課本圖片");img.replaceWith(span);}</script></head><body><div id="app"><header class="sitehead"><div class="headrow"><a class="back" href="../../index.html">← 回教材首頁</a><h1>力的平衡</h1></div><p class="sub">五年級自然｜第四單元 力與運動　課本 94–95 頁</p><div class="course-links"><a class="back" href="力的平衡_學習單.html">學習單</a><a class="back" href="力的平衡_重點整理.html">重點整理</a></div><nav class="stations" aria-label="站別"><button class="station-btn" data-go="open">① 拔河怎麼看勝負？</button><button class="station-btn" data-go="demo">② 桌上模擬拔河</button><button class="station-btn" data-go="sim">③ 虛擬拔河</button><button class="station-btn" data-go="rule">④ 力的平衡判準</button><button class="station-btn" data-go="quiz">⑤ 闖關驗收</button></nav></header><details class="teacher-tip"><summary>給老師｜本課教學安排</summary><p>⏱ ⑮｜暖身（歸零、讀刻度）3｜open4｜demo同步填P.37 10｜sim5｜rule3｜學習單9｜摩擦力open6｜合計40。全班必做一、二。⑤ 闖關驗收兩題：有時間再全班一起做（先舉卡，再請一位同學上台按）。</p><p>器材：兩支彈簧秤、迴紋針、紙膠帶中線。課前兩秤水平方向歸零，練習拉到200與150；讀鬆手前數字，放手後讀數會改變。不做真人拔河。小助手男女各一人拉，第三人壓夾並喊鬆手，不挑力氣大；拉力小。</p><p>三層：低＝看箭頭長短、舉反應卡（甲／乙／不動），看步驟卡抓錯；中＝說「我看到＿＿，所以＿＿」、讀預測表；高＝紅布條時間順序、★、★★，示範時當數據審查員（讀數是不是鬆手前讀的、兩支秤有沒有拉在同一直線上）。</p><p>示範前每人先在學習單預測格寫，再舉卡；小助手男女輪值，優先邀請平常較被動的學生。小助手唸數字，全班複誦；示範後播「示範重播」放大給全班看，或每排一位觀察代表上前看。學習單選做沒寫完不帶回家；回家只有習作，不派實驗。第一次教這課，記下各段實際分鐘，依班級速度調整。</p></details><section id="screen-open" class="screen"><h2 class="ptitle">① 拔河怎麼看勝負？</h2><details class="panel must-review"><summary>必會 3 句｜需要提示或複習時打開</summary><ol class="must-list"><li>拔河時，兩隊施力的方向相反，紅布條會往用力大的那一隊移動。</li><li>同一直線上，兩個大小不同、方向相反的拉力作用時，物體會往力量大的方向移動。</li><li>兩邊的拉力大小相同、方向相反時，原本靜止的物體會靜止不動，這就是力的平衡。</li></ol></details><div class="panel"><h2 class="ptitle">方向、力量與安全</h2><figure class="figbox"><div class="fig" data-photo="tug" style="--mh:36vh"></div><figcaption class="cap center">課本 p.94：拔河繩上綁著一條紅布條。</figcaption></figure><p>左邊是甲隊，右邊是乙隊。看照片，舉卡回答。</p><div class="check-question" data-choice="{&quot;q&quot;: &quot;1. 甲、乙兩隊拉繩子的方向一樣嗎？&quot;, &quot;opts&quot;: [&quot;方向相反&quot;, &quot;方向相同&quot;], &quot;ans&quot;: &quot;方向相反&quot;, &quot;why&quot;: &quot;兩隊都把繩子往自己這邊拉，繩子受到兩個方向相反的力。&quot;, &quot;hint&quot;: &quot;甲隊往哪邊拉？乙隊往哪邊拉？&quot;}"></div><div class="check-question" data-choice="{&quot;q&quot;: &quot;2. 紅布條往甲隊移動，哪一隊用的力量大？&quot;, &quot;opts&quot;: [&quot;甲隊&quot;, &quot;乙隊&quot;, &quot;兩隊一樣大&quot;], &quot;ans&quot;: &quot;甲隊&quot;, &quot;why&quot;: &quot;紅布條會往用力大的那一隊移動。&quot;, &quot;hint&quot;: &quot;紅布條被誰拉過去了？&quot;}"></div><div class="check-question" data-choice="{&quot;q&quot;: &quot;3. 紅布條靜止不動，哪一隊用的力量大？&quot;, &quot;opts&quot;: [&quot;甲隊&quot;, &quot;乙隊&quot;, &quot;兩隊一樣大&quot;], &quot;ans&quot;: &quot;兩隊一樣大&quot;, &quot;why&quot;: &quot;紅布條靜止不動，表示兩隊用的力一樣大，不是沒有用力。&quot;, &quot;hint&quot;: &quot;兩隊都在用力拉，可是紅布條沒有被拉過去。&quot;}"></div><div class="bigpoint">安全：拔河要選空曠的場地，<b>不</b>可以突然鬆手。</div><details class="solution"><summary>想一想：突然鬆手，另一隊為什麼會跌倒？（想好了再打開）</summary><p>另一隊還在用力往後拉，拉住他們的力卻突然沒有了，所以會往後跌倒。</p></details></div><div class="navrow"><button class="btn green" data-next="demo">下一站：② 桌上模擬拔河 →</button></div><details class="teacher-tip"><summary>給老師｜① 拔河怎麼看勝負？ 4 分鐘</summary><p>暖身歸零、讀刻度。只觀察課本照片、桌面示範，不讓學生真人拔河。</p></details></section>
-<section id="screen-demo" class="screen"><h2 class="ptitle">② 桌上模擬拔河</h2><div class="participate" data-learning-task="demo"><div class="task-start"><p><b>一起做：</b>鬆手前，先在學習單預測格寫下來，再舉卡（往甲／往乙／不動）。鬆手後，一起填習作 P.37。</p><p class="task-cue"><b>說說看：</b>我看到甲拉＿＿、乙拉＿＿公克重，所以迴紋針會＿＿。</p></div><div class="task-extension"><p><b>★ 想一想：</b>150 對 150 鬆手後，迴紋針不動。有人說：「不動，就是迴紋針沒有受到力。」對嗎？</p><details class="challenge"><summary>想好了再看答案</summary><p>不對。兩支彈簧秤各拉 150 公克重，不是 0。兩邊的力一樣大、方向相反，所以迴紋針不動。</p></details></div></div><div class="panel"><h2 class="ptitle">模擬拔河的步驟（課本 p.95）</h2><ol class="steps"><li>桌面畫一條中線，迴紋針中央的記號對齊中線。</li><li>用手壓住迴紋針。</li><li>兩支彈簧秤拉在<b>同一直線</b>上，慢慢拉到指定的讀數。</li><li>喊「鬆手」，放開壓住的手，看迴紋針往哪邊移動。</li></ol><figure class="diagram" data-fig="{&quot;type&quot;: &quot;tug&quot;, &quot;left&quot;: 200, &quot;right&quot;: 150, &quot;labs&quot;: [&quot;甲&quot;, &quot;乙&quot;]}" data-fallback="鬆手前甲200、乙150公克重；先壓住迴紋針。"><div class="note">示意：鬆手前甲200、乙150公克重；先壓住迴紋針。</div></figure><div class="guessbox" data-guess="{&quot;q&quot;: &quot;甲拉 200、乙拉 150 公克重，鬆手後迴紋針會怎樣？&quot;, &quot;opts&quot;: [&quot;往甲&quot;, &quot;往乙&quot;, &quot;不動&quot;], &quot;ans&quot;: &quot;往甲移動，因為甲拉的力比較大。&quot;, &quot;deferred&quot;: false}"></div><figure class="diagram" data-fig="{&quot;type&quot;: &quot;tug&quot;, &quot;left&quot;: 150, &quot;right&quot;: 150, &quot;labs&quot;: [&quot;甲&quot;, &quot;乙&quot;]}" data-fallback="鬆手前甲乙各150公克重。"><div class="note">示意：鬆手前甲乙各150公克重。</div></figure><div class="guessbox" data-guess="{&quot;q&quot;: &quot;甲拉 150、乙拉 150 公克重，鬆手後迴紋針會怎樣？&quot;, &quot;opts&quot;: [&quot;往甲&quot;, &quot;往乙&quot;, &quot;不動&quot;], &quot;ans&quot;: &quot;靜止不動，因為兩邊的力一樣大、方向相反、在同一直線上。&quot;, &quot;deferred&quot;: false}"></div><details class="solution"><summary>示範完再打開：🎬 示範重播</summary><div class="rpwrap"><h3 class="ptitle">🎬 示範重播：桌上模擬拔河<span class="sim">示意</span></h3><div class="duo mid"><figure class="figbox"><div class="svgbox rpbox" style="--rpar:2"><span class="simtag">示意</span><div id="rpBalance"></div></div><figcaption class="cap center">畫出來的示意動畫，不是錄影。</figcaption></figure><div><ol class="rpsteps" id="rpBalanceSteps"><li data-step="1"><span class="sn">1</span><span>迴紋針中央的記號對齊中線，先用手壓住；兩支彈簧秤拉在同一直線上。</span></li><li data-step="2"><span class="sn">2</span><span>甲拉 200、乙拉 150 公克重，喊「鬆手」：迴紋針往甲那邊移動。</span></li><li data-step="3"><span class="sn">3</span><span>甲、乙都拉 150 公克重，喊「鬆手」：迴紋針不動，還在中線上。</span></li></ol><div class="btnrow"><button class="btn" id="rpBalanceNext" type="button">▶ 播放畫面 1</button><button class="btn plain" id="rpBalanceReset" type="button">↺ 從頭看</button></div><p class="srlive" id="rpBalanceSay" aria-live="polite"></p></div></div></div></details></div><div class="navrow"><button class="btn green" data-next="sim">下一站：③ 虛擬拔河 →</button></div><details class="teacher-tip"><summary>給老師｜② 桌上模擬拔河 10 分鐘</summary><p>用紙膠帶做桌面中線，迴紋針中央記號對中線；助手兩人水平慢拉，第三人壓住、喊鬆手。先寫預測、舉卡，再放手；同步填P.37。抓錯：兩秤沒在同一直線，夾歪掉，全班舉╳，拉直重做。兩次鬆手都做完，再打開「示範重播」放大給全班看（先收起來，因為重播會演出鬆手後的結果）。</p></details></section>
-<section id="screen-sim" class="screen"><h2 class="ptitle">③ 虛擬拔河</h2><div class="participate" data-learning-task="sim"><div class="task-start"><p><b>一起做：</b>先讀兩邊的數字，舉卡（往甲／往乙／不動），再按「鬆手」看結果。</p><p class="task-cue"><b>說說看：</b>甲拉＿＿、乙拉＿＿公克重，＿＿的力比較大，所以迴紋針往＿＿移動。</p></div><div class="task-extension"><p><b>★ 團體模式：</b>甲隊 3 人、乙隊 2 人。人數多的甲隊一定會贏嗎？先舉卡，再按「鬆手」。</p><details class="challenge"><summary>想好了再看答案</summary><p>不一定。要把每隊的力加起來比：甲隊 40＋40＋40＝120 公克重，乙隊 90＋90＝180 公克重，乙隊的力比較大，迴紋針往乙移動。</p></details></div></div><div class="panel"><h2 class="ptitle">比力，不比人數（示意）</h2><p>數字都是「<b>鬆手前</b>」的拉力。先壓住迴紋針，再按「鬆手」。</p><div class="lab-controls"><label>甲向左拉（鬆手前） <input id="leftForce" type="range" min="0" max="250" step="10" value="200"></label><label>乙向右拉（鬆手前） <input id="rightForce" type="range" min="0" max="250" step="10" value="150"></label><button id="releaseClip" class="btn green">鬆手</button><button id="holdClip" class="btn">重新壓住</button></div><div class="lab-controls" style="margin-top:8px"><button class="btn plain" data-preset="200,150">課本 200 對 150</button><button class="btn plain" data-preset="150,150">課本 150 對 150</button><button class="btn plain" data-preset="100,100">習作 100 對 100</button><button class="btn plain" data-preset="150,250">習作 150 對 250</button><button class="btn" id="groupMode">★ 團體模式：甲 3 人、乙 2 人</button></div><div id="groupReadout" class="lab-readout hidden"></div><div id="tugDiagram" class="diagram"></div><div id="tugReadout" class="lab-readout" aria-live="polite"></div><div class="clip-track" aria-hidden="true"><span class="ct-side ct-l">甲 ←</span><span class="ct-mid">中線</span><span class="ct-side ct-r">→ 乙</span><span id="clipMarker" class="ct-clip">迴紋針</span></div><p class="note">示意：只看迴紋針往哪邊移動；畫面上移動多遠，不是量出來的。</p><div class="criterion"><div class="k">比的是力的大小，不是人數。</div></div></div><div class="panel"><h2 class="ptitle">紅布條：看往哪邊移動（示意）</h2><div class="rope-track" aria-hidden="true"><span class="rt-team rt-l">甲隊</span><span class="rt-team rt-r">乙隊</span><span class="rt-mid">中線</span><span class="rt-rope"></span><span id="ribbonMark" class="rt-ribbon">紅布條</span></div><div id="ribbonStep" class="lab-readout" aria-live="polite"></div><div id="ribbonQ" class="check-question"></div><div class="btnrow"><button class="btn" id="ribbonNext">下一步 →</button><button class="btn plain" id="ribbonReset">從頭再看</button></div></div><div class="navrow"><button class="btn green" data-next="rule">下一站：④ 力的平衡判準 →</button></div><details class="teacher-tip"><summary>給老師｜③ 虛擬拔河 5 分鐘</summary><p>先按「習作 100 對 100」「習作 150 對 250」，全班舉卡後按鬆手，同步填習作 P.37。改滑桿或按預設鈕會自動重新壓住；鬆手後的畫面只表示移動方向。團體模式：每人身上標拉力，先問「人數多一定贏嗎？」再鬆手。</p><p>紅布條：只在「從靜止開始動」的時刻問誰的力大（比賽開始、停住後再動）；移動途中只看位置變化，不能確定哪一隊力大，所以不問。停住時問「誰的力大？」打「不動＝沒用力」的迷思。學習單四是同一個想法、換成表格。</p></details></section>
-<section id="screen-rule" class="screen"><h2 class="ptitle">④ 力的平衡判準</h2><div class="panel"><h2 class="ptitle">判準卡</h2><div class="criterion"><div class="k">看紅布條往哪邊移動，不是看它停在哪裡；紅布條靜止不動，表示兩隊用的力一樣大，不是沒有用力。</div></div><div class="criterion"><div class="k">比的是力的大小，不是人數。</div></div><div class="criterion"><div class="k">力的平衡：同一直線上、大小相同、方向相反。</div></div><table class="tab"><thead><tr><th>鬆手前的拉力</th><th>原本靜止的迴紋針，鬆手後</th></tr></thead><tbody><tr><td>甲比較大</td><td>往甲移動</td></tr><tr><td>甲、乙一樣大</td><td>靜止不動</td></tr><tr><td>乙比較大</td><td>往乙移動</td></tr></tbody></table><p class="task-cue"><b>說說看：</b>我看到＿＿，所以＿＿。</p></div><a class="btn" href="../摩擦力/摩擦力_互動教材.html#open">接著上：摩擦力（觀察與假設）→</a><div class="navrow"><button class="btn green" data-next="quiz">下一站：⑤ 闖關驗收 →</button></div><details class="teacher-tip"><summary>給老師｜④ 力的平衡判準 3 分鐘</summary><p>拉力換推力只口頭討論，不出題。學習單9分鐘必做一二，最後6分鐘切摩擦力open。</p></details></section>
-<section id="screen-quiz" class="screen"><h2 class="ptitle">⑤ 闖關驗收</h2><div class="quizbar"><span id="qprog"></span><span class="dots" id="dots"></span><span class="qscore">得分 <span id="score">0</span> / <span id="scoreMax"></span></span><span id="rank"></span></div><div class="btnrow" hidden><button class="btn plain" id="classroomQuiz">課堂題</button><button class="btn plain" id="allQuiz">全部自由複習</button></div><p class="note">答錯可以再選一次（這題得分減半）。</p><div class="panel" id="quizPanel"><div id="qphoto"></div><div id="step1"><span class="steptag">第 1 層｜選答案</span><h3 class="qtitle" id="q1title"></h3><div id="q1opts"></div><div id="q1feed" class="feedback" aria-live="polite"></div></div><div id="step2" class="hidden"><span class="steptag">第 2 層｜你怎麼知道？</span><div id="q2opts"></div><div id="q2feed" class="feedback" aria-live="polite"></div></div><div id="criterion" class="criterion hidden"><div class="k" id="criterionText"></div><div class="askagain">用「我看到＿＿，所以＿＿」說出判準。</div></div><div class="btnrow"><button class="btn green hidden" id="nextBtn">下一題</button></div></div><div id="quizResult" class="panel hidden"><div class="result"><div class="big" id="finalScore"></div><p id="finalRank" class="rankline"></p><button id="againBtn" class="btn">再挑戰一次</button></div></div><details class="teacher-tip"><summary>給老師｜⑤ 闖關驗收（有時間再做）</summary><p>兩題闖關約 2 分鐘：全班先舉卡，再請一位同學上台按。P.37結論回家寫。位置表只問從靜止開始動，不問第2～3秒途中哪隊力大。</p></details></section><footer class="credits"><p>教學依據：<a href="https://reader.nani.com.tw/9200a013cbef8e66" target="_blank" rel="noopener noreferrer">南一自然課本，第 94–95 頁</a>（閱讀器可能需要登入）</p><p>圖片出處：南一自然五上課本，第 94–95 頁；課本圖片引用題庫已裁切檔案。示範重播是畫出來的示意動畫，不是真的拍到的結果。模擬畫面和示意圖都是示意。</p></footer></div><script src="../../題庫/figures.js?v=20261006a"></script><script>
-const DATA={"name": "力的平衡", "stations": [{"id": "open", "name": "① 拔河怎麼看勝負？"}, {"id": "demo", "name": "② 桌上模擬拔河"}, {"id": "sim", "name": "③ 虛擬拔河"}, {"id": "rule", "name": "④ 力的平衡判準"}, {"id": "quiz", "name": "⑤ 闖關驗收"}], "quiz": [{"q": "甲、乙各拉120公克重，原本靜止的迴紋針會怎樣？", "opts": ["靜止不動", "往甲", "往乙"], "ans": "靜止不動", "why": "力的平衡：同一直線上、大小相同、方向相反。", "hint": "先比兩個數字，再確認同一直線、方向相反，物體原本靜止。"}, {"q": "○╳：兩邊各拉120公克重，放手後不動，表示沒有受到力。", "opts": ["○", "╳"], "ans": "╳", "why": "看紅布條往哪邊移動，不是看它停在哪裡；紅布條靜止不動，表示兩隊用的力一樣大，不是沒有用力。", "hint": "把「不動」和「讀數是零」分開；題目的兩個讀數是多少？"}], "must": ["拔河時，兩隊施力的方向相反，紅布條會往用力大的那一隊移動。", "同一直線上，兩個大小不同、方向相反的拉力作用時，物體會往力量大的方向移動。", "兩邊的拉力大小相同、方向相反時，原本靜止的物體會靜止不動，這就是力的平衡。"], "criteria": ["看紅布條往哪邊移動，不是看它停在哪裡；紅布條靜止不動，表示兩隊用的力一樣大，不是沒有用力。", "比的是力的大小，不是人數。", "力的平衡：同一直線上、大小相同、方向相反。"], "photoData": {"cart-push": [406, 315, "cart-push"], "leaf-fall": [392, 325, "leaf-fall"], "spring-0": [270, 540, "spring-0"], "spring-2": [270, 540, "spring-2"], "scale-zero": [380, 276, "scale-zero"], "scale-upside": [377, 276, "scale-upside"], "scale-pull": [380, 276, "scale-pull"], "scale-front-back": [277, 568, "scale-front-back"], "scale-weights": [396, 594, "scale-weights"], "scale-inside": [646, 475, "scale-inside"], "kitchen-scale": [414, 277, "kitchen-scale"], "kitchen-scale-inside": [229, 345, "kitchen-scale-inside"], "bathroom-scale-inside": [746, 497, "bathroom-scale-inside"], "tug": [900, 804, "tug"], "cart-wheel": [900, 600, "cart-wheel"], "sprint": [729, 323, "sprint"], "swing": [690, 460, "swing"], "slide": [681, 456, "slide"], "flashlight": [389, 259, "flashlight"], "fan": [481, 320, "fan"], "rub-hands": [631, 420, "rub-hands"], "solar-panel": [436, 290, "solar-panel"]}, "board": null, "classroom": []};
+/* 75 吋：滑桿跟著放大，上台的同學也好拉（同〈彈簧與彈性限度〉〈能量轉換與能量守恆〉；要放在 .lab-controls 原本的寬度規則後面） */
+@media (min-width:1800px){.lab-controls input[type=range]{width:420px;zoom:1.5}}
+@media (min-width:2600px){.lab-controls input[type=range]{zoom:2}}
+/* 75 吋 4K：① 橫排的選項和其他課的選項一樣大（36px） */
+@media (min-width:2600px){#screen-open .check-question .opts.col .opt{font-size:36px}}
+/* 75 吋 4K：焦點框跟著加粗 */
+@media (min-width:2600px){button:focus-visible,a:focus-visible,input:focus-visible{outline-width:6px}}
+</style><script>function imgFallback(img){const span=document.createElement("span");span.className="img-fallback";span.setAttribute("role","img");span.textContent="圖片未載入："+(img.alt||"課本圖片");img.replaceWith(span);}</script></head><body><div id="app"><header class="sitehead"><div class="headrow"><a class="back" href="../../index.html">← 回教材首頁</a><h1>力的平衡</h1></div><p class="sub">五年級自然｜第四單元 力與運動　課本 94–95 頁</p><div class="course-links"><a class="back" href="力的平衡_學習單.html">學習單</a><a class="back" href="力的平衡_重點整理.html">重點整理</a></div><nav class="stations" aria-label="站別"><button class="station-btn" data-go="open">① 拔河怎麼看勝負？</button><button class="station-btn" data-go="demo">② 桌上模擬拔河</button><button class="station-btn" data-go="sim">③ 虛擬拔河</button><button class="station-btn" data-go="rule">④ 力的平衡判準</button><button class="station-btn" data-go="quiz">⑤ 闖關驗收</button></nav></header><details class="teacher-tip"><summary>給老師｜本課教學安排</summary><p>⏱ 第⑮節：暖身（彈簧秤歸零、讀刻度）3｜① 拔河怎麼看勝負 4｜② 桌上模擬拔河＋同步填習作 P.37 10｜③ 虛擬拔河 5｜④ 判準 3｜學習單 9｜〈摩擦力〉① 觀察、提問與假設 6｜合計 40 分鐘。學習單全班必做一、二。⑤ 闖關驗收兩題：有時間再全班一起做（先舉卡，再請一位同學上台按）。</p><p>器材：兩支彈簧秤、迴紋針、紙膠帶中心線。課前兩秤水平方向歸零，練習拉到200與150；讀鬆手前數字，鬆手後讀數會改變。不做真人拔河。小助手男女各一人拉，第三人壓住迴紋針並喊「鬆手」（只有壓的人放開，拉的兩人不放手），不挑力氣大；拉力小。</p><p>三層：低＝看箭頭長短、舉反應卡（甲／乙／不動），看步驟卡抓錯；中＝說「我看到＿＿，所以＿＿」、讀預測格；高＝紅布條時間順序、★、★★，示範時當數據審查員（讀數是不是鬆手前讀的、兩支秤有沒有拉在同一直線上）。</p><p>示範前每人先在學習單預測格寫，再舉卡；小助手男女輪值，優先邀請平常較被動的學生。小助手唸數字，全班複誦；示範後播「示範重播」放大給全班看，或每排一位觀察代表上前看。學習單選做沒寫完不帶回家；回家只有習作，不派實驗。第一次教這課，記下各段實際分鐘，依班級速度調整。</p></details><section id="screen-open" class="screen"><h2 class="ptitle">① 拔河怎麼看勝負？</h2><details class="panel must-review"><summary>必會 3 句｜需要提示或複習時打開</summary><ol class="must-list"><li>拔河時，兩隊施力的方向相反，紅布條會往用力大的那一隊移動。</li><li>同一直線上，兩個大小不同、方向相反的拉力作用時，物體會往力量大的方向移動。</li><li>兩邊的拉力大小相同、方向相反時，原本靜止的物體會靜止不動，這就是力的平衡。</li></ol></details><div class="panel"><h2 class="ptitle">方向、力量與安全</h2><figure class="figbox"><div class="fig" data-photo="tug" style="--mh:36vh"></div><figcaption class="cap center">課本 p.94：拔河繩上綁著一條紅布條。</figcaption></figure><p>左邊是甲隊，右邊是乙隊。看照片，舉卡回答。</p><div class="check-question" data-choice="{&quot;q&quot;: &quot;1. 甲、乙兩隊拉繩子的方向一樣嗎？&quot;, &quot;opts&quot;: [&quot;方向相同&quot;, &quot;方向相反&quot;], &quot;ans&quot;: &quot;方向相反&quot;, &quot;why&quot;: &quot;兩隊都把繩子往自己這邊拉，繩子受到兩個方向相反的力。&quot;, &quot;hint&quot;: &quot;甲隊往哪邊拉？乙隊往哪邊拉？&quot;}"></div><div class="check-question" data-choice="{&quot;q&quot;: &quot;2. 紅布條往甲隊移動，哪一隊用的力量大？&quot;, &quot;opts&quot;: [&quot;甲隊&quot;, &quot;乙隊&quot;, &quot;兩隊一樣大&quot;], &quot;ans&quot;: &quot;甲隊&quot;, &quot;why&quot;: &quot;紅布條會往用力大的那一隊移動。&quot;, &quot;hint&quot;: &quot;紅布條被誰拉過去了？&quot;}"></div><div class="check-question" data-choice="{&quot;q&quot;: &quot;3. 紅布條靜止不動，哪一隊用的力量大？&quot;, &quot;opts&quot;: [&quot;甲隊&quot;, &quot;乙隊&quot;, &quot;兩隊一樣大&quot;], &quot;ans&quot;: &quot;兩隊一樣大&quot;, &quot;why&quot;: &quot;紅布條靜止不動，表示兩隊用的力一樣大，不是沒有用力。&quot;, &quot;hint&quot;: &quot;兩隊都在用力拉，可是紅布條沒有被拉過去。&quot;}"></div><div class="bigpoint">安全：拔河要選空曠的場地，<b>不</b>可以突然鬆手。</div><details class="solution"><summary>想一想：突然鬆手，另一隊為什麼會跌倒？（想好了再打開）</summary><p>另一隊還在用力往後拉，拉住他們的力卻突然沒有了，所以會往後跌倒。</p></details></div><div class="navrow"><button class="btn green" data-next="demo">下一站：② 桌上模擬拔河 →</button></div><details class="teacher-tip"><summary>給老師｜① 拔河怎麼看勝負？ 4 分鐘</summary><p>（暖身 3 分鐘另計：兩支彈簧秤水平方向歸零、讀刻度。）看課本照片舉卡回答 3 題，再講拔河安全。只觀察課本照片、桌面示範，不讓學生真人拔河。</p></details></section>
+<section id="screen-demo" class="screen"><h2 class="ptitle">② 桌上模擬拔河</h2><div class="participate" data-learning-task="demo"><div class="task-start"><p><b>一起做：</b>鬆手前，先在學習單預測格寫「我預測」，再舉卡（往甲／往乙／不動）。鬆手後，在預測格寫「結果」，再一起填習作 P.37。</p><p class="task-cue"><b>說說看：</b>我看到甲拉＿＿、乙拉＿＿公克重，所以迴紋針會＿＿。</p></div><div class="task-extension"><details class="challenge"><summary>★ 想一想（兩次鬆手都做完再打開）</summary><p>150 對 150 鬆手後，迴紋針不動。有人說：「不動，就是迴紋針沒有受到力。」對嗎？</p><details class="challenge"><summary>想好了再看答案</summary><p>不對。兩支彈簧秤各拉 150 公克重，不是 0。兩邊的力一樣大、方向相反，所以迴紋針不動。</p></details></details></div></div><div class="panel"><h2 class="ptitle">模擬拔河的步驟（課本 p.95）</h2><ol class="steps"><li>桌面畫一條中心線，在迴紋針中央做記號；迴紋針兩端各用一支彈簧秤鉤住，平放在桌上，記號對齊中心線。</li><li>用手壓住迴紋針。</li><li>兩支彈簧秤拉在<b>同一直線</b>上，慢慢拉到指定的讀數。</li><li>喊「鬆手」：只有壓住迴紋針的人放開手，拉彈簧秤的人繼續拉；看迴紋針有沒有移動、往哪邊移動。</li></ol><figure class="diagram" data-fig="{&quot;type&quot;: &quot;tug&quot;, &quot;left&quot;: 200, &quot;right&quot;: 150, &quot;labs&quot;: [&quot;甲&quot;, &quot;乙&quot;]}" data-fallback="鬆手前甲200、乙150公克重；先壓住迴紋針。"><div class="note">示意：鬆手前甲200、乙150公克重；先壓住迴紋針。</div></figure><div class="guessbox" data-guess="{&quot;q&quot;: &quot;甲拉 200、乙拉 150 公克重，鬆手後迴紋針會怎樣？&quot;, &quot;opts&quot;: [&quot;往甲&quot;, &quot;往乙&quot;, &quot;不動&quot;], &quot;ans&quot;: &quot;往甲移動，因為甲拉的力比較大。&quot;, &quot;deferred&quot;: false}"></div><figure class="diagram" data-fig="{&quot;type&quot;: &quot;tug&quot;, &quot;left&quot;: 150, &quot;right&quot;: 150, &quot;labs&quot;: [&quot;甲&quot;, &quot;乙&quot;]}" data-fallback="鬆手前甲乙各150公克重。"><div class="note">示意：鬆手前甲乙各150公克重。</div></figure><div class="guessbox" data-guess="{&quot;q&quot;: &quot;甲拉 150、乙拉 150 公克重，鬆手後迴紋針會怎樣？&quot;, &quot;opts&quot;: [&quot;往甲&quot;, &quot;往乙&quot;, &quot;不動&quot;], &quot;ans&quot;: &quot;靜止不動，因為兩邊的力一樣大、方向相反、在同一直線上。&quot;, &quot;deferred&quot;: false}"></div><details class="solution"><summary>示範完再打開：🎬 示範重播</summary><div class="rpwrap"><h3 class="ptitle">🎬 示範重播：桌上模擬拔河<span class="sim">示意</span></h3><div class="duo mid"><figure class="figbox"><div class="svgbox rpbox" style="--rpar:2"><span class="simtag">示意</span><div id="rpBalance"></div></div><figcaption class="cap center">畫出來的示意動畫，不是錄影。</figcaption></figure><div><ol class="rpsteps" id="rpBalanceSteps"><li data-step="1"><span class="sn">1</span><span>迴紋針中央的記號對齊中心線，先用手壓住；兩支彈簧秤拉在同一直線上。</span></li><li data-step="2"><span class="sn">2</span><span>甲拉 200、乙拉 150 公克重，喊「鬆手」：迴紋針往甲那邊移動。</span></li><li data-step="3"><span class="sn">3</span><span>甲、乙都拉 150 公克重，喊「鬆手」：迴紋針不動，還在中心線上。</span></li></ol><div class="btnrow"><button class="btn" id="rpBalanceNext" type="button">▶ 播放畫面 1</button><button class="btn plain" id="rpBalanceReset" type="button">↺ 從頭看</button></div><p class="srlive" id="rpBalanceSay" aria-live="polite"></p></div></div></div></details></div><div class="navrow"><button class="btn green" data-next="sim">下一站：③ 虛擬拔河 →</button></div><details class="teacher-tip"><summary>給老師｜② 桌上模擬拔河 10 分鐘</summary><p>用紙膠帶做桌面中心線，迴紋針中央記號對中心線；助手兩人水平慢拉，第三人壓住、喊鬆手。先寫預測、舉卡，再鬆手；鬆手後在預測格寫「結果」，再同步填P.37。抓錯：兩秤沒在同一直線，迴紋針歪掉，全班舉╳，拉直重做。兩次鬆手都做完，再打開「示範重播」放大給全班看（先收起來，因為重播會演出鬆手後的結果）。「★ 想一想」也等兩次鬆手都做完再打開。</p></details></section>
+<section id="screen-sim" class="screen"><h2 class="ptitle">③ 虛擬拔河</h2><div class="participate" data-learning-task="sim"><div class="task-start"><p><b>一起做：</b>先讀兩邊的數字，舉卡（往甲／往乙／不動），再按「鬆手」看結果。</p><p class="task-cue"><b>說說看：</b>甲拉＿＿、乙拉＿＿公克重，＿＿的力比較大，所以迴紋針往＿＿移動。</p><p class="task-cue"><b>一樣大時說：</b>甲、乙都拉＿＿公克重，兩邊的力一樣大、方向相反，所以迴紋針不動。</p></div><div class="task-extension"><p><b>★ 團體模式：</b>甲隊 3 人、乙隊 2 人。人數多的甲隊一定會贏嗎？先舉卡，再按「鬆手」。</p><details class="challenge"><summary>想好了再看答案</summary><p>不一定。要把每隊的力加起來比：甲隊 40＋40＋40＝120 公克重，乙隊 90＋90＝180 公克重，乙隊的力比較大，迴紋針往乙移動。</p></details></div></div><div class="panel"><h2 class="ptitle">比比看：鬆手後迴紋針會怎樣？（示意）</h2><p>數字都是「<b>鬆手前</b>」的拉力。先壓住迴紋針，再按「鬆手」。</p><div class="lab-controls"><label>甲向左拉（鬆手前） <input id="leftForce" type="range" min="10" max="250" step="10" value="200"></label><label>乙向右拉（鬆手前） <input id="rightForce" type="range" min="10" max="250" step="10" value="150"></label><button id="releaseClip" class="btn green">鬆手</button><button id="holdClip" class="btn">重新壓住</button></div><div class="lab-controls" style="margin-top:8px"><button class="btn plain" data-preset="200,150">課本 200 對 150</button><button class="btn plain" data-preset="150,150">課本、習作 150 對 150</button><button class="btn plain" data-preset="200,100">習作 200 對 100</button><button class="btn plain" data-preset="100,250">習作 100 對 250</button><button class="btn" id="groupMode">★ 團體模式：甲 3 人、乙 2 人</button></div><div id="groupReadout" class="lab-readout hidden"></div><div id="tugDiagram" class="diagram"></div><div id="tugReadout" class="lab-readout" aria-live="polite"></div><div class="clip-track" aria-hidden="true"><span class="ct-side ct-l">甲 ←</span><span class="ct-mid">中心線</span><span class="ct-side ct-r">→ 乙</span><span id="clipMarker" class="ct-clip">迴紋針</span></div><p class="note">示意：只看迴紋針往哪邊移動；畫面上移動多遠，不是量出來的。</p><div class="criterion hidden" id="simCrit"><div class="k">比的是力的大小，不是人數。</div></div></div><div class="panel"><h2 class="ptitle">紅布條：看往哪邊移動（示意）</h2><div class="rope-track" aria-hidden="true"><span class="rt-team rt-l">甲隊</span><span class="rt-team rt-r">乙隊</span><span class="rt-mid">中心線</span><span class="rt-rope"></span><span id="ribbonMark" class="rt-ribbon">紅布條</span></div><div id="ribbonStep" class="lab-readout" aria-live="polite"></div><div id="ribbonQ" class="check-question"></div><div class="btnrow"><button class="btn" id="ribbonNext">下一步 →</button><button class="btn plain" id="ribbonReset">從頭再看</button></div></div><div class="navrow"><button class="btn green" data-next="rule">下一站：④ 力的平衡判準 →</button></div><details class="teacher-tip"><summary>給老師｜③ 虛擬拔河 5 分鐘</summary><p>先按「習作 200 對 100」「習作 100 對 250」，全班舉卡後按鬆手，同步填習作 P.37 第 1 題的 (1)(3)；(2) 150 對 150 剛才桌上做過，直接填。改滑桿或按預設鈕會自動重新壓住；鬆手後的畫面只表示移動方向。團體模式：每人身上標拉力，先問「人數多一定贏嗎？」再鬆手。</p><p>紅布條：只在「從靜止開始動」的時刻問誰的力大（比賽開始、停住後再動）；移動途中只看位置變化，不能確定哪一隊力大，所以不問。停住時問「誰的力大？」打「不動＝沒用力」的迷思。學習單四是同一個想法、換成表格。</p></details></section>
+<section id="screen-rule" class="screen"><h2 class="ptitle">④ 力的平衡判準</h2><div class="panel"><h2 class="ptitle">判準卡</h2><div class="criterion"><div class="k">看紅布條往哪邊移動，不是看它停在哪裡；紅布條靜止不動，表示兩隊用的力一樣大，不是沒有用力。</div></div><div class="criterion"><div class="k">比的是力的大小，不是人數。</div></div><div class="criterion"><div class="k">力的平衡：同一直線上、大小相同、方向相反。</div></div><table class="tab"><thead><tr><th>鬆手前拉力</th><th>原本靜止，鬆手後</th></tr></thead><tbody><tr><td>甲比較大</td><td>往甲移動</td></tr><tr><td>兩邊一樣大、方向相反、在同一直線上</td><td>靜止不動</td></tr><tr><td>乙比較大</td><td>往乙移動</td></tr></tbody></table><p class="task-cue"><b>說說看：</b>我看到＿＿，所以＿＿。</p></div><div class="navrow"><a class="btn" href="../摩擦力/摩擦力_互動教材.html#open">接著上：摩擦力（觀察與假設）→</a><button class="btn green" data-next="quiz">下一站：⑤ 闖關驗收 →</button></div><details class="teacher-tip"><summary>給老師｜④ 力的平衡判準 3 分鐘</summary><p>拉力換推力只口頭討論，不出題。學習單 9 分鐘（必做一、二），最後 6 分鐘接〈摩擦力〉①。學習單四只問從靜止開始動的時刻，不問第 2～3 秒途中哪隊力大。</p></details></section>
+<section id="screen-quiz" class="screen"><h2 class="ptitle">⑤ 闖關驗收</h2><div class="quizbar"><span id="qprog"></span><span class="dots" id="dots"></span><span class="qscore">得分 <span id="score">0</span> / <span id="scoreMax"></span></span><span id="rank"></span></div><div class="btnrow" hidden><button class="btn plain" id="classroomQuiz">課堂題</button><button class="btn plain" id="allQuiz">全部自由複習</button></div><p class="note">答錯可以再選一次（這題得分減半）。</p><div class="panel" id="quizPanel"><div id="qphoto"></div><div id="step1"><span class="steptag">第 1 層｜選答案</span><h3 class="qtitle" id="q1title"></h3><div id="q1opts"></div><div id="q1feed" class="feedback" aria-live="polite"></div></div><div id="step2" class="hidden"><span class="steptag">第 2 層｜你怎麼知道？</span><div id="q2opts"></div><div id="q2feed" class="feedback" aria-live="polite"></div></div><div id="criterion" class="criterion hidden"><div class="k" id="criterionText"></div><div class="askagain">用「我看到＿＿，所以＿＿」說出判準。</div></div><div class="btnrow"><button class="btn green hidden" id="nextBtn">下一題</button></div></div><div id="quizResult" class="panel hidden"><div class="result"><div class="big" id="finalScore"></div><p id="finalRank" class="rankline"></p><button id="againBtn" class="btn">再挑戰一次</button></div></div><details class="teacher-tip"><summary>給老師｜⑤ 闖關驗收（有時間再做）</summary><p>兩題闖關約 2 分鐘：全班先舉卡，再請一位同學上台按。P.37 第 2、3 題回家寫。</p></details></section><footer class="credits"><p>教學依據：<a href="https://reader.nani.com.tw/9200a013cbef8e66" target="_blank" rel="noopener noreferrer">南一自然課本，第 94–95 頁</a>（閱讀器可能需要登入）</p><p>圖片出處：南一自然五上課本，第 94–95 頁；課本圖片引用題庫已裁切檔案。示範重播是畫出來的示意動畫，不是真的拍到的結果。模擬畫面和示意圖都是示意。</p></footer></div><script src="../../題庫/figures.js?v=20261118a"></script><script>
+const DATA={"name": "力的平衡", "stations": [{"id": "open", "name": "① 拔河怎麼看勝負？"}, {"id": "demo", "name": "② 桌上模擬拔河"}, {"id": "sim", "name": "③ 虛擬拔河"}, {"id": "rule", "name": "④ 力的平衡判準"}, {"id": "quiz", "name": "⑤ 闖關驗收"}], "quiz": [{"q": "甲、乙各拉120公克重，原本靜止的迴紋針會怎樣？", "opts": ["往甲", "往乙", "靜止不動"], "ans": "靜止不動", "why": "力的平衡：同一直線上、大小相同、方向相反。", "hint": "先比兩個數字，再確認同一直線、方向相反，物體原本靜止。"}, {"q": "○╳：甲、乙各拉 120 公克重，鬆開壓住迴紋針的手後，迴紋針不動，表示迴紋針沒有受到力。", "opts": ["○", "╳"], "ans": "╳", "why": "不對。迴紋針有受到力：兩邊各拉 120 公克重，不是 0。兩個力一樣大、方向相反，所以迴紋針不動。", "hint": "把「不動」和「讀數是零」分開；題目的兩個讀數是多少？"}], "must": ["拔河時，兩隊施力的方向相反，紅布條會往用力大的那一隊移動。", "同一直線上，兩個大小不同、方向相反的拉力作用時，物體會往力量大的方向移動。", "兩邊的拉力大小相同、方向相反時，原本靜止的物體會靜止不動，這就是力的平衡。"], "criteria": ["看紅布條往哪邊移動，不是看它停在哪裡；紅布條靜止不動，表示兩隊用的力一樣大，不是沒有用力。", "比的是力的大小，不是人數。", "力的平衡：同一直線上、大小相同、方向相反。"], "photoData": {"cart-push": [406, 315, "cart-push"], "leaf-fall": [392, 325, "leaf-fall"], "spring-0": [270, 540, "spring-0"], "spring-2": [270, 540, "spring-2"], "scale-zero": [380, 276, "scale-zero"], "scale-upside": [377, 276, "scale-upside"], "scale-pull": [380, 276, "scale-pull"], "scale-front-back": [277, 568, "scale-front-back"], "scale-weights": [396, 594, "scale-weights"], "scale-inside": [646, 475, "scale-inside"], "kitchen-scale": [414, 277, "kitchen-scale"], "kitchen-scale-inside": [229, 345, "kitchen-scale-inside"], "bathroom-scale-inside": [746, 497, "bathroom-scale-inside"], "tug": [900, 804, "tug"], "cart-wheel": [900, 600, "cart-wheel"], "sprint": [729, 323, "sprint"], "swing": [690, 460, "swing"], "slide": [681, 456, "slide"], "flashlight": [389, 259, "flashlight"], "fan": [481, 320, "fan"], "rub-hands": [631, 420, "rub-hands"], "solar-panel": [436, 290, "solar-panel"]}, "board": null, "classroom": []};
 const $=id=>document.getElementById(id);
+const SMOOTH=(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)?'auto':'smooth';   /* 減少動態效果時不要平滑捲動 */
+/* 鍵盤焦點：按鈕停用、藏起來或整塊重畫以後，把焦點移到新出現的內容，才不會掉到頁首 */
+function focusTo(el){if(!el)return;if(!el.matches('button,a,[tabindex]'))el.tabIndex=-1;el.focus({preventScroll:true});}
 const PHOTO_DIR="../../題庫/photos/u4/";
 const PHOTOS=DATA.photoData;
 function imgTag(id,name){
@@ -658,6 +681,7 @@ function choiceQ(host,opts,ans,onRight,onWrong,cls){
         if(onRight) onRight();
       }else{
         b.classList.add("no"); b.disabled=true;
+        const nx=[...box.querySelectorAll(".opt")].find(x=>!x.disabled); if(nx) nx.focus();
         if(onWrong) onWrong(o);
       }
     });
@@ -674,11 +698,12 @@ function go(name,smooth){
   document.querySelectorAll('.station-btn').forEach(b=>{const on=b.dataset.go===name;b.classList.toggle('on',on);if(on)b.setAttribute('aria-current','step');else b.removeAttribute('aria-current');});
   document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('active',s.id==='screen-'+name));
   try{history.replaceState(null,'','#'+name);}catch(_){}
-  window.scrollTo({top:0,behavior:smooth?'smooth':'auto'});
+  window.scrollTo({top:0,behavior:smooth?SMOOTH:'auto'});
 }
 window.addEventListener('hashchange',()=>go(decodeURIComponent(location.hash.slice(1)),false));
 document.querySelectorAll('.station-btn').forEach(b=>b.addEventListener('click',()=>go(b.dataset.go,true)));
-document.querySelectorAll('[data-next]').forEach(b=>b.addEventListener('click',()=>go(b.dataset.next,true)));
+/* 「下一站」按鈕會跟著舊的一站藏起來：焦點移到新一站的標題 */
+document.querySelectorAll('[data-next]').forEach(b=>b.addEventListener('click',()=>{go(b.dataset.next,true);const sc=$('screen-'+b.dataset.next);if(sc)focusTo(sc.querySelector('.ptitle'));}));
 document.querySelectorAll('[data-photo]').forEach(el=>renderFig(el,el.dataset.photo,el.nextElementSibling?.textContent||'課本圖片'));
 function renderDiagram(el,p,fallback){
   el.dataset.fig=JSON.stringify(p);el.dataset.fallback=fallback;
@@ -691,14 +716,14 @@ function choiceHint(el,q){return q.hint||STATION_HINTS[el.closest(".screen")?.id
 document.querySelectorAll('[data-choice]').forEach(el=>{
   const q=JSON.parse(el.dataset.choice),title=document.createElement('h3'),feed=document.createElement('div'),crit=document.createElement('div');
   title.className='qtitle';title.textContent=q.q;el.appendChild(title);feed.className='feedback';feed.setAttribute('aria-live','polite');crit.className='criterion hidden';crit.textContent=q.why;
-  choiceQ(el,q.opts,q.ans,()=>{feed.className='feedback good';feed.textContent='答對了，請說出理由。';crit.classList.remove('hidden');},()=>{feed.className='feedback hint';feed.textContent='線索：'+choiceHint(el,q)+' 再選一次，並說出理由。';},'col');el.append(feed,crit);
+  choiceQ(el,q.opts,q.ans,()=>{feed.className='feedback good';feed.textContent='答對了，請說出理由。';crit.classList.remove('hidden');crit.scrollIntoView({behavior:SMOOTH,block:'nearest'});focusTo(feed);},()=>{feed.className='feedback hint';feed.textContent='線索：'+choiceHint(el,q)+' 再選一次，並說出理由。';},'col');el.append(feed,crit);
 });
 const classGuess=new Map();
 document.querySelectorAll('[data-guess]').forEach((el,i)=>{
-  const q=JSON.parse(el.dataset.guess);el.innerHTML='<p class="g"></p><div class="opts"></div><p class="note">先寫在預測格，再舉卡。示範完再按「回收預測」。</p><div class="guess-recall hidden"></div>';
+  const q=JSON.parse(el.dataset.guess);el.innerHTML='<p class="g"></p><div class="opts"></div><p class="note">先在預測格寫「我預測」，再舉卡。示範完寫「結果」，再按「回收預測」。</p><div class="guess-recall" aria-live="polite"></div>';
   el.querySelector('.g').textContent=q.q;
   q.opts.forEach(o=>{const b=document.createElement('button');b.className='opt';b.textContent=o;b.setAttribute('aria-pressed','false');b.onclick=()=>{classGuess.set(i,o);const recap=el.querySelector('.guess-recap');if(recap)recap.disabled=false;el.querySelectorAll('.opt').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));};el.querySelector('.opts').appendChild(b);});
-  if(!q.deferred){const recap=document.createElement('button');recap.className='btn plain guess-recap';recap.disabled=true;recap.textContent='示範後：回收預測';recap.onclick=()=>{const host=el.querySelector('.guess-recall');host.className='guess-recall criterion';host.textContent='全班原先猜的是：'+(classGuess.get(i)||'尚未選擇')+'。觀察後：'+q.ans;};el.appendChild(recap);}else{el.querySelector('.note').textContent='只記錄預測，不先揭曉；老師記下本班投票，下一節一起回收。';}
+  if(!q.deferred){const recap=document.createElement('button');recap.className='btn plain guess-recap';recap.disabled=true;recap.textContent='示範後：回收預測';recap.onclick=()=>{const host=el.querySelector('.guess-recall');host.className='guess-recall criterion';host.textContent='全班原先猜的是：'+(classGuess.get(i)||'尚未選擇')+'。觀察後：'+q.ans;focusTo(host);};el.appendChild(recap);}else{el.querySelector('.note').textContent='只記錄預測，不先揭曉；老師記下本班投票，下一節一起回收。';}
 });
 
 /* Whiteboard: answers stay in WeakMap; no right/wrong before reveal. */
@@ -737,25 +762,26 @@ if($('tray')){
 }
 
 /* Two-layer practice, inherited template retry and score behavior. */
-const QUIZ=DATA.quiz,RANKS=[{s:0,t:'繼續找線索'},{s:.5,t:'能用證據說明'},{s:.9,t:'判準掌握了'}];
+/* 等級只在結果頁顯示，作答中不顯示。答錯再試也有一半分數，所以門檻不能是 .5；七課都用 .75／.9（同第三單元〈檢驗水溶液的酸鹼性〉） */
+const QUIZ=DATA.quiz,RANKS=[{s:0,t:'繼續找線索'},{s:.75,t:'能用證據說明'},{s:.9,t:'判準掌握了'}];
 let activeQuiz=QUIZ,qi=0,score=0,tries=0,quizClassMode=DATA.classroom.length>0;
 function fmt(n){return Number.isInteger(n)?String(n):n.toFixed(1);}
 function maxScore(){return activeQuiz.reduce((s,q)=>s+(q.r?2:1),0);}
 function rankOf(s){let t=RANKS[0].t;RANKS.forEach(r=>{if(s/Math.max(maxScore(),1)>=r.s)t=r.t;});return t;}
-function addScore(){score+=tries===0?1:.5;tries=0;$('score').textContent=fmt(score);$('rank').textContent=rankOf(score);}
+function addScore(){score+=tries===0?1:.5;tries=0;$('score').textContent=fmt(score);}
 function renderDots(){$('dots').innerHTML=activeQuiz.map((_,i)=>'<span class="dot'+(i<qi?' done':i===qi?' now':'')+'"></span>').join('');}
 function renderQ(){
   const q=activeQuiz[qi];tries=0;renderDots();$('qprog').textContent=(quizClassMode?'課堂 ':'')+'第 '+(qi+1)+' / '+activeQuiz.length+' 題'+(quizClassMode?'（原第'+(QUIZ.indexOf(q)+1)+'題）':'');$('scoreMax').textContent=maxScore();$('q1title').textContent=q.q;
   ['q1opts','q2opts','qphoto'].forEach(id=>$(id).innerHTML='');['q1feed','q2feed'].forEach(id=>{$(id).className='feedback';$(id).textContent='';});['step2','criterion','nextBtn'].forEach(id=>$(id).classList.add('hidden'));
   if(q.fig){const f=document.createElement('figure');f.className='diagram';$('qphoto').appendChild(f);renderDiagram(f,q.fig,q.cap||'依圖上的代號、數字與單位判讀。');}
   $('step1').querySelector('.steptag').textContent=q.r?'第 1 層｜選答案':'闖關｜選答案';
-  const showCriterion=()=>{$('criterionText').textContent=q.why;$('criterion').classList.remove('hidden');$('nextBtn').textContent=qi+1<activeQuiz.length?'下一題 →':'看結果 →';$('nextBtn').classList.remove('hidden');};
-  choiceQ($('q1opts'),q.opts,q.ans,()=>{addScore();$('q1feed').className='feedback good';$('q1feed').textContent='答對了！';if(q.r)$('step2').classList.remove('hidden');else showCriterion();},()=>{tries++;$('q1feed').className='feedback hint';$('q1feed').textContent='線索：'+q.hint+' 再試一次。';},'col');
+  const showCriterion=()=>{$('criterionText').textContent=q.why;$('criterion').classList.remove('hidden');$('nextBtn').textContent=qi+1<activeQuiz.length?'下一題 →':'看結果 →';$('nextBtn').classList.remove('hidden');$('nextBtn').scrollIntoView({behavior:SMOOTH,block:'nearest'});focusTo($('nextBtn'));};
+  choiceQ($('q1opts'),q.opts,q.ans,()=>{addScore();$('q1feed').className='feedback good';$('q1feed').textContent='答對了！';if(q.r){$('step2').classList.remove('hidden');focusTo($('q2opts').querySelector('.opt'));}else showCriterion();},()=>{tries++;$('q1feed').className='feedback hint';$('q1feed').textContent='線索：'+q.hint+' 再試一次。';},'col');
   if(q.r)choiceQ($('q2opts'),q.r,q.rAns,()=>{addScore();showCriterion();},()=>{tries++;$('q2feed').className='feedback hint';$('q2feed').textContent='把你選的答案和證據連起來：'+q.hint;},'col');
 }
-function resetQuiz(onlyClass=quizClassMode){quizClassMode=onlyClass&&DATA.classroom.length>0;$('classroomQuiz').setAttribute('aria-pressed',String(quizClassMode));$('allQuiz').setAttribute('aria-pressed',String(!quizClassMode));activeQuiz=onlyClass?QUIZ.filter((_,i)=>DATA.classroom.includes(i+1)):QUIZ;if(!activeQuiz.length)activeQuiz=QUIZ;qi=0;score=0;$('score').textContent='0';$('rank').textContent=RANKS[0].t;$('quizPanel').classList.remove('hidden');$('quizResult').classList.add('hidden');renderQ();}
-$('nextBtn').onclick=()=>{qi++;if(qi<activeQuiz.length)renderQ();else{renderDots();$('qprog').textContent='完成';$('quizPanel').classList.add('hidden');$('quizResult').classList.remove('hidden');$('finalScore').textContent='總分 '+fmt(score)+' / '+maxScore();$('finalRank').textContent=rankOf(score);}};
-$('againBtn').onclick=()=>resetQuiz(quizClassMode);$('allQuiz').onclick=()=>resetQuiz(false);$('classroomQuiz').onclick=()=>resetQuiz(true);
+function resetQuiz(onlyClass=quizClassMode){quizClassMode=onlyClass&&DATA.classroom.length>0;$('classroomQuiz').setAttribute('aria-pressed',String(quizClassMode));$('allQuiz').setAttribute('aria-pressed',String(!quizClassMode));activeQuiz=onlyClass?QUIZ.filter((_,i)=>DATA.classroom.includes(i+1)):QUIZ;if(!activeQuiz.length)activeQuiz=QUIZ;qi=0;score=0;$('score').textContent='0';$('rank').textContent='';$('quizPanel').classList.remove('hidden');$('quizResult').classList.add('hidden');renderQ();}
+$('nextBtn').onclick=()=>{qi++;if(qi<activeQuiz.length){renderQ();$('quizPanel').scrollIntoView({behavior:SMOOTH,block:'nearest'});focusTo($('q1opts').querySelector('.opt'));}else{renderDots();$('qprog').textContent='完成';$('quizPanel').classList.add('hidden');$('quizResult').classList.remove('hidden');$('finalScore').textContent='總分 '+fmt(score)+' / '+maxScore();$('finalRank').textContent=rankOf(score);$('quizResult').scrollIntoView({behavior:SMOOTH,block:'start'});focusTo($('finalScore'));}};
+$('againBtn').onclick=()=>{resetQuiz(quizClassMode);$('quizPanel').scrollIntoView({block:'start'});focusTo($('q1opts').querySelector('.opt'));};$('allQuiz').onclick=()=>resetQuiz(false);$('classroomQuiz').onclick=()=>resetQuiz(true);
 if(!DATA.classroom.length){$('classroomQuiz').disabled=true;$('classroomQuiz').textContent='課堂用學習單';}
 resetQuiz(quizClassMode);
 
@@ -764,10 +790,12 @@ const BALANCE={left:200,right:150,held:true,group:false,frame:0};
 function updateTug(){
   const L=BALANCE.left,R=BALANCE.right,moved=!BALANCE.held&&L!==R;
   renderDiagram($('tugDiagram'),{type:'tug',left:L,right:R,labs:['甲','乙']},'鬆手前：甲向左拉 '+L+'、乙向右拉 '+R+' 公克重，兩個拉力在同一直線上。');
-  $('tugReadout').textContent='鬆手前：甲 '+L+'、乙 '+R+' 公克重。'+(BALANCE.held?'現在用手壓住迴紋針。':L===R?'鬆手後：迴紋針靜止不動。':'鬆手後：迴紋針往'+(L>R?'甲（左）':'乙（右）')+'移動。');
+  $('tugReadout').textContent='鬆手前：甲 '+L+'、乙 '+R+' 公克重。'+(BALANCE.held?'現在用手壓住迴紋針。':L===R?'鬆手後：兩邊的力一樣大、方向相反，迴紋針靜止不動。':'鬆手後：迴紋針往'+(L>R?'甲（左）':'乙（右）')+'移動。');
   $('clipMarker').style.left=(moved?(L>R?22:78):50)+'%';
+  $('clipMarker').textContent=BALANCE.held?'✋迴紋針':'迴紋針';   /* 壓住時有手；一樣大時鬆手，迴紋針不動，也看得出已經鬆手 */
   $('groupReadout').classList.toggle('hidden',!BALANCE.group);
   const v=$('groupVerdict');if(v)v.classList.toggle('hidden',BALANCE.held);
+  $('simCrit').classList.toggle('hidden',!(BALANCE.group&&!BALANCE.held));   /* 團體模式鬆手後才出現，舉卡前不先說答案 */
 }
 function setForces(l,r,group=false){BALANCE.left=l;BALANCE.right=r;BALANCE.held=true;BALANCE.group=group;$('leftForce').value=l;$('rightForce').value=r;updateTug();}
 ['leftForce','rightForce'].forEach(id=>$(id).oninput=()=>setForces(+$('leftForce').value,+$('rightForce').value));
@@ -776,10 +804,10 @@ const person=(t,n,g)=>'<span style="border:2px solid #333;border-radius:12px;pad
 $('groupMode').onclick=()=>{setForces(120,180,true);$('groupReadout').innerHTML='<p>甲隊 3 人（示意）：</p><div class="lab-controls">'+[1,2,3].map(n=>person('甲',n,40)).join('')+'</div><p>乙隊 2 人（示意）：</p><div class="lab-controls">'+[1,2].map(n=>person('乙',n,90)).join('')+'</div><p>人數多的甲隊一定會贏嗎？先舉卡，再按「鬆手」。</p><p id="groupVerdict" class="hidden">甲隊合計 40＋40＋40＝120 公克重，乙隊合計 90＋90＝180 公克重。乙隊的力比較大，人數多不一定贏。</p>';updateTug();};
 /* 紅布條：只在「從靜止開始動」和「停住」時問誰的力大（不問移動途中） */
 const RIBBON=[
-  {pos:50,say:'比賽開始：紅布條在中線，靜止不動。'},
-  {pos:36,say:'紅布條從中線開始往甲隊移動 ←',q:'這時哪一隊用的力量比較大？',ans:'甲隊'},
-  {pos:26,say:'紅布條停在甲隊那邊，一直不動。',q:'停住不動的時候，哪一隊用的力量比較大？',ans:'兩隊一樣大'},
-  {pos:32,say:'停了一會兒，紅布條開始往乙隊移動 →（還在甲隊那邊）',q:'這時哪一隊用的力量比較大？',ans:'乙隊'}];
+  {pos:50,say:'比賽開始：紅布條在中心線，靜止不動。'},
+  {pos:36,say:'紅布條從中心線開始往甲隊移動 ←',q:'這時哪一隊用的力量比較大？',ans:'甲隊',ok:'答對了！紅布條從靜止開始往甲隊移動，表示甲隊的力比較大。'},
+  {pos:26,say:'紅布條停在甲隊那邊，一直不動。',q:'停住不動的時候，哪一隊用的力量比較大？',ans:'兩隊一樣大',ok:'答對了！紅布條停住不動，表示兩隊用的力一樣大，不是沒有用力；停在甲隊那邊，不代表甲隊的力比較大。'},
+  {pos:32,say:'停了一會兒，紅布條開始往乙隊移動 →（還在甲隊那邊）',q:'這時哪一隊用的力量比較大？',ans:'乙隊',ok:'答對了！紅布條開始往乙隊移動，表示乙隊的力比較大。要看紅布條往哪邊移動，不是看它停在哪裡。'}];
 function updateRibbon(){
   const f=RIBBON[BALANCE.frame],host=$('ribbonQ');
   $('ribbonMark').style.left=f.pos+'%';$('ribbonStep').textContent=f.say;host.innerHTML='';
@@ -787,10 +815,10 @@ function updateRibbon(){
   if(!f.q)return;
   const h=document.createElement('h3');h.className='qtitle';h.textContent=f.q;host.appendChild(h);
   const fb=document.createElement('div');fb.className='feedback';fb.setAttribute('aria-live','polite');
-  choiceQ(host,['甲隊','乙隊','兩隊一樣大'],f.ans,()=>{fb.className='feedback good';fb.textContent='答對了！看紅布條往哪邊移動，不是看它停在哪裡；紅布條靜止不動，表示兩隊用的力一樣大，不是沒有用力。';},()=>{fb.className='feedback hint';fb.textContent='線索：紅布條現在是在移動，還是停住？如果在移動，是往哪一隊？再選一次。';});
+  choiceQ(host,['甲隊','乙隊','兩隊一樣大'],f.ans,()=>{fb.className='feedback good';fb.textContent=f.ok;focusTo(fb);},()=>{fb.className='feedback hint';fb.textContent='線索：紅布條現在是在移動，還是停住？如果在移動，是往哪一隊？再選一次。';});
   host.appendChild(fb);
 }
-$('ribbonNext').onclick=()=>{if(BALANCE.frame<RIBBON.length-1){BALANCE.frame++;updateRibbon();}};$('ribbonReset').onclick=()=>{BALANCE.frame=0;updateRibbon();};updateTug();updateRibbon();
+$('ribbonNext').onclick=()=>{if(BALANCE.frame<RIBBON.length-1){BALANCE.frame++;updateRibbon();if($('ribbonNext').disabled)focusTo($('ribbonQ').querySelector('.opt'));}};$('ribbonReset').onclick=()=>{BALANCE.frame=0;updateRibbon();};updateTug();updateRibbon();
 
 
 // 口說、畫圖或書寫都可以；自我檢核不以勾選冒充學會。
@@ -838,10 +866,10 @@ function balanceRpSVG(){
     <circle cx="${X(148)}" cy="140" r="8" fill="none" stroke="#1E1E1E" stroke-width="3"/>
     <rect x="${Math.min(X(156),X(184))}" y="126" width="28" height="28" rx="9" ${RP_SKIN}/>`;
   };
-  return `<svg class="rp rp-balance" id="rpBalanceSvg" data-step="0" viewBox="0 0 520 260" role="img" aria-label="示範重播的示意圖（從上面往下看）：迴紋針中央的記號對齊中線，先壓住，兩支彈簧秤拉在同一直線上；甲拉 200、乙拉 150 公克重，鬆手後迴紋針往甲那邊移動；甲、乙都拉 150 公克重，鬆手後迴紋針不動" xmlns="http://www.w3.org/2000/svg" ${RP_F}>
+  return `<svg class="rp rp-balance" id="rpBalanceSvg" data-step="0" viewBox="0 0 520 260" role="img" aria-label="示範重播的示意圖（從上面往下看）：迴紋針中央的記號對齊中心線，先壓住，兩支彈簧秤拉在同一直線上；甲拉 200、乙拉 150 公克重，鬆手後迴紋針往甲那邊移動；甲、乙都拉 150 公克重，鬆手後迴紋針不動" xmlns="http://www.w3.org/2000/svg" ${RP_F}>
   <rect width="520" height="260" fill="#F3EBDD"/>
   <line x1="260" y1="36" x2="260" y2="232" stroke="#E4574C" stroke-width="3" stroke-dasharray="9 7"/>
-  <text x="260" y="27" font-size="16" ${RP_T}>中線</text>
+  <text x="260" y="27" font-size="16" ${RP_T}>中心線</text>
   <text x="47" y="114" font-size="19" ${RP_T}>甲</text><text x="473" y="114" font-size="19" ${RP_T}>乙</text>
   <line class="rpb-line" x1="16" y1="140" x2="504" y2="140" stroke="#2E86C1" stroke-width="2" stroke-dasharray="4 6"/>
   <g class="rpb-move">
@@ -850,14 +878,14 @@ function balanceRpSVG(){
     <line x1="260" y1="126" x2="260" y2="154" stroke="#1E1E1E" stroke-width="3"/>
   </g>
   <g class="rpb-press"><circle cx="260" cy="140" r="15" ${RP_SKIN}/><path d="M252 134 Q260 128 268 134" fill="none" stroke="#1E1E1E" stroke-width="2"/></g>
-  <g class="rpb-l1"><text x="260" y="186" font-size="16" ${RP_T}>先壓住</text><line x1="306" y1="100" x2="264" y2="124" stroke="#1E1E1E" stroke-width="2"/><text x="350" y="96" font-size="16" ${RP_T}>記號對齊中線</text><text x="140" y="214" font-size="16" ${RP_T}>兩支秤拉在同一直線上</text></g>
+  <g class="rpb-l1"><text x="260" y="186" font-size="16" ${RP_T}>先壓住</text><line x1="306" y1="100" x2="264" y2="124" stroke="#1E1E1E" stroke-width="2"/><text x="350" y="96" font-size="16" ${RP_T}>記號對齊中心線</text><text x="140" y="214" font-size="16" ${RP_T}>兩支秤拉在同一直線上</text></g>
   <g class="rpb-f2">${rpArrow(217,92,117,92,'#B03A30')}<text x="167" y="78" font-size="16" ${RP_T}>甲 200 公克重</text>${rpArrow(303,92,378,92,'#2E86C1')}<text x="345" y="78" font-size="16" ${RP_T}>乙 150 公克重</text></g>
   <g class="rpb-f3">${rpArrow(217,92,142,92,'#B03A30')}<text x="180" y="78" font-size="16" ${RP_T}>甲 150 公克重</text>${rpArrow(303,92,378,92,'#2E86C1')}<text x="345" y="78" font-size="16" ${RP_T}>乙 150 公克重</text></g>
   <text class="rpb-go" x="316" y="188" font-size="20" ${RP_T}>鬆手！</text>
   <text class="rpb-c2" x="260" y="248" font-size="16" ${RP_T}>鬆手前：甲 200、乙 150 公克重</text>
   <text class="rpb-c3" x="260" y="248" font-size="16" ${RP_T}>鬆手前：甲、乙都是 150 公克重</text>
   <text class="rpb-r2" x="196" y="196" font-size="18" ${RP_T}>← 往甲那邊移動</text>
-  <text class="rpb-r3" x="260" y="196" font-size="18" ${RP_T}>不動，還在中線上</text>
+  <text class="rpb-r3" x="260" y="196" font-size="18" ${RP_T}>不動，還在中心線上</text>
 </svg>`;
 }
 $('rpBalance').innerHTML=balanceRpSVG();setupReplay('rpBalance',3);
